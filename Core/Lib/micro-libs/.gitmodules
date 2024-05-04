@@ -1,0 +1,8 @@
+[submodule "Unity"]
+	path = Unity
+	url = git@github.com:ThrowTheSwitch/Unity
+
+[submodule "CMock"]
+	path = CMock
+	url = git@github.com:ThrowTheSwitch/CMock
+

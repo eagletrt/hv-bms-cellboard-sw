@@ -1,0 +1,40 @@
+digraph "fsm" {
+    init [
+        style="filled"
+        color="#66ff66"
+        fillcolor="#c1ffc1"
+    ]
+    idle
+    flash
+    discharge
+    cooldown
+    fatal [
+        style="filled"
+        color="#ff6666"
+        fillcolor="#ffc1c1"
+    ]
+
+    init -> idle [label="start"]
+    init -> fatal [label="handle_fatal_error"]
+
+    idle -> idle
+    idle -> discharge [label="start_discharge"]
+    idle -> fatal [label="handle_fatal_error"]
+    idle -> flash [label="start_flash_procedure"]
+
+    flash -> flash
+    flash -> idle [label="stop_flash_procedure"]
+    flash -> fatal [label="handle_fatal_error"]
+
+    discharge -> discharge
+    discharge -> idle [label="stop_discharge"]
+    discharge -> cooldown [label="start_cooldown"]
+    discharge -> fatal [label="handle_fatal_error"]
+
+    cooldown -> cooldown
+    cooldown -> discharge [label="start_discharge"]
+    cooldown -> fatal [label="handle_fatal_error"]
+
+    fatal -> fatal
+    fatal -> flash [label="start_flash_procedure"]
+}
