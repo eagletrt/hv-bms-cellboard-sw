@@ -30,13 +30,35 @@ OPT = -Og
 #######################################
 # Build path
 BUILD_DIR = build
+# Source path
+SRC_DIR = Core/Src
+# Include path
+INC_DIR = Core/Inc
+# Libraries path
+LIB_DIR = Core/Lib
+
+# Canlib path
+CANLIB_DIR = $(LIB_DIR)/can/lib
+# Micro-libs path
+ULIBS_DIR = $(LIB_DIR)/micro-libs
+
+######################################
+# includes
+######################################
+-include $(ULIBS_DIR)/blinky/blinky.mk
+-include $(ULIBS_DIR)/bms-monitor/bms-monitor.mk
+-include $(ULIBS_DIR)/ring-buffer/ring-buffer.mk
 
 ######################################
 # source
 ######################################
 # C sources
 C_SOURCES = \
-$(shell find Core/Src -name "*.c") \
+$(shell find $(SRC_DIR) -name "*.c") \
+$(shell find $(CANLIB_DIR)/bms -name "*.c") \
+$(BLINKY_C_SOURCES) \
+$(BMS_MONITOR_C_SOURCES) \
+$(RING_BUFFER_C_SOURCES) \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c \
@@ -80,11 +102,13 @@ CC = $(GCC_PATH)/$(PREFIX)gcc
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
+DG = $(GCC_PATH)/$(PREFIX)gdb
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
+DG = $(PREFIX)gdb
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -111,15 +135,19 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32G4A1xx
-
+-DSTM32G4A1xx \
+-Dbms_NETWORK_IMPLEMENTATION
 
 # AS includes
 AS_INCLUDES = 
 
 # C includes
 C_INCLUDES =  \
--ICore/Inc \
+$(addprefix -I,$(shell find $(INC_DIR) -type d)) \
+$(addprefix -I,$(shell find $(CANLIB_DIR)/bms -type d)) \
+$(BLINKY_C_INCLUDE_DIRS_PREFIX) \
+$(BMS_MONITOR_C_INCLUDE_DIRS_PREFIX) \
+$(RING_BUFFER_C_INCLUDE_DIRS_PREFIX) \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32G4xx/Include \
@@ -193,6 +221,18 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
+
+#######################################
+# flash
+#######################################
+flash: $(BUILD_DIR)/$(TARGET).bin
+	st-flash --flash=512k --reset write $< 0x08000000
+
+#######################################
+# debug
+#######################################
+debug: $(BUILD_DIR)/$(TARGET).elf flash
+	openocd & gdb --eval-command="target extended-remote :3333" $<
   
 #######################################
 # dependencies

@@ -1,0 +1,189 @@
+/**
+ * @file cellboard-def.h
+ * @date 2024-04-16
+ * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ *
+ * @brief Custom definitions used inside the cellboard project
+ */
+
+#ifndef CELLBOARD_DEF_H
+#define CELLBOARD_DEF_H
+
+#include <stdint.h>
+
+/**
+ * @def No operation
+ * @details Does nothing
+ */
+#define CELLBOARD_NOPE() ((void)0U)
+
+/*** ######################### CONSTANTS ################################# ***/
+
+/**
+ * @defgroups constants
+ * @brief Constant used throughout the project
+ * {@
+ */
+
+/** @brief Total number of cellboards */
+#define CELLBOARD_COUNT (CELLBOARD_ID_COUNT)
+
+
+/** @brief Number of cells series of a single segment */
+#define CELLBOARD_SEGMENT_SERIES_COUNT (24U)
+/** @brief Total number of cells series */
+#define CELLBOARD_SERIES_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_SERIES_COUNT))
+
+/** @brief Number of cells parallels of a single segment */
+#define CELLBOARD_SEGMENT_PARALLELS_COUNT (3U)
+/** @brief Total number of cells parallels */
+#define CELLBOARD_PARALLELS_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_PARALLELS_COUNT))
+
+/** @brief Number of cells of a single segment */
+#define CELLBOARD_SEGMENT_CELLS_COUNT ((CELLBOARD_SEGMENT_SERIES_COUNT) * (CELLBOARD_SEGMENT_PARALLELS_COUNT))
+/** @brief Total number of cells series */
+#define CELLBOARD_CELLS_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_CELLS_COUNT))
+
+
+/** @brief Number of temperatures that can be read at the same time from a single segment */
+#define CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT (3U)
+/** @brief Total number of temperatures that can be read at the same time */
+#define CELLBOARD_TEMP_CHANNEL_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT))
+
+/** @brief Number of temperatures sensors per channel of a single segment */
+#define CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT (16U)
+/** @brief Total number of temperatures sensors per channel */
+#define CELLBOARD_TEMP_SENSOR_PER_CHANNEL_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT))
+
+/** @brief Number of temperatures sensors per channel of a single segment */
+#define CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT ((CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT) * (CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT))
+/** @brief Total number of temperatures sensors per channel */
+#define CELLBOARD_TEMP_SENSOR_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT))
+
+/** @brief Maximum number of bytes of the data in a CAN message */
+#define CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE (8U)
+
+/** @brief Mask used to check the valid bits of a CAN identifier */
+#define CELLBOARD_CAN_VALID_ID_MASK (0x7FFU)
+#define CELLBOARD_CAN_VALID_EXT_ID_MASK (0x1FFFFFFFU)
+
+/** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
+#define CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE (16U)
+#define CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE (16U)
+
+/** @brief Total number of LTC chips of the cellboards */
+#define CELLBOARD_SEGMENT_LTC_COUNT (2U)
+#define CELLBOARD_LTC_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_LTC_COUNT))
+
+/** @} */
+
+/*** ######################### TYPE DEFINITIONS ########################## ***/
+
+/**
+ * @defgroups types
+ * @brief Type definition for various unit of measurements
+ * {@
+ */
+
+/** @brief Type definition for bit flags */
+typedef uint8_t bit_flag8;
+typedef uint16_t bit_flag16;
+typedef uint32_t bit_flag32;
+
+
+/** @brief Type definition for the standard CAN 2.0a and CAN 2.0b (extended) identifiers */
+typedef uint16_t can_id;
+typedef uint32_t can_ext_id;
+
+/**
+ * @brief Type definition for a CAN index
+ * 
+ * @details Used to map the can identifiers
+ */
+typedef int32_t can_index;
+
+
+/** @brief Type definition for a custom amount of elapsed time */
+typedef uint32_t ticks;
+
+/** @brief Type definition for the time in ms */
+typedef uint32_t time;
+
+
+/**
+ * @brief Raw temperature value
+ * @details This type depends on the mechanism of acquisition of the temperatures
+ * @details If and ADC is used the number of bits depends on its resolution
+ */
+typedef uint16_t raw_temp;
+
+/** @brief Temperature value in °C */
+typedef float temp;
+
+
+/**
+ * @brief Raw voltage value
+ * @details This type depends on the mechanism of acquisition of the voltages
+ * @details If and ADC is used the number of bits depends on its resolution
+ */
+typedef uint16_t raw_volt;
+
+/** @brief Voltage value in V */
+typedef float volt;
+
+/** @} */
+
+/*** ######################### ENUMS DEFINITIONS ######################### ***/
+
+/**
+ * @defgroups enums
+ * @brief Definition of different enumerations used to give meaning to integer values
+ * {@
+ */
+
+/**
+ * @brief Definition of the cellboard indices
+ * 
+ * @details Each cellboard is numbered from 0 to n where n is the last cellboard
+ * The actual cellboard order is not guaranteed to match the saved one
+ */
+typedef enum {
+    CELLBOARD_ID_0 = 0U,
+    CELLBOARD_ID_1,
+    CELLBOARD_ID_2,
+    CELLBOARD_ID_3,
+    CELLBOARD_ID_4,
+    CELLBOARD_ID_5,
+    CELLBOARD_ID_COUNT
+} CellboardId;
+
+/**
+ * @brief Definition of different CAN networks
+ *
+ * @details
+ *     CAN_NETWORK_BMS the internal network between mainboard and cellboards
+ *     CAN_NETWORK_PRIMARY the main network where all the important message are sent
+ *     CAN_NETWORK_SECONDARY network dedicated to sensor and other measuring devices
+ */
+typedef enum {
+    CAN_NETWORK_BMS,
+    CAN_NETWORK_PRIMARY,
+    CAN_NETWORK_SECONDARY,
+    CAN_NETWORK_COUNT
+} CanNetwork;
+
+/**
+ * @brief Status of a single LED
+ *
+ * @details
+ *     LED_OFF the led is turned off
+ *     LED_ON the led is turned on
+ */
+typedef enum {
+    LED_OFF,
+    LED_ON
+} LedStatus;
+
+/** @} */
+
+#endif  // CELLBOARD_DEF_H

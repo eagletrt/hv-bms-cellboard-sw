@@ -36,11 +36,45 @@ extern SPI_HandleTypeDef hspi3;
 
 /* USER CODE BEGIN Private defines */
 
+/** @brief Alias for the SPI handler structure */
+#define HSPI_LTC hspi3
+
+/**
+ * @brief Possible states of the SPI Chip Select pin
+ * 
+ * @details The pin logic is inverted
+ */
+#define SPI_CS_SET GPIO_PIN_RESET
+#define SPI_CS_RESET GPIO_PIN_SET
+
 /* USER CODE END Private defines */
 
 void MX_SPI3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+/**
+ * @brief Send data via SPI
+ *
+ * @param data A pointer to the data to send
+ * @param size The length of the data in bytes
+ */
+void spi_send(uint8_t * data, size_t size);
+
+/**
+ * @brief Send and receive data via SPI
+ *
+ * @param data A pointer to the data to send
+ * @param out[out] A pointer where the received data is stored
+ * @param size The length of the sent data in bytes
+ * @param out_size The length of the received data in bytes
+ */
+void spi_send_and_receive(
+    uint8_t * data,
+    uint8_t * out,
+    size_t size,
+    size_t out_size
+);
 
 /* USER CODE END Prototypes */
 

@@ -30,6 +30,10 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include <stdbool.h>
+
+#include "cellboard-def.h"
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
@@ -39,6 +43,18 @@ extern "C" {
 void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+/**
+ * @brief Set the state of the on-board LED
+ *
+ * @param state The state to set
+ */
+void gpio_led_set_state(LedStatus state);
+
+/**
+ * @brief Toggle the current state of the LED
+ */
+void gpio_led_toggle_state(void);
 
 /* USER CODE END Prototypes */
 

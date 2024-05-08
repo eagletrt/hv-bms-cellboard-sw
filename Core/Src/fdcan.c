@@ -22,6 +22,9 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "can-comm.h"
+#include "bms_network.h"
+
 /* USER CODE END 0 */
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -130,5 +133,65 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
 }
 
 /* USER CODE BEGIN 1 */
+
+static uint32_t can_size_to_dlc[] = {
+    [0] = FDCAN_DLC_BYTES_0,
+    [1] = FDCAN_DLC_BYTES_1,
+    [2] = FDCAN_DLC_BYTES_2,
+    [3] = FDCAN_DLC_BYTES_3,
+    [4] = FDCAN_DLC_BYTES_4,
+    [5] = FDCAN_DLC_BYTES_5,
+    [6] = FDCAN_DLC_BYTES_6,
+    [7] = FDCAN_DLC_BYTES_7,
+    [8] = FDCAN_DLC_BYTES_8
+};
+
+// TODO: Return and check errors
+void can_send(can_id id, const uint8_t * data, size_t size) {
+    if (id >= bms_MESSAGE_COUNT)
+        return CAN_COMM_INVALID_INDEX;
+    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+        return CAN_COMM_INVALID_PAYLOAD_SIZE;
+
+    // Setup transmission header
+    const FDCAN_TxHeaderTypeDef header = {
+        .Identifier = id,
+        .IdType = FDCAN_STANDARD_ID,
+        .TxFrameType = FDCAN_DATA_FRAME,
+        .DataLength = can_size_to_dlc[size],
+        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+        .BitRateSwitch = FDCAN_BRS_OFF,
+        .FDFormat = FDCAN_FD_CAN,
+        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+        .MessageMarker = 0U
+    };
+
+    // Send message
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&HCAN_BMS, &header, data) != HAL_OK)
+        return CAN_COMM_TRANSMISSION_ERROR;
+    return CAN_COMM_OK;
+}
+
+// TODO: Return and check errors
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs) {
+    if (hfdcan->Instance != HCAN_BMS.Instance)
+        return;
+    // if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) == RESET)
+    //     return;
+
+    FDCAN_RxHeaderTypeDef header;
+    uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
+    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
+        Error_Handler();
+
+    // Update rx data
+    can_comm_rx_add(bms_index_from_id(header.Identifier), data, header.DataLength);
+}
+
+// TODO: Return and check errors
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo1ITs) {
+    UNUSED(hfdcan);
+    UNUSED(RxFifo1ITs);
+}
 
 /* USER CODE END 1 */

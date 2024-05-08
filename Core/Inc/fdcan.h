@@ -30,17 +30,26 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include <stddef.h>
+
+#include "cellboard-def.h"
+
 /* USER CODE END Includes */
 
 extern FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN Private defines */
 
+/** @brief Redefinition of CAN hanler structure */
+#define HCAN_BMS hfdcan1
+
 /* USER CODE END Private defines */
 
 void MX_FDCAN1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+void can_send(can_id id, const uint8_t * data, size_t size);
 
 /* USER CODE END Prototypes */
 

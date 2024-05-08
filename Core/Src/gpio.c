@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
+#include "stm32g4xx_hal_gpio.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -93,5 +94,13 @@ void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 2 */
+
+void gpio_led_set_state(LedStatus state) {
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (GPIO_PinState)state);
+}
+
+void gpio_led_toggle_state(void) {
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+}
 
 /* USER CODE END 2 */

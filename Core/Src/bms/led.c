@@ -1,0 +1,90 @@
+/**
+ * @file led.c
+ * @date 2024-05-08
+ * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ *
+ * @brief Functions used to manage the on-board LED
+ */
+
+#include "led.h"
+
+#include "blinky.h"
+#include "cellboard-def.h"
+
+#ifdef CONF_LED_MODULE_ENABLE
+
+/** @brief Maximum size of the pattern */
+#define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
+
+/** @brief Timings for the led status in ms */
+#define LED_SHORT_ON (250U)
+#define LED_SHORT_OFF (250U)
+#define LED_LONG_OFF (1000U)
+
+struct {
+    led_set_state_callback set;
+    led_toggle_state_callback toggle;
+
+    Blinky blinker;
+    uint16_t pattern[LED_PATTERN_MAX_SIZE];
+    size_t pattern_size;
+} hled;
+
+
+LedReturnCode led_init(
+    CellboardId id,
+    led_set_state_callback set,
+    led_toggle_state_callback toggle)
+{
+    if (set == NULL || toggle == NULL)
+        return LED_NULL_POINTER;
+    if (id >= CELLBOARD_ID_COUNT)
+        return LED_INVALID_CELLBOARD_ID;
+
+    hled.set = set;
+    hled.toggle = toggle;
+    hled.pattern_size = 0U;
+
+    // Set pattern
+    for (size_t i = 0U; i <= id; ++i) {
+        hled.pattern[hled.pattern_size++] = LED_SHORT_OFF;
+        hled.pattern[hled.pattern_size++] = LED_SHORT_ON;
+    }
+    hled.pattern[hled.pattern_size++] = LED_LONG_OFF;
+    
+    // Initialize the blinker structure
+    blinky_init(&hled.blinker, hled.pattern, hled.pattern_size, true, BLINKY_LOW);
+    blinky_enable(&hled.blinker, false);
+
+    return LED_OK;
+}
+
+void led_set_enable(bool enabled) {
+    blinky_enable(&hled.blinker, enabled);
+}
+
+LedReturnCode led_routine(time t) {
+    LedStatus state = (LedStatus)blinky_routine(&hled.blinker, hled.pattern_size);
+    hled.set(state);
+    return LED_OK;
+}
+
+#ifdef CONF_LED_STRINGS_ENABLE
+
+static char * led_module_name = "led";
+
+static char * led_return_code_name[] = {
+    [LED_OK] = "ok",
+    [LED_NULL_POINTER] = "null pointer",
+    [LED_INVALID_CELLBOARD_ID] = "invalid cellboard id"
+};
+
+static char * led_return_code_name[] = {
+    [LED_OK] = "executed succesfully",
+    [LED_NULL_POINTER] = "attempt to dereference a NULL pointer",
+    [LED_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier"
+};
+
+#endif // CONF_LED_STRINGS_ENABLE
+
+#endif // CONF_LED_MODULE_ENABLE

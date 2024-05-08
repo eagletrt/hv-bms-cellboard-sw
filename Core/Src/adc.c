@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
+#include "cellboard-def.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -381,5 +382,23 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+
+// TODO: Add more info when the error handler is called
+CellboardId adc_read_cellboard_id(void) {
+    // Start Conversion
+    if (HAL_ADC_Start(&HADC_CELLBOARD_ID) != HAL_OK)
+        Error_Handler();
+    if (HAL_ADC_PollForConversion(&HADC_CELLBOARD_ID, ADC_CONVERSION_TIMEOUT) != HAL_OK)
+        Error_Handler();
+
+    // Get value
+    raw_volt val = HAL_ADC_GetValue(&HADC_CELLBOARD_ID);
+    if (HAL_ADC_Stop(&HADC_CELLBOARD_ID) != HAL_OK)
+        Error_Handler();
+
+    // TODO: Convert voltage to index
+    volt voltage = ADC_VALUE_TO_VOLTAGE(val);
+    return voltage / ADC_INDEX_VOLTAGE_RANGE;
+}
 
 /* USER CODE END 1 */

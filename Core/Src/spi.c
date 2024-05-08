@@ -118,4 +118,29 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 /* USER CODE BEGIN 1 */
 
+// TODO: Return and check errors
+void spi_send(uint8_t * data, size_t size) {
+    HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
+
+    // TODO: Non-blocking or set a decent enough timeout
+    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+
+    HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
+}
+
+void spi_send_and_receive(
+    uint8_t * data,
+    uint8_t * out,
+    size_t size,
+    size_t out_size)
+{
+    HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
+
+    // TODO: Non-blocking or set a decent enough timeout
+    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+    status = HAL_SPI_Receive(&HSPI_LTC, out, out_size, 1U + out_size / 125U);
+
+    HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
+}
+
 /* USER CODE END 1 */

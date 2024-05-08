@@ -27,6 +27,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "fsm.h"
+#include "post.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,12 +101,29 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  fsm_state_t fsm_state = FSM_STATE_INIT;
+
+  // Get the cellboard identifier
+  // TODO: Add function to send data via CAN
+  CellboardId id = adc_read_cellboard_id();
+  PostInitData init_data = {
+      .id = id,
+      .can_send = can_send,
+      .spi_send = spi_send,
+      .spi_send_receive = spi_send_and_receive,
+      .led_set = gpio_led_set_state,
+      .led_toggle = gpio_led_toggle_state,
+  };
+  fsm_run_state(fsm_state, &init_data);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    fsm_run_state(fsm_state, NULL);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -167,11 +187,11 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
-  }
+  while (1) { }
+
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -186,8 +206,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
