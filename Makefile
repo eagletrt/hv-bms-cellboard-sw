@@ -228,11 +228,6 @@ clean:
 flash: $(BUILD_DIR)/$(TARGET).bin
 	st-flash --flash=512k --reset write $< 0x08000000
 
-#######################################
-# debug
-#######################################
-debug: $(BUILD_DIR)/$(TARGET).elf flash
-	openocd & gdb --eval-command="target extended-remote :3333" $<
   
 #######################################
 # dependencies

@@ -10,153 +10,275 @@
 
 #include <string.h>
 
+#include "fsm.h"
+#include "programmer.h"
 #include "ring-buffer.h"
-#include "bms_network.h"
-#include "bms_watchdog.h"
+#include "watchdog.h"
+#include "timebase.h"
+#include "bal.h"
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 
-#define CAN_COMM_X_MACRO \
-    CAN_COMM_X(CELLBOARD_STATUS, cellboard_status) \
-    CAN_COMM_X(CELLS_VOLTAGES, cells_voltages) \
-    CAN_COMM_X(CELLS_TEMPERATURES, cells_temperatures) \
-    CAN_COMM_X(CELLBOARD_VERSION, cellboard_version) \
-    CAN_COMM_X(MAINBOARD_STATUS, mainboard_status)
+/** @brief Mask for the bits that defines if the CAN module is enabled or not */
+#define CAN_COMM_ENABLED_ALL_MASK \
+    ( \
+        (1U << CAN_COMM_RX_ENABLE_BIT) | \
+        (1U << CAN_COMM_TX_ENABLE_BIT) \
+    )
 
 /**
- * @brief Generic definition of a function to translate the converted structure to the raw structure
+ * @brief Enable a single bit of the internal flag
  *
- * @param raw A pointer to the raw structure
- * @param converted A pointer to the converted structure
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to set
  */
-typedef void (* can_comm_conversion_to_raw_callback)(void * raw, void * converted);
+#define CAN_COMM_ENABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_SET(FLAG, BIT))
+/**
+ * @brief Disable a single bit of the internal flag
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to reset
+ */
+#define CAN_COMM_DISABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_RESET(FLAG, BIT))
+/**
+ * @brief Toggle a single bit of the internal flag
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to flip
+ */
+#define CAN_COMM_TOGGLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_TOGGLE(FLAG, BIT))
+/**
+ * @brief Check if a specific bit of the internal flag is set
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to check
+ *
+ * @return bool True if the bit is set, false otherwise
+ */
+#define CAN_COMM_IS_ENABLED(FLAG, BIT) CELLBOARD_BIT_GET(FLAG, BIT)
 
 /**
- * @brief Generic definition of a function to translate the raw structure to the converted structure
+ * @brief Enable all the bits of the internal flag
  *
- * @param converted A pointer to the converted structure
- * @param raw A pointer to the raw structure
+ * @param FLAG The internal flag
  */
-typedef void (* can_comm_raw_to_conversion_callback)(void * converted, void * raw);
-
+#define CAN_COMM_ENABLE_ALL(FLAG) ((FLAG) |= CAN_COMM_ENABLED_ALL_MASK)
 /**
- * @brief Generic definition of a function to pack the raw data
+ * @brief Disable all the bits of the internal flag
  *
- * @param buffer A pointer to a buffer of bytes
- * @param raw A pointer to the raw structure
- * @param size_t Length of the massage
- * @return int Sized of packed data or negative error code
+ * @param FLAG The internal flag
  */
-typedef int (* can_comm_pack_callback)(uint8_t * buffer, void * raw, size_t length);
-
+#define CAN_COMM_DISABLE_ALL(FLAG) ((FLAG) &= ~CAN_COMM_ENABLED_ALL_MASK)
 /**
- * @brief Generic definition of a function to unpack the raw data
+ * @brief Toggle all the bits of the internal flag
  *
- * @param buffer A pointer to a buffer of bytes
- * @param raw A pointer to the raw structure
- * @param size_t Length of the massage
- * @return int Zero or negative error code
+ * @param FLAG The internal flag
  */
-typedef int (* can_comm_unpack_callback)(uint8_t * buffer, void * raw, size_t length);
+#define CAN_COMM_TOGGLE_ALL(FLAG) ((FLAG) ^= CAN_COMM_ENABLED_ALL_MASK)
+/**
+ * @brief Check if all the bits of the internal flag are set
+ *
+ * @param FLAG The internal flag
+ *
+ * @return bool True if all the bits are set, false otherwise
+ */
+#define CAN_COMM_IS_ENABLED_ALL(FLAG) (((FLAG) & CAN_COMM_ENABLED_ALL_MASK) == CAN_COMM_ENABLED_ALL_MASK)
 
-
-// TODO: Fill the arrays with the CAN messages info
-#define CAN_COMM_X(upcase, lowcase) [BMS_##upcase##_INDEX] = BMS_##upcase##_BYTE_SIZE,
-static uint8_t can_comm_byte_size[] = { CAN_COMM_X_MACRO };
-#undef CAN_COMM_X
-
-#define CAN_COMM_X(upcase, lowcase) [BMS_##upcase##_INDEX] = bms_##lowcase##_conversion_to_raw_struct,
-static can_comm_conversion_to_raw_callback can_comm_conversion_to_raw[] = { CAN_COMM_X_MACRO };
-#undef CAN_COMM_X
-
-#define CAN_COMM_X(upcase, lowcase) [BMS_##upcase##_INDEX] = bms_##lowcase##_raw_to_conversion_struct,
-static can_comm_raw_to_conversion_callback can_comm_raw_to_conversion[] = { CAN_COMM_X_MACRO };
-#undef CAN_COMM_X
-
-#define CAN_COMM_X(upcase, lowcase) [BMS_##upcase##_INDEX] = bms_##lowcase##_pack,
-static can_comm_pack_callback can_comm_pack[] = { CAN_COMM_X_MACRO };
-#undef CAN_COMM_X
-
-#define CAN_COMM_X(upcase, lowcase) [BMS_##upcase##_INDEX] = bms_##lowcase##_unpack,
-static can_comm_unpack_callback can_comm_unpack[] = { CAN_COMM_X_MACRO };
-#undef CAN_COMM_X
-
-static can_comm_update_canlib_payload_callback can_comm_update_canlib_payload[] = {
-    // [CAN_ALIAS_MAINBOARD_STATUS] = ;
-};
 
 /**
  * @brief CAN manager handler structure
  *
+ * @details The enabled bit flag 
+ *
  * @param enabled Flag used to enable or disable the CAN communication
  * @param tx_buf Transmission messages circular buffer
  * @param rx_buf Reception messages circular buffer
+ * @param send A pointer to the callback used to send the data via CAN
+ * @param rx_device The reception canlib message handler
+ * @param rx_raw The reception raw data of the message
+ * @param rx_conv The reception converted data of the message
  */
-static struct {
-    bool enabled;
+static struct CanCommHandler  {
+    bit_flag8 enabled;
     RingBuffer(CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE) tx_buf;
     RingBuffer(CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE) rx_buf;
 
     can_comm_transmit_callback send;
+
+    // Canlib devices
+    device_t rx_device;
+    uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
+    uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
 } hcan_comm;
+
+
+inline void _can_comm_canlib_payload_handle_dummy(void * _) { }
+
+can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index index) {
+    switch (index) {
+        case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
+            return (can_comm_canlib_payload_handle_callback)programmer_flash_request_handle;
+        case BMS_CELLBOARD_FLASH_INDEX:
+            return (can_comm_canlib_payload_handle_callback)programmer_flash_handle;
+        case BMS_CELLBOARD_SET_BALANCING_STATUS_INDEX:
+            return (can_comm_canlib_payload_handle_callback)bal_set_balancing_status_handle;
+        default:
+            return _can_comm_canlib_payload_handle_dummy;
+    }
+}
 
 CanCommReturnCode can_comm_init(can_comm_transmit_callback send) {
     if (send == NULL)
         return CAN_COMM_NULL_POINTER;
 
-    hcan_comm.enabled = false;
+    CAN_COMM_DISABLE_ALL(hcan_comm.enabled);
     hcan_comm.send = send;
 
     // Return values are ignored becuase the buffer addresses are always not NULL
     (void)ring_buffer_init(&hcan_comm.tx_buf, CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE, NULL, NULL);
+    // TODO: Add callbacks to stop CAN reception interrupt during ring buffer operations
     (void)ring_buffer_init(&hcan_comm.rx_buf, CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE, NULL, NULL);
+
+    // Initialize the canlib device
+    device_init(&hcan_comm.rx_device);
+    device_set_address(
+        &hcan_comm.rx_device,
+        &hcan_comm.rx_raw,
+        bms_MAX_STRUCT_SIZE_RAW,
+        &hcan_comm.rx_conv,
+        bms_MAX_STRUCT_SIZE_CONVERSION
+    );
 
     return CAN_COMM_OK;
 }
 
-void can_comm_set_enable(bool enabled) {
-    hcan_comm.enabled = enabled;
+void can_comm_enable_all(void) {
+    CAN_COMM_ENABLE_ALL(hcan_comm.enabled);
 }
 
-bool can_comm_is_enabled(void) {
-    return hcan_comm.enabled;
+void can_comm_disable_all(void) {
+    CAN_COMM_DISABLE_ALL(hcan_comm.enabled);
 }
 
-CanCommReturnCode can_comm_tx_add(can_index index, void * payload) {
-    if (!hcan_comm.enabled)
+bool can_comm_is_enabled_all(void) {
+    return CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled);
+}
+
+void can_comm_enable(CanCommEnableBit bit) {
+    if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
+        return;
+    CAN_COMM_ENABLE(hcan_comm.enabled, bit);
+}
+
+void can_comm_disable(CanCommEnableBit bit) {
+    if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
+        return;
+    CAN_COMM_DISABLE(hcan_comm.enabled, bit);
+}
+
+bool can_comm_is_enabled(CanCommEnableBit bit) {
+    if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
+        return false;
+    return CAN_COMM_IS_ENABLED(hcan_comm.enabled, bit);
+}
+
+CanCommReturnCode can_comm_send_immediate(
+    can_index index,
+    CanFrameType frame_type,
+    uint8_t * data,
+    size_t size)
+{
+    if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
 
     // Check parameters validity
     if (index >= bms_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
-    if (payload == NULL)
+    if (frame_type >= CAN_FRAME_TYPE_COUNT)
+        return CAN_COMM_INVALID_FRAME_TYPE;
+    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+        return CAN_COMM_INVALID_PAYLOAD_SIZE;
+    if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
+
 
     // Prepare and push message to the buffer
     CanMessage msg = {
         .index = index,
-        .payload.tx = payload
+        .frame_type = frame_type
     };
+    if (frame_type != CAN_FRAME_TYPE_REMOTE)
+        memcpy(msg.payload.tx, data, size);
+
+    // If the buffer is full run the routine to free space for the new message
+    if (ring_buffer_is_full(&hcan_comm.tx_buf))
+        (void)can_comm_routine();
+
+    // Add and send the new message
+    if (ring_buffer_push_front(&hcan_comm.tx_buf, &msg) == RING_BUFFER_OK)
+        return can_comm_routine();
+    return CAN_COMM_OVERRUN;
+}
+
+CanCommReturnCode can_comm_tx_add(
+    can_index index,
+    CanFrameType frame_type,
+    uint8_t * data,
+    size_t size)
+{
+    if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
+        return CAN_COMM_DISABLED;
+
+    // Check parameters validity
+    if (index >= bms_MESSAGE_COUNT)
+        return CAN_COMM_INVALID_INDEX;
+    if (frame_type >= CAN_FRAME_TYPE_COUNT)
+        return CAN_COMM_INVALID_FRAME_TYPE;
+    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+        return CAN_COMM_INVALID_PAYLOAD_SIZE;
+    if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
+        return CAN_COMM_NULL_POINTER;
+
+
+    // Prepare and push message to the buffer
+    CanMessage msg = {
+        .index = index,
+        .frame_type = frame_type
+    };
+    if (frame_type != CAN_FRAME_TYPE_REMOTE)
+        memcpy(msg.payload.tx, data, size);
+
     if (ring_buffer_push_back(&hcan_comm.tx_buf, &msg) == RING_BUFFER_FULL)
         return CAN_COMM_OVERRUN;
     return CAN_COMM_OK;
 }
 
-CanCommReturnCode can_comm_rx_add(can_index index, uint8_t * data, size_t size) {    
-    if (!hcan_comm.enabled)
+CanCommReturnCode can_comm_rx_add(
+    can_index index,
+    CanFrameType frame_type,
+    uint8_t * data,
+    size_t size)
+{    
+    if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
 
     // Check parameters validity
     if (index >= bms_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
-    if (data == NULL)
+    if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
     if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
+    if (frame_type >= CAN_FRAME_TYPE_COUNT)
+        return CAN_COMM_INVALID_FRAME_TYPE;
 
     // Prepare and push message to the buffer
-    CanMessage msg = { .index = index };
-    memcpy(msg.payload.rx, data, size);
+    CanMessage msg = {
+        .index = index,
+        .frame_type = frame_type
+    };
+    if (frame_type != CAN_FRAME_TYPE_REMOTE)
+        memcpy(msg.payload.rx, data, size);
 
     if (ring_buffer_push_back(&hcan_comm.rx_buf, &msg) == RING_BUFFER_FULL)
         return CAN_COMM_OVERRUN;
@@ -164,34 +286,52 @@ CanCommReturnCode can_comm_rx_add(can_index index, uint8_t * data, size_t size) 
 }
 
 CanCommReturnCode can_comm_routine(void) {
-    if (!hcan_comm.enabled)
+    if (!CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled))
         return CAN_COMM_DISABLED;
 
     // Handler transmit and receive data
+    CanCommReturnCode ret = CAN_COMM_OK;
     CanMessage tx_msg, rx_msg;
-    if (ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK) {
-        // Convert and pack message data
-        uint8_t raw[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
-        uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
-        can_comm_conversion_to_raw[tx_msg.index](raw, tx_msg.payload.tx);
-        int data_size = can_comm_pack[tx_msg.index](data, raw, can_comm_byte_size[tx_msg.index]);
-        if (data_size < 0)
-            return CAN_COMM_CONVERSION_ERROR;
-        
-        // TODO: Handle send errors?
-        hcan_comm.send(bms_id_from_index(tx_msg.index), data, data_size);
-    }
-    if (ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK) {
-        // Unpack and convert message data
-        uint8_t raw[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
-        if (can_comm_unpack[rx_msg.index](raw, rx_msf.payload.rx, can_comm_byte_size[rx_msg.index]) < 0)
-            return CAN_COMM_CONVERSION_ERROR;
+    if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT) &&
+        ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK)
+    {
+        uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
+        int size = 0;
 
-        // TODO: Handle received data
-        // can_comm_raw_to_conversion[rx_msg.index](converted, raw);
+        if (tx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
+            // Serialize message
+            size = bms_serialize_from_id(tx_msg.payload.tx, tx_msg.index, data);
+            if (size < 0)
+                return CAN_COMM_CONVERSION_ERROR;
+        }
+
+        // Send message
+        ret = hcan_comm.send(
+            bms_id_from_index(tx_msg.index),
+            tx_msg.frame_type,
+            data,
+            size
+        );
+    }
+    if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
+        ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK)
+    {
+        // Reset watchdog
+        (void)watchdog_reset(rx_msg.index, timebase_get_time());
+
+        if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
+            // Deserialize message
+            bms_devices_deserialize_from_id(&hcan_comm.rx_device, rx_msg.index, rx_msg.payload.rx);
+
+            // TODO: Handle errors?
+            _can_comm_payload_handle(rx_msg.index)(hcan_comm.rx_device.message);
+        }
+        else {
+            // TODO: Handler remote requests
+        }
     }
 
-    return CAN_COMM_OK;
+    return ret;
 }
 
 #ifdef CONF_CAN_COMM_STRINGS_ENABLE
@@ -205,17 +345,19 @@ static char * can_comm_return_code_name[] = {
     [CAN_COMM_OVERRUN] = "overrun",
     [CAN_COMM_INVALID_INDEX] = "invalid index",
     [CAN_COMM_INVALID_PAYLOAD_SIZE] = "invalid payload size",
+    [CAN_COMM_INVALID_FRAME_TYPE] = "invalid frame type",
     [CAN_COMM_CONVERSION_ERROR] = "conversion error",
     [CAN_COMM_TRANSMISSION_ERROR] = "transmission error"
 };
 
 static char * can_comm_return_code_description[] = {
     [CAN_COMM_OK] = "executed succesfully",
-    [CAN_COMM_NULL_POINTER] = "attempt to dereference a NULL Pointer"
+    [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer"
     [CAN_COMM_DISABLED] = "the can manager is not enabled"
     [CAN_COMM_OVERRUN] = "the transmission buffer is full"
     [CAN_COMM_INVALID_INDEX] = "the given index does not correspond to any valid message",
     [CAN_COMM_INVALID_PAYLOAD_SIZE] = "the payload size is greater than the maximum allowed length"
+    [CAN_COMM_INVALID_FRAME_TYPE] = "the given frame type does not correspond to any existing can frame type",
     [CAN_COMM_CONVERSION_ERROR] = "can't convert the message correctly",
     [CAN_COMM_TRANSMISSION_ERROR] = "error during message transmission"
 };

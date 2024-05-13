@@ -10,6 +10,7 @@
 #include "post.h"
 
 #include "identity.h"
+#include "programmer.h"
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"
@@ -48,7 +49,8 @@ PostReturnCode post_run(PostInitData data) {
             break;
     }
     (void)bal_init();
-    (void)led_init(data.id, data.led_set, data.led_toggle); // Id and NULL checks above
+    (void)programmer_init();
+    (void)led_init(data.led_set, data.led_toggle); // Id and NULL checks above
  
     return POST_OK;
 }
@@ -67,8 +69,8 @@ static char * post_return_code_name[] = {
 static char * post_return_code_description[] = {
     [POST_OK] = "executed successfully",
     [POST_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier",
-    [POST_NULL_POINTER] = "attempt to dereference a NULL pointer",
-    [POST_WATCHDOG_INVALID_MESSAGE] = "the watchdogs are using a non valid CAN message"
+    [POST_NULL_POINTER] = "attempt to dereference a null pointer",
+    [POST_WATCHDOG_INVALID_MESSAGE] = "the watchdogs are using a non valid can message"
 };
 
 #endif // CONF_POST_STRINGS_ENABLE

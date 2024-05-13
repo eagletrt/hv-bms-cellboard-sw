@@ -8,41 +8,81 @@
 
 #include "bal.h"
 
-#include "ltc6811.h"
-
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
 struct {
-    Ltc6811Chain chain;
-    Ltc6811Cfgr config[CELLBOARD_SEGMENT_LTC_COUNT];
+    bool active, new_request;
+    millivolt target;
+    millivolt threshold;
 } hbal;
 
 BalReturnCode bal_init(void) {
-    ltc6811_chain_init(&hbal.chain, CELLBOARD_SEGMENT_LTC_COUNT);
+    hbal.active = hbal.new_request = false;
+    hbal.target = BAL_TARGET_MAX;
+    hbal.threshold = BAL_THRESHOLD_MIN;
+    return BAL_OK;
+}
 
-    for (size_t i = 0; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
-        hbal.config[i].ADCOPT = 0;
-        hbal.config[i].REFON = 1;
-        hbal.config[i].GPIO = 0;
-        hbal.config[i].VUV = 0;
-        hbal.config[i].VOV = 0;
-        hbal.config[i].DCC = 0;
-        hbal.config[i].DCTO = LTC6811_DCTO_OFF;
-    }
+BalReturnCode bal_start(millivolt target, millivolt threshold) {
+    if (hbal.new_request)
+        return BAL_BUSY;
+    if (hbal.active)
+        return BAL_OK;
+
+    hbal.new_request = true;
+    hbal.target = CELLBOARD_CLAMP(target, BAL_TARGET_MIN, BAL_TARGET_MAX); 
+    hbal.threshold = CELLBOARD_CLAMP(threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
+
+    // TODO: Start balancing
+    // TODO: Start watchdog
+    // TODO: Update active flag and reset new_request flag after CFGR is read correctly
 
     return BAL_OK;
 }
+
+BalReturnCode bal_stop(void) {
+    if (hbal.new_request)
+        return BAL_BUSY;
+    if (!hbal.active)
+        return BAL_OK;
+
+    hbal.new_request = true;
+    hbal.target = BAL_TARGET_MAX; 
+    hbal.threshold = BAL_THRESHOLD_MIN;
+
+    // TODO: Stop balancing
+    // TODO: Stop watchdog 
+    // TODO: Update active flag and reset new_request flag after CFGR is read correctly
+
+    return BAL_OK;
+}
+
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload) {
+    if (payload == NULL)
+        return;
+
+    // Update values
+    if (payload->status)
+        bal_start(payload->target, payload->threshold);
+    else
+        bal_stop();
+}
+
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE
 
 static char * bal_module_name = "balancing";
 
 static char * bal_return_code_name[] = {
-    [BAL_OK] = "ok"
+    [BAL_OK] = "ok",
+    [BAL_NULL_POINTER] = "null pointer",
+    [BAL_BUSY] = "busy"
 };
 
 static char * bal_return_code_description[] = {
-    [BAL_OK] = "executed succesfully"
+    [BAL_OK] = "executed succesfully",
+    [BAL_NULL_POINTER] = "attempt to dereference a null pointer",
+    [BAL_BUSY] = "the target is busy"
 };
 
 #endif // CONF_BALANCING_STRINGS_ENABLE

@@ -17,10 +17,14 @@
  * @details
  *     BMS_MONITOR_OK the function executed succesfully
  *     BMS_MONITOR_NULL_POINTER a NULL pointer was given to a function
+ *     BMS_MONITOR_ENCODE_ERROR some data could not be encoded correctly
+ *     BMS_MONITOR_BUSY the monitor is busy making ADC conversions
  */
 typedef enum {
     BMS_MONITOR_OK,
-    BMS_MONITOR_NULL_POINTER
+    BMS_MONITOR_NULL_POINTER,
+    BMS_MONITOR_ENCODE_ERROR,
+    BMS_MONITOR_BUSY
 } BmsMonitorReturnCode;
 
 /**
@@ -52,20 +56,53 @@ typedef void (* bms_monitor_send_receive_callback)(
 /**
  * @brief Initialize the bms monitor internal handler structure
  *
- * @param spi_send A pointer to the callback used to send data via SPI (can be NULL)
- * @param spi_send_receive A pointer to the callback used to send and receive data via SPI
+ * @param send A pointer to the callback used to send data via SPI (can be NULL)
+ * @param send_receive A pointer to the callback used to send and receive data via SPI
  *
  * @return BmsMonitorReturnCode
  *     BMS_MONITOR_NULL_POINTER if the send/receive callback pointer is NULL
  *     BMS_MONITOR_OK otherwise
  */
 BmsMonitorReturnCode bms_monitor_init(
-    bms_monitor_send_callback spi_send,
-    bms_monitor_send_receive_callback spi_send_receive
+    bms_monitor_send_callback send,
+    bms_monitor_send_receive_callback send_receive
 );
+
+/**
+ * @brief Start the ADC conversion for the cell voltages
+ *
+ * @return BmsMonitorReturnCode
+ *     BMS_MONITOR_BUSY the monitor is busy performing conversions
+ *     BMS_MONITOR_ENCODE_ERROR if there is an error while encoding the data to send
+ *     BMS_MONITOR_OK otherwise
+ */
+BmsMonitorReturnCode bms_monitor_start_volt_conversion(void);
+
+/**
+ * @brief Start the ADC conversion for the GPIO
+ *
+ * @return BmsMonitorReturnCode
+ *     BMS_MONITOR_BUSY the monitor is busy performing conversions
+ *     BMS_MONITOR_ENCODE_ERROR if there is an error while encoding the data to send
+ *     BMS_MONITOR_OK otherwise
+ */
+BmsMonitorReturnCode bms_monitor_start_gpio_conversion(void);
+
+/**
+ * @brief Start the ADC conversion for the cell voltages and GPIO simultaneously
+ *
+ * @return BmsMonitorReturnCode
+ *     BMS_MONITOR_BUSY the monitor is busy performing conversions
+ *     BMS_MONITOR_ENCODE_ERROR if there is an error while encoding the data to send
+ *     BMS_MONITOR_OK otherwise
+ */
+BmsMonitorReturnCode bms_monitor_start_volt_and_gpio_conversion(void);
 
 #else  // CONF_BMS_MONITOR_MODULE_ENABLE
 
 #define bms_monitor_init() (BMS_MONITOR_OK)
+#define bms_monitor_start_volt_conversion (BMS_MONITOR_OK)
+#define bms_monitor_start_gpio_conversion (BMS_MONITOR_OK)
+#define bms_monitor_start_volt_and_gpio_conversion (BMS_MONITOR_OK)
 
 #endif // CONF_BMS_MONITOR_MODULE_ENABLE

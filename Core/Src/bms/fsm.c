@@ -17,6 +17,7 @@ Functions and types have been generated with prefix "fsm_"
 
 /*** USER CODE BEGIN MACROS ***/
 
+#include "can-comm.h"
 #include "post.h"
 #include "timebase.h"
 #include "identity.h"
@@ -55,8 +56,13 @@ fsm_event_data_t * fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
 
-static fsm_state_t fsm_state = FSM_STATE_INIT;
-static bms_cellboard_status_converted_t status_can_payload;
+struct {
+    fsm_state_t fsm_state;
+    bms_cellboard_status_converted_t status_can_payload;
+    bms_cellboard_flash_response_converted_t flash_can_payload;
+} hfsm = {
+    .fsm_state = FSM_STATE_INIT
+};
 
 /*** USER CODE END GLOBALS ***/
 
@@ -96,7 +102,19 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_INIT ***/
   // Run POST and verify that everything is working
   PostInitData * post_data = (PostInitData *)data;
-  PostReturnCode status = post_run(*post_data);
+  PostReturnCode status = POST_OK;
+
+  if (post_data == NULL)
+      status = POST_NULL_POINTER;
+  else
+      status = post_run(*post_data);
+
+  // Init canlib payloads
+  CellboardId id = identity_get_cellboard_id();
+  hfsm.status_can_payload.cellboard_id = (int)id;
+  hfsm.flash_can_payload.cellboard_id = (int)id;
+  hfsm.flash_can_payload.ready = true;
+
   switch (status) {
       case POST_OK:
           next_state = FSM_STATE_IDLE;
@@ -108,7 +126,6 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   }
   // TODO: Enable timebase and can_comm in transition from init to fatal?
 
-  status_can_payload.cellboard_id = identity_get_cellboard_id();
   /*** USER CODE END DO_INIT ***/
   
   switch (next_state) {
@@ -133,6 +150,10 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
 
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+
+  // Check for flash request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
+      next_state = FSM_STATE_FLASH;
 
   /*** USER CODE END DO_IDLE ***/
   
@@ -160,6 +181,11 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_FATAL ***/
 
   (void)timebase_routine();
+  (void)led_routine(timebase_get_time());
+
+  // Check for flash request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
+      next_state = FSM_STATE_FLASH;
   
   /*** USER CODE END DO_FATAL ***/
   
@@ -183,6 +209,9 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_FLASH ***/
+
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH)
+      programmer_routine();
   
   /*** USER CODE END DO_FLASH ***/
   
@@ -271,7 +300,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
 void fsm_start(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START ***/
-  // Enable timebase, CAN communication and watchdogs
+  // Enable modules
   can_comm_set_enable(true); 
   timebase_set_enable(true);
   led_set_enable(true);
@@ -288,7 +317,8 @@ void fsm_start(fsm_state_data_t *data) {
 void fsm_handle_fatal_error(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
-  
+  // Disable modules
+  watchdog_stop_all();
   /*** USER CODE END HANDLE_FATAL_ERROR ***/
 }
 
@@ -298,8 +328,17 @@ void fsm_handle_fatal_error(fsm_state_data_t *data) {
 void fsm_start_flash_procedure(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_FLASH_PROCEDURE ***/
+  
+  // TODO: Take actions based on the flash target and change payload ready flag if not ready
+  can_comm_send_immediate(
+      BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
+      CAN_FRAME_TYPE_DATA,
+      &hfsm.flash_can_payload,
+      sizeof(hfsm.flash_can_payload)
+  );
 
-  timebase_set_enable(false);
+  // Stop data transmission during flash procedure
+  can_comm_disable(CAN_COMM_TX_ENABLE_BIT);
   
   /*** USER CODE END START_FLASH_PROCEDURE ***/
 }
@@ -319,9 +358,10 @@ void fsm_start_discharge(fsm_state_data_t *data) {
 void fsm_stop_flash_procedure(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN STOP_FLASH_PROCEDURE ***/
+ 
+  // Restart data transmission after flash procedure
+  can_comm_enable(CAN_COMM_TX_ENABLE_BIT);
 
-  timebase_set_enable(true);
-  
   /*** USER CODE END STOP_FLASH_PROCEDURE ***/
 }
 
@@ -361,7 +401,7 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
 fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN RUN_STATE ***/
-  fsm_state = cur_state; 
+  hfsm.fsm_state = cur_state; 
   /*** USER CODE END RUN_STATE ***/
 
   fsm_event_data_t *prev_ev = fsm_fired_event;
@@ -379,16 +419,16 @@ fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
 /*** USER CODE BEGIN FUNCTIONS ***/
 
 fsm_state_t fsm_get_status(void) {
-    return fsm_state;
+    return hfsm.fsm_state;
 }
 
 bms_cellboard_status_converted_t * fsm_get_can_payload(size_t * byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(status_can_payload);
+        *byte_size = sizeof(hfsm.status_can_payload);
 
     // Cellboard id is saved during init
-    fms_status_can_payload.status = fsm_state;
-    return &status_can_payload;
+    hfsm.status_can_payload.status = hfsm.fsm_state;
+    return &hfsm.status_can_payload;
 }
 
 /*** USER CODE END FUNCTIONS ***/

@@ -396,8 +396,7 @@ CellboardId adc_read_cellboard_id(void) {
     if (HAL_ADC_Stop(&HADC_CELLBOARD_ID) != HAL_OK)
         Error_Handler();
 
-    // TODO: Convert voltage to index
-    volt voltage = ADC_VALUE_TO_VOLTAGE(val);
+    millivolt voltage = ADC_VALUE_TO_VOLTAGE(val);
     return voltage / ADC_INDEX_VOLTAGE_RANGE;
 }
 

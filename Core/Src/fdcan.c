@@ -22,7 +22,6 @@
 
 /* USER CODE BEGIN 0 */
 
-#include "can-comm.h"
 #include "bms_network.h"
 
 /* USER CODE END 0 */
@@ -134,31 +133,100 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
 
 /* USER CODE BEGIN 1 */
 
-static uint32_t can_size_to_dlc[] = {
-    [0] = FDCAN_DLC_BYTES_0,
-    [1] = FDCAN_DLC_BYTES_1,
-    [2] = FDCAN_DLC_BYTES_2,
-    [3] = FDCAN_DLC_BYTES_3,
-    [4] = FDCAN_DLC_BYTES_4,
-    [5] = FDCAN_DLC_BYTES_5,
-    [6] = FDCAN_DLC_BYTES_6,
-    [7] = FDCAN_DLC_BYTES_7,
-    [8] = FDCAN_DLC_BYTES_8
+/**
+ * @brief Get CAN DLC value from the payload size
+ *
+ * @param size The size of the payload in bytes
+ * 
+ * @return int32_t The DLC or negative error code
+ */
+int32_t _can_get_dlc_from_size(size_t size) {
+    switch(size) {
+        case 0U:
+            return FDCAN_DLC_BYTES_0;
+        case 1U:
+            return FDCAN_DLC_BYTES_1;
+        case 2U:
+            return FDCAN_DLC_BYTES_2;
+        case 3U:
+            return FDCAN_DLC_BYTES_3;
+        case 4U:
+            return FDCAN_DLC_BYTES_4;
+        case 5U:
+            return FDCAN_DLC_BYTES_5;
+        case 6U:
+            return FDCAN_DLC_BYTES_6;
+        case 7U:
+            return FDCAN_DLC_BYTES_7;
+        case 8U:
+            return FDCAN_DLC_BYTES_8;
+        default:
+            return -1;
+    }
 };
 
+/**
+ * @brief Get CAN TxFrameType value from the CanFrameType enum
+ *
+ * @param type The frame type enum value
+ * 
+ * @return int32_t The frame type or negative error code
+ */
+int32_t _can_get_frame_type_from_index(CanFrameType type) {
+    switch (type) {
+        case CAN_FRAME_TYPE_DATA:
+            return FDCAN_DATA_FRAME;
+        case CAN_FRAME_TYPE_REMOTE:
+            return FDCAN_REMOTE_FRAME;
+        default:
+            return -1;
+    }
+}
+
+/**
+ * @brief Get the canFrameType enum value from the CAN TxFrameType
+ *
+ * @param index The CAN frame type value
+ * 
+ * @return CanFrameType The frame type enum value or negative error code
+ */
+CanFrameType _can_get_index_from_frame_type(uint32_t index) {
+    switch (index) {
+        case FDCAN_DATA_FRAME:
+            return CAN_FRAME_TYPE_DATA;
+        case FDCAN_REMOTE_FRAME:
+            return CAN_FRAME_TYPE_REMOTE;
+        default:
+            return -1;
+    }
+}
+
 // TODO: Return and check errors
-void can_send(can_id id, const uint8_t * data, size_t size) {
+CanCommReturnCode can_send(
+    can_id id,
+    CanFrameType frame_type,
+    const uint8_t * data,
+    size_t size)
+{
     if (id >= bms_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
-    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+
+    // Get and check for data length
+    int32_t dlc = _can_get_dlc_from_size(size);
+    if (dlc < 0)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
 
+    // Get and check the frame type
+    int32_t type = _can_get_frame_type_from_index(frame_type);
+    if (type < 0)
+        return CAN_COMM_INVALID_FRAME_TYPE;
+ 
     // Setup transmission header
     const FDCAN_TxHeaderTypeDef header = {
         .Identifier = id,
         .IdType = FDCAN_STANDARD_ID,
-        .TxFrameType = FDCAN_DATA_FRAME,
-        .DataLength = can_size_to_dlc[size],
+        .TxFrameType = type,
+        .DataLength = dlc,
         .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
         .BitRateSwitch = FDCAN_BRS_OFF,
         .FDFormat = FDCAN_FD_CAN,
@@ -183,9 +251,18 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
     uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
         Error_Handler();
+    
+    CanFrameType frame_type = _can_get_index_from_frame_type(header.RxFrameType);
+    if (frame_type < 0)
+        return;
 
     // Update rx data
-    can_comm_rx_add(bms_index_from_id(header.Identifier), data, header.DataLength);
+    can_comm_rx_add(
+        bms_index_from_id(header.Identifier),
+        frame_type,
+        data,
+        header.DataLength
+    );
 }
 
 // TODO: Return and check errors

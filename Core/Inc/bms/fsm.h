@@ -24,6 +24,19 @@ Functions and types have been generated with prefix "fsm_"
 
 #include "bms_network.h"
 
+/**
+ * @brief Definition of the possible events types
+ *
+ * @details
+ *     FSM_EVENT_TYPE_FLASH_REQUEST the request for the start of a flash procedure
+ *     FSM_EVENT_TYPE_FLASH the actual flash start command
+ */
+typedef enum {
+    FSM_EVENT_TYPE_FLASH_REQUEST,
+    FSM_EVENT_TYPE_FLASH,
+    FSM_EVENT_TYPE_COUNT
+} FsmEventType;
+
 /*** USER CODE END MACROS ***/
 
 // State data object
@@ -38,6 +51,8 @@ typedef void fsm_state_data_t;
 typedef struct {
   
   /*** USER CODE BEGIN EVENT_DATA ***/
+
+  FsmEventType type;
   
   /*** USER CODE END EVENT_DATA ***/
 

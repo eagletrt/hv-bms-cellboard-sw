@@ -38,8 +38,7 @@ typedef enum {
  * @details The watchdog is not started during initialization
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if the watched ID is not valid
- *     WATCHDOG_OK otherwise
+ *     WATCHDOG_OK
  */
 WatchdogReturnCode watchdog_init(void);
 
@@ -48,53 +47,51 @@ WatchdogReturnCode watchdog_init(void);
  *
  * @details If the ID is not a valid identifier false is returned
  *
- * @param id The watched CAN identifier
+ * @param index The watched CAN index
  *
  * @return bool True if the watchdog is active, false otherwise
  */
-bool watchdog_is_active(can_id id);
+bool watchdog_is_active(can_index index);
 
 /**
  * @brief Check if the watchdog is timed out
  *
  * @details If the ID is not a valid identifier false is returned
  *
- * @param id The watched CAN identifier
+ * @param index The watched CAN index
  *
  * @return bool True if the watchdog is timed out, false otherwise
  */
-bool watchdog_is_timed_out(can_id id);
+bool watchdog_is_timed_out(can_index index);
 
 /**
  * @brief Start the selected watchdog 
  *
- * @param id The watched CAN identifier
+ * @param index The watched CAN index
  *
  * @return WatchdogReturnCode
  *     WATCHDOG_INVALID_ID if the watched ID is not valid
  *     WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_start(can_id id);
+WatchdogReturnCode watchdog_start(can_index index);
 
 /**
  * @brief Start all the watchdogs
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if a watched ID is not valid
- *     WATCHDOG_OK otherwise
+ *     WATCHDOG_OK
  */
 WatchdogReturnCode watchdog_start_all(void);
 
 /**
  * @brief Stop the selected watchdog 
  *
- * @param id The watched CAN identifier
+ * @param index The watched CAN index
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if the watched ID is not valid
- *     WATCHDOG_OK otherwise
+ *     WATCHDOG_OK
  */
-WatchdogReturnCode watchdog_stop(can_id id);
+WatchdogReturnCode watchdog_stop(can_index index);
 
 /**
  * @brief Stop all the watchdogs
@@ -108,32 +105,36 @@ WatchdogReturnCode watchdog_stop_all(void);
 /**
  * @brief Reset the watchdog if activated to prevent timeout
  *
- * @param id The watched CAN identifier
+ * @param index The watched CAN index
  * @param timestamp The current time (in ms)
  *
  * @return WatchdogReturnCode
  *     WATCHDOG_INVALID_ID if the given ID is not valid
  *     WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_reset(can_id id, time timestamp);
+WatchdogReturnCode watchdog_reset(can_index index, time timestamp);
 
 /**
  * @brief Routine that checks if the watchdogs have timed out
  *
  * @param timestamp The current time (in ms)
+ *
+ * @return WatchdogReturnCode
+ *     WATCHDOG_TIMEOUT if a watchdog has timed out
+ *     WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_routine(time timestamp);
 
 #else  // CONF_WATCHDOG_MODULE_ENABLE
 
 #define watchdog_init() (WATCHDOG_OK)
-#define watchdog_is_active(id) (false)
-#define watchdog_is_timed_out(id) (false)
-#define watchdog_start(id) (WATCHDOG_OK)
+#define watchdog_is_active(index) (false)
+#define watchdog_is_timed_out(index) (false)
+#define watchdog_start(index) (WATCHDOG_OK)
 #define watchdog_start_all() (WATCHDOG_OK)
-#define watchdog_stop(id) (WATCHDOG_OK)
+#define watchdog_stop(index) (WATCHDOG_OK)
 #define watchdog_stop_all() (WATCHDOG_OK)
-#define watchdog_reset(id, timestamp) (WATCHDOG_OK)
+#define watchdog_reset(index, timestamp) (WATCHDOG_OK)
 #define watchdog_routine(timestamp) (WATCHDOG_OK)
 
 #endif // CONF_WATCHDOG_MODULE_ENABLE

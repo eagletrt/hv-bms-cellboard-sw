@@ -41,6 +41,7 @@ typedef enum {
  */
 typedef struct {
     CellboardId id;
+    system_reset_callback system_reset;
     can_comm_transmit_callback can_send;
     bms_monitor_send_callback spi_send;
     bms_monitor_send_receive_callback spi_send_receive;

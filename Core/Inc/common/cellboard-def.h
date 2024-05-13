@@ -60,6 +60,11 @@
 /** @brief Total number of temperatures sensors per channel */
 #define CELLBOARD_TEMP_SENSOR_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT))
 
+/** @brief Number of temperatures of the discharge resistance that can be read at the same time from a single segment */
+#define CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT (5U)
+/** @brief Total number of temperatures of the discharge resistance that can be read at the same time from a single segment */
+#define CELLBOARD_DISCHARGE_TEMP_SENSOR_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT))
+
 /** @brief Maximum number of bytes of the data in a CAN message */
 #define CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE (8U)
 
@@ -74,6 +79,95 @@
 /** @brief Total number of LTC chips of the cellboards */
 #define CELLBOARD_SEGMENT_LTC_COUNT (2U)
 #define CELLBOARD_LTC_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_LTC_COUNT))
+
+/** @} */
+
+/*** ######################### MACROS #################################### ***/
+
+/**
+ * @defgroups macros
+ * @brief Macros used throughout the project
+ * {@
+ */
+
+/**
+ * @brief Get the minimum value between two numbers
+ *
+ * @param A The first number
+ * @param B the second number
+ *
+ * @return A if it's less or equal than B, B otherwise
+ */
+#define CELLBOARD_MIN(A, B) (((A) <= (B)) ? (A) : (B))
+
+/**
+ * @brief Get the maximum value between two numbers
+ *
+ * @param A The first number
+ * @param B The second number
+ *
+ * @return A if it's greater or equal than B, B otherwise
+ */
+#define CELLBOARD_MAX(A, B) (((A) >= (B)) ? (A) : (B))
+
+/**
+ * @brief Clamp a value between a certain range
+ *
+ * @param VAL The value to clamp
+ * @param LOW The lower value of the range
+ * @param UP The upper value of the range
+ *
+ * @return LOW if the value is lower or equal to the smallest range value, 
+ *     UP if the value is greater or equal to the largest range value
+ *     VAL otherwise
+ */
+#define CELLBOARD_CLAMP(VAL, LOW, UP) (((VAL) <= (LOW)) ? (LOW) : (((VAL) >= (UP)) ? (UP) : (VAL)))
+
+/**
+ * @brief Get the value of a specific bit of a variable
+ *
+ * @param VAR The variable that should be changed
+ * @param BIT The position of the bit to get
+ *
+ * @return The value of the chosen bit
+ */
+#define CELLBOARD_BIT_GET(VAR, BIT) (((VAR) & (1U << (BIT))) != 0U)
+
+/**
+ * @brief Set a specific bit of a variable to 1
+ *
+ * @attention This macro do not modifiy the variable but returns a new value
+ *
+ * @param VAR The variable that should be changed
+ * @param BIT The position of the bit to set
+ *
+ * @return The value of the modified variable
+ */
+#define CELLBOARD_BIT_SET(VAR, BIT) ((VAR) | (1U << (BIT)))
+
+/**
+ * @brief Set a specific bit of a variable to 0
+ *
+ * @attention This macro do not modifiy the variable but returns a new value
+ *
+ * @param VAR The variable that should be changed
+ * @param BIT The position of the bit to reset
+ *
+ * @return The value of the modified variable
+ */
+#define CELLBOARD_BIT_RESET(VAR, BIT) (~((~(VAR)) | (1U << (BIT))))
+
+/**
+ * @brief Negate a specific bit of a variable
+ *
+ * @attention This macro do not modifiy the variable but returns a new value
+ *
+ * @param VAR The variable that should be changed
+ * @param BIT The position of the bit to set
+ *
+ * @return The value of the modified variable
+ */
+#define CELLBOARD_BIT_TOGGLE(VAR, BIT) ((VAR) ^ (1U << (BIT)))
 
 /** @} */
 
@@ -128,8 +222,12 @@ typedef float temp;
  */
 typedef uint16_t raw_volt;
 
-/** @brief Voltage value in V */
+/** @brief Actual voltages */
 typedef float volt;
+typedef float millivolt;
+
+/** @brief Function callback that resets the microcontroller */
+typedef void (* system_reset_callback)(void);
 
 /** @} */
 
@@ -146,6 +244,9 @@ typedef float volt;
  * 
  * @details Each cellboard is numbered from 0 to n where n is the last cellboard
  * The actual cellboard order is not guaranteed to match the saved one
+ *
+ * @details A mainboard identifier is added for utility purposes but it is not included
+ * in the cellboard id count
  */
 typedef enum {
     CELLBOARD_ID_0 = 0U,
@@ -154,7 +255,8 @@ typedef enum {
     CELLBOARD_ID_3,
     CELLBOARD_ID_4,
     CELLBOARD_ID_5,
-    CELLBOARD_ID_COUNT
+    CELLBOARD_ID_COUNT,
+    MAINBOARD_ID
 } CellboardId;
 
 /**
@@ -171,6 +273,19 @@ typedef enum {
     CAN_NETWORK_SECONDARY,
     CAN_NETWORK_COUNT
 } CanNetwork;
+
+/**
+ * @brief Definition of possible CAN frame types
+ *
+ * @details
+ *     CAN_FRAME_TYPE_DATA the CAN frame that contains data
+ *     CAN_FRAME_TYPE_REMOTE the CAN frame used to request a data transmission from another node in the network
+ */
+typedef enum {
+    CAN_FRAME_TYPE_DATA,
+    CAN_FRAME_TYPE_REMOTE,
+    CAN_FRAME_TYPE_COUNT
+} CanFrameType;
 
 /**
  * @brief Status of a single LED

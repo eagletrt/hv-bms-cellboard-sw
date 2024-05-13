@@ -57,6 +57,8 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+void system_reset(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -108,6 +110,7 @@ int main(void)
   CellboardId id = adc_read_cellboard_id();
   PostInitData init_data = {
       .id = id,
+      .system_reset = system_reset,
       .can_send = can_send,
       .spi_send = spi_send,
       .spi_send_receive = spi_send_and_receive,
@@ -177,6 +180,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+inline void system_reset(void) {
+    HAL_NVIC_SystemReset();
+}
 
 /* USER CODE END 4 */
 

@@ -14,39 +14,32 @@
 
 #ifdef CONF_WATCHDOG_MODULE_ENABLE
 
-#define WATCHDOG_ID_COUNT 1
+#define WATCHDOG_INDEX_COUNT 1
 
 bms_watchdog watchdog;
 
-static can_id watched_ids[WATCHDOG_ID_COUNT] = {
-    BMS_MAINBOARD_STATUS_FRAME_ID
+static can_index watched_ids[WATCHDOG_INDEX_COUNT] = {
+    BMS_MAINBOARD_STATUS_INDEX
 };
 
 WatchdogReturnCode watchdog_init(void) {
-    for (size_t i = 0; i < WATCHDOG_ID_COUNT; ++i) {
-        int index = bms_watchdog_index_from_id(watched_ids[i]);
-        if (index < 0)
-            return WATCHDOG_INVALID_ID;
-    
+    for (size_t i = 0; i < WATCHDOG_INDEX_COUNT; ++i) {
         // Deactivate the watchdog
-        CANLIB_BITCLEAR_ARRAY(watcdog.activated, index);
+        CANLIB_BITCLEAR_ARRAY(watcdog.activated, watched_ids[i]);
     }
     return WATCHDOG_OK;
 }
 
-inline bool watchdog_is_active(can_id id) {
-    int index = bms_watchdog_index_from_id(id);
-    return index < 0 ? false : CANLIB_BITTEST_ARRAY(watchdog.activated, index);
+inline bool watchdog_is_active(can_index index) {
+    return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.activated, index);
 }
 
-inline bool watchdog_is_timed_out(can_id id) {
-    int index = bms_watchdog_index_from_id(id);
-    return index < 0 ? false : CANLIB_BITTEST_ARRAY(watchdog.timeout, index);
+inline bool watchdog_is_timed_out(can_index index) {
+    return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.timeout, index);
 }
 
-WatchdogReturnCode watchdog_start(can_id id) {
-    int index = bms_watchdog_index_from_id(id);
-    if (index < 0)
+WatchdogReturnCode watchdog_start(can_index index) {
+    if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
 
     // Activate the watchdog
@@ -55,20 +48,15 @@ WatchdogReturnCode watchdog_start(can_id id) {
 }
 
 WatchdogReturnCode watchdog_start_all(void) {
-    for (size_t i = 0; i < WATCHDOG_ID_COUNT; ++i) {
-        int index = bms_watchdog_index_from_id(watched_ids[i]);
-        if (index < 0)
-            return WATCHDOG_INVALID_ID;
-
+    for (size_t i = 0; i < WATCHDOG_INDEX_COUNT; ++i) {
         // Activate the watchdog
-        CANLIB_BITSET_ARRAY(wathdog.activated, index);
+        CANLIB_BITSET_ARRAY(wathdog.activated, watched_ids[i]);
     }
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_stop(can_id id) {
-    int index = bms_watchdog_index_from_id(id);
-    if (index < 0)
+WatchdogReturnCode watchdog_stop(can_index index) {
+    if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
 
     // Deactivate the watchdog
@@ -77,20 +65,18 @@ WatchdogReturnCode watchdog_stop(can_id id) {
 }
 
 WatchdogReturnCode watchdog_stop_all(void) {
-    for (size_t i = 0; i < WATCHDOG_ID_COUNT; ++i) {
-        int index = bms_watchdog_index_from_id(watched_ids[i]);
-        if (index < 0)
-            return WATCHDOG_INVALID_ID;
-
+    for (size_t i = 0; i < WATCHDOG_INDEX_COUNT; ++i) {
         // Activate the watchdog
-        CANLIB_BITCLEAR_ARRAY(wathdog.activated, index);
+        CANLIB_BITCLEAR_ARRAY(wathdog.activated, watched_ids[i]);
     }
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_reset(can_id id, time timestamp) {
-    if (!bms_id_is_message(id))
+WatchdogReturnCode watchdog_reset(can_index index, time timestamp) {
+    if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
+    can_id id = bms_id_from_index(index);
+    // TODO: Change watchdog reset to get index instead of id
     bms_watchdog_reset(&watchdog, id, timestamp);
     return WATCHDOG_OK;
 }
@@ -101,16 +87,12 @@ WatchdogReturnCode watchdog_routine(time timestamp) {
     bms_watchdog_timeout(&watchdog, timestamp);
 
     WatchdogReturnCode ret = WATCHDOG_OK;
-    for (size_t i = 0; i < WATCHDOG_ID_COUNT; ++i) {
-        int index = bms_watchdog_index_from_id(watched_ids[i]);
-        if (index < 0)
-            return WATCHDOG_INVALID_ID;
-
-        if (CANLIB_BITTEST_ARRAY(watchdog.activated, index) &&
-            CANLIB_BITTEST_ARRAY(watchdog.timeout, index))
+    for (size_t i = 0; i < WATCHDOG_INDEX_COUNT; ++i) {
+        if (CANLIB_BITTEST_ARRAY(watchdog.activated, watched_ids[i]) &&
+            CANLIB_BITTEST_ARRAY(watchdog.timeout, watched_ids[i]))
         {
             // Stop the timed out watchdog
-            CANLIB_BITCLEAR_ARRAY(wathdog.activated, index);
+            CANLIB_BITCLEAR_ARRAY(wathdog.activated, watched_ids[i]);
             // TODO: Return immediately on timeout?
             ret = WATCHDOG_TIMEOUT;
         }

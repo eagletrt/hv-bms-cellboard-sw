@@ -44,20 +44,14 @@ typedef enum {
  *
  * @details The LED handler is disabled by default after initialization
  *
- * @param id The identifier of the current cellboard
  * @param set The callback used to set the status of the LED
  * @param toggle The callback used to toggle the status of the LED
  *
  * @return LedReturnCode
  *     LED_NULL_POINTER if the set or toggle callbacks are NULL
- *     LED_INVALID_CELLBOARD_ID if the id is not a valid cellboard identifier
  *     LED_OK otherwise
  */
-LedReturnCode led_init(
-    CellboardId id,
-    led_set_state_callback set,
-    led_toggle_state_callback toggle
-);
+LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle);
 
 /**
  * @param Enable or disable the LED handler

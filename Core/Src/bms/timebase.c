@@ -166,18 +166,24 @@ TimebaseReturnCode timebase_routine(void) {
     if (!htimebase.enabled)
         return TIMEBASE_DISABLED;
 
+    size_t byte_size = 0U;
+    void * payload = NULL;
+
     // TODO: Add tasks at given intervals
     if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_10_T)) {
 
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_20_T)) {
         // FSM status
-        can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, fsm_get_can_payload(NULL));
+        payload = fsm_get_can_payload(&byte_size);
+        can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_50_T)) {
         // Voltages and temperatures
-        can_comm_tx_add(BMS_CELLS_VOLTAGES_INDEX, volt_get_canlib_payload(NULL));
-        can_comm_tx_add(BMS_CELLS_TEMPERATURES_INDEX, temp_get_canlib_payload(NULL));
+        payload = volt_get_canlib_payload(&byte_size);
+        can_comm_tx_add(BMS_CELLS_VOLTAGES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+        payload = temp_get_canlib_payload(&byte_size);
+        can_comm_tx_add(BMS_CELLS_TEMPERATURES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_100_T)) {
 
@@ -190,11 +196,11 @@ TimebaseReturnCode timebase_routine(void) {
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_1000_T)) {
         // Version
-        can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, identity_get_can_payload(NULL));
+        payload = identity_get_can_payload(&byte_size);
+        can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 
         // Check watchdog
-        // TODO: Use time instead of ticks?
-        watchdog_routine(htimebase.t);
+        watchdog_routine(timebase_get_time());
     }
     return TIMEBASE_OK;
 }

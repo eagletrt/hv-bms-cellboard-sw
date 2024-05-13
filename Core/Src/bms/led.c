@@ -10,6 +10,7 @@
 
 #include "blinky.h"
 #include "cellboard-def.h"
+#include "identity.h"
 
 #ifdef CONF_LED_MODULE_ENABLE
 
@@ -31,22 +32,16 @@ struct {
 } hled;
 
 
-LedReturnCode led_init(
-    CellboardId id,
-    led_set_state_callback set,
-    led_toggle_state_callback toggle)
-{
+LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle) {
     if (set == NULL || toggle == NULL)
         return LED_NULL_POINTER;
-    if (id >= CELLBOARD_ID_COUNT)
-        return LED_INVALID_CELLBOARD_ID;
 
     hled.set = set;
     hled.toggle = toggle;
     hled.pattern_size = 0U;
 
     // Set pattern
-    for (size_t i = 0U; i <= id; ++i) {
+    for (size_t i = 0U; i <= identity_get_cellboard_id(); ++i) {
         hled.pattern[hled.pattern_size++] = LED_SHORT_OFF;
         hled.pattern[hled.pattern_size++] = LED_SHORT_ON;
     }
