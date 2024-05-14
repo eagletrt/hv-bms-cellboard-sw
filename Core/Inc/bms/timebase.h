@@ -19,9 +19,9 @@
  * @brief Return code for the timebase module functions
  *
  * @details
- *     TIMEBASE_OK the function executed successfully
- *     TIMEBASE_DISABLED the timebase is not running
- *     TIMEBASE_BUSY the timebase cannot perform the current operation because is busy with other actions
+ *     - TIMEBASE_OK the function executed successfully
+ *     - TIMEBASE_DISABLED the timebase is not running
+ *     - TIMEBASE_BUSY the timebase cannot perform the current operation because is busy with other actions
  */
 typedef enum {
     TIMEBASE_OK,

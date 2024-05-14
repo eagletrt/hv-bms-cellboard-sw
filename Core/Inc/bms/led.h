@@ -27,9 +27,9 @@ typedef void (* led_toggle_state_callback)(void);
  * @brief Return code for the LED module functions
  *
  * @details
- *     LED_OK the function executed succesfully
- *     LED_NULL_POINTER a NULL pointer was given to a function
- *     LED_INVALID_CELLBOARD_ID invalid cellboard identifier
+ *     - LED_OK the function executed succesfully
+ *     - LED_NULL_POINTER a NULL pointer was given to a function
+ *     - LED_INVALID_CELLBOARD_ID invalid cellboard identifier
  */
 typedef enum {
     LED_OK,
@@ -48,8 +48,8 @@ typedef enum {
  * @param toggle The callback used to toggle the status of the LED
  *
  * @return LedReturnCode
- *     LED_NULL_POINTER if the set or toggle callbacks are NULL
- *     LED_OK otherwise
+ *     - LED_NULL_POINTER if the set or toggle callbacks are NULL
+ *     - LED_OK otherwise
  */
 LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle);
 

@@ -11,7 +11,14 @@
 #define PROGRAMMER_H
 
 #include "bms_network.h"
+#include "cellboard-def.h"
 
+/**
+ * @brief Return code for the programmer module functions 
+ *
+ * @details
+ *     - PROGRAMMER_OK the function executed succesfully
+ */
 typedef enum {
     PROGRAMMER_OK
 } ProgrammerReturnCode;
@@ -19,10 +26,12 @@ typedef enum {
 /**
  * @brief Intialize the internal programmer handler structure
  *
+ * @param reset A pointer to the function that resets the microcontroller
+ *
  * @return ProgrammerReturnCode
- *     PROGRAMMER_OK
+ *     - PROGRAMMER_OK
  */
-ProgrammerReturnCode programmer_init(void);
+ProgrammerReturnCode programmer_init(system_reset_callback reset);
 
 /**
  * @brief Handle the received flash request
@@ -39,7 +48,12 @@ void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * p
 void programmer_flash_handle(bms_cellboard_flash_converted_t * payload);
 
 /**
- * TODO:
+ * @brief Routine that should be called during the flash procedure
+ *
+ * @attention This function can reset the microcontroller
+ *
+ * @return ProgrammerReturnCode
+ *     - PROGRAMMER_OK otherwise
  */
 ProgrammerReturnCode programmer_routine(void);
 

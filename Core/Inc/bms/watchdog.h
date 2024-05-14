@@ -20,9 +20,9 @@
  * @brief Return code for the watchdog module functions
  *
  * @details
- *      WATCHDOG_OK the function exeuted succesfully
- *      WATCHDOG_INVALID_ID a function tried to use an invalid identifier
- *      WATCHDOG_TIMEOUT a watchdog has timed out
+ *      - WATCHDOG_OK the function exeuted succesfully
+ *      - WATCHDOG_INVALID_ID a function tried to use an invalid identifier
+ *      - WATCHDOG_TIMEOUT a watchdog has timed out
  */
 typedef enum {
     WATCHDOG_OK,
@@ -38,7 +38,7 @@ typedef enum {
  * @details The watchdog is not started during initialization
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_OK
+ *     - WATCHDOG_OK
  */
 WatchdogReturnCode watchdog_init(void);
 
@@ -70,8 +70,8 @@ bool watchdog_is_timed_out(can_index index);
  * @param index The watched CAN index
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if the watched ID is not valid
- *     WATCHDOG_OK otherwise
+ *     - WATCHDOG_INVALID_ID if the watched ID is not valid
+ *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_start(can_index index);
 
@@ -79,7 +79,7 @@ WatchdogReturnCode watchdog_start(can_index index);
  * @brief Start all the watchdogs
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_OK
+ *     - WATCHDOG_OK
  */
 WatchdogReturnCode watchdog_start_all(void);
 
@@ -89,7 +89,7 @@ WatchdogReturnCode watchdog_start_all(void);
  * @param index The watched CAN index
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_OK
+ *     - WATCHDOG_OK
  */
 WatchdogReturnCode watchdog_stop(can_index index);
 
@@ -97,8 +97,8 @@ WatchdogReturnCode watchdog_stop(can_index index);
  * @brief Stop all the watchdogs
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if a watched ID is not valid
- *     WATCHDOG_OK otherwise
+ *     - WATCHDOG_INVALID_ID if a watched ID is not valid
+ *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_stop_all(void);
 
@@ -109,8 +109,8 @@ WatchdogReturnCode watchdog_stop_all(void);
  * @param timestamp The current time (in ms)
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_INVALID_ID if the given ID is not valid
- *     WATCHDOG_OK otherwise
+ *     - WATCHDOG_INVALID_ID if the given ID is not valid
+ *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_reset(can_index index, time timestamp);
 
@@ -120,8 +120,8 @@ WatchdogReturnCode watchdog_reset(can_index index, time timestamp);
  * @param timestamp The current time (in ms)
  *
  * @return WatchdogReturnCode
- *     WATCHDOG_TIMEOUT if a watchdog has timed out
- *     WATCHDOG_OK otherwise
+ *     - WATCHDOG_TIMEOUT if a watchdog has timed out
+ *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_routine(time timestamp);
 

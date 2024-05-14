@@ -48,6 +48,15 @@
 /**
  * @brief Check if a given interval is elapsed and, in that case, set the appropriate flag
  *
+ * @attention This macro takes advantage of the mechanism of boolean expressions
+ * short circuit evaluation (for more info see: https://en.wikipedia.org/wiki/Short-circuit_evaluation)
+ *
+ * @details The first line of the macro checks if the interval has elapsed
+ * The second line check if all the tasks has completed before the next interval elapses, otherwise
+ * it sets the OUT variable to TIMEBASE_BUSY
+ * The third lines sets the appropriate flag
+ *
+ *
  * @param INTERVAL_ID The interval identifier (see 'TimebaseIntervalId' struct)
  * @param OUT A variable of type 'TimebaseReturnCode' that can be modified
  */
@@ -144,13 +153,13 @@ TimebaseReturnCode timebase_inc_tick(void) {
     TimebaseReturnCode ret = TIMEBASE_OK;
 
     /* !!! The value of ret could be modified by the macros !!! */
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_10_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_20_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_50_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_100_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_200_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_500_T, ret);
-    _TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_1000_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_10_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_20_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_50_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_100_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_200_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_500_T, ret);
+    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_1000_T, ret);
     return ret;
 }
 
@@ -171,12 +180,13 @@ TimebaseReturnCode timebase_routine(void) {
 
     // TODO: Add tasks at given intervals
     if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_10_T)) {
-
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_10_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_20_T)) {
         // FSM status
         payload = fsm_get_can_payload(&byte_size);
         can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_20_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_50_T)) {
         // Voltages and temperatures
@@ -184,15 +194,16 @@ TimebaseReturnCode timebase_routine(void) {
         can_comm_tx_add(BMS_CELLS_VOLTAGES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
         payload = temp_get_canlib_payload(&byte_size);
         can_comm_tx_add(BMS_CELLS_TEMPERATURES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_50_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_100_T)) {
-
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_100_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_200_T)) {
-
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_200_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_500_T)) {
-
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_500_T);
     }
     else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_1000_T)) {
         // Version
@@ -201,6 +212,7 @@ TimebaseReturnCode timebase_routine(void) {
 
         // Check watchdog
         watchdog_routine(timebase_get_time());
+        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_1000_T);
     }
     return TIMEBASE_OK;
 }

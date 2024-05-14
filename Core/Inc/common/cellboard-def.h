@@ -243,7 +243,7 @@ typedef void (* system_reset_callback)(void);
  * @brief Definition of the cellboard indices
  * 
  * @details Each cellboard is numbered from 0 to n where n is the last cellboard
- * The actual cellboard order is not guaranteed to match the saved one
+ * The real cellboard order is not guaranteed to match this order
  *
  * @details A mainboard identifier is added for utility purposes but it is not included
  * in the cellboard id count
@@ -263,9 +263,9 @@ typedef enum {
  * @brief Definition of different CAN networks
  *
  * @details
- *     CAN_NETWORK_BMS the internal network between mainboard and cellboards
- *     CAN_NETWORK_PRIMARY the main network where all the important message are sent
- *     CAN_NETWORK_SECONDARY network dedicated to sensor and other measuring devices
+ *     - CAN_NETWORK_BMS the internal network between mainboard and cellboards
+ *     - CAN_NETWORK_PRIMARY the main network where all the important message are sent
+ *     - CAN_NETWORK_SECONDARY network dedicated to sensor and other measuring devices
  */
 typedef enum {
     CAN_NETWORK_BMS,
@@ -278,8 +278,8 @@ typedef enum {
  * @brief Definition of possible CAN frame types
  *
  * @details
- *     CAN_FRAME_TYPE_DATA the CAN frame that contains data
- *     CAN_FRAME_TYPE_REMOTE the CAN frame used to request a data transmission from another node in the network
+ *     - CAN_FRAME_TYPE_DATA the CAN frame that contains data
+ *     - CAN_FRAME_TYPE_REMOTE the CAN frame used to request a data transmission from another node in the network
  */
 typedef enum {
     CAN_FRAME_TYPE_DATA,
@@ -291,8 +291,8 @@ typedef enum {
  * @brief Status of a single LED
  *
  * @details
- *     LED_OFF the led is turned off
- *     LED_ON the led is turned on
+ *     - LED_OFF the led is turned off
+ *     - LED_ON the led is turned on
  */
 typedef enum {
     LED_OFF,

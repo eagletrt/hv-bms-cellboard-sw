@@ -9,6 +9,8 @@
 
 #include "identity.h"
 
+#include <time.h>
+
 #define BUILD_TIME_STR (__DATE__" "__TIME__)
 
 struct {

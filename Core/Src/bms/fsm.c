@@ -22,6 +22,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "timebase.h"
 #include "identity.h"
 #include "watchdog.h"
+#include "programmer.h"
 
 /*** USER CODE END MACROS ***/
 
@@ -210,9 +211,9 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_FLASH ***/
 
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH)
-      programmer_routine();
-  
+  (void)timebase_routine();
+  (void)programmer_routine();
+
   /*** USER CODE END DO_FLASH ***/
   
   switch (next_state) {

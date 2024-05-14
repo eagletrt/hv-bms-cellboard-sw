@@ -20,9 +20,9 @@
  * @brief Return code for the temperature module functions
  *
  * @details
- *     TEMP_OK the function executed successfully
- *     TEMP_NULL_POINTER a NULL pointer is given as parameter or used inside the function
- *     TEMP_OUT_OF_BOUNDS an index (or pointer) value is greater/lower than the maximum/minimum allowed value
+ *     - TEMP_OK the function executed successfully
+ *     - TEMP_NULL_POINTER a NULL pointer is given as parameter or used inside the function
+ *     - TEMP_OUT_OF_BOUNDS an index (or pointer) value is greater/lower than the maximum/minimum allowed value
  */
 typedef enum {
     TEMP_OK,
@@ -36,7 +36,7 @@ typedef enum {
  * @brief Initialize the temperature module
  *
  * @return TempReturnCode
- *     TEMP_OK
+ *     - TEMP_OK
  */
 TempReturnCode temp_init(void);
 
@@ -47,8 +47,8 @@ TempReturnCode temp_init(void);
  * @param value The new value
  *
  * @return TempReturnCode
- *     TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
- *     TEMP_OK otherwise
+ *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
+ *     - TEMP_OK otherwise
  */
 TempReturnCode temp_update_value(size_t index, raw_temp value);
 
@@ -69,9 +69,9 @@ const raw_temp * temp_get_values(void);
  * @param size The number of element that should be copied
  *
  * @return TempReturnCode
- *     TEMP_NULL_POINTER if NULL is passed as parameter
- *     TEMP_OUT_OF_BOUNDS if the required range exceeds the maximum number of temperatures
- *     TEMP_OK otherwise
+ *     - TEMP_NULL_POINTER if NULL is passed as parameter
+ *     - TEMP_OUT_OF_BOUNDS if the required range exceeds the maximum number of temperatures
+ *     - TEMP_OK otherwise
  */
 TempReturnCode temp_dump_values(raw_temp * out, size_t start, size_t size);
 

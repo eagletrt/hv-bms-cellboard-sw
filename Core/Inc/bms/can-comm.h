@@ -22,15 +22,15 @@
  * @brief Return code for the CAN communication module functions
  *
  * @details
- *     CAN_COMM_OK the function executed succesfully
- *     CAN_COMM_NULL_POINTER a NULL pointer was given to a function
- *     CAN_COMM_DISABLED the CAN manager is not running
- *     CAN_COMM_OVERRUN the transmit buffer is full
- *     CAN_COMM_INVALID_INDEX the given index does not correspond to any CAN message
- *     CAN_COMM_INVALID_PAYLOAD_SIZE the payload size exceed the maximum possible length
- *     CAN_COMM_INVALID_FRAME_TYPE the frame type does not correspond to any existing CAN frame type
- *     CAN_COMM_CONVERSION_ERROR the message could not be converted correctly
- *     CAN_COMM_TRANSMISSION_ERROR there was an error during the transmission of the message
+ *     - CAN_COMM_OK the function executed succesfully
+ *     - CAN_COMM_NULL_POINTER a NULL pointer was given to a function
+ *     - CAN_COMM_DISABLED the CAN manager is not running
+ *     - CAN_COMM_OVERRUN the transmit buffer is full
+ *     - CAN_COMM_INVALID_INDEX the given index does not correspond to any CAN message
+ *     - CAN_COMM_INVALID_PAYLOAD_SIZE the payload size exceed the maximum possible length
+ *     - CAN_COMM_INVALID_FRAME_TYPE the frame type does not correspond to any existing CAN frame type
+ *     - CAN_COMM_CONVERSION_ERROR the message could not be converted correctly
+ *     - CAN_COMM_TRANSMISSION_ERROR there was an error during the transmission of the message
  */
 typedef enum {
     CAN_COMM_OK,
@@ -48,8 +48,8 @@ typedef enum {
  * @brief Enable bit flag positions
  *
  * @details
- *     CAN_COMM_RX_ENABLE_BIT reception enable bit
- *     CAN_COMM_TX_ENABLE_BIT transmission enable bit
+ *     - CAN_COMM_RX_ENABLE_BIT reception enable bit
+ *     - CAN_COMM_TX_ENABLE_BIT transmission enable bit
  */
 typedef enum {
     CAN_COMM_RX_ENABLE_BIT = 0U,
@@ -122,8 +122,8 @@ typedef void (* can_comm_canlib_payload_handle_callback)(void * payload);
  * @param send The callback of a function that should send the data via a CAN network
  *
  * @return CanCommReturnCode
- *     CAN_COMM_NULL_POINTER a NULL pointer was given as parameter
- *     CAN_COMM_OK otherwise
+ *     - CAN_COMM_NULL_POINTER a NULL pointer was given as parameter
+ *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_init(can_comm_transmit_callback send);
 
@@ -175,13 +175,13 @@ bool can_comm_is_enabled(CanCommEnableBit bit);
  * @param size The payload size in bytes
  *
  * @return CanCommReturnCode
- *     CAN_COMM_DISABLED the CAN manager is disabled
- *     CAN_COMM_INVALID_INDEX if the given index does not match any valid CAN identifier
- *     CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
- *     CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
- *     CAN_COMM_OVERRUN the transmission buffer is already full
- *     CAN_COMM_CONVERSION_ERROR there was an error during the conversion of the message
- *     CAN_COMM_OK otherwise
+ *     - CAN_COMM_DISABLED the CAN manager is disabled
+ *     - CAN_COMM_INVALID_INDEX if the given index does not match any valid CAN identifier
+ *     - CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
+ *     - CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
+ *     - CAN_COMM_OVERRUN the transmission buffer is already full
+ *     - CAN_COMM_CONVERSION_ERROR there was an error during the conversion of the message
+ *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_send_immediate(
     can_index index,
@@ -201,12 +201,12 @@ CanCommReturnCode can_comm_send_immediate(
  * @param size The payload size in bytes
  *
  * @return CanCommReturnCode
- *     CAN_COMM_DISABLED the CAN manager is disabled
- *     CAN_COMM_INVALID_INDEX if the given index does not match any valid CAN identifier
- *     CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
- *     CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
- *     CAN_COMM_OVERRUN the transmission buffer is already full
- *     CAN_COMM_OK otherwise
+ *     - CAN_COMM_DISABLED the CAN manager is disabled
+ *     - CAN_COMM_INVALID_INDEX if the given index does not match any valid CAN identifier
+ *     - CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
+ *     - CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
+ *     - CAN_COMM_OVERRUN the transmission buffer is already full
+ *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_tx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
@@ -227,11 +227,11 @@ CanCommReturnCode can_comm_tx_add(
  * @param size The paylaod size in bytes
  *
  * @return CanCommReturnCode
- *     CAN_COMM_DISABLED the CAN manager is disabled
- *     CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
- *     CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
- *     CAN_COMM_OVERRUN the transmission buffer is already full
- *     CAN_COMM_OK otherwise
+ *     - CAN_COMM_DISABLED the CAN manager is disabled
+ *     - CAN_COMM_INVALID_PAYLOAD_SIZE the given payload size exceed the maximum possible length
+ *     - CAN_COMM_INVALID_FRAME_TYPE the given frame type is not a valid CAN frame type
+ *     - CAN_COMM_OVERRUN the transmission buffer is already full
+ *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_rx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
@@ -245,9 +245,9 @@ CanCommReturnCode can_comm_rx_add(
  * @brief Routine used to manage the sent or received can data
  *
  * @return CanCommReturnCode
- *     CAN_COMM_DISABLED the CAN manager is not running
- *     CAN_COMM_CONVERSION_ERROR there was an error during the conversion of the message
- *     CAN_COMM_OK otherwise
+ *     - CAN_COMM_DISABLED the CAN manager is not running
+ *     - CAN_COMM_CONVERSION_ERROR there was an error during the conversion of the message
+ *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_routine(void);
 

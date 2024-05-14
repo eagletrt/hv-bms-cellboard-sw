@@ -28,12 +28,10 @@ Functions and types have been generated with prefix "fsm_"
  * @brief Definition of the possible events types
  *
  * @details
- *     FSM_EVENT_TYPE_FLASH_REQUEST the request for the start of a flash procedure
- *     FSM_EVENT_TYPE_FLASH the actual flash start command
+ *     - FSM_EVENT_TYPE_FLASH_REQUEST the request for the start of a flash procedure
  */
 typedef enum {
     FSM_EVENT_TYPE_FLASH_REQUEST,
-    FSM_EVENT_TYPE_FLASH,
     FSM_EVENT_TYPE_COUNT
 } FsmEventType;
 

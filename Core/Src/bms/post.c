@@ -23,7 +23,8 @@
 PostReturnCode post_run(PostInitData data) {
     if (data.id >= CELLBOARD_ID_COUNT)
         return POST_INVALID_CELLBOARD_ID;
-    if (data.can_send == NULL ||
+    if (data.system_reset == NULL ||
+        data.can_send == NULL ||
         data.spi_send == NULL ||
         data.spi_send_receive == NULL ||
         data.led_set == NULL ||
@@ -49,7 +50,7 @@ PostReturnCode post_run(PostInitData data) {
             break;
     }
     (void)bal_init();
-    (void)programmer_init();
+    (void)programmer_init(data.system_reset);
     (void)led_init(data.led_set, data.led_toggle); // Id and NULL checks above
  
     return POST_OK;

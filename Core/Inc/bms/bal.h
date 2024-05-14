@@ -27,9 +27,9 @@
  * @brief Return code for the balancing module functions
  *
  * @details
- *     BAL_OK the function executed succesfully
- *     BAL_NULL_POINTER a NULL pointer was given to a function
- *     BAL_BUSY the function cannot be executed because the LTCs are busy
+ *     - BAL_OK the function executed succesfully
+ *     - BAL_NULL_POINTER a NULL pointer was given to a function
+ *     - BAL_BUSY the function cannot be executed because the LTCs are busy
  */
 typedef enum {
     BAL_OK,
@@ -43,7 +43,7 @@ typedef enum {
  * @brief Initialize the internal balancing handler structure
  *
  * @return BalReturnCode
- *     BAL_OK
+ *     - BAL_OK
  */
 BalReturnCode bal_init(void);
 
@@ -54,8 +54,8 @@ BalReturnCode bal_init(void);
  * @param threshold The minimum voltage difference between cells to reach in mV
  *
  * @return BalReturnCode
- *     BAL_BUSY the LTC is busy performing other operations
- *     BAL_OK otherwise
+ *     - BAL_BUSY the LTC is busy performing other operations
+ *     - BAL_OK otherwise
  */
 BalReturnCode bal_start(millivolt target, millivolt threshold);
 
@@ -63,8 +63,8 @@ BalReturnCode bal_start(millivolt target, millivolt threshold);
  * @brief Stop the balancing mechanism
  *
  * @return BalReturnCode
- *     BAL_BUSY the LTC is busy performing other operations
- *     BAL_OK otherwise
+ *     - BAL_BUSY the LTC is busy performing other operations
+ *     - BAL_OK otherwise
  */
 BalReturnCode bal_stop(void);
 
