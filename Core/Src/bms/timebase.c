@@ -35,7 +35,7 @@
  *
  * @return time The corresponing amount of ms
  */
-#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
+#define _TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
 
 
 /** @brief Type definition for a function that excecutes a single task */
@@ -92,9 +92,18 @@ int8_t _timebase_scheduled_task_compare(void * a, void * b) {
     TimebaseScheduledTask * s = (TimebaseScheduledTask *)b;
 
     // Compare timestamps
-    if (f->t < s->t)
-        return -1;
-    return f->t == s->t ? 0 : 1;
+    if (f->t < s->t) return -1;
+    if (f->t > s->t) return 1;
+
+    /**************************************************************************
+     * For the equality check, in addition to the ticks, the pointers to the task
+     * must also be equal, otherwise -1 or 1 may be returned
+     * In this case 1 is preferred because it avoid useless swaps between elements
+     * that have the same number of ticks
+     ***************************************************************************/
+    if (f->task == s->task)
+        return 0;
+    return 1;
 }
 
 TimebaseReturnCode timebase_init(time resolution_ms) {
@@ -152,7 +161,7 @@ ticks timebase_get_tick(void) {
 }
 
 time timebase_get_time(void) {
-    return TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
+    return _TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
 }
 
 // TODO: Check delta time between the right time
@@ -169,7 +178,7 @@ TimebaseReturnCode timebase_routine(void) {
 
         ticks t = htimebase.t; // Copy ticks value to avoid inconsistencies caused by interrupts
         task.t = t + task.task->interval;
-        task.task->exec(t, TIMEBASE_TICKS_TO_TIME(t, htimebase.resolution));
+        task.task->exec(t, _TIMEBASE_TICKS_TO_TIME(t, htimebase.resolution));
 
         // If the interval is 0 do not insert again the task inside the heap (i.e. runs only once)
         if (task.task->interval > 0U)

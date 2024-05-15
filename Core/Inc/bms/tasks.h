@@ -95,4 +95,4 @@ void tasks_check_watchdog(ticks tick, time ms) {
     watchog_routine(ms);
 }
 
-#endif // CONF_TIMEBASE_MODULE_ENABLE
+#endif // CONF_TIMEBASE_MODULE_ENABLE && TASKS_IMPLEMENTATION
