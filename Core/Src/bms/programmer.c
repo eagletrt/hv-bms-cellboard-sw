@@ -52,11 +52,12 @@ void programmer_flash_handle(bms_cellboard_flash_converted_t * payload) {
 }
 
 ProgrammerReturnCode programmer_routine(void) {
+    // TODO: Timeout if flash has not ended after tot seconds
+
     // Reset the microcontroller if the current cellboard is the target
-    if (identity_get_cellboard_id() == hprogrammer.target)
+    if (hprogrammer.flashing && identity_get_cellboard_id() == hprogrammer.target)
         hprogrammer.reset();
 
-    // TODO: Timeout if flash has not ended after tot seconds
     return PROGRAMMER_OK;
 }
 

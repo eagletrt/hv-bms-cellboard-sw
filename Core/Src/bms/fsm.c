@@ -212,7 +212,8 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_FLASH ***/
 
   (void)timebase_routine();
-  (void)programmer_routine();
+  if (programmer_routine() == PROGRAMMER_TIMEOUT)
+      next_state = FSM_STATE_IDLE;
 
   /*** USER CODE END DO_FLASH ***/
   
