@@ -12,10 +12,20 @@
 #include <stdint.h>
 
 /**
- * @def No operation
+ * @brief No operation
+ *
  * @details Does nothing
  */
-#define CELLBOARD_NOPE() ((void)0U)
+#define CELLBOARD_NOPE() ((void)(0U))
+
+/**
+ * @brief Ignore the return value
+ *
+ * @details Used to avoid compiler warnings
+ *
+ * @param _ Anything that can return a value (even variables)
+ */
+#define CELLBOARD_UNUSED(_) ((void)(_))
 
 /*** ######################### CONSTANTS ################################# ***/
 

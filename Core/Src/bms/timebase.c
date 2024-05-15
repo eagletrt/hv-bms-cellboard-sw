@@ -9,115 +9,63 @@
 #include "timebase.h"
 
 #include "bms_network.h"
-#include "identity.h"
-#include "fsm.h"
-#include "volt.h"
-#include "temp.h"
+#include "min-heap.h"
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
 
-/**
- * @brief Check if the given interval has elapsed
- *
- * @param INTERVAL_ID The interval identifier (see 'TimebaseIntervalId' struct)
- */
-#define _TIMEBASE_INTERVAL_CHECK_ELAPSED(INTERVAL_ID) ((htimebase.t % interval_ms[INTERVAL_ID]) == 0U)
+// Include the tasks
+#define TASKS_IMPLEMENTATION
+#include "tasks.h"
 
 /**
- * @brief Check if the previous interval has not been handled yet
+ * @brief Convert the time in ms to ticks
  *
- * @details This macro checks if the interval flag of the given interval is set to 1
- * That means that the tasks that should have been executed in the previous interval
- * have not been completed yet
+ * @param T The time to convert
+ * @param RES The resolution of a tick
  *
- * @param INTERVAL_ID The interval identifier (see 'TimebaseIntervalId' struct)
+ * @return ticks The corresponing amount of ticks
  */
-#define _TIMEBASE_INTERVAL_CHECK_OVERRUN(INTERVAL_ID) ((htimebase.flags & interval_flag[INTERVAL_ID]) != 0U)
+#define TIMEBASE_TIME_TO_TICKS(T, RES) ((ticks)((T) / (RES)))
 
 /**
- * @brief Get, set or reset the flag of a given interval
+ * @brief Convert the ticks in ms
  *
- * @details The get flag macro return the value of the bit flag and not the flag itself
+ * @param T The ticks to convert
+ * @param RES The resolution of a tick
  *
- * @param INTERVAL_ID The interval identifier (see 'TimebaseIntervalId' struct)
+ * @return time The corresponing amount of ms
  */
-#define _TIMEBASE_INTERVAL_GET_FLAG(INTERVAL_ID) ((htimebase.flags &= interval_flag[INTERVAL_ID]) != 0U)
-#define _TIMEBASE_INTERVAL_RESET_FLAG(INTERVAL_ID) (htimebase.flags &= ~interval_flag[INTERVAL_ID])
-#define _TIMEBASE_INTERVAL_SET_FLAG(INTERVAL_ID) (htimebase.flags |= interval_flag[INTERVAL_ID])
+#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
+
+
+/** @brief Type definition for a function that excecutes a single task */
+typedef void (* timebase_task_callback)(ticks tick, time ms);
 
 /**
- * @brief Check if a given interval is elapsed and, in that case, set the appropriate flag
+ * @brief Definition of a single task
  *
- * @attention This macro takes advantage of the mechanism of boolean expressions
- * short circuit evaluation (for more info see: https://en.wikipedia.org/wiki/Short-circuit_evaluation)
+ * @details An interval of 0 means that the task is only run once
  *
- * @details The first line of the macro checks if the interval has elapsed
- * The second line check if all the tasks has completed before the next interval elapses, otherwise
- * it sets the OUT variable to TIMEBASE_BUSY
- * The third lines sets the appropriate flag
- *
- *
- * @param INTERVAL_ID The interval identifier (see 'TimebaseIntervalId' struct)
- * @param OUT A variable of type 'TimebaseReturnCode' that can be modified
+ * @param start The time when the tasks is executed first
+ * @param interval The amount of time that must elapsed before the tasks is re-executed
+ * @param exec A pointer to the task callback
  */
-#define _TIMEBASE_INTERVAL_CHECK(INTERVAL_ID, OUT) \
-( \
-    _TIMEBASE_INTERVAL_CHECK_ELAPSED(INTERVAL_ID) && \
-    (!_TIMEBASE_INTERVAL_CHECK_OVERRUN(INTERVAL_ID) || (OUT = TIMEBASE_BUSY) || 1U) && \
-    _TIMEBASE_INTERVAL_SET_FLAG(INTERVAL_ID) \
-)
+typedef struct {
+    ticks start;
+    ticks interval;
+    timebase_task_callback exec;
+} TimebaseTask;
 
 /**
- * @brief Index of the intervals information
+ * @brief Definition of a scheduled task that has not been called yet
+ *
+ * @param t The time in which the task should be executed
+ * @param task A pointer to the task to run
  */
-typedef enum {
-    TIMEBASE_INTERVAL_ID_10_T = 0U,
-    TIMEBASE_INTERVAL_ID_20_T,
-    TIMEBASE_INTERVAL_ID_50_T,
-    TIMEBASE_INTERVAL_ID_100_T,
-    TIMEBASE_INTERVAL_ID_200_T,
-    TIMEBASE_INTERVAL_ID_500_T,
-    TIMEBASE_INTERVAL_ID_1000_T
-} TimebaseIntervalId;
-
-/**
- * @brief Position of the bit flag
- */
-const uint16_t interval_flag_pos[] = {
-    [TIMEBASE_INTERVAL_ID_10_T] = 1U,
-    [TIMEBASE_INTERVAL_ID_20_T] = 2U,
-    [TIMEBASE_INTERVAL_ID_50_T] = 4U,
-    [TIMEBASE_INTERVAL_ID_100_T] = 8U,
-    [TIMEBASE_INTERVAL_ID_200_T] = 9U,
-    [TIMEBASE_INTERVAL_ID_500_T] = 11U,
-    [TIMEBASE_INTERVAL_ID_1000_T] = 14U
-};
-
-/**
- * @brief Bit of the flag interval
- */
-const uint16_t interval_flag[] = {
-    [TIMEBASE_INTERVAL_ID_10_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_10_T],
-    [TIMEBASE_INTERVAL_ID_20_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_20_T],
-    [TIMEBASE_INTERVAL_ID_50_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_50_T],
-    [TIMEBASE_INTERVAL_ID_100_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_100_T],
-    [TIMEBASE_INTERVAL_ID_200_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_200_T],
-    [TIMEBASE_INTERVAL_ID_500_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_500_T],
-    [TIMEBASE_INTERVAL_ID_1000_T] = 1U << interval_flag_pos[TIMEBASE_INTERVAL_ID_1000_T]
-};
-
-/**
- * @brief Task intervals in ms
- */
-const ticks interval_ms[] = {
-    [TIMEBASE_INTERVAL_ID_10_T] = 10U,
-    [TIMEBASE_INTERVAL_ID_20_T] = 20U,
-    [TIMEBASE_INTERVAL_ID_50_T] = 50U,
-    [TIMEBASE_INTERVAL_ID_100_T] = 100U,
-    [TIMEBASE_INTERVAL_ID_200_T] = 200U,
-    [TIMEBASE_INTERVAL_ID_500_T] = 500U,
-    [TIMEBASE_INTERVAL_ID_1000_T] = 1000U,
-};
+typedef struct {
+    ticks t;
+    TimebaseTask * task;
+} TimebaseScheduledTask;
 
 /**
  * @brief Timebase handler structure
@@ -125,23 +73,69 @@ const ticks interval_ms[] = {
  * @param enabled True if the timebase is running, false otherwise
  * @param resolution Number of ms that represent one tick
  * @param t The current number of ticks
- * @param flags A 16 bit flag variable used to
  */
 static struct {
     bool enabled;
     time resolution; // in ms
     ticks t;
-    bit_flag16 flags;
-} htimebase;
+
+    TimebaseTask tasks[TASKS_COUNT];
+    MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled;
+} htimebase = {
+    .enabled = false,
+    .resolution = 1U,
+    .t = 0
+};
+
+int8_t _timebase_scheduled_task_compare(void * a, void * b) {
+    TimebaseScheduledTask * f = (TimebaseScheduledTask *)a;
+    TimebaseScheduledTask * s = (TimebaseScheduledTask *)b;
+
+    // Compare timestamps
+    if (f->t < s->t)
+        return -1;
+    return f->t == s->t ? 0 : 1;
+}
 
 TimebaseReturnCode timebase_init(time resolution_ms) {
-    htimebase.enabled = false;
-    htimebase.resolution = resolution_ms <= 0U ? 1U : resolution_ms;
-    htimebase.t = 0U;
+    if (resolution_ms > 0U)
+        htimebase.resolution = resolution_ms;
+
+    // Initialize the tasks
+    htimebase.tasks[TASKS_ID_SEND_STATUS].start = 0U;
+    htimebase.tasks[TASKS_ID_SEND_STATUS].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, htimebase.resolution);
+    htimebase.tasks[TASKS_ID_SEND_STATUS].exec = tasks_send_status;
+
+    htimebase.tasks[TASKS_ID_SEND_VERSION].start = 1U;
+    htimebase.tasks[TASKS_ID_SEND_VERSION].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, htimebase.resolution);
+    htimebase.tasks[TASKS_ID_SEND_VERSION].exec = tasks_send_version;
+
+    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].start = 2U;
+    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VOLTAGES_CYCLE_TIME_MS, htimebase.resolution);
+    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].exec = tasks_send_voltages;
+
+    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].start = 3U;
+    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_TEMPERATURES_CYCLE_TIME_MS, htimebase.resolution);
+    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].exec = tasks_send_temperatures;
+
+    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].start = 4U;
+    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].interval = TIMEBASE_TIME_TO_TICKS(200U, htimebase.resolution);
+    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].exec = tasks_check_watchdog;
+
+    // Initialize the heap
+    (void)min_heap_init(&htimebase.scheduled, TimebaseScheduledTask, TASKS_COUNT, _timebase_scheduled_task_compare);
+    for (size_t i = 0; i < TASKS_COUNT; ++i) {
+        TimebaseScheduledTask aux = {
+            .t = htimebase.tasks[i].start,
+            .task = &htimebase.tasks[i]
+        };
+        (void)min_heap_insert(&htimebase.scheduled, &aux);
+    }
+
     return TIMEBASE_OK;
 }
 
-void timebase_set_enable(bool enabled) {
+inline void timebase_set_enable(bool enabled) {
     htimebase.enabled = enabled;
 }
 
@@ -150,17 +144,7 @@ TimebaseReturnCode timebase_inc_tick(void) {
         return TIMEBASE_DISABLED;
 
     ++htimebase.t;
-    TimebaseReturnCode ret = TIMEBASE_OK;
-
-    /* !!! The value of ret could be modified by the macros !!! */
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_10_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_20_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_50_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_100_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_200_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_500_T, ret);
-    (void)_TIMEBASE_INTERVAL_CHECK(TIMEBASE_INTERVAL_ID_1000_T, ret);
-    return ret;
+    return TIMEBASE_OK;
 }
 
 ticks timebase_get_tick(void) {
@@ -168,51 +152,30 @@ ticks timebase_get_tick(void) {
 }
 
 time timebase_get_time(void) {
-    return htimebase.t * htimebase.resolution;
+    return TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
 }
 
+// TODO: Check delta time between the right time
 TimebaseReturnCode timebase_routine(void) {
     if (!htimebase.enabled)
         return TIMEBASE_DISABLED;
 
-    size_t byte_size = 0U;
-    void * payload = NULL;
+    // Execute all the tasks which interval has already elapsed
+    TimebaseScheduledTask * aux = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
+    while (aux != NULL && aux->t <= htimebase.t) {
+        // Get and execute current task
+        TimebaseScheduledTask task;
+        (void)min_heap_remove(&htimebase.scheduled, 0, &task);
 
-    // TODO: Add tasks at given intervals
-    if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_10_T)) {
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_10_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_20_T)) {
-        // FSM status
-        payload = fsm_get_can_payload(&byte_size);
-        can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_20_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_50_T)) {
-        // Voltages and temperatures
-        payload = volt_get_canlib_payload(&byte_size);
-        can_comm_tx_add(BMS_CELLS_VOLTAGES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-        payload = temp_get_canlib_payload(&byte_size);
-        can_comm_tx_add(BMS_CELLS_TEMPERATURES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_50_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_100_T)) {
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_100_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_200_T)) {
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_200_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_500_T)) {
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_500_T);
-    }
-    else if (_TIMEBASE_INTERVAL_GET_FLAG(TIMEBASE_INTERVAL_ID_1000_T)) {
-        // Version
-        payload = identity_get_can_payload(&byte_size);
-        can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+        ticks t = htimebase.t; // Copy ticks value to avoid inconsistencies caused by interrupts
+        task.t = t + task.task->interval;
+        task.task->exec(t, TIMEBASE_TICKS_TO_TIME(t, htimebase.resolution));
 
-        // Check watchdog
-        watchdog_routine(timebase_get_time());
-        _TIMEBASE_INTERVAL_RESET_FLAG(TIMEBASE_INTERVAL_ID_1000_T);
+        // If the interval is 0 do not insert again the task inside the heap (i.e. runs only once)
+        if (task.task->interval > 0U)
+            (void)min_heap_insert(&htimebase.scheduled, &task);
+
+        aux = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
     }
     return TIMEBASE_OK;
 }

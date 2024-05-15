@@ -35,6 +35,7 @@ typedef enum {
  * @brief Initialize the timebase handler
  *
  * @param resolution The amount of time that represent one tick (in ms)
+ *
  * @return TimebaseReturnCode
  *     - TIMEBASE_OK
  */
@@ -52,7 +53,6 @@ void timebase_set_enable(bool enabled);
  * 
  * @return TimebaseReturnCode
  *     - TIMEBASE_DISABLED if the timebase is disabled
- *     - TIMEBASE_BUSY if the timebase is disabled
  *     - TIMEBASE_OK otherwise
  */
 TimebaseReturnCode timebase_inc_tick(void);

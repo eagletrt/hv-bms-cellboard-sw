@@ -48,6 +48,7 @@ ULIBS_DIR = $(LIB_DIR)/micro-libs
 -include $(ULIBS_DIR)/blinky/blinky.mk
 -include $(ULIBS_DIR)/bms-monitor/bms-monitor.mk
 -include $(ULIBS_DIR)/ring-buffer/ring-buffer.mk
+-include $(ULIBS_DIR)/min-heap/min-heap.mk
 
 ######################################
 # source
@@ -59,6 +60,7 @@ $(shell find $(CANLIB_DIR)/bms -name "*.c") \
 $(BLINKY_C_SOURCES) \
 $(BMS_MONITOR_C_SOURCES) \
 $(RING_BUFFER_C_SOURCES) \
+$(MIN_HEAP_C_SOURCES) \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c \
@@ -148,6 +150,7 @@ $(addprefix -I,$(shell find $(CANLIB_DIR)/bms -type d)) \
 $(BLINKY_C_INCLUDE_DIRS_PREFIX) \
 $(BMS_MONITOR_C_INCLUDE_DIRS_PREFIX) \
 $(RING_BUFFER_C_INCLUDE_DIRS_PREFIX) \
+$(MIN_HEAP_C_INCLUDE_DIRS_PREFIX) \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32G4xx/Include \
