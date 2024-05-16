@@ -15,6 +15,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
+#ifdef DO_NOT_DEFINE
 
 /**
  * @brief Return code for the watchdog module functions
@@ -30,7 +31,7 @@ typedef enum {
     WATCHDOG_TIMEOUT
 } WatchdogReturnCode;
 
-#ifdef CONF_WATCHDOG_MODULE_ENABLE
+#ifdef DO_NOT_DEFINE
 
 /**
  * @brief Initialize the watchdogs
@@ -140,3 +141,5 @@ WatchdogReturnCode watchdog_routine(time timestamp);
 #endif // CONF_WATCHDOG_MODULE_ENABLE
 
 #endif  // WATCHDOG_H
+
+#endif

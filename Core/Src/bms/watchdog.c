@@ -12,7 +12,8 @@
 #include "bms_network.h"
 #include "bms_watchdog.h"
 
-#ifdef CONF_WATCHDOG_MODULE_ENABLE
+// TODO: Use custom watchdogs or merge?
+#ifdef DO_NOT_DEFINE
 
 #define WATCHDOG_INDEX_COUNT 1
 

@@ -42,29 +42,15 @@ typedef struct {
 } TimebaseScheduledTask;
 
 /**
- * @brief Definition of a software watchdog
- *
- * @param running True if the watchdog is running, false otherwise
- * @param timeout The number of ticks that should elapse for the timeout
- * @param expired The function to call when the watchdog times out
- */
-typedef struct {
-    bool running;
-    ticks timeout;
-    timebase_watchdog_timeout_callback expired;
-} TimebaseWatchdog;
-
-/**
  * @brief Definition of a running watchdog
  *
  * @param t The time in which the watchdog should timeout
- * @param wdg A pointer to the watchdog structure
+ * @param watchdog A pointer to the watchdog handler structure
  */
 typedef struct {
     ticks t;
-    TimebaseWatchdog * wdg;
+    Watchdog * watchdog;
 } TimebaseRunningWatchdog;
-
 
 /**
  * @brief Timebase handler structure
@@ -87,14 +73,11 @@ static struct {
     MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled;
 
     // Watchdogs
-    size_t wdg_index;
-    TimebaseWatchdog watchdogs[TIMEBASE_WATCHDOG_COUNT];
-    MinHeap(TimebaseRunningWatchdog, TIMEBASE_WATCHDOG_COUNT) wdg_running;
+    MinHeap(TimebaseRunningWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT) wdg_running;
 } htimebase = {
     .enabled = false,
     .resolution = 1U,
-    .t = 0,
-    .wdg_index = 0
+    .t = 0
 };
 
 int8_t _timebase_scheduled_task_compare(void * a, void * b) {
@@ -120,19 +103,18 @@ int8_t _timebase_watchdog_compare(void * a, void * b) {
     TimebaseRunningWatchdog * f = (TimebaseRunningWatchdog *)a;
     TimebaseRunningWatchdog * s = (TimebaseRunningWatchdog *)b;
 
+    /**************************************************************************
+     * For the equality check, only the pointers to the watchdogs are checked
+     * This can cause problems if multiple instances of the same watchdog are
+     * inserted in the heap, but in this case a watchdog can be inserted inside
+     * the heap only once
+     ***************************************************************************/
+    if (f->watchdog == s->watchdog)
+        return 0;
+
     // Compare timestamps
     if (f->t < s->t) return -1;
-    if (f->t > s->t) return 1;
-
-    /**************************************************************************
-     * For the equality check, in addition to the ticks, the pointers to the
-     * watchdog must also be equal, otherwise -1 or 1 may be returned
-     * In this case 1 is preferred because it avoid useless swaps between
-     * elements that have the same number of ticks
-     ***************************************************************************/
-    if (f->wdg == s->wdg)
-        return 0;
-    return 1;
+    return f->t == s->t ? 0 : 1;
 }
 
 TimebaseReturnCode timebase_init(time resolution_ms) {
@@ -163,7 +145,7 @@ TimebaseReturnCode timebase_init(time resolution_ms) {
     }
 
     // Initialize the watchdogs heap
-    (void)min_heap_init(&htimebase.wdg_running, TimebaseRunningWatchdog, TIMEBASE_WATCHDOG_COUNT, _timebase_watchdog_compare);
+    (void)min_heap_init(&htimebase.wdg_running, TimebaseRunningWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT, _timebase_watchdog_compare);
     return TIMEBASE_OK;
 }
 
@@ -191,30 +173,35 @@ time timebase_get_resolution(void) {
     return htimebase.resolution;
 }
 
-TimebaseReturnCode timebase_watchdog_start(ticks timeout, timebase_watchdog_timeout_callback expired) {
-    if (expired == NULL)
+TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog) {
+    if (watchdog == NULL)
         return TIMEBASE_NULL_POINTER;
 
-    // Find an available watchog
-    size_t i = htimebase.wdg_index;
-    size_t cnt = 0;
-    for (; htimebase.watchdogs[i].running && cnt < TIMEBASE_WATCHDOG_COUNT; ++cnt, ++i)
-        i %= TIMEBASE_WATCHDOG_COUNT;
-    if (cnt >= TIMEBASE_WATCHDOG_COUNT)
+    TimebaseRunningWatchdog aux = {
+        .t = 0U,
+        .watchdog = watchdog
+    };
+    if (min_heap_find(&htimebase.wdg_running, &aux) >= 0)
         return TIMEBASE_BUSY;
 
-    // Update the index
-    htimebase.wdg_index = (i + 1) % TIMEBASE_WATCHDOG_COUNT;
-
-    // Start the watchdog
-    htimebase.watchdogs[i].timeout = timeout;
-    htimebase.watchdogs[i].expired = expired;
-    htimebase.watchdogs[i].running = true;
-    TimebaseRunningWatchdog aux = {
-        .t = htimebase.t + timeout,
-        .wdg = &htimebase.watchdogs[i]
-    };
+    aux.t = htimebase.t + watchdog->timeout;
     (void)min_heap_insert(&htimebase.wdg_running, &aux);
+    return TIMEBASE_OK;
+}
+
+TimebaseReturnCode timebase_unregister_watchdog(Watchdog * watchdog) {
+    if (watchdog == NULL)
+        return TIMEBASE_NULL_POINTER;
+    
+    // Get and remove the running watchdog from the heap
+    TimebaseRunningWatchdog aux = {
+        .t = 0U,
+        .watchdog = watchdog
+    };
+    signed_size_t i = min_heap_find(&htimebase.wdg_running, &aux);
+    if (i < 0)
+        return TIMEBASE_OK;
+    (void)min_heap_remove(&htimebase.wdg_running, i, NULL);
     return TIMEBASE_OK;
 }
 
@@ -249,8 +236,7 @@ TimebaseReturnCode timebase_routine(void) {
         (void)min_heap_remove(&htimebase.wdg_running, 0U, &wdg);
 
         // Disable and execute the watchdog timeout callback
-        wdg.wdg->running = false;
-        wdg.wdg->expired();
+        wdg.watchdog->expire();
     
         wdg_p = (TimebaseRunningWatchdog *)min_heap_peek(&htimebase.wdg_running);
     }

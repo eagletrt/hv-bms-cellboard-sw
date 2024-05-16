@@ -14,12 +14,10 @@
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
+#include "watchdog.h"
 
-/** @brief Maximum number of watchdogs available */
-#define TIMEBASE_WATCHDOG_COUNT (16U)
-
-/** @brief Type definition for a function that is called if a watchdog times-out */
-typedef void (* timebase_watchdog_timeout_callback)(void);
+/** @brief Maximum number of watchdogs that can be handled simultaneously */
+#define TIMEBASE_RUNNING_WATCHDOG_COUNT (16U)
 
 /**
  * @brief Return code for the timebase module functions
@@ -88,20 +86,31 @@ time timebase_get_time(void);
 time timebase_get_resolution(void);
 
 /**
- * @brief Start a watchdog
+ * @brief Register a watchdog into the timebase
  *
- * @details The watchdog is started even if the timebase is not enabled
- * but it will not run until the timebase is enabled again
+ * @details If the timebase is not enable the watchdog is started but not updated
  *
- * @param timeout The duration of the watchdog in ticks
- * @param expire A pointer to the function that is called when the watchdog times-out
+ * @param Watchdog A pointer to the watchdog handler structure
  *
  * @return TimebaseReturnCode
- *     - TIMEBASE_NULL_POINTER if the function callback pointer is NULL
- *     - TIMEBASE_BUSY if there are no available watchdogs
+ *     - TIMEBASE_NULL_POINTER if the watchdog is NULL
+ *     - TIMEBASE_BUSY if the watchdog is already running
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_watchdog_start(ticks timeout, timebase_watchdog_timeout_callback expired);
+TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog);
+
+/**
+ * @brief Unregister a watchdog from the timebase
+ *
+ * @details The watchdog is unregistered even if the timebase is not enabled
+ *
+ * @param watchdog The watchdog handler structure
+ *
+ * @return TimebaseReturnCode
+ *     - TIMEBASE_NULL_POINTER if the watchdog pointer is NULL
+ *     - TIMEBASE_OK otherwise
+ */
+TimebaseReturnCode timebase_unregister_watchdog(Watchdog * handler);
 
 /**
  * @brief Routine that checks which functions shuold run during this
@@ -120,7 +129,8 @@ TimebaseReturnCode timebase_routine(void);
 #define timebase_get_tick() (0U)
 #define timebase_get_time() (0U)
 #define timebase_get_resolution() (1U) // The default value of 1 is used to avoid 0 division error
-#define timebase_watchdog_start(timeout, expire) (TIMEBASE_OK)
+#define timebase_regsiter_watchdog(watchdog) (TIMEBASE_OK)
+#define timebase_unregsiter_watchdog(watchdog) (TIMEBASE_OK)
 #define timebase_routine() (TIMEBASE_OK)
 
 #endif // CONF_TIMEBASE_MODULE_ENABLE
