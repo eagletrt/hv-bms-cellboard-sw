@@ -17,15 +17,31 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
-#include "can-comm.h"
-#include "fsm.h"
-#include "identity.h"
-
-#if defined(CONF_TIMEBASE_MODULE_ENABLE) && defined(TASKS_IMPLEMENTATION)
-
 /** @brief Total number of tasks */
 #define TASKS_COUNT (TASKS_ID_COUNT)
+
+/**
+ * @brief Convert the time in ms to ticks
+ *
+ * @param T The time to convert
+ * @param RES The resolution of a tick
+ *
+ * @return ticks The corresponing amount of ticks
+ */
+#define TIMEBASE_TIME_TO_TICKS(T, RES) ((ticks)((T) / (RES)))
+
+/**
+ * @brief Convert the ticks in ms
+ *
+ * @param T The ticks to convert
+ * @param RES The resolution of a tick
+ *
+ * @return time The corresponing amount of ms
+ */
+#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
+
+/** @brief Type definition for a function that excecutes a single task */
+typedef void (* tasks_callback)(void);
 
 /**
  * @brief Tasks identifiers
@@ -46,53 +62,73 @@ typedef enum {
     TASKS_ID_COUNT
 } TasksId;
 
+/**
+ * @brief Return code for the tasks module functions
+ *
+ * @details
+ *     - TASKS_OK the function executed succesfully
+ */
+typedef enum {
+    TASKS_OK
+} TasksReturnCode;
+
+#ifdef CONF_TASKS_MODULE_ENABLE
+
+/**
+ * @brief Initialize the tasks module
+ *
+ * @param resolution The timebase resolution
+ *
+ * @return TasksReturnCode
+ *     - TASKS_OK
+ */
+TasksReturnCode tasks_init(time resolution);
+
+/**
+ * @brief Get the task interval from its identifier
+ *
+ * @param id The task identifier
+ *
+ * @return ticks The task interval or 0 if not found
+ */
+ticks tasks_get_interval_from_id(TasksId id);
+
+/**
+ * @brief Get the task callback from its identifier
+ *
+ * @param id The task identifier
+ *
+ * @return tasks_callback A pointer to the task callaback or NULL if not found
+ */
+tasks_callback tasks_get_callback_from_id(TasksId id);
+
+
 // TODO: Handle return codes
 
 /** @brief Get and send the status of the FSM */
-void tasks_send_status(ticks tick, time ms) {
-    CELLBOARD_UNUSED(tick);
-    CELLBOARD_UNUSED(ms);
-
-    size_t byte_size;
-    void * payload = fsm_get_can_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
+void tasks_send_status(void);
 
 /** @brief Get and send info about the versions */
-void tasks_send_version(ticks tick, time ms) {
-    CELLBOARD_UNUSED(tick);
-    CELLBOARD_UNUSED(ms);
-
-    size_t byte_size;
-    void * payload = identity_get_can_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
+void tasks_send_version(void);
 
 /** @brief Get and send the cells voltages */
-void tasks_send_voltages(ticks tick, time ms) {
-    CELLBOARD_UNUSED(tick);
-    CELLBOARD_UNUSED(ms);
-
-    size_t byte_size;
-    void * payload = volt_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_VOLTAGES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
+void tasks_send_voltages(void);
 
 /** @brief Get and send the cells temperatures */
-void tasks_send_temperatures(ticks tick, time ms) {
-    CELLBOARD_UNUSED(tick);
-    CELLBOARD_UNUSED(ms);
-
-    size_t byte_size;
-    void * payload = temp_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_TEMPERATURES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
+void tasks_send_temperatures(void);
 
 /** @brief Check the watchdog status */
-void tasks_check_watchdog(ticks tick, time ms) {
-    CELLBOARD_UNUSED(tick);
+void tasks_check_watchdog(void);
 
-    watchog_routine(ms);
-}
+#else  // CONF_TASKS_MODULE_ENABLE
 
-#endif // CONF_TIMEBASE_MODULE_ENABLE && TASKS_IMPLEMENTATION
+#define tasks_init(resolution) (TASKS_OK)
+#define tasks_get_interval_from_id(id) (0U)
+#define tasks_get_callback_from_id(id) (NULL)
+#define tasks_send_status CELLBOARD_NOPE()
+#define tasks_send_version CELLBOARD_NOPE()
+#define tasks_send_voltages CELLBOARD_NOPE()
+#define tasks_send_temperatures CELLBOARD_NOPE()
+#define tasks_send_watchdog CELLBOARD_NOPE()
+
+#endif // CONF_TASKS_MODULE_ENABLE

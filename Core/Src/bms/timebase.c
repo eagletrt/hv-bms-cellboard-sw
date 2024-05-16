@@ -10,36 +10,10 @@
 
 #include "bms_network.h"
 #include "min-heap.h"
+#include "tasks.h"
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
 
-// Include the tasks
-#define TASKS_IMPLEMENTATION
-#include "tasks.h"
-
-/**
- * @brief Convert the time in ms to ticks
- *
- * @param T The time to convert
- * @param RES The resolution of a tick
- *
- * @return ticks The corresponing amount of ticks
- */
-#define TIMEBASE_TIME_TO_TICKS(T, RES) ((ticks)((T) / (RES)))
-
-/**
- * @brief Convert the ticks in ms
- *
- * @param T The ticks to convert
- * @param RES The resolution of a tick
- *
- * @return time The corresponing amount of ms
- */
-#define _TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
-
-
-/** @brief Type definition for a function that excecutes a single task */
-typedef void (* timebase_task_callback)(ticks tick, time ms);
 
 /**
  * @brief Definition of a single task
@@ -53,7 +27,7 @@ typedef void (* timebase_task_callback)(ticks tick, time ms);
 typedef struct {
     ticks start;
     ticks interval;
-    timebase_task_callback exec;
+    tasks_callback exec;
 } TimebaseTask;
 
 /**
@@ -68,23 +42,59 @@ typedef struct {
 } TimebaseScheduledTask;
 
 /**
+ * @brief Definition of a software watchdog
+ *
+ * @param running True if the watchdog is running, false otherwise
+ * @param timeout The number of ticks that should elapse for the timeout
+ * @param expired The function to call when the watchdog times out
+ */
+typedef struct {
+    bool running;
+    ticks timeout;
+    timebase_watchdog_timeout_callback expired;
+} TimebaseWatchdog;
+
+/**
+ * @brief Definition of a running watchdog
+ *
+ * @param t The time in which the watchdog should timeout
+ * @param wdg A pointer to the watchdog structure
+ */
+typedef struct {
+    ticks t;
+    TimebaseWatchdog * wdg;
+} TimebaseRunningWatchdog;
+
+
+/**
  * @brief Timebase handler structure
  *
  * @param enabled True if the timebase is running, false otherwise
  * @param resolution Number of ms that represent one tick
  * @param t The current number of ticks
+ * @param tasks The array of tasks to execute
+ * @param scheduled The heap of scheduled tasks that has to be executed
+ * @param watchdogs The array of watchdogs
+ * @param running_wdg The heap of running watchdogs
  */
 static struct {
     bool enabled;
     time resolution; // in ms
     ticks t;
 
+    // Tasks
     TimebaseTask tasks[TASKS_COUNT];
     MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled;
+
+    // Watchdogs
+    size_t wdg_index;
+    TimebaseWatchdog watchdogs[TIMEBASE_WATCHDOG_COUNT];
+    MinHeap(TimebaseRunningWatchdog, TIMEBASE_WATCHDOG_COUNT) wdg_running;
 } htimebase = {
     .enabled = false,
     .resolution = 1U,
-    .t = 0
+    .t = 0,
+    .wdg_index = 0
 };
 
 int8_t _timebase_scheduled_task_compare(void * a, void * b) {
@@ -96,12 +106,31 @@ int8_t _timebase_scheduled_task_compare(void * a, void * b) {
     if (f->t > s->t) return 1;
 
     /**************************************************************************
-     * For the equality check, in addition to the ticks, the pointers to the task
-     * must also be equal, otherwise -1 or 1 may be returned
-     * In this case 1 is preferred because it avoid useless swaps between elements
-     * that have the same number of ticks
+     * For the equality check, in addition to the ticks, the pointers to the
+     * task must also be equal, otherwise -1 or 1 may be returned
+     * In this case 1 is preferred because it avoid useless swaps between
+     * elements that have the same number of ticks
      ***************************************************************************/
     if (f->task == s->task)
+        return 0;
+    return 1;
+}
+
+int8_t _timebase_watchdog_compare(void * a, void * b) {
+    TimebaseRunningWatchdog * f = (TimebaseRunningWatchdog *)a;
+    TimebaseRunningWatchdog * s = (TimebaseRunningWatchdog *)b;
+
+    // Compare timestamps
+    if (f->t < s->t) return -1;
+    if (f->t > s->t) return 1;
+
+    /**************************************************************************
+     * For the equality check, in addition to the ticks, the pointers to the
+     * watchdog must also be equal, otherwise -1 or 1 may be returned
+     * In this case 1 is preferred because it avoid useless swaps between
+     * elements that have the same number of ticks
+     ***************************************************************************/
+    if (f->wdg == s->wdg)
         return 0;
     return 1;
 }
@@ -111,27 +140,19 @@ TimebaseReturnCode timebase_init(time resolution_ms) {
         htimebase.resolution = resolution_ms;
 
     // Initialize the tasks
-    htimebase.tasks[TASKS_ID_SEND_STATUS].start = 0U;
-    htimebase.tasks[TASKS_ID_SEND_STATUS].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, htimebase.resolution);
-    htimebase.tasks[TASKS_ID_SEND_STATUS].exec = tasks_send_status;
+    tasks_init(resolution_ms);
+    for (TasksId id = 0; id < TASKS_ID_COUNT; ++id) {
+        ticks interval = tasks_get_interval_from_id(id);
+        tasks_callback exec = tasks_get_callback_from_id(id);
+        if (exec == NULL)
+            return TIMEBASE_NULL_POINTER;
 
-    htimebase.tasks[TASKS_ID_SEND_VERSION].start = 1U;
-    htimebase.tasks[TASKS_ID_SEND_VERSION].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, htimebase.resolution);
-    htimebase.tasks[TASKS_ID_SEND_VERSION].exec = tasks_send_version;
+        htimebase.tasks[id].start = id;
+        htimebase.tasks[id].interval = interval;
+        htimebase.tasks[id].exec = exec;
+    }
 
-    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].start = 2U;
-    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VOLTAGES_CYCLE_TIME_MS, htimebase.resolution);
-    htimebase.tasks[TASKS_ID_SEND_VOLTAGES].exec = tasks_send_voltages;
-
-    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].start = 3U;
-    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].interval = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_TEMPERATURES_CYCLE_TIME_MS, htimebase.resolution);
-    htimebase.tasks[TASKS_ID_SEND_TEMPERATURES].exec = tasks_send_temperatures;
-
-    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].start = 4U;
-    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].interval = TIMEBASE_TIME_TO_TICKS(200U, htimebase.resolution);
-    htimebase.tasks[TASKS_ID_CHECK_WATCHDOG].exec = tasks_check_watchdog;
-
-    // Initialize the heap
+    // Initialize the task heap
     (void)min_heap_init(&htimebase.scheduled, TimebaseScheduledTask, TASKS_COUNT, _timebase_scheduled_task_compare);
     for (size_t i = 0; i < TASKS_COUNT; ++i) {
         TimebaseScheduledTask aux = {
@@ -141,6 +162,8 @@ TimebaseReturnCode timebase_init(time resolution_ms) {
         (void)min_heap_insert(&htimebase.scheduled, &aux);
     }
 
+    // Initialize the watchdogs heap
+    (void)min_heap_init(&htimebase.wdg_running, TimebaseRunningWatchdog, TIMEBASE_WATCHDOG_COUNT, _timebase_watchdog_compare);
     return TIMEBASE_OK;
 }
 
@@ -161,30 +184,75 @@ ticks timebase_get_tick(void) {
 }
 
 time timebase_get_time(void) {
-    return _TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
+    return TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
 }
 
-// TODO: Check delta time between the right time
+time timebase_get_resolution(void) {
+    return htimebase.resolution;
+}
+
+TimebaseReturnCode timebase_watchdog_start(ticks timeout, timebase_watchdog_timeout_callback expired) {
+    if (expired == NULL)
+        return TIMEBASE_NULL_POINTER;
+
+    // Find an available watchog
+    size_t i = htimebase.wdg_index;
+    size_t cnt = 0;
+    for (; htimebase.watchdogs[i].running && cnt < TIMEBASE_WATCHDOG_COUNT; ++cnt, ++i)
+        i %= TIMEBASE_WATCHDOG_COUNT;
+    if (cnt >= TIMEBASE_WATCHDOG_COUNT)
+        return TIMEBASE_BUSY;
+
+    // Update the index
+    htimebase.wdg_index = (i + 1) % TIMEBASE_WATCHDOG_COUNT;
+
+    // Start the watchdog
+    htimebase.watchdogs[i].timeout = timeout;
+    htimebase.watchdogs[i].expired = expired;
+    htimebase.watchdogs[i].running = true;
+    TimebaseRunningWatchdog aux = {
+        .t = htimebase.t + timeout,
+        .wdg = &htimebase.watchdogs[i]
+    };
+    (void)min_heap_insert(&htimebase.wdg_running, &aux);
+    return TIMEBASE_OK;
+}
+
+// TODO: Check delta time between the right time?
 TimebaseReturnCode timebase_routine(void) {
     if (!htimebase.enabled)
         return TIMEBASE_DISABLED;
 
     // Execute all the tasks which interval has already elapsed
-    TimebaseScheduledTask * aux = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
-    while (aux != NULL && aux->t <= htimebase.t) {
+    TimebaseScheduledTask * task_p = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
+    while (task_p != NULL && task_p->t <= htimebase.t) {
         // Get and execute current task
-        TimebaseScheduledTask task;
-        (void)min_heap_remove(&htimebase.scheduled, 0, &task);
+        TimebaseScheduledTask task = { 0 };
+        (void)min_heap_remove(&htimebase.scheduled, 0U, &task);
 
         ticks t = htimebase.t; // Copy ticks value to avoid inconsistencies caused by interrupts
         task.t = t + task.task->interval;
-        task.task->exec(t, _TIMEBASE_TICKS_TO_TIME(t, htimebase.resolution));
+        task.task->exec();
 
         // If the interval is 0 do not insert again the task inside the heap (i.e. runs only once)
         if (task.task->interval > 0U)
             (void)min_heap_insert(&htimebase.scheduled, &task);
 
-        aux = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
+        task_p = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled);
+    }
+
+    // Check if the watchdogs has already timed-out
+    TimebaseRunningWatchdog * wdg_p = (TimebaseRunningWatchdog *)min_heap_peek(&htimebase.wdg_running);
+    while (wdg_p != NULL && wdg_p->t <= htimebase.t) {
+        // Get the watchdog
+        TimebaseRunningWatchdog wdg = { 0 };
+        (void)min_heap_remove(&htimebase.wdg_running, 0U, &wdg);
+
+        // Disable and execute the watchdog timeout callback
+        wdg.wdg->running = false;
+        wdg.wdg->expired();
+    
+        wdg_p = (TimebaseRunningWatchdog *)min_heap_peek(&htimebase.wdg_running);
     }
     return TIMEBASE_OK;
 }
@@ -195,12 +263,14 @@ static char * timebase_module_name = "timebase";
 
 static char * timebase_return_code_name[] = {
     [TIMEBASE_OK] = "ok",
+    [TIMEBASE_NULL_POINTER] = "null pointer",
     [TIMEBASE_DISABLED] = "disabled",
     [TIMEBASE_BUSY] = "busy"
 };
 
 static char * timebase_return_code_description[] = {
     [TIMEBASE_OK] = "executed successfully",
+    [TIMEBASE_NULL_POINTER] = "attempt to dereference a null pointer",
     [TIMEBASE_DISABLE] = "the timebase is not enabled",
     [TIMEBASE_BUSY] = "the timebase couldn't perform the requested operation"
 };
