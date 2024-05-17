@@ -22,7 +22,11 @@ WatchdogReturnCode watchdog_init(
 {
     if (watchdog == NULL || expire == NULL)
         return WATCHDOG_NULL_POINTER;
+    // TODO: Check if the watchdog is registered
+    // if (timebase_is_registered_watchdog(watchdog))
+    //     return WATCHDOG_BUSY;
 
+    // Init watchdog
     watchdog->running = false;
     watchdog->timeout = timeout;
     watchdog->expire = expire;
@@ -32,7 +36,11 @@ WatchdogReturnCode watchdog_init(
 WatchdogReturnCode watchdog_deinit(Watchdog * watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
+
+    // Unregister before deinit
+    (void)timebase_unregister_watchdog(watchdog);
     
+    // Deinit watchdog
     watchdog->running = false;
     watchdog->timeout = 0U;
     watchdog->expire = _watchdog_timeout_dummy;
@@ -43,10 +51,12 @@ WatchdogReturnCode watchdog_start(Watchdog * watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->running)
-        return WATCHDOG_OK;
+        return WATCHDOG_BUSY;
     
+    // Start and register the watchdog to the timebase
+    if (timebase_register_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
+        return WATCHDOG_UNAVAILABLE;
     watchdog->running = true;
-    timebase_register_watchdog(watchdog);
     return WATCHDOG_OK;
 }
 
@@ -54,10 +64,23 @@ WatchdogReturnCode watchdog_stop(Watchdog * watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (!watchdog->running)
-        return WATCHDOG_OK;
+        return WATCHDOG_NOT_RUNNING;
     
-    timebase_unregister_watchdog(watchdog);
+    // Stop and unregister the watchdog to the timebase
+    (void)timebase_unregister_watchdog(watchdog);
     watchdog->running = false;
+    return WATCHDOG_OK;
+}
+
+WatchdogReturnCode watchdog_reset(Watchdog * watchdog) {
+    if (watchdog == NULL)
+        return WATCHDOG_NULL_POINTER;
+    if (!watchdog->running)
+        return WATCHDOG_NOT_RUNNING;
+    
+    // Update the watchdog registered in the timebase
+    if (timebase_update_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
+        return WATCHDOG_UNAVAILABLE;
     return WATCHDOG_OK;
 }
 
@@ -69,12 +92,18 @@ static char * watchdog_module_name = "watchdog";
 
 static char * watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "ok",
-    [WATCHDOG_NULL_POINTER] = "null pointer"
+    [WATCHDOG_NULL_POINTER] = "null pointer",
+    [WATCHDOG_BUSY] = "busy",
+    [WATCHDOG_NOT_RUNNING] = "not running",
+    [WATCHDOG_UNAVAILABLE] = "unavailable"
 };
 
 static char * watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "executed sucessfully",
     [WATCHDOG_NULL_POINTER] = "attempt to dereference a null pointer"
+    [WATCHDOG_BUSY] = "the watchdog is already running",
+    [WATCHDOG_NOT_RUNNING] = "the watchdog is not running",
+    [WATCHDOG_UNAVAILABLE] = "the watchdog can't be registered"
 };
 
 #endif // CONF_WATCHDOG_STRINGS_ENABLE

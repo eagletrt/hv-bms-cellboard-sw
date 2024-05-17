@@ -185,7 +185,8 @@ TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog) {
         return TIMEBASE_BUSY;
 
     aux.t = htimebase.t + watchdog->timeout;
-    (void)min_heap_insert(&htimebase.wdg_running, &aux);
+    if (min_heap_insert(&htimebase.wdg_running, &aux) == MIN_HEAP_FULL)
+        return TIMEBASE_WATCHDOG_UNAVAILABLE;
     return TIMEBASE_OK;
 }
 
@@ -200,9 +201,33 @@ TimebaseReturnCode timebase_unregister_watchdog(Watchdog * watchdog) {
     };
     signed_size_t i = min_heap_find(&htimebase.wdg_running, &aux);
     if (i < 0)
-        return TIMEBASE_OK;
+        return TIMEBASE_WATCHDOG_NOT_REGISTERED;
     (void)min_heap_remove(&htimebase.wdg_running, i, NULL);
     return TIMEBASE_OK;
+}
+
+TimebaseReturnCode timebase_update_watchdog(Watchdog * watchdog) {
+    if (watchdog == NULL)
+        return TIMEBASE_NULL_POINTER;
+
+    // Get the running watchdog
+    TimebaseRunningWatchdog aux = {
+        .t = 0U,
+        .watchdog = watchdog
+    };
+    signed_size_t i = min_heap_find(&htimebase.wdg_running, &aux);
+
+    // Remove, update and re-insert the item in the heap
+    if (i < 0)
+        return TIMEBASE_WATCHDOG_NOT_REGISTERED;
+
+    (void)min_heap_remove(&htimebase.wdg_running, i, NULL);
+    
+    aux.t = htimebase.t + watchdog->timeout;
+    if (min_heap_insert(&htimebase.wdg_running, &aux) == MIN_HEAP_FULL)
+        return TIMEBASE_WATCHDOG_UNAVAILABLE;
+    return TIMEBASE_OK;
+
 }
 
 // TODO: Check delta time between the right time?
@@ -251,14 +276,18 @@ static char * timebase_return_code_name[] = {
     [TIMEBASE_OK] = "ok",
     [TIMEBASE_NULL_POINTER] = "null pointer",
     [TIMEBASE_DISABLED] = "disabled",
-    [TIMEBASE_BUSY] = "busy"
+    [TIMEBASE_BUSY] = "busy",
+    [TIMEBASE_WATCHDOG_NOT_REGISTERED] = "watchdog not registered",
+    [TIMEBASE_WATCHDOG_UNAVAILABLE] = "watchdog unavailable"
 };
 
 static char * timebase_return_code_description[] = {
     [TIMEBASE_OK] = "executed successfully",
     [TIMEBASE_NULL_POINTER] = "attempt to dereference a null pointer",
     [TIMEBASE_DISABLE] = "the timebase is not enabled",
-    [TIMEBASE_BUSY] = "the timebase couldn't perform the requested operation"
+    [TIMEBASE_BUSY] = "the timebase couldn't perform the requested operation",
+    [TIMEBASE_WATCHDOG_NOT_REGISTERED] = "the watchdog is not registered",
+    [TIMEBASE_WATCHDOG_UNAVAILABLE] = "the watchdog can't be registered inside the timebase"
 };
 
 #endif // CONF_TIMEBASE_STRINGS_ENABLE

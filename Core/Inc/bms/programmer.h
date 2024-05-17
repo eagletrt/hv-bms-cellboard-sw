@@ -18,10 +18,12 @@
  *
  * @details
  *     - PROGRAMMER_OK the function executed succesfully
+ *     - PROGRAMMER_BUSY the flash procedure is ongoing
  *     - PROGRAMMER_TIMEOUT the procedure has timed out
  */
 typedef enum {
     PROGRAMMER_OK,
+    PROGRAMMER_BUSY,
     PROGRAMMER_TIMEOUT
 } ProgrammerReturnCode;
 
@@ -56,7 +58,8 @@ void programmer_flash_handle(bms_cellboard_flash_converted_t * payload);
  *
  * @return ProgrammerReturnCode
  *     - PROGRAMMER_TIMEOUT if the flash procedure has timed out
- *     - PROGRAMMER_OK otherwise
+ *     - PROGRAMMER_OK if the flash procedure has finished
+ *     - PROGRAMMER_BUSY otherwise
  */
 ProgrammerReturnCode programmer_routine(void);
 

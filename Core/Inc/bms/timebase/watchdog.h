@@ -17,13 +17,23 @@
  * @details
  *     - WATCHDOG_OK the function exeuted succesfully
  *     - WATCHDOG_NULL_POINTER a NULL pointer was given to a function
+ *     - WATCHDOG_BUSY the watchdog is already running
+ *     - WATCHDOG_NOT_RUNNING the watchdog is not running
+ *     - WATCHDOG_UNAVAILABLE the watchdog is not registered inside the timebase
  */
 typedef enum {
     WATCHDOG_OK,
-    WATCHDOG_NULL_POINTER
+    WATCHDOG_NULL_POINTER,
+    WATCHDOG_BUSY,
+    WATCHDOG_NOT_RUNNING,
+    WATCHDOG_UNAVAILABLE
 } WatchdogReturnCode;
 
-/** @brief Type definition for a function that is called when the watchdog times-out */
+/**
+ * @brief Type definition for a function that is called when the watchdog times-out
+ * 
+ * @details When the watchdog times-out it unregister itself from the timebase automatically
+ */
 typedef void (* watchdog_timeout_callback)(void);
 
 /**
@@ -50,6 +60,7 @@ typedef struct {
  *
  * @return WatchdogReturnCode
  *     - WATCHDOG_NULL_POINTER if the watchdog or the expire pointers are NULL
+ *     - WATCHDOG_BUSY if the watchdog is already running
  *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_init(
@@ -76,6 +87,8 @@ WatchdogReturnCode watchdog_deinit(Watchdog * watchdog);
  *
  * @return WatchdogReturnCode
  *     - WATCHDOG_NULL_POINTER if the watchdog is NULL
+ *     - WATHCDOG_BUSY if the watchdog is already running
+ *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered
  *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_start(Watchdog * watchdog);
@@ -87,9 +100,25 @@ WatchdogReturnCode watchdog_start(Watchdog * watchdog);
  *
  * @return WatchdogReturnCode
  *     - WATCHDOG_NULL_POINTER if the watchdog is NULL
+ *     - WATCHDOG_NOT_RUNNING if the watchdog is not running
  *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_stop(Watchdog * watchdog);
+
+/**
+ * @brief Reset the watchdog internal time to 0
+ *
+ * @details The watchdog is not stopped after the reset
+ *
+ * @param watchdog A pointer to the watchdog
+ *
+ * @return WatchogReturnCode
+ *     - WATCHDOG_NULL_POINTER if the watchdog is NULL
+ *     - WATCHDOG_NOT_RUNNING if the watchdog is not running
+ *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered inside the timebase
+ *     - WATCHDOG_OK otherwise
+ */
+WatchdogReturnCode watchdog_reset(Watchdog * watchdog);
 
 #else  // CONF_WATCHDOG_MODULE_ENABLE
 
@@ -97,5 +126,6 @@ WatchdogReturnCode watchdog_stop(Watchdog * watchdog);
 #define watchdog_deinit(watchdog) (WATCHDOG_OK)
 #define watchdog_start(watchdog) (WATCHDOG_OK)
 #define watchdog_stop(watchdog) (WATCHDOG_OK)
+#define watchdog_reset(watchdog) (WATCHDOG_OK)
 
 #endif // CONF_WATCHDOG_MODULE_ENABLE

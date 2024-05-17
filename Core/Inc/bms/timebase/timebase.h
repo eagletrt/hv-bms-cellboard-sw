@@ -47,12 +47,16 @@
  *     - TIMEBASE_NULL_POINTER a NULL pointer was given to a function
  *     - TIMEBASE_DISABLED the timebase is not running
  *     - TIMEBASE_BUSY the timebase cannot perform the current operation because is busy with other actions
+ *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered inside the timebase
+ *     - TIMEBASE_WATCHDOG_UNAVAILABLE the given watchdog can't be registered inside the timebase
  */
 typedef enum {
     TIMEBASE_OK,
     TIMEBASE_NULL_POINTER,
     TIMEBASE_DISABLED,
-    TIMEBASE_BUSY
+    TIMEBASE_BUSY,
+    TIMEBASE_WATCHDOG_NOT_REGISTERED,
+    TIMEBASE_WATCHDOG_UNAVAILABLE
 } TimebaseReturnCode;
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
@@ -115,6 +119,7 @@ time_t timebase_get_resolution(void);
  * @return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if the watchdog is NULL
  *     - TIMEBASE_BUSY if the watchdog is already running
+ *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the timebase can't handle the watchdog
  *     - TIMEBASE_OK otherwise
  */
 TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog);
@@ -128,9 +133,27 @@ TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog);
  *
  * @return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if the watchdog pointer is NULL
+ *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered
  *     - TIMEBASE_OK otherwise
  */
 TimebaseReturnCode timebase_unregister_watchdog(Watchdog * handler);
+
+/**
+ * @brief Update the registered watchdog
+ *
+ * @attention During the update process the watchdog is unregistered and than registered again
+ * if the function returns TIMEBASE_WATCHDOG_UNAVAILABLE that means that the watchdog was
+ * unregistered but cannot be registered back (i.e. is not running anymore)
+ *
+ * @param watchdog A pointer to the watchdog
+ *
+ * @return TimebaseReturnCode
+ *     - TIMEBASE_NULL_POINTER if the watchdog is NULL
+ *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered
+ *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the watchdog can't be registered again
+ *     - TIMEBASE_OK otherwise
+ */
+TimebaseReturnCode timebase_update_watchdog(Watchdog * watchdog);
 
 /**
  * @brief Routine that checks which functions shuold run during this
@@ -151,6 +174,7 @@ TimebaseReturnCode timebase_routine(void);
 #define timebase_get_resolution() (1U) // The default value of 1 is used to avoid 0 division error
 #define timebase_regsiter_watchdog(watchdog) (TIMEBASE_OK)
 #define timebase_unregsiter_watchdog(watchdog) (TIMEBASE_OK)
+#define timebase_update_watchdog(watchdog) (TIMEBASE_OK)
 #define timebase_routine() (TIMEBASE_OK)
 
 #endif // CONF_TIMEBASE_MODULE_ENABLE
