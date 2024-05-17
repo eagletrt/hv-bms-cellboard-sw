@@ -33,7 +33,7 @@ typedef enum {
  * @param data A pointer to the data to send
  * @param size The length of the data in bytes
  */
-typedef void (* bms_monitor_send_callback)(uint8_t * data, size_t size);
+typedef void (* bms_monitor_send_callback_t)(uint8_t * data, size_t size);
 
 /**
  * @brief Callback used to send and receive data via SPI
@@ -43,7 +43,7 @@ typedef void (* bms_monitor_send_callback)(uint8_t * data, size_t size);
  * @param size The length of the sent data in bytes
  * @param out_size The length of the received data in bytes
  */
-typedef void (* bms_monitor_send_receive_callback)(
+typedef void (* bms_monitor_send_receive_callback_t)(
     uint8_t * data,
     uint8_t * out,
     size_t size,
@@ -64,8 +64,8 @@ typedef void (* bms_monitor_send_receive_callback)(
  *     - BMS_MONITOR_OK otherwise
  */
 BmsMonitorReturnCode bms_monitor_init(
-    bms_monitor_send_callback send,
-    bms_monitor_send_receive_callback send_receive
+    bms_monitor_send_callback_t send,
+    bms_monitor_send_receive_callback_t send_receive
 );
 
 /**

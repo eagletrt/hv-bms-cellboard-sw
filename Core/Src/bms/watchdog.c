@@ -19,7 +19,7 @@
 
 bms_watchdog watchdog;
 
-static can_index watched_ids[WATCHDOG_INDEX_COUNT] = {
+static can_index_t watched_ids[WATCHDOG_INDEX_COUNT] = {
     BMS_MAINBOARD_STATUS_INDEX
 };
 
@@ -31,15 +31,15 @@ WatchdogReturnCode watchdog_init(void) {
     return WATCHDOG_OK;
 }
 
-inline bool watchdog_is_active(can_index index) {
+inline bool watchdog_is_active(can_index_t index) {
     return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.activated, index);
 }
 
-inline bool watchdog_is_timed_out(can_index index) {
+inline bool watchdog_is_timed_out(can_index_t index) {
     return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.timeout, index);
 }
 
-WatchdogReturnCode watchdog_start(can_index index) {
+WatchdogReturnCode watchdog_start(can_index_t index) {
     if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
 
@@ -56,7 +56,7 @@ WatchdogReturnCode watchdog_start_all(void) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_stop(can_index index) {
+WatchdogReturnCode watchdog_stop(can_index_t index) {
     if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
 
@@ -73,10 +73,10 @@ WatchdogReturnCode watchdog_stop_all(void) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_reset(can_index index, time timestamp) {
+WatchdogReturnCode watchdog_reset(can_index_t index, time timestamp) {
     if (index >= bms_MESSAGE_COUNT)
         return WATCHDOG_INVALID_ID;
-    can_id id = bms_id_from_index(index);
+    can_id_t id = bms_id_from_index(index);
     // TODO: Change watchdog reset to get index instead of id
     bms_watchdog_reset(&watchdog, id, timestamp);
     return WATCHDOG_OK;

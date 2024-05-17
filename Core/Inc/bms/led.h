@@ -16,12 +16,12 @@
  *
  * @param state The state to set the LED to
  */
-typedef void (* led_set_state_callback)(LedStatus state);
+typedef void (* led_set_state_callback_t)(LedStatus state);
 
 /**
  * @brief Callback used to toggle the state of the LED
  */
-typedef void (* led_toggle_state_callback)(void);
+typedef void (* led_toggle_state_callback_t)(void);
 
 /**
  * @brief Return code for the LED module functions
@@ -51,7 +51,7 @@ typedef enum {
  *     - LED_NULL_POINTER if the set or toggle callbacks are NULL
  *     - LED_OK otherwise
  */
-LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle);
+LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t toggle);
 
 /**
  * @param Enable or disable the LED handler
@@ -68,7 +68,7 @@ void led_set_enable(bool enabled);
  * @return LedReturnCode
  *     LED_OK
  */
-LedReturnCode led_routine(time t);
+LedReturnCode led_routine(time_t t);
 
 
 #else  // CONF_LED_MODULE_ENABLE 

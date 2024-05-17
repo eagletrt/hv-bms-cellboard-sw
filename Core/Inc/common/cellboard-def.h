@@ -190,28 +190,28 @@
  */
 
 /** @brief Type definition for bit flags */
-typedef uint8_t bit_flag8;
-typedef uint16_t bit_flag16;
-typedef uint32_t bit_flag32;
+typedef uint8_t bit_flag8_t;
+typedef uint16_t bit_flag16_t;
+typedef uint32_t bit_flag32_t;
 
 
 /** @brief Type definition for the standard CAN 2.0a and CAN 2.0b (extended) identifiers */
-typedef uint16_t can_id;
-typedef uint32_t can_ext_id;
+typedef uint16_t can_id_t;
+typedef uint32_t can_ext_id_t;
 
 /**
  * @brief Type definition for a CAN index
  * 
  * @details Used to map the can identifiers
  */
-typedef int32_t can_index;
+typedef int32_t can_index_t;
 
 
 /** @brief Type definition for a custom amount of elapsed time */
-typedef uint32_t ticks;
+typedef uint32_t ticks_t;
 
 /** @brief Type definition for the time in ms */
-typedef uint32_t time;
+typedef uint32_t time_t;
 
 
 /**
@@ -219,10 +219,10 @@ typedef uint32_t time;
  * @details This type depends on the mechanism of acquisition of the temperatures
  * @details If and ADC is used the number of bits depends on its resolution
  */
-typedef uint16_t raw_temp;
+typedef uint16_t raw_temp_t;
 
 /** @brief Temperature value in °C */
-typedef float temp;
+typedef float temp_t;
 
 
 /**
@@ -230,14 +230,14 @@ typedef float temp;
  * @details This type depends on the mechanism of acquisition of the voltages
  * @details If and ADC is used the number of bits depends on its resolution
  */
-typedef uint16_t raw_volt;
+typedef uint16_t raw_volt_t;
 
 /** @brief Actual voltages */
-typedef float volt;
-typedef float millivolt;
+typedef float volt_t;
+typedef float millivolt_t;
 
 /** @brief Function callback that resets the microcontroller */
-typedef void (* system_reset_callback)(void);
+typedef void (* system_reset_callback_t)(void);
 
 /** @} */
 

@@ -33,9 +33,9 @@ CellboardId identity_get_cellboard_id(void);
 /**
  * @brief Get the cellboard software build time in unix timestamp format (seconds)
  *
- * @return time The build time
+ * @return time_t The build time
  */
-time identity_get_build_time(void);
+time_t identity_get_build_time(void);
 
 /**
  * @brief Get the cellboard software build time string in the following format
@@ -53,7 +53,5 @@ char * identity_get_string_build_time(void);
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
 bms_cellboard_version_converted_t * identity_get_can_payload(size_t * byte_size);
-
-
 
 #endif  // IDENTITY_H

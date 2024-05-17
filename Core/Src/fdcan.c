@@ -203,7 +203,7 @@ CanFrameType _can_get_index_from_frame_type(uint32_t index) {
 
 // TODO: Return and check errors
 CanCommReturnCode can_send(
-    can_id id,
+    can_id_t id,
     CanFrameType frame_type,
     const uint8_t * data,
     size_t size)

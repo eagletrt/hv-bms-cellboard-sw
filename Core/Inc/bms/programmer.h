@@ -33,7 +33,7 @@ typedef enum {
  * @return ProgrammerReturnCode
  *     - PROGRAMMER_OK
  */
-ProgrammerReturnCode programmer_init(system_reset_callback reset);
+ProgrammerReturnCode programmer_init(system_reset_callback_t reset);
 
 /**
  * @brief Handle the received flash request

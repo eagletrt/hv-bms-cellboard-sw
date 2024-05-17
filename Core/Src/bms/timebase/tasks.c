@@ -19,7 +19,7 @@
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
-static ticks tasks_interval[TASKS_COUNT] = { 
+static ticks_t tasks_interval[TASKS_COUNT] = { 
     [TASKS_ID_SEND_STATUS] = BMS_CELLBOARD_STATUS_CYCLE_TIME_MS,
     [TASKS_ID_SEND_VERSION] = BMS_CELLBOARD_VERSION_CYCLE_TIME_MS,
     [TASKS_ID_SEND_VOLTAGES] = BMS_CELLBOARD_VOLTAGES_CYCLE_TIME_MS,
@@ -27,7 +27,7 @@ static ticks tasks_interval[TASKS_COUNT] = {
     [TASKS_ID_CHECK_WATCHDOG] = 200U
 };
 
-TasksReturnCode tasks_init(time resolution) {
+TasksReturnCode tasks_init(time_t resolution) {
     if (resolution == 0U)
         resolution = 1U;
     tasks_interval[TASKS_ID_SEND_STATUS] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, resolution);
@@ -38,7 +38,7 @@ TasksReturnCode tasks_init(time resolution) {
     return TASKS_OK;
 }
 
-ticks tasks_get_interval_from_id(TasksId id) {
+ticks_t tasks_get_interval_from_id(TasksId id) {
     if (id < 0U && id >= TASKS_ID_COUNT)
         return 0U;
     return tasks_interval[id];

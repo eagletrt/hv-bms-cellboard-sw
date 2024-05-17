@@ -50,14 +50,14 @@ TempReturnCode temp_init(void);
  *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - TEMP_OK otherwise
  */
-TempReturnCode temp_update_value(size_t index, raw_temp value);
+TempReturnCode temp_update_value(size_t index, raw_temp_t value);
 
 /**
  * @brief Get a pointer to the array where the temperature values are stored
  *
- * @return raw_temp * The pointer to the array
+ * @return raw_temp_t * The pointer to the array
  */
-const raw_temp * temp_get_values(void);
+const raw_temp_t * temp_get_values(void);
 
 /**
  * @brief Copy a list of adjacent temperatures
@@ -73,7 +73,7 @@ const raw_temp * temp_get_values(void);
  *     - TEMP_OUT_OF_BOUNDS if the required range exceeds the maximum number of temperatures
  *     - TEMP_OK otherwise
  */
-TempReturnCode temp_dump_values(raw_temp * out, size_t start, size_t size);
+TempReturnCode temp_dump_values(raw_temp_t * out, size_t start, size_t size);
 
 /**
  * @brief Get a pointer to the CAN payload of the cells temperatures

@@ -16,37 +16,37 @@
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
 struct {
-    raw_temp temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
-    raw_temp discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
+    raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
+    raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
 
     bms_cell_temperatures_converted_t can_payload;
 } htemp;
 
 
 TempReturnCode temp_init(void) {
-    memset(htemp.temperatures, 0U, CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT * sizeof(raw_temp));
-    memset(htemp.discharge_temperatures, 0U, CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT * sizeof(raw_temp));
+    memset(htemp.temperatures, 0U, CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT * sizeof(raw_temp_t));
+    memset(htemp.discharge_temperatures, 0U, CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT * sizeof(raw_temp_t));
     htemp.can_payload.cellboard_id = identity_get_cellboard_id();
     return TEMP_OK;
 }
 
-TempReturnCode temp_update_value(size_t index, raw_temp value) {
+TempReturnCode temp_update_value(size_t index, raw_temp_t value) {
     if (index > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.temperatures[index] = value;
     return TEMP_OK;
 }
 
-const raw_temp * temp_get_values(void) {
+const raw_temp_t * temp_get_values(void) {
     return htemp.temperatures;
 }
 
-TempReturnCode temp_dump_values(raw_temp * out, size_t start, size_t size) {
+TempReturnCode temp_dump_values(raw_temp_t * out, size_t start, size_t size) {
     if (out == NULL)
         return TEMP_NULL_POINTER;
     if (start >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT || start + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    memcpy(out, htemp.temperatures + start, size * sizeof(raw_temp));
+    memcpy(out, htemp.temperatures + start, size * sizeof(raw_temp_t));
     return TEMP_OK;
 }
 

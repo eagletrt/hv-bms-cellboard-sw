@@ -15,35 +15,35 @@
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
 struct {
-    raw_volt voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
+    raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
 
     bms_cell_voltages_converted_t can_payload;
 } hvolt;
 
 
 VoltReturnCode volt_init(void) {
-    memset(hvolt.voltages, 0U, CELLBOARD_SEGMENT_SERIES_COUNT * sizeof(raw_volt));
+    memset(hvolt.voltages, 0U, CELLBOARD_SEGMENT_SERIES_COUNT * sizeof(raw_volt_t));
     hvolt.can_payload.cellboard_id = identity_get_cellboard_id();
     return VOLT_OK;
 }
 
-VoltReturnCode volt_update_value(size_t index, raw_volt value) {
+VoltReturnCode volt_update_value(size_t index, raw_volt_t value) {
     if (index > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     hvolt.voltages[index] = value;
     return VOLT_OK;
 }
 
-const raw_volt * volt_get_values(void) {
+const raw_volt_t * volt_get_values(void) {
     return hvolt.voltages;
 }
 
-VoltReturnCode volt_dump_values(raw_volt * out, size_t start, size_t size) {
+VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size) {
     if (out == NULL)
         return VOLT_NULL_POINTER;
     if (start >= CELLBOARD_SEGMENT_SERIES_COUNT || start + size >= CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
-    memcpy(out, hvolt.voltages + start, size * sizeof(raw_volt));
+    memcpy(out, hvolt.voltages + start, size * sizeof(raw_volt_t));
     return VOLT_OK;
 }
 

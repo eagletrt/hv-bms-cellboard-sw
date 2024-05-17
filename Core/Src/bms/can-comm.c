@@ -99,11 +99,11 @@
  * @param rx_conv The reception converted data of the message
  */
 static struct CanCommHandler  {
-    bit_flag8 enabled;
+    bit_flag8_t enabled;
     RingBuffer(CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE) tx_buf;
     RingBuffer(CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE) rx_buf;
 
-    can_comm_transmit_callback send;
+    can_comm_transmit_callback_t send;
 
     // Canlib devices
     device_t rx_device;
@@ -114,7 +114,7 @@ static struct CanCommHandler  {
 
 inline void _can_comm_canlib_payload_handle_dummy(void * _) { }
 
-can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index index) {
+can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index_t index) {
     switch (index) {
         case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
             return (can_comm_canlib_payload_handle_callback)programmer_flash_request_handle;
@@ -127,7 +127,7 @@ can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index index
     }
 }
 
-CanCommReturnCode can_comm_init(can_comm_transmit_callback send) {
+CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send) {
     if (send == NULL)
         return CAN_COMM_NULL_POINTER;
 
@@ -183,7 +183,7 @@ bool can_comm_is_enabled(CanCommEnableBit bit) {
 }
 
 CanCommReturnCode can_comm_send_immediate(
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size)
@@ -221,7 +221,7 @@ CanCommReturnCode can_comm_send_immediate(
 }
 
 CanCommReturnCode can_comm_tx_add(
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size)
@@ -254,7 +254,7 @@ CanCommReturnCode can_comm_tx_add(
 }
 
 CanCommReturnCode can_comm_rx_add(
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size)
@@ -297,17 +297,18 @@ CanCommReturnCode can_comm_routine(void) {
     {
         uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
         int size = 0;
+        const can_id_t can_id = bms_id_from_index(tx_msg.index);
 
         if (tx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Serialize message
-            size = bms_serialize_from_id(tx_msg.payload.tx, tx_msg.index, data);
+            size = bms_serialize_from_id(tx_msg.payload.tx, can_id, data);
             if (size < 0)
                 return CAN_COMM_CONVERSION_ERROR;
         }
 
         // Send message
         ret = hcan_comm.send(
-            bms_id_from_index(tx_msg.index),
+            can_id,
             tx_msg.frame_type,
             data,
             size
@@ -316,12 +317,14 @@ CanCommReturnCode can_comm_routine(void) {
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
         ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK)
     {
+        const can_id_t can_id = bms_id_from_index(rx_msg.index);
+
         // Reset watchdog
         (void)watchdog_reset(rx_msg.index, timebase_get_time());
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message
-            bms_devices_deserialize_from_id(&hcan_comm.rx_device, rx_msg.index, rx_msg.payload.rx);
+            bms_devices_deserialize_from_id(&hcan_comm.rx_device, can_id, rx_msg.payload.rx);
 
             // TODO: Handle errors?
             _can_comm_payload_handle(rx_msg.index)(hcan_comm.rx_device.message);

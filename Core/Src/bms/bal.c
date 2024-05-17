@@ -12,8 +12,8 @@
 
 struct {
     bool active, new_request;
-    millivolt target;
-    millivolt threshold;
+    millivolt_t target;
+    millivolt_t threshold;
 } hbal;
 
 BalReturnCode bal_init(void) {
@@ -23,7 +23,7 @@ BalReturnCode bal_init(void) {
     return BAL_OK;
 }
 
-BalReturnCode bal_start(millivolt target, millivolt threshold) {
+BalReturnCode bal_start(millivolt_t target, millivolt_t threshold) {
     if (hbal.new_request)
         return BAL_BUSY;
     if (hbal.active)

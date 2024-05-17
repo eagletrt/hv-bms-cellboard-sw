@@ -17,7 +17,7 @@ void _watchdog_timeout_dummy(void) { }
 
 WatchdogReturnCode watchdog_init(
     Watchdog * watchdog,
-    ticks timeout,
+    ticks_t timeout,
     watchdog_timeout_callback expire)
 {
     if (watchdog == NULL || expire == NULL)

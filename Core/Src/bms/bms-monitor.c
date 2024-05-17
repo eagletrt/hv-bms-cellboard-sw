@@ -14,8 +14,8 @@
 #ifdef CONF_BMS_MONITOR_MODULE_ENABLE
 
 struct {
-    bms_monitor_send_callback send;
-    bms_monitor_send_receive_callback send_receive;
+    bms_monitor_send_callback_t send;
+    bms_monitor_send_receive_callback_t send_receive;
 
     Ltc6811Chain chain;
     Ltc6811Cfgr config[CELLBOARD_SEGMENT_LTC_COUNT];
@@ -57,8 +57,8 @@ BmsMonitorReturnCode _bms_monitor_chek_busy(void) {
 }
 
 BmsMonitorReturnCode bms_monitor_init(
-    bms_monitor_send_callback send,
-    bms_monitor_send_receive_callback send_receive)
+    bms_monitor_send_callback_t send,
+    bms_monitor_send_receive_callback_t send_receive)
 {
     if (send_receive == NULL)
         return BMS_MONITOR_NULL_POINTER;
@@ -145,7 +145,7 @@ BmsMonitorReturnCode bms_monitor_start_volt_and_gpio_conversion(void) {
     return BMS_MONITOR_OK;
 }
 
-BmsMonitorReturnCode bms_monitor_read_voltages(raw_volt * out) {
+BmsMonitorReturnCode bms_monitor_read_voltages(raw_volt_t * out) {
     BmsMonitorReturnCode ret = _bms_monitor_chek_busy();
     if (ret != BMS_MONITOR_OK)
         return ret;

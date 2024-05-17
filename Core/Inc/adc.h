@@ -51,7 +51,7 @@ extern ADC_HandleTypeDef hadc3;
 #define ADC_CONVERSION_TIMEOUT (10U)
 
 /** @brief ADC reference voltage in mV */
-#define ADC_VREF ((millivolt)3300.0f)
+#define ADC_VREF ((millivolt_t)3300.0f)
 /** @brief ADC resolution in bits */
 #define ADC_RESOLUTION (12U)
 /**
@@ -59,15 +59,16 @@ extern ADC_HandleTypeDef hadc3;
  *
  * @details The +1 at the end is added to avoid overflow with the last value
  */
-#define ADC_INDEX_VOLTAGE_RANGE ((millivolt)((ADC_VREF / CELLBOARD_COUNT) + 1.0f))
+#define ADC_INDEX_VOLTAGE_RANGE ((millivolt_t)((ADC_VREF / CELLBOARD_COUNT) + 1.0f))
 
 /**
  * @brief Convert a 12-bit ADC value to a voltage in mV
  *
  * @param value The value to convert
- * @return volt The converted voltage value
+ *
+ * @return millivolt_t The converted voltage value
  */
-#define ADC_VALUE_TO_VOLTAGE(value) ((millivolt)((value) / ((1 << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
+#define ADC_VALUE_TO_VOLTAGE(value) ((millivolt_t)((value) / ((1 << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
 
 
 /* USER CODE END Private defines */

@@ -20,26 +20,6 @@
 /** @brief Total number of tasks */
 #define TASKS_COUNT (TASKS_ID_COUNT)
 
-/**
- * @brief Convert the time in ms to ticks
- *
- * @param T The time to convert
- * @param RES The resolution of a tick
- *
- * @return ticks The corresponing amount of ticks
- */
-#define TIMEBASE_TIME_TO_TICKS(T, RES) ((ticks)((T) / (RES)))
-
-/**
- * @brief Convert the ticks in ms
- *
- * @param T The ticks to convert
- * @param RES The resolution of a tick
- *
- * @return time The corresponing amount of ms
- */
-#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time)((T) * (RES)))
-
 /** @brief Type definition for a function that excecutes a single task */
 typedef void (* tasks_callback)(void);
 
@@ -82,16 +62,16 @@ typedef enum {
  * @return TasksReturnCode
  *     - TASKS_OK
  */
-TasksReturnCode tasks_init(time resolution);
+TasksReturnCode tasks_init(time_t resolution);
 
 /**
  * @brief Get the task interval from its identifier
  *
  * @param id The task identifier
  *
- * @return ticks The task interval or 0 if not found
+ * @return ticks_t The task interval or 0 if not found
  */
-ticks tasks_get_interval_from_id(TasksId id);
+ticks_t tasks_get_interval_from_id(TasksId id);
 
 /**
  * @brief Get the task callback from its identifier

@@ -35,7 +35,7 @@ typedef void (* watchdog_timeout_callback)(void);
  */
 typedef struct {
     bool running;
-    ticks timeout;
+    ticks_t timeout;
     watchdog_timeout_callback expire;
 } Watchdog;
 
@@ -54,7 +54,7 @@ typedef struct {
  */
 WatchdogReturnCode watchdog_init(
     Watchdog * watchdog,
-    ticks timeout,
+    ticks_t timeout,
     watchdog_timeout_callback expire
 );
 

@@ -23,8 +23,8 @@
 #define LED_LONG_OFF (1000U)
 
 struct {
-    led_set_state_callback set;
-    led_toggle_state_callback toggle;
+    led_set_state_callback_t set;
+    led_toggle_state_callback_t toggle;
 
     Blinky blinker;
     uint16_t pattern[LED_PATTERN_MAX_SIZE];
@@ -32,7 +32,7 @@ struct {
 } hled;
 
 
-LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle) {
+LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t toggle) {
     if (set == NULL || toggle == NULL)
         return LED_NULL_POINTER;
 
@@ -58,7 +58,7 @@ void led_set_enable(bool enabled) {
     blinky_enable(&hled.blinker, enabled);
 }
 
-LedReturnCode led_routine(time t) {
+LedReturnCode led_routine(time_t t) {
     LedStatus state = (LedStatus)blinky_routine(&hled.blinker, hled.pattern_size);
     hled.set(state);
     return LED_OK;

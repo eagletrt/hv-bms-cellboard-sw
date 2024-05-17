@@ -80,7 +80,7 @@ typedef union {
  */
 typedef struct {
     // CanNetwork network; // Not needed because cellboards have only the BMS network
-    can_index index;
+    can_index_t index;
     CanFrameType frame_type;
     CanPayload payload;
 } CanMessage;
@@ -96,9 +96,9 @@ typedef struct {
  *
  * @return CanCommReturnCode The return code value
  */
-typedef CanCommReturnCode (* can_comm_transmit_callback)(
+typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_id id,
+    can_id_t id,
     CanFrameType frame_type,
     const uint8_t * data,
     size_t size
@@ -125,7 +125,7 @@ typedef void (* can_comm_canlib_payload_handle_callback)(void * payload);
  *     - CAN_COMM_NULL_POINTER a NULL pointer was given as parameter
  *     - CAN_COMM_OK otherwise
  */
-CanCommReturnCode can_comm_init(can_comm_transmit_callback send);
+CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send);
 
 /** @brief Enable the CAN manager */
 void can_comm_enable_all(void);
@@ -184,7 +184,7 @@ bool can_comm_is_enabled(CanCommEnableBit bit);
  *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_send_immediate(
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size
@@ -210,7 +210,7 @@ CanCommReturnCode can_comm_send_immediate(
  */
 CanCommReturnCode can_comm_tx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size
@@ -235,7 +235,7 @@ CanCommReturnCode can_comm_tx_add(
  */
 CanCommReturnCode can_comm_rx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_index index,
+    can_index_t index,
     CanFrameType frame_type,
     uint8_t * data,
     size_t size

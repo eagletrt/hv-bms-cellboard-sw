@@ -14,7 +14,6 @@
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"
-#include "watchdog.h"
 #include "bal.h"
 
 #ifdef CONF_POST_MODULE_ENABLE
@@ -43,12 +42,6 @@ PostReturnCode post_run(PostInitData data) {
     (void)volt_init();
     (void)temp_init();
     (void)can_comm_init(data.can_send); // NULL check for send above
-    switch(watchdog_init()) {
-        case WATCHDOG_INVALID_ID:
-            return POST_WATCHDOG_INVALID_MESSAGE;
-        default:
-            break;
-    }
     (void)bal_init();
     (void)programmer_init(data.system_reset);
     (void)led_init(data.led_set, data.led_toggle); // Id and NULL checks above

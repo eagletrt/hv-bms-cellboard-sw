@@ -25,8 +25,8 @@
  * @param exec A pointer to the task callback
  */
 typedef struct {
-    ticks start;
-    ticks interval;
+    ticks_t start;
+    ticks_t interval;
     tasks_callback exec;
 } TimebaseTask;
 
@@ -37,7 +37,7 @@ typedef struct {
  * @param task A pointer to the task to run
  */
 typedef struct {
-    ticks t;
+    ticks_t t;
     TimebaseTask * task;
 } TimebaseScheduledTask;
 
@@ -48,7 +48,7 @@ typedef struct {
  * @param watchdog A pointer to the watchdog handler structure
  */
 typedef struct {
-    ticks t;
+    ticks_t t;
     Watchdog * watchdog;
 } TimebaseRunningWatchdog;
 
@@ -65,8 +65,8 @@ typedef struct {
  */
 static struct {
     bool enabled;
-    time resolution; // in ms
-    ticks t;
+    time_t resolution; // in ms
+    ticks_t t;
 
     // Tasks
     TimebaseTask tasks[TASKS_COUNT];
@@ -117,14 +117,14 @@ int8_t _timebase_watchdog_compare(void * a, void * b) {
     return f->t == s->t ? 0 : 1;
 }
 
-TimebaseReturnCode timebase_init(time resolution_ms) {
+TimebaseReturnCode timebase_init(time_t resolution_ms) {
     if (resolution_ms > 0U)
         htimebase.resolution = resolution_ms;
 
     // Initialize the tasks
     tasks_init(resolution_ms);
     for (TasksId id = 0; id < TASKS_ID_COUNT; ++id) {
-        ticks interval = tasks_get_interval_from_id(id);
+        ticks_t interval = tasks_get_interval_from_id(id);
         tasks_callback exec = tasks_get_callback_from_id(id);
         if (exec == NULL)
             return TIMEBASE_NULL_POINTER;
@@ -161,15 +161,15 @@ TimebaseReturnCode timebase_inc_tick(void) {
     return TIMEBASE_OK;
 }
 
-ticks timebase_get_tick(void) {
+ticks_t timebase_get_tick(void) {
     return htimebase.t;
 }
 
-time timebase_get_time(void) {
+time_t timebase_get_time(void) {
     return TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
 }
 
-time timebase_get_resolution(void) {
+time_t timebase_get_resolution(void) {
     return htimebase.resolution;
 }
 
@@ -217,7 +217,7 @@ TimebaseReturnCode timebase_routine(void) {
         TimebaseScheduledTask task = { 0 };
         (void)min_heap_remove(&htimebase.scheduled, 0U, &task);
 
-        ticks t = htimebase.t; // Copy ticks value to avoid inconsistencies caused by interrupts
+        ticks_t t = htimebase.t; // Copy ticks value to avoid inconsistencies caused by interrupts
         task.t = t + task.task->interval;
         task.task->exec();
 

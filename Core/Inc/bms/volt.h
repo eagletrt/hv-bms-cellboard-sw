@@ -50,14 +50,14 @@ VoltReturnCode volt_init(void);
  *     - VOLT_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - VOLT_OK otherwise
  */
-VoltReturnCode volt_update_value(size_t index, raw_volt value);
+VoltReturnCode volt_update_value(size_t index, raw_volt_t value);
 
 /**
  * @brief Get a pointer to the array where the voltage values are stored
  *
- * @return raw_volt * The pointer to the array
+ * @return raw_volt_t * The pointer to the array
  */
-const raw_volt * volt_get_values(void);
+const raw_volt_t * volt_get_values(void);
 
 /**
  * @brief Copy a list of adjacent voltages
@@ -73,7 +73,7 @@ const raw_volt * volt_get_values(void);
  *     - VOLT_OUT_OF_BOUNDS if the required range exceeds the maximum number of voltages
  *     - VOLT_OK otherwise
  */
-VoltReturnCode volt_dump_values(raw_volt * out, size_t start, size_t size);
+VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size);
 
 /**
  * @brief Get a pointer to the CAN payload of the cells voltages

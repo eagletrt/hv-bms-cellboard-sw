@@ -392,11 +392,11 @@ CellboardId adc_read_cellboard_id(void) {
         Error_Handler();
 
     // Get value
-    raw_volt val = HAL_ADC_GetValue(&HADC_CELLBOARD_ID);
+    raw_volt_t val = HAL_ADC_GetValue(&HADC_CELLBOARD_ID);
     if (HAL_ADC_Stop(&HADC_CELLBOARD_ID) != HAL_OK)
         Error_Handler();
 
-    millivolt voltage = ADC_VALUE_TO_VOLTAGE(val);
+    millivolt_t voltage = ADC_VALUE_TO_VOLTAGE(val);
     return voltage / ADC_INDEX_VOLTAGE_RANGE;
 }
 

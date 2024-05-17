@@ -16,12 +16,12 @@
 #include "bsm_network.h"
 
 /** @brief Balancing threshold range in mV */
-#define BAL_THRESHOLD_MIN ((millivolt)5.f)
-#define BAL_THRESHOLD_MAX ((millivolt)200.f)
+#define BAL_THRESHOLD_MIN ((millivolt_t)5.f)
+#define BAL_THRESHOLD_MAX ((millivolt_t)200.f)
 
 /** @brief Balancing target range in mV */
-#define BAL_TARGET_MIN ((millivolt)2800.f)
-#define BAL_TARGET_MAX ((millivolt)4200.f)
+#define BAL_TARGET_MIN ((millivolt_t)2800.f)
+#define BAL_TARGET_MAX ((millivolt_t)4200.f)
 
 /**
  * @brief Return code for the balancing module functions
@@ -57,7 +57,7 @@ BalReturnCode bal_init(void);
  *     - BAL_BUSY the LTC is busy performing other operations
  *     - BAL_OK otherwise
  */
-BalReturnCode bal_start(millivolt target, millivolt threshold);
+BalReturnCode bal_start(millivolt_t target, millivolt_t threshold);
 
 /**
  * @brief Stop the balancing mechanism

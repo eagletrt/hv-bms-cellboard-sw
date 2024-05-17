@@ -52,7 +52,7 @@ WatchdogReturnCode watchdog_init(void);
  *
  * @return bool True if the watchdog is active, false otherwise
  */
-bool watchdog_is_active(can_index index);
+bool watchdog_is_active(can_index_t index);
 
 /**
  * @brief Check if the watchdog is timed out
@@ -63,7 +63,7 @@ bool watchdog_is_active(can_index index);
  *
  * @return bool True if the watchdog is timed out, false otherwise
  */
-bool watchdog_is_timed_out(can_index index);
+bool watchdog_is_timed_out(can_index_t index);
 
 /**
  * @brief Start the selected watchdog 
@@ -74,7 +74,7 @@ bool watchdog_is_timed_out(can_index index);
  *     - WATCHDOG_INVALID_ID if the watched ID is not valid
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_start(can_index index);
+WatchdogReturnCode watchdog_start(can_index_t index);
 
 /**
  * @brief Start all the watchdogs
@@ -92,7 +92,7 @@ WatchdogReturnCode watchdog_start_all(void);
  * @return WatchdogReturnCode
  *     - WATCHDOG_OK
  */
-WatchdogReturnCode watchdog_stop(can_index index);
+WatchdogReturnCode watchdog_stop(can_index_t index);
 
 /**
  * @brief Stop all the watchdogs
@@ -113,7 +113,7 @@ WatchdogReturnCode watchdog_stop_all(void);
  *     - WATCHDOG_INVALID_ID if the given ID is not valid
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_reset(can_index index, time timestamp);
+WatchdogReturnCode watchdog_reset(can_index_t index, time_t timestamp);
 
 /**
  * @brief Routine that checks if the watchdogs have timed out
@@ -124,7 +124,7 @@ WatchdogReturnCode watchdog_reset(can_index index, time timestamp);
  *     - WATCHDOG_TIMEOUT if a watchdog has timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_routine(time timestamp);
+WatchdogReturnCode watchdog_routine(time_t timestamp);
 
 #else  // CONF_WATCHDOG_MODULE_ENABLE
 

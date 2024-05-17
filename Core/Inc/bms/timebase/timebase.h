@@ -16,6 +16,26 @@
 #include "cellboard-def.h"
 #include "watchdog.h"
 
+/**
+ * @brief Convert the time in ms to ticks
+ *
+ * @param T The time to convert
+ * @param RES The resolution of a tick
+ *
+ * @return ticks_t The corresponing amount of ticks
+ */
+#define TIMEBASE_TIME_TO_TICKS(T, RES) ((ticks_t)((T) / (RES)))
+
+/**
+ * @brief Convert the ticks in ms
+ *
+ * @param T The ticks to convert
+ * @param RES The resolution of a tick
+ *
+ * @return time_t The corresponing amount of ms
+ */
+#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time_t)((T) * (RES)))
+
 /** @brief Maximum number of watchdogs that can be handled simultaneously */
 #define TIMEBASE_RUNNING_WATCHDOG_COUNT (16U)
 
@@ -46,7 +66,7 @@ typedef enum {
  *     - TIMEBASE_NULL_POINTER if a tasks is not implemented
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_init(time resolution_ms);
+TimebaseReturnCode timebase_init(time_t resolution_ms);
 
 /**
  * @brief Enable or disable the timebase
@@ -67,23 +87,23 @@ TimebaseReturnCode timebase_inc_tick(void);
 /**
  * @brief Get the current number of ticks
  *
- * @return ticks The number of ticks
+ * @return ticks_t The number of ticks
  */
-ticks timebase_get_tick(void);
+ticks_t timebase_get_tick(void);
 
 /**
  * @brief Get the current elapsed time in ms
  *
- * @return time The current elapsed time
+ * @return time_t The current elapsed time
  */
-time timebase_get_time(void);
+time_t timebase_get_time(void);
 
 /**
  * @brief Get the number of ms that represents a single tick
  *
- * @return time The timebase resolution
+ * @return time_t The timebase resolution
  */
-time timebase_get_resolution(void);
+time_t timebase_get_resolution(void);
 
 /**
  * @brief Register a watchdog into the timebase

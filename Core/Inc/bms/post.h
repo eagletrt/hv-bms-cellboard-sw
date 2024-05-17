@@ -46,12 +46,12 @@ typedef enum {
  */
 typedef struct {
     CellboardId id;
-    system_reset_callback system_reset;
-    can_comm_transmit_callback can_send;
-    bms_monitor_send_callback spi_send;
-    bms_monitor_send_receive_callback spi_send_receive;
-    led_set_state_callback led_set;
-    led_toggle_state_callback led_toggle;
+    system_reset_callback_t system_reset;
+    can_comm_transmit_callback_t can_send;
+    bms_monitor_send_callback_t spi_send;
+    bms_monitor_send_receive_callback_t spi_send_receive;
+    led_set_state_callback_t led_set;
+    led_toggle_state_callback_t led_toggle;
 } PostInitData;
 
 #ifdef CONF_POST_MODULE_ENABLE
