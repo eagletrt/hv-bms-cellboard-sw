@@ -38,7 +38,7 @@ PostReturnCode post_run(PostInitData data) {
     
     // Some return values are ignored because always OK
     (void)timebase_init(1U);
-    (void)bms_monitor_init(data.spi_send, data.spi_send_receive); // NULL check for callbacks above
+    (void)bms_manager_init(data.spi_send, data.spi_send_receive); // NULL check for callbacks above
     (void)volt_init();
     (void)temp_init();
     (void)can_comm_init(data.can_send); // NULL check for send above

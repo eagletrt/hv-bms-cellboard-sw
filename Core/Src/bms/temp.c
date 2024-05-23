@@ -37,8 +37,33 @@ TempReturnCode temp_update_value(size_t index, raw_temp_t value) {
     return TEMP_OK;
 }
 
+TempReturnCode temp_update_values(size_t index, raw_temp_t * values, size_t size) {
+    if (index + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
+        return TEMP_OUT_OF_BOUNDS;
+    memcpy(htemp.temperatures, values + index, size * sizeof(htemp.temperatures[0]));
+    return TEMP_OK;
+}
+
+TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
+    if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
+        return TEMP_OUT_OF_BOUNDS;
+    htemp.discharge_temperatures[index] = value;
+    return TEMP_OK;
+}
+
+TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * values, size_t size) {
+    if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
+        return TEMP_OUT_OF_BOUNDS;
+    memcpy(htemp.discharge_temperatures, values + index, size * sizeof(htemp.discharge_temperatures[0]));
+    return TEMP_OK;
+}
+
 const raw_temp_t * temp_get_values(void) {
     return htemp.temperatures;
+}
+
+const raw_temp_t * temp_get_discharge_values(void) {
+    return htemp.discharge_temperatures;
 }
 
 TempReturnCode temp_dump_values(raw_temp_t * out, size_t start, size_t size) {

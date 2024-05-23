@@ -53,11 +53,43 @@ VoltReturnCode volt_init(void);
 VoltReturnCode volt_update_value(size_t index, raw_volt_t value);
 
 /**
+ * @brief Update multiple voltage values
+ *
+ * @attention The array of values should be a countigous memory area
+ *
+ * @param index The start index of the values to update
+ * @param values A pointer to the array of values to copy
+ * @param size The number of elements to copy
+ *
+ * @return VoltReturnCode
+ *     - VOLT_OUT_OF_BOUNDS if the index plus the size exceed the maximum number of values
+ *     - VOLT_OK otherwise
+ */
+VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size);
+
+/**
  * @brief Get a pointer to the array where the voltage values are stored
  *
  * @return raw_volt_t * The pointer to the array
  */
 const raw_volt_t * volt_get_values(void);
+
+/**
+ * @brief Get a bitmask of cells which voltage is STRICTLY greater than
+ * the given target value
+ *
+ * @attention The maximum number of cells this function can handle is equal
+ * to the maximum number of bits of the returned variable (32 in this case)
+ *
+ * @details In the returned bitmask the n-th bit represent the n-th cell and
+ * if the bit value is 1 the cell voltage is greater than the target, less or
+ * equal otherwise
+ *
+ * @param target The target voltage in mV
+ *
+ * @return bit_flag32_t The bitmask of cells
+ */
+bit_flag32_t volt_select_values(millivolt_t target);
 
 /**
  * @brief Copy a list of adjacent voltages
@@ -88,6 +120,7 @@ bms_cell_voltages_converted_t * volt_get_canlib_payload(size_t * byte_size);
 
 #define volt_init() (VOLT_OK)
 #define volt_update_value(index, value) (VOLT_OK)
+#define volt_update_values(index, value) (VOLT_OK)
 #define volt_get_values() (NULL)
 #define volt_dump_values(out, start, size) (VOLT_OK)
 #define volt_get_canlib_payload(byte_size) (NULL)

@@ -48,16 +48,20 @@ typedef enum {
 BalReturnCode bal_init(void);
 
 /**
- * @brief Start the balancing mechanism
+ * @brief Handler the information received inside the canlib payload
  *
- * @param target The target voltage in mV
- * @param threshold The minimum voltage difference between cells to reach in mV
+ * @param payload A pointer to the CAN paylaod data
+ */
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload);
+
+/**
+ * @brief Start the balancing mechanism
  *
  * @return BalReturnCode
  *     - BAL_BUSY the LTC is busy performing other operations
  *     - BAL_OK otherwise
  */
-BalReturnCode bal_start(millivolt_t target, millivolt_t threshold);
+BalReturnCode bal_start(void);
 
 /**
  * @brief Stop the balancing mechanism
@@ -68,19 +72,12 @@ BalReturnCode bal_start(millivolt_t target, millivolt_t threshold);
  */
 BalReturnCode bal_stop(void);
 
-/**
- * @brief Handler the information received inside the canlib payload
- *
- * @param payload A pointer to the CAN paylaod data
- */
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload);
-
 #else  // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
-#define bal_start(target, threshold) (BAL_OK)
-#define bal_stop() (BAL_OK)
 #define bal_set_balancing_status_handle(payload) CELLBOARD_NOPE()
+#define bal_start() (BAL_OK)
+#define bal_stop() (BAL_OK)
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 

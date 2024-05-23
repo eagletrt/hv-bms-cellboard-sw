@@ -74,11 +74,7 @@ static struct {
 
     // Watchdogs
     MinHeap(TimebaseRunningWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT) wdg_running;
-} htimebase = {
-    .enabled = false,
-    .resolution = 1U,
-    .t = 0
-};
+} htimebase;
 
 int8_t _timebase_scheduled_task_compare(void * a, void * b) {
     TimebaseScheduledTask * f = (TimebaseScheduledTask *)a;
@@ -118,8 +114,12 @@ int8_t _timebase_watchdog_compare(void * a, void * b) {
 }
 
 TimebaseReturnCode timebase_init(time_t resolution_ms) {
-    if (resolution_ms > 0U)
-        htimebase.resolution = resolution_ms;
+    // Initialize timebase to 0
+    memset(&htimebase, 0U, sizeof(htimebase));
+
+    // Set default parameters
+    htimebase.enabled = false;
+    htimebase.resolution = (resolution_ms == 0U) ? 1U : resolution_ms;
 
     // Initialize the tasks
     tasks_init(resolution_ms);
@@ -134,7 +134,7 @@ TimebaseReturnCode timebase_init(time_t resolution_ms) {
         htimebase.tasks[id].exec = exec;
     }
 
-    // Initialize the task heap
+    // Initialize the tasks heap
     (void)min_heap_init(&htimebase.scheduled, TimebaseScheduledTask, TASKS_COUNT, _timebase_scheduled_task_compare);
     for (size_t i = 0; i < TASKS_COUNT; ++i) {
         TimebaseScheduledTask aux = {
@@ -206,6 +206,18 @@ TimebaseReturnCode timebase_unregister_watchdog(Watchdog * watchdog) {
     return TIMEBASE_OK;
 }
 
+bool timebase_is_registered_watchdog(Watchdog * watchdog) {
+    if (watchdog == NULL)
+        return false;
+
+    // Get the running watchdog
+    TimebaseRunningWatchdog aux = {
+        .t = 0U,
+        .watchdog = watchdog
+    };
+    return min_heap_find(&htimebase.wdg_running, &aux) >= 0;
+}
+
 TimebaseReturnCode timebase_update_watchdog(Watchdog * watchdog) {
     if (watchdog == NULL)
         return TIMEBASE_NULL_POINTER;
@@ -261,8 +273,7 @@ TimebaseReturnCode timebase_routine(void) {
         (void)min_heap_remove(&htimebase.wdg_running, 0U, &wdg);
 
         // Disable and execute the watchdog timeout callback
-        wdg.watchdog->expire();
-    
+        watchdog_timeout(wdg.watchdog);
         wdg_p = (TimebaseRunningWatchdog *)min_heap_peek(&htimebase.wdg_running);
     }
     return TIMEBASE_OK;

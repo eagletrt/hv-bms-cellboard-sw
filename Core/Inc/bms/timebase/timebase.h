@@ -139,6 +139,17 @@ TimebaseReturnCode timebase_register_watchdog(Watchdog * watchdog);
 TimebaseReturnCode timebase_unregister_watchdog(Watchdog * handler);
 
 /**
+ * @brief Check if the watchdog is registered into the timebase
+ *
+ * @details A NULL pointer is counted as NOT registered
+ *
+ * @param watchdog A pointer to the watchdog to check
+ *
+ * @return bool True if the watchdog is registered, false otherwise
+ */
+bool timebase_is_registered_watchdog(Watchdog * watchdog) {
+
+/**
  * @brief Update the registered watchdog
  *
  * @attention During the update process the watchdog is unregistered and than registered again

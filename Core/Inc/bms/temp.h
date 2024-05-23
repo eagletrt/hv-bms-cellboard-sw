@@ -53,11 +53,56 @@ TempReturnCode temp_init(void);
 TempReturnCode temp_update_value(size_t index, raw_temp_t value);
 
 /**
+ * @brief Update multiple temperature values
+ *
+ * @param index The index of the value to update
+ * @param value A pointer to the array of values to copy
+ * @param size The number of elements to copy
+ *
+ * @return TempReturnCode
+ *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
+ *     - TEMP_OK otherwise
+ */
+TempReturnCode temp_update_values(size_t index, raw_temp_t * value, size_t size);
+
+/**
+ * @brief Update a single temperature value of the discharge resistors
+ *
+ * @param index The index of the value to update
+ * @param value The new value
+ *
+ * @return TempReturnCode
+ *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
+ *     - TEMP_OK otherwise
+ */
+TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value);
+
+/**
+ * @brief Update multiple temperature values of the discharge resistors
+ *
+ * @param index The index of the value to update
+ * @param value A pointer to the array of values to copy
+ * @param size The number of elements to copy
+ *
+ * @return TempReturnCode
+ *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
+ *     - TEMP_OK otherwise
+ */
+TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * value, size_t size);
+
+/**
  * @brief Get a pointer to the array where the temperature values are stored
  *
  * @return raw_temp_t * The pointer to the array
  */
 const raw_temp_t * temp_get_values(void);
+
+/**
+ * @brief Get a pointer to the array where the discharge temperature values are stored
+ *
+ * @return raw_temp_t * The pointer to the array
+ */
+const raw_temp_t * temp_get_discharge_values(void);
 
 /**
  * @brief Copy a list of adjacent temperatures

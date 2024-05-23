@@ -14,7 +14,7 @@
 #include "cellboard-def.h"
 
 #include "can-comm.h"
-#include "bms-monitor.h"
+#include "bms-manager.h"
 #include "led.h"
 
 /**
@@ -48,8 +48,8 @@ typedef struct {
     CellboardId id;
     system_reset_callback_t system_reset;
     can_comm_transmit_callback_t can_send;
-    bms_monitor_send_callback_t spi_send;
-    bms_monitor_send_receive_callback_t spi_send_receive;
+    bms_manager_send_callback_t spi_send;
+    bms_manager_send_receive_callback_t spi_send_receive;
     led_set_state_callback_t led_set;
     led_toggle_state_callback_t led_toggle;
 } PostInitData;

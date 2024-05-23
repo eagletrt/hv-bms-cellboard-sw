@@ -9,6 +9,7 @@
 
 #include "programmer.h"
 
+#include <string.h>
 #include <stdbool.h>
 
 #include "fsm.h"
@@ -33,7 +34,7 @@
  */
 static struct {
     system_reset_callback_t reset;
-    fsm_event_t flash_event;
+    fsm_event_data_t flash_event;
     bms_cellboard_flash_response_converted_t can_payload;
 
     CellboardId target;
@@ -42,7 +43,6 @@ static struct {
     bool flash_stop;
 
     Watchdog watchdog;
-    bool timeout;
 } hprogrammer;
 
 /** @brief Function called when the watchdog times-out */
@@ -50,7 +50,6 @@ void _programmer_flash_timeout(void) {
     hprogrammer.flash_request = false;
     hprogrammer.flashing = false;
     hprogrammer.flash_stop = false;
-    hprogrammer.timeout = true;
 }
 
 /** @brief Function called when the flash procedure is completed */
@@ -58,7 +57,6 @@ void _programmer_flash_stop(void) {
     hprogrammer.flash_request = false;
     hprogrammer.flashing = false;
     hprogrammer.flash_stop = true;
-    hprogrammer.timeout = false;
 }
 
 /** @brief Resets all the flash flags */
@@ -66,10 +64,11 @@ void _programmer_flash_reset_flags(void) {
     hprogrammer.flash_request = false;
     hprogrammer.flashing = false;
     hprogrammer.flash_stop = false;
-    hprogrammer.timeout = false;
 }
 
 ProgrammerReturnCode programmer_init(system_reset_callback_t reset) {
+    memset(&hprogrammer, 0U, sizeof(hprogrammer));
+
     hprogrammer.reset = reset;
     hprogrammer.flash_event.type = FSM_EVENT_TYPE_FLASH_REQUEST;
     hprogrammer.can_payload.cellboard_id = identity_get_cellboard_id();    
@@ -102,7 +101,6 @@ void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * p
     hprogrammer.flash_request = true;
     hprogrammer.flash_stop = false;
     hprogrammer.flashing = false;
-    hprogrammer.timeout = false;
 
     watchdog_start(&hprogrammer.watchdog);
 
@@ -120,7 +118,6 @@ void programmer_flash_handle(bms_cellboard_flash_converted_t * payload) {
 
     if (payload->start) {
         watchdog_reset(&hprogrammer.watchdog);
-        hprogrammer.timeout = false;
         hprogrammer.flashing = true;
     }
     else {
@@ -130,7 +127,7 @@ void programmer_flash_handle(bms_cellboard_flash_converted_t * payload) {
 }
 
 ProgrammerReturnCode programmer_routine(void) {
-    if (hprogrammer.timeout)
+    if (watchdog_is_timed_out(&hprogrammer.watchdog))
         return PROGRAMMER_TIMEOUT;
     if (hprogrammer.flash_stop)
         return PROGRAMMER_OK;

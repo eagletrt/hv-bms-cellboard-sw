@@ -22,7 +22,16 @@
 #define LED_SHORT_OFF (250U)
 #define LED_LONG_OFF (1000U)
 
-struct {
+/**
+ * @brief LED handler structure
+ *
+ * @param set A pointer to the function callback used to set the led state
+ * @param toggle A pointer to the function callback used to toggle the led state
+ * @param blinker The structure handler used to blink the LED
+ * @param pattern The main blinking pattern
+ * @param pattern_size The size of the pattern
+ */
+static struct {
     led_set_state_callback_t set;
     led_toggle_state_callback_t toggle;
 

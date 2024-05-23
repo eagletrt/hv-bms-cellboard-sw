@@ -32,7 +32,8 @@ digraph "fsm" {
     discharge -> fatal [label="handle_fatal_error"]
 
     cooldown -> cooldown
-    cooldown -> discharge [label="start_discharge"]
+    cooldown -> idle [label="stop_discharge"]
+    cooldown -> discharge [label="restart_discharge"]
     cooldown -> fatal [label="handle_fatal_error"]
 
     fatal -> fatal

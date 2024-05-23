@@ -32,6 +32,7 @@ typedef void (* tasks_callback)(void);
  *     - TASKS_ID_SEND_VOLTAGES send the cells voltages via the CAN bus
  *     - TASKS_ID_SEND_TEMPERATURES send the cells temperatures via the CAN bus
  *     - TASKS_ID_CHECK_WATCHDOG check the status of the watchogs
+ *     - TASKS_ID_RUN_BMS_MANAGER run the BMS manager operations
  */
 typedef enum {
     TASKS_ID_SEND_STATUS,
@@ -39,6 +40,7 @@ typedef enum {
     TASKS_ID_SEND_VOLTAGES,
     TASKS_ID_SEND_TEMPERATURES,
     TASKS_ID_CHECK_WATCHDOG,
+    TASKS_ID_RUN_BMS_MANAGER,
     TASKS_ID_COUNT
 } TasksId;
 
@@ -82,33 +84,10 @@ ticks_t tasks_get_interval_from_id(TasksId id);
  */
 tasks_callback tasks_get_callback_from_id(TasksId id);
 
-
-// TODO: Handle return codes
-
-/** @brief Get and send the status of the FSM */
-void tasks_send_status(void);
-
-/** @brief Get and send info about the versions */
-void tasks_send_version(void);
-
-/** @brief Get and send the cells voltages */
-void tasks_send_voltages(void);
-
-/** @brief Get and send the cells temperatures */
-void tasks_send_temperatures(void);
-
-/** @brief Check the watchdog status */
-void tasks_check_watchdog(void);
-
 #else  // CONF_TASKS_MODULE_ENABLE
 
 #define tasks_init(resolution) (TASKS_OK)
 #define tasks_get_interval_from_id(id) (0U)
 #define tasks_get_callback_from_id(id) (NULL)
-#define tasks_send_status CELLBOARD_NOPE()
-#define tasks_send_version CELLBOARD_NOPE()
-#define tasks_send_voltages CELLBOARD_NOPE()
-#define tasks_send_temperatures CELLBOARD_NOPE()
-#define tasks_send_watchdog CELLBOARD_NOPE()
 
 #endif // CONF_TASKS_MODULE_ENABLE

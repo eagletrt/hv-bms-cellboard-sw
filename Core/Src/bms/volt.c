@@ -10,11 +10,18 @@
 
 #include <string.h>
 
+#include "cellboard-def.h"
 #include "identity.h"
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
-struct {
+/**
+ * @brief Voltages handler structure
+ *
+ * @param voltages The array of raw cells voltages
+ * @param can_payload The canlib payload of the cells voltages
+ */
+static struct {
     raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
 
     bms_cell_voltages_converted_t can_payload;
@@ -34,8 +41,27 @@ VoltReturnCode volt_update_value(size_t index, raw_volt_t value) {
     return VOLT_OK;
 }
 
+VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size) {
+    if (index + size > CELLBOARD_SEGMENT_SERIES_COUNT)
+        return VOLT_OUT_OF_BOUNDS;
+    memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
+    return VOLT_OK;
+}
+
 const raw_volt_t * volt_get_values(void) {
     return hvolt.voltages;
+}
+
+bit_flag32_t volt_select_values(millivolt_t target) {
+    bit_flag32_t bits = 0U;
+    const size_t cnt = CELLBOARD_MAX(CELLBOARD_SEGMENT_SERIES_COUNT, sizeof(bits) * 8U);
+
+    // Iterate over cells and choose cells which voltage is greater than the target
+    for (size_t i = 0U; i < cnt; ++i) {
+        if (VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[i]) > target)
+            bits = CELLBOARD_BIT_SET(bits, i);
+    }
+    return bits;
 }
 
 VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size) {
@@ -61,7 +87,6 @@ bms_cell_voltages_converted_t * volt_get_canlib_payload(size_t * byte_size) {
 
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
         offset = 0U;
-
     return &hvolt.can_payload;
 }
 
