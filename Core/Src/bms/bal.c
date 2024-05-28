@@ -19,19 +19,14 @@
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
-/** @brief Balancing watchdog timeout in ms */
-#define BAL_WATCHDOG_TIMEOUT ((time_t)(3000U))
-
 /**
  * @brief Definition of the balancing parameters
  *
- * @param active True if the balancing is active, false otherwise
  * @param target The minimum target voltage that can be reached while discharging (in mV)
  * @param threshold The minimum difference between the maxiumum and minimum
  * cell voltages that can be reached (in mV)
  */
 typedef struct {
-    bool active;
     millivolt_t target;
     millivolt_t threshold;
 } BalParams;
@@ -41,82 +36,130 @@ typedef struct {
  *
  * @details The requested parameters are expected to be equals to the actual parameters
  *
- * @param bal_event The FSM event data
- * @param actual The actual balancing parameters
- * @param requested The given balancing parameters
+ * @param event The FSM event data
+ * @param watchdog The watchdog that stops the balancing procedure when timed out
+ * @param active True if the balancing is active, false otherwise
+ * @param params The balancing parameters
  */
 static struct {
-    fsm_event_data_t bal_event;
+    fsm_event_data_t event;
     Watchdog watchdog;
 
-    BalParams actual;
-    BalParams requested;
+    bool active, paused;
+    BalParams params;
 } hbal;
 
-
-// TODO: Handle discharge and cooldown
-void _bal_timeout(void) { }
+// TODO: Handle discharge PWM
+void _bal_timeout(void) {
+    // Stop balancing
+    hbal.event.type = FSM_EVENT_TYPE_BALANCING_STOP;
+    fsm_event_trigger(&hbal.event);
+}
 
 BalReturnCode bal_init(void) {
     memset(&hbal, 0U, sizeof(hbal));
-    watchdog_init(
+
+    hbal.event.type = FSM_EVENT_TYPE_IGNORED;
+
+    // Set default balancing parameters
+    hbal.params.target = BAL_TARGET_MAX;
+    hbal.params.threshold = BAL_THRESHOLD_MAX;
+
+    // Initialize main balancing watchog
+    (void)watchdog_init(
         &hbal.watchdog,
-        TIMEBASE_TIME_TO_TICKS(BAL_WATCHDOG_TIMEOUT, timebase_get_resolution()),
-        _bal_timeout        
+        TIMEBASE_TIME_TO_TICKS(BAL_TIMEOUT, timebase_get_resolution()),
+        _bal_timeout
     );
     return BAL_OK;
 }
 
+// TODO: Handle unavailable watchdog
 void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload) {
     if (payload == NULL)
         return;
     // Ignore stop if not balancing
-    if (!hbal.actual.active && !payload->status)
+    if (!hbal.active && !payload->start)
         return;
  
     // Update data
-    hbal.requested.active = payload->status;
-    hbal.requested.target = CELLBOARD_CLAMP(payload->target, BAL_TARGET_MIN, BAL_TARGET_MAX);
-    hbal.requested.threshold = CELLBOARD_CLAMP(payload->threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
+    hbal.params.target = CELLBOARD_CLAMP(payload->target, BAL_TARGET_MIN, BAL_TARGET_MAX);
+    hbal.params.threshold = CELLBOARD_CLAMP(payload->threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
 
-    // Check if requested status match actual
-    if (hbal.actual.active == hbal.requested.active) {
-        watchdog_reset(&hbal.watchdog);
-    }
-    else {
-        // Send event to the FSM
-        hbal.bal_event = payload->status ?
+    // Reset watchdog for each new message
+    WatchdogReturnCode code = watchdog_reset(&hbal.watchdog);
+    if (code == WATCHDOG_UNAVAILABLE)
+        return;
+
+    // Send event to the FSM
+    if (hbal.active != payload->start) {
+        hbal.event.type = payload->start ?
             FSM_EVENT_TYPE_BALANCING_START :
             FSM_EVENT_TYPE_BALANCING_STOP;
-        fsm_event_trigger(&hbal.bal_event);
+        fsm_event_trigger(&hbal.event);
     }
+}
+
+bool bal_is_active(void) {
+    return hbal.active;
+}
+
+bool bal_is_paused(void) {
+    return hbal.paused;
 }
 
 BalReturnCode bal_start(void) {
     // Check actual balancing state
-    if (hbal.actual.active)
+    if (hbal.active)
         return BAL_OK;
 
-    // Set discharge configuration
-    const millivolt_t target = hbal.requested.target + hbal.requested.threshold;
-    bit_flag32_t cells_to_discharge = volt_select_values(target);
-    bms_manager_set_discharge_cells(cells_to_discharge);
-
     // Start watchdog
-    watchdog_restart(&hbal.watchdog);
+    WatchdogReturnCode code = watchdog_restart(&hbal.watchdog);
+    if (code == WATCHDOG_UNAVAILABLE)
+        return BAL_WATCHDOG_ERROR;
+
+    // Set discharge configuration
+    millivolt_t target = hbal.params.target + hbal.params.threshold;
+    bit_flag32_t cells_to_discharge = volt_select_values(target);
+    (void)bms_manager_set_discharge_cells(cells_to_discharge);
+
+    hbal.active = true;
     return BAL_OK;
 }
 
 BalReturnCode bal_stop(void) {
     // Check actual balancing status
-    if (!hbal.actual.active)
+    if (!hbal.active)
+        return BAL_OK;
+ 
+    // Set discharge configuration
+    (void)bms_manager_set_discharge_cells(0U);
+
+    // Stop watchdog
+    (void)watchdog_stop(&hbal.watchdog);
+    hbal.active = false;
+    return BAL_OK;
+}
+
+BalReturnCode bal_pause(void) {
+    if (!hbal.active || hbal.paused)
         return BAL_OK;
 
     // Set discharge configuration
-    bms_manager_set_discharge_cells(0U);
+    (void)bms_manager_set_discharge_cells(0U);
+    hbal.paused = true;
+    return BAL_OK;
+}
 
-    // Stop watchdog
-    watchdog_stop(&hbal.watchdog);
+BalReturnCode bal_resume(void) {
+    if (!hbal.active || !hbal.paused)
+        return BAL_OK;
+
+    // Set discharge configuration
+    millivolt_t target = hbal.params.target + hbal.params.threshold;
+    bit_flag32_t cells_to_discharge = volt_select_values(target);
+    (void)bms_manager_set_discharge_cells(cells_to_discharge);
+    hbal.paused = false;
     return BAL_OK;
 }
 
@@ -127,13 +170,15 @@ static char * bal_module_name = "balancing";
 static char * bal_return_code_name[] = {
     [BAL_OK] = "ok",
     [BAL_NULL_POINTER] = "null pointer",
-    [BAL_BUSY] = "busy"
+    [BAL_BUSY] = "busy",
+    [BAL_WATCHDOG_ERROR] = "watchdog error"
 };
 
 static char * bal_return_code_description[] = {
     [BAL_OK] = "executed succesfully",
     [BAL_NULL_POINTER] = "attempt to dereference a null pointer",
-    [BAL_BUSY] = "the target is busy"
+    [BAL_BUSY] = "the target is busy",
+    [BAL_WATCHDOG_ERROR] = "the internal watchdog encountered an error"
 };
 
 #endif // CONF_BALANCING_STRINGS_ENABLE

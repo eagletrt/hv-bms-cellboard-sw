@@ -6,10 +6,26 @@
  * @brief Functions used to manage the on-board LED
  */
 
+#ifndef LED_H
+#define LED_H
+
 #include <stdbool.h>
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
+
+
+/**
+ * @brief Status of a single LED
+ *
+ * @details
+ *     - LED_OFF the led is turned off
+ *     - LED_ON the led is turned on
+ */
+typedef enum {
+    LED_OFF,
+    LED_ON
+} LedStatus;
 
 /**
  * @brief Callback used to set the state of the LED
@@ -68,7 +84,7 @@ void led_set_enable(bool enabled);
  * @return LedReturnCode
  *     LED_OK
  */
-LedReturnCode led_routine(time_t t);
+LedReturnCode led_routine(milliseconds_t t);
 
 
 #else  // CONF_LED_MODULE_ENABLE 
@@ -78,3 +94,5 @@ LedReturnCode led_routine(time_t t);
 #define led_routine(t) (LED_OK)
 
 #endif // CONF_LED_MODULE_ENABLE 
+ 
+#endif // LED_H

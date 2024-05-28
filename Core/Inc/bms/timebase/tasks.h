@@ -64,7 +64,7 @@ typedef enum {
  * @return TasksReturnCode
  *     - TASKS_OK
  */
-TasksReturnCode tasks_init(time_t resolution);
+TasksReturnCode tasks_init(milliseconds_t resolution);
 
 /**
  * @brief Get the task interval from its identifier

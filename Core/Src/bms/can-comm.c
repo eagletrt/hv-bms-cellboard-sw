@@ -112,7 +112,7 @@ static struct CanCommHandler  {
 } hcan_comm;
 
 
-inline void _can_comm_canlib_payload_handle_dummy(void * _) { }
+void _can_comm_canlib_payload_handle_dummy(void * _) { }
 
 can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index_t index) {
     switch (index) {
@@ -319,8 +319,8 @@ CanCommReturnCode can_comm_routine(void) {
     {
         const can_id_t can_id = bms_id_from_index(rx_msg.index);
 
-        // Reset watchdog
-        (void)watchdog_reset(rx_msg.index, timebase_get_time());
+        // TODO: Reset canlib watchdog
+        // (void)watchdog_reset(rx_msg.index, timebase_get_time());
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message

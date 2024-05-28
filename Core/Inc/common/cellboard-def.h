@@ -197,7 +197,6 @@ typedef uint8_t bit_flag8_t;
 typedef uint16_t bit_flag16_t;
 typedef uint32_t bit_flag32_t;
 
-
 /** @brief Type definition for the standard CAN 2.0a and CAN 2.0b (extended) identifiers */
 typedef uint16_t can_id_t;
 typedef uint32_t can_ext_id_t;
@@ -209,13 +208,13 @@ typedef uint32_t can_ext_id_t;
  */
 typedef int32_t can_index_t;
 
-
 /** @brief Type definition for a custom amount of elapsed time */
 typedef uint32_t ticks_t;
 
-/** @brief Type definition for the time in ms */
-typedef uint32_t time_t;
-
+/** @brief Type definition for the time */
+typedef uint32_t seconds_t;
+typedef uint32_t milliseconds_t;
+typedef uint32_t microseconds_t;
 
 /**
  * @brief Raw temperature value
@@ -226,7 +225,6 @@ typedef uint16_t raw_temp_t;
 
 /** @brief Temperature value in °C */
 typedef float temp_t;
-
 
 /**
  * @brief Raw voltage value
@@ -299,18 +297,6 @@ typedef enum {
     CAN_FRAME_TYPE_REMOTE,
     CAN_FRAME_TYPE_COUNT
 } CanFrameType;
-
-/**
- * @brief Status of a single LED
- *
- * @details
- *     - LED_OFF the led is turned off
- *     - LED_ON the led is turned on
- */
-typedef enum {
-    LED_OFF,
-    LED_ON
-} LedStatus;
 
 /** @} */
 

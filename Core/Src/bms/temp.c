@@ -105,7 +105,7 @@ static char * temp_return_code_name[] = {
 static char * temp_return_code_description[] = {
     [TEMP_OK] = "executed successfully",
     [TEMP_NULL_POINTER] = "attempt to dereference a null pointer",
-    [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region""
+    [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 
 #endif // CONF_TEMPEATURE_STRINGS_ENABLE

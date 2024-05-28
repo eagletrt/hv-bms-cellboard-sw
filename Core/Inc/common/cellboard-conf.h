@@ -13,6 +13,16 @@
 
 #include "cellboard-def.h"
 
+/*** ######################### LIBRARIES MACROS ########################## ***/
+
+/**
+ * @defgroup libmacros
+ * @brief Macros used by the libraries included inside the project
+ */
+#define bms_NETWORK_IMPLEMENTATION
+
+/** @} */
+
 /*** ######################### MODULE SELECTION ########################## ***/
 
 /**
@@ -22,9 +32,9 @@
  */
 #define CONF_POST_MODULE_ENABLE
 #define CONF_TIMEBASE_MODULE_ENABLE
-#define CONF_TASKS_MODULE_ENABLE
+// #define CONF_TASKS_MODULE_ENABLE
 #define CONF_VOLTAGE_MODULE_ENABLE
-#define CONF_TEMPERATURE_MODULE_ENABLE
+// #define CONF_TEMPERATURE_MODULE_ENABLE
 #define CONF_CAN_COMM_MODULE_ENABLE
 #define CONF_WATCHDOG_MODULE_ENABLE
 #define CONF_BALANCING_MODULE_ENABLE

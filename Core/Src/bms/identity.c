@@ -13,9 +13,9 @@
 
 #define BUILD_TIME_STR (__DATE__" "__TIME__)
 
-struct {
+static struct {
     CellboardId cellboard_id;
-    time build_time;
+    milliseconds_t build_time;
 
     bms_cellboard_version_converted_t can_payload;
 } hidentity;
@@ -41,7 +41,7 @@ CellboardId identity_get_cellboard_id(void) {
     return hidentity.cellboard_id;
 }
 
-time identity_get_build_time(void) {
+milliseconds_t identity_get_build_time(void) {
     return hidentity.build_time;
 }
 

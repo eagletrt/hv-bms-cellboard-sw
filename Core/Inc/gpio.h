@@ -33,6 +33,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include "cellboard-def.h"
+#include "led.h"
 
 /* USER CODE END Includes */
 

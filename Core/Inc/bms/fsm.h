@@ -23,19 +23,32 @@ Functions and types have been generated with prefix "fsm_"
 
 #include "bms_network.h"
 
+/** @brief Timeouts for the discharge and cooldown watchdogs in ms */
+#define FSM_DISCHARGE_TIMEOUT ((milliseconds_t)(30000U))
+#define FSM_COOLDOWN_TIMEOUT ((milliseconds_t)(5000U))
+
 /**
  * @brief Definition of the possible events types
+ *
+ * @details The FSM_EVENT_TYPE_IGNORED should only be used for initialization purposes
+ * and it is not counted as part of the other events
  *
  * @details
  *     - FSM_EVENT_TYPE_FLASH_REQUEST the request for the start of a flash procedure
  *     - FSM_EVENT_TYPE_BALANCING_START the request to start the balancing procedure
  *     - FSM_EVENT_TYPE_BALANCING_STOP the request to stop the balancing procedure
+ *     - FSM_EVENT_TYPE_DISCHARGE_REQUEST the request to start the discharge procedure
+ *     - FSM_EVENT_TYPE_COOLDOWN_REQUEST the request to start the cooldown procedure
+ *     - FSM_EVENT_TYPE_IGNORED event that should be ignored
  */
 typedef enum {
     FSM_EVENT_TYPE_FLASH_REQUEST,
     FSM_EVENT_TYPE_BALANCING_START,
     FSM_EVENT_TYPE_BALANCING_STOP,
-    FSM_EVENT_TYPE_COUNT
+    FSM_EVENT_TYPE_DISCHARGE_REQUEST,
+    FSM_EVENT_TYPE_COOLDOWN_REQUEST,
+    FSM_EVENT_TYPE_COUNT,
+    FSM_EVENT_TYPE_IGNORED
 } FsmEventType;
 /*** USER CODE END MACROS ***/
 

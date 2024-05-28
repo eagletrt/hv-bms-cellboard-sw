@@ -18,7 +18,7 @@
 #include "watchdog.h"
 
 /** @brief The programmer flash timeout in ms */
-#define PROGRAMMER_FLASH_TIMEOUT ((time_t)30000U)
+#define PROGRAMMER_FLASH_TIMEOUT ((milliseconds_t)(30000U))
 
 /**
  * @brief Programmer handler structure
@@ -84,6 +84,8 @@ ProgrammerReturnCode programmer_init(system_reset_callback_t reset) {
         TIMEBASE_TIME_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT, timebase_get_resolution()),
         _programmer_flash_timeout
     );
+
+    return PROGRAMMER_OK;
 }
 
 void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * payload) {

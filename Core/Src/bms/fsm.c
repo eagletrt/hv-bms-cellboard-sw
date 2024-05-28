@@ -16,6 +16,8 @@ Functions and types have been generated with prefix "fsm_"
 #include "fsm.h"
 
 /*** USER CODE BEGIN MACROS ***/
+#include <string.h>
+
 #include "can-comm.h"
 #include "post.h"
 #include "timebase.h"
@@ -55,13 +57,38 @@ transition_func_t *const fsm_transition_table[FSM_NUM_STATES][FSM_NUM_STATES] = 
 fsm_event_data_t * fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-struct {
+/**
+ * @brief FSM handler structure
+ *
+ * @param fsm_state The current state of the FSM
+ * @param status_can_paylod The canlib payload for the FSM status
+ * @param flash_can_paylod The canlib payload for the flash response
+ * @param discharge_wdg Watchdog used for the discharge procedure
+ * @param cooldown_wdg Watchdog used for the cooldown procedure
+ */
+static struct {
     fsm_state_t fsm_state;
     bms_cellboard_status_converted_t status_can_payload;
     bms_cellboard_flash_response_converted_t flash_can_payload;
+
+    fsm_event_data_t event;
+    Watchdog discharge_wdg;
+    Watchdog cooldown_wdg;
 } hfsm = {
     .fsm_state = FSM_STATE_INIT
 };
+
+void _fsm_discharge_timeout(void) {
+    // Stop balancing
+    hfsm.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
+    fsm_event_trigger(&hfsm.event);
+}
+
+void _fsm_cooldown_timeout(void) {
+    // Stop balancing
+    hfsm.event.type = FSM_EVENT_TYPE_COOLDOWN_REQUEST;
+    fsm_event_trigger(&hfsm.event);
+}
 /*** USER CODE END GLOBALS ***/
 
 
@@ -96,6 +123,9 @@ inline void fsm_event_trigger(fsm_event_data_t *event) {
 fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   fsm_state_t next_state = FSM_STATE_IDLE;
   
+  memset(&hfsm, 0U, sizeof(hfsm));
+
+  hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
   
   /*** USER CODE BEGIN DO_INIT ***/
   // Run POST and verify that everything is working
@@ -112,6 +142,19 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   hfsm.status_can_payload.cellboard_id = (int)id;
   hfsm.flash_can_payload.cellboard_id = (int)id;
   hfsm.flash_can_payload.ready = true;
+
+  // Initialize discharge and cooldown watchdogs
+  milliseconds_t resolution = timebase_get_resolution();
+  (void)watchdog_init(
+      &hfsm.discharge_wdg,
+      TIMEBASE_TIME_TO_TICKS(FSM_DISCHARGE_TIMEOUT, resolution),
+      _fsm_discharge_timeout
+      );
+  (void)watchdog_init(
+      &hfsm.cooldown_wdg,
+      TIMEBASE_TIME_TO_TICKS(FSM_COOLDOWN_TIMEOUT, resolution),
+      _fsm_cooldown_timeout
+  );
 
   switch (status) {
       case POST_OK:
@@ -151,8 +194,8 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
       next_state = FSM_STATE_FLASH;
 
-  // Check for balncing request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_REQUEST)
+  // Check for balancing request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
       next_state = FSM_STATE_DISCHARGE;
   /*** USER CODE END DO_IDLE ***/
   
@@ -236,6 +279,13 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_DISCHARGE ***/
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+
+  // Check for balancing request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+      next_state = FSM_STATE_IDLE;
+  // Check for cooldown request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_COOLDOWN_REQUEST)
+      next_state = FSM_STATE_COOLDOWN;
   /*** USER CODE END DO_DISCHARGE ***/
   
   switch (next_state) {
@@ -261,6 +311,14 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_COOLDOWN ***/
   (void)timebase_routine();
+  (void)led_routine(timebase_get_time());
+
+  // Check for balancing request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+      next_state = FSM_STATE_IDLE;
+  // Check for discharge request
+  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_DISCHARGE_REQUEST)
+      next_state = FSM_STATE_DISCHARGE;
   /*** USER CODE END DO_COOLDOWN ***/
   
   switch (next_state) {
@@ -297,10 +355,9 @@ void fsm_start(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START ***/
   // Enable modules
-  can_comm_set_enable(true); 
+  can_comm_enable_all(); 
   timebase_set_enable(true);
   led_set_enable(true);
-  watchdog_start_all();
   /*** USER CODE END START ***/
 }
 
@@ -313,8 +370,6 @@ void fsm_start(fsm_state_data_t *data) {
 void fsm_handle_fatal_error(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
-  // Disable modules
-  watchdog_stop_all();
   /*** USER CODE END HANDLE_FATAL_ERROR ***/
 }
 
@@ -328,7 +383,7 @@ void fsm_start_flash_procedure(fsm_state_data_t *data) {
   can_comm_send_immediate(
       BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
       CAN_FRAME_TYPE_DATA,
-      &hfsm.flash_can_payload,
+      (uint8_t *)&hfsm.flash_can_payload,
       sizeof(hfsm.flash_can_payload)
   );
 
@@ -342,7 +397,9 @@ void fsm_start_flash_procedure(fsm_state_data_t *data) {
 void fsm_start_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_DISCHARGE ***/
-  bal_start();
+  // TODO: Handle watchdog unavailabe
+  (void)bal_start();
+  (void)watchdog_restart(&hfsm.discharge_wdg);
   /*** USER CODE END START_DISCHARGE ***/
 }
 
@@ -363,6 +420,8 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN STOP_DISCHARGE ***/
   bal_stop();
+  (void)watchdog_stop(&hfsm.discharge_wdg);
+  (void)watchdog_stop(&hfsm.cooldown_wdg);
   /*** USER CODE END STOP_DISCHARGE ***/
 }
 
@@ -371,7 +430,10 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
 void fsm_start_cooldown(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_COOLDOWN ***/
-  
+  bal_pause();
+  (void)watchdog_stop(&hfsm.discharge_wdg);
+  // TODO: Handle watchdog unavailabe
+  (void)watchdog_restart(&hfsm.cooldown_wdg);
   /*** USER CODE END START_COOLDOWN ***/
 }
 
@@ -380,7 +442,10 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
 void fsm_restart_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN RESTART_DISCHARGE ***/
-  
+  bal_resume();
+  (void)watchdog_stop(&hfsm.cooldown_wdg);
+  // TODO: Handle watchdog unavailabe
+  (void)watchdog_restart(&hfsm.discharge_wdg);
   /*** USER CODE END RESTART_DISCHARGE ***/
 }
 

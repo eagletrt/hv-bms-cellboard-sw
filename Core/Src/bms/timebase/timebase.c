@@ -8,6 +8,8 @@
 
 #include "timebase.h"
 
+#include <string.h>
+
 #include "bms_network.h"
 #include "min-heap.h"
 #include "tasks.h"
@@ -65,7 +67,7 @@ typedef struct {
  */
 static struct {
     bool enabled;
-    time_t resolution; // in ms
+    milliseconds_t resolution; // in ms
     ticks_t t;
 
     // Tasks
@@ -113,7 +115,7 @@ int8_t _timebase_watchdog_compare(void * a, void * b) {
     return f->t == s->t ? 0 : 1;
 }
 
-TimebaseReturnCode timebase_init(time_t resolution_ms) {
+TimebaseReturnCode timebase_init(milliseconds_t resolution_ms) {
     // Initialize timebase to 0
     memset(&htimebase, 0U, sizeof(htimebase));
 
@@ -122,7 +124,7 @@ TimebaseReturnCode timebase_init(time_t resolution_ms) {
     htimebase.resolution = (resolution_ms == 0U) ? 1U : resolution_ms;
 
     // Initialize the tasks
-    tasks_init(resolution_ms);
+    (void)tasks_init(resolution_ms);
     for (TasksId id = 0; id < TASKS_ID_COUNT; ++id) {
         ticks_t interval = tasks_get_interval_from_id(id);
         tasks_callback exec = tasks_get_callback_from_id(id);
@@ -165,11 +167,11 @@ ticks_t timebase_get_tick(void) {
     return htimebase.t;
 }
 
-time_t timebase_get_time(void) {
+milliseconds_t timebase_get_time(void) {
     return TIMEBASE_TICKS_TO_TIME(htimebase.t, htimebase.resolution);
 }
 
-time_t timebase_get_resolution(void) {
+milliseconds_t timebase_get_resolution(void) {
     return htimebase.resolution;
 }
 

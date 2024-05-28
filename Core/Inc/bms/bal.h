@@ -13,7 +13,7 @@
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
-#include "bsm_network.h"
+#include "bms_network.h"
 
 /** @brief Balancing threshold range in mV */
 #define BAL_THRESHOLD_MIN ((millivolt_t)5.f)
@@ -23,6 +23,9 @@
 #define BAL_TARGET_MIN ((millivolt_t)2800.f)
 #define BAL_TARGET_MAX ((millivolt_t)4200.f)
 
+/** @brief Balancing timeouts in ms */
+#define BAL_TIMEOUT ((milliseconds_t)(3000U))
+
 /**
  * @brief Return code for the balancing module functions
  *
@@ -30,11 +33,13 @@
  *     - BAL_OK the function executed succesfully
  *     - BAL_NULL_POINTER a NULL pointer was given to a function
  *     - BAL_BUSY the function cannot be executed because the LTCs are busy
+ *     - BAL_WATCHDOG_ERROR there was an error during a balancing watchdog operation
  */
 typedef enum {
     BAL_OK,
     BAL_NULL_POINTER,
-    BAL_BUSY
+    BAL_BUSY,
+    BAL_WATCHDOG_ERROR
 } BalReturnCode;
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
@@ -55,10 +60,24 @@ BalReturnCode bal_init(void);
 void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload);
 
 /**
+ * @brief Check if the balancing is active
+ *
+ * @return bool True if the balancing procedure is running, false otherwise
+ */
+bool bal_is_active(void);
+
+/**
+ * @brief Check if the balancing is paused
+ *
+ * @return bool True if the balancing procedure is paused, false otherwise
+ */
+bool bal_is_paused(void);
+
+/**
  * @brief Start the balancing mechanism
  *
  * @return BalReturnCode
- *     - BAL_BUSY the LTC is busy performing other operations
+ *     - BAL_WATCHDOG_ERROR the interal watchdog could not be started
  *     - BAL_OK otherwise
  */
 BalReturnCode bal_start(void);
@@ -67,17 +86,41 @@ BalReturnCode bal_start(void);
  * @brief Stop the balancing mechanism
  *
  * @return BalReturnCode
- *     - BAL_BUSY the LTC is busy performing other operations
- *     - BAL_OK otherwise
+ *     - BAL_OK
  */
 BalReturnCode bal_stop(void);
+
+/**
+ * @brief Pause the discharge
+ *
+ * @details The balancing procedure can be paused only if active
+ * @details The balancing procedure remains active even if it is paused
+ *
+ * @return BalReturnCode
+ *     - BAL_OK
+ */
+BalReturnCode bal_pause(void);
+
+/**
+ * @brief Resume the discharge
+ *
+ * @details The balancing procedure can be resumed only if active
+ *
+ * @return BalReturnCode
+ *     - BAL_OK
+ */
+BalReturnCode bal_resume(void);
 
 #else  // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
 #define bal_set_balancing_status_handle(payload) CELLBOARD_NOPE()
+#define bal_is_active() (false)
+#define bal_is_paused() (false)
 #define bal_start() (BAL_OK)
 #define bal_stop() (BAL_OK)
+#define bal_pause() (BAL_OK)
+#define bal_resume() (BAL_OK)
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 

@@ -56,14 +56,14 @@ TempReturnCode temp_update_value(size_t index, raw_temp_t value);
  * @brief Update multiple temperature values
  *
  * @param index The index of the value to update
- * @param value A pointer to the array of values to copy
+ * @param values A pointer to the array of values to copy
  * @param size The number of elements to copy
  *
  * @return TempReturnCode
  *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - TEMP_OK otherwise
  */
-TempReturnCode temp_update_values(size_t index, raw_temp_t * value, size_t size);
+TempReturnCode temp_update_values(size_t index, raw_temp_t * values, size_t size);
 
 /**
  * @brief Update a single temperature value of the discharge resistors
@@ -81,14 +81,14 @@ TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value);
  * @brief Update multiple temperature values of the discharge resistors
  *
  * @param index The index of the value to update
- * @param value A pointer to the array of values to copy
+ * @param values A pointer to the array of values to copy
  * @param size The number of elements to copy
  *
  * @return TempReturnCode
  *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - TEMP_OK otherwise
  */
-TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * value, size_t size);
+TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * values, size_t size);
 
 /**
  * @brief Get a pointer to the array where the temperature values are stored
@@ -125,14 +125,17 @@ TempReturnCode temp_dump_values(raw_temp_t * out, size_t start, size_t size);
  *
  * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * @return bms_cells_temperatures_converted_t* A pointer to the payload
+ * @return bms_cellboard_cells_temperature_converted_t* A pointer to the payload
  */
-bms_cell_temperatures_converted_t * temp_get_canlib_payload(size_t * byte_size);
+bms_cellboard_cells_temperature_converted_t * temp_get_canlib_payload(size_t * byte_size);
 
 #else  // CONF_TEMPERATURE_MODULE_ENABLE
 
 #define temp_init() (TEMP_OK)
 #define temp_update_value(index, value) (TEMP_OK)
+#define temp_update_values(index, values, size) (TEMP_OK)
+#define temp_update_discharge_value(index, value) (TEMP_OK)
+#define temp_update_discharge_values(index, values, size) (TEMP_OK)
 #define temp_get_values() (NULL)
 #define temp_dump_values(out, start, size) (TEMP_OK)
 #define temp_get_canlib_payload(byte_size) (NULL)

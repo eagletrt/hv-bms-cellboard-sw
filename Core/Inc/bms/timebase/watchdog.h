@@ -6,6 +6,9 @@
  * @brief Implementation of generic watchdogs that times-out a certain interval of time 
  */
 
+#ifndef WATCHDOG_H
+#define WATCHDOG_H
+
 #include <stdbool.h>
 
 #include "cellboard-conf.h"
@@ -180,3 +183,5 @@ bool watchdog_is_timed_out(Watchdog * watchdog);
 #define watchdog_is_timed_out(watchdog) (false)
 
 #endif // CONF_WATCHDOG_MODULE_ENABLE
+
+#endif // WATCHDOG_H

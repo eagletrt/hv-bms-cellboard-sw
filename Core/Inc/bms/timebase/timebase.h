@@ -32,9 +32,9 @@
  * @param T The ticks to convert
  * @param RES The resolution of a tick
  *
- * @return time_t The corresponing amount of ms
+ * @return milliseconds_t The corresponing amount of ms
  */
-#define TIMEBASE_TICKS_TO_TIME(T, RES) ((time_t)((T) * (RES)))
+#define TIMEBASE_TICKS_TO_TIME(T, RES) ((milliseconds_t)((T) * (RES)))
 
 /** @brief Maximum number of watchdogs that can be handled simultaneously */
 #define TIMEBASE_RUNNING_WATCHDOG_COUNT (16U)
@@ -70,7 +70,7 @@ typedef enum {
  *     - TIMEBASE_NULL_POINTER if a tasks is not implemented
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_init(time_t resolution_ms);
+TimebaseReturnCode timebase_init(milliseconds_t resolution_ms);
 
 /**
  * @brief Enable or disable the timebase
@@ -98,16 +98,16 @@ ticks_t timebase_get_tick(void);
 /**
  * @brief Get the current elapsed time in ms
  *
- * @return time_t The current elapsed time
+ * @return milliseconds_t The current elapsed time
  */
-time_t timebase_get_time(void);
+milliseconds_t timebase_get_time(void);
 
 /**
  * @brief Get the number of ms that represents a single tick
  *
- * @return time_t The timebase resolution
+ * @return milliseconds_t The timebase resolution
  */
-time_t timebase_get_resolution(void);
+milliseconds_t timebase_get_resolution(void);
 
 /**
  * @brief Register a watchdog into the timebase
@@ -147,7 +147,7 @@ TimebaseReturnCode timebase_unregister_watchdog(Watchdog * handler);
  *
  * @return bool True if the watchdog is registered, false otherwise
  */
-bool timebase_is_registered_watchdog(Watchdog * watchdog) {
+bool timebase_is_registered_watchdog(Watchdog * watchdog);
 
 /**
  * @brief Update the registered watchdog

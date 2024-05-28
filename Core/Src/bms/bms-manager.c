@@ -303,7 +303,7 @@ BmsManagerReturnCode _bms_manager_read_gpios(Ltc6811Avxr reg) {
          * accordingly to the register and LTC from which the voltage is read
          */
         size_t index = (reg * LTC6811_REG_AUX_COUNT) + (ltc * LTC6811_AUX_COUNT);
-        temp_update_discharge_values(index, temps, LTC6811_REG_AUX_COUNT);
+        (void)temp_update_discharge_values(index, temps, LTC6811_REG_AUX_COUNT);
     }
     return BMS_MANAGER_OK;
 };
@@ -412,6 +412,8 @@ BmsManagerReturnCode bms_manager_init(
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         hmanager.requested_config[i].REFON = 1U;
     }
+
+    return BMS_MANAGER_OK;
 }
 
 BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {

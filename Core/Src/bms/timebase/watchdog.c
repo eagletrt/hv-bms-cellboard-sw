@@ -9,6 +9,7 @@
 #include "watchdog.h"
 
 #include <stddef.h>
+#include <string.h>
 
 #include "timebase.h"
 
@@ -24,7 +25,7 @@ WatchdogReturnCode watchdog_init(
 {
     if (watchdog == NULL || expire == NULL)
         return WATCHDOG_NULL_POINTER;
-    if (timebase_is_registered_watchdog(watchdog))
+    if (watchdog->running)
         return WATCHDOG_BUSY;
 
     memset(watchdog, 0U, sizeof(Watchdog));

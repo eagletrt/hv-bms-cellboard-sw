@@ -31,7 +31,7 @@ typedef enum {
     WATCHDOG_TIMEOUT
 } WatchdogReturnCode;
 
-#ifdef DO_NOT_DEFINE
+#ifdef CONF_WATCHDOG_MODULE_ENABLE
 
 /**
  * @brief Initialize the watchdogs
@@ -113,7 +113,7 @@ WatchdogReturnCode watchdog_stop_all(void);
  *     - WATCHDOG_INVALID_ID if the given ID is not valid
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_reset(can_index_t index, time_t timestamp);
+WatchdogReturnCode watchdog_reset(can_index_t index, milliseconds_t timestamp);
 
 /**
  * @brief Routine that checks if the watchdogs have timed out
@@ -124,7 +124,7 @@ WatchdogReturnCode watchdog_reset(can_index_t index, time_t timestamp);
  *     - WATCHDOG_TIMEOUT if a watchdog has timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_routine(time_t timestamp);
+WatchdogReturnCode watchdog_routine(milliseconds_t timestamp);
 
 #else  // CONF_WATCHDOG_MODULE_ENABLE
 
@@ -140,6 +140,6 @@ WatchdogReturnCode watchdog_routine(time_t timestamp);
 
 #endif // CONF_WATCHDOG_MODULE_ENABLE
 
-#endif  // WATCHDOG_H
-
 #endif
+
+#endif  // WATCHDOG_H

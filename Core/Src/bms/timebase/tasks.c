@@ -23,19 +23,51 @@
 static ticks_t tasks_interval[TASKS_COUNT] = { 
     [TASKS_ID_SEND_STATUS] = BMS_CELLBOARD_STATUS_CYCLE_TIME_MS,
     [TASKS_ID_SEND_VERSION] = BMS_CELLBOARD_VERSION_CYCLE_TIME_MS,
-    [TASKS_ID_SEND_VOLTAGES] = BMS_CELLBOARD_VOLTAGES_CYCLE_TIME_MS,
-    [TASKS_ID_SEND_TEMPERATURES] = BMS_CELLBOARD_TEMPERATURES_CYCLE_TIME_MS, 
+    [TASKS_ID_SEND_VOLTAGES] = BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS,
+    [TASKS_ID_SEND_TEMPERATURES] = BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, 
     [TASKS_ID_CHECK_WATCHDOG] = 200U,
     [TASKS_ID_RUN_BMS_MANAGER] = 2U
 };
 
-TasksReturnCode tasks_init(time_t resolution) {
+void _tasks_send_status(void) {
+    size_t byte_size;
+    uint8_t * payload = fsm_get_can_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
+void _tasks_send_version(void) {
+    size_t byte_size;
+    uint8_t * payload = identity_get_can_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
+void _tasks_send_voltages(void) {
+    size_t byte_size;
+    uint8_t * payload = volt_get_canlib_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_CELLS_VOLTAGE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
+void _tasks_send_temperatures(void) {
+    size_t byte_size;
+    uint8_t * payload = temp_get_canlib_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
+void _tasks_check_watchdog(void) {
+    watchdog_routine(timebase_get_time());
+}
+
+void _tasks_run_bms_manager(void) {
+    bms_manager_run();
+}
+
+TasksReturnCode tasks_init(milliseconds_t resolution) {
     if (resolution == 0U)
         resolution = 1U;
     tasks_interval[TASKS_ID_SEND_STATUS] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, resolution);
     tasks_interval[TASKS_ID_SEND_VERSION] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, resolution);
-    tasks_interval[TASKS_ID_SEND_VOLTAGES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VOLTAGES_CYCLE_TIME_MS, resolution);
-    tasks_interval[TASKS_ID_SEND_TEMPERATURES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_TEMPERATURES_CYCLE_TIME_MS, resolution);
+    tasks_interval[TASKS_ID_SEND_VOLTAGES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, resolution);
+    tasks_interval[TASKS_ID_SEND_TEMPERATURES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, resolution);
     tasks_interval[TASKS_ID_CHECK_WATCHDOG] = TIMEBASE_TIME_TO_TICKS(200U, resolution);
     tasks_interval[TASKS_ID_RUN_BMS_MANAGER] = TIMEBASE_TIME_TO_TICKS(2U, resolution);
     return TASKS_OK;
@@ -66,39 +98,7 @@ tasks_callback tasks_get_callback_from_id(TasksId id) {
     }
 }
 
-void _tasks_send_status(void) {
-    size_t byte_size;
-    void * payload = fsm_get_can_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
-
-void _tasks_send_version(void) {
-    size_t byte_size;
-    void * payload = identity_get_can_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
-
-void _tasks_send_voltages(void) {
-    size_t byte_size;
-    void * payload = volt_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_VOLTAGES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
-
-void _tasks_send_temperatures(void) {
-    size_t byte_size;
-    void * payload = temp_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_TEMPERATURES_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
-}
-
-void _tasks_check_watchdog(void) {
-    watchdog_routine(timebase_get_time());
-}
-
-void _tasks_run_bms_manager(void) {
-    bms_manager_run();
-}
-
-#ifdef CONF_TASKS_STRINGS_ENALBE
+#ifdef CONF_TASKS_STRINGS_ENABLE
 
 static char * tasks_module_name = "tasks";
 

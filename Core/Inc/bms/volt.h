@@ -16,6 +16,9 @@
 
 #include "bms_network.h"
 
+// TODO: Convert read voltage value to millivolt
+#define VOLT_VALUE_TO_MILLIVOLT(value) (0U)
+
 /**
  * @brief Return code for the voltage module functions
  *
@@ -112,9 +115,9 @@ VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size);
  *
  * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * @return bms_cells_voltages_converted_t* A pointer to the payload
+ * @return bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cell_voltages_converted_t * volt_get_canlib_payload(size_t * byte_size);
+bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size);
 
 #else  // CONF_VOLTAGE_MODULE_ENABLE
 
@@ -122,6 +125,7 @@ bms_cell_voltages_converted_t * volt_get_canlib_payload(size_t * byte_size);
 #define volt_update_value(index, value) (VOLT_OK)
 #define volt_update_values(index, value) (VOLT_OK)
 #define volt_get_values() (NULL)
+#define volt_select_values(target) (0U)
 #define volt_dump_values(out, start, size) (VOLT_OK)
 #define volt_get_canlib_payload(byte_size) (NULL)
 
