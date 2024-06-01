@@ -29,7 +29,7 @@ static struct {
 
 
 VoltReturnCode volt_init(void) {
-    memset(hvolt.voltages, 0U, CELLBOARD_SEGMENT_SERIES_COUNT * sizeof(raw_volt_t));
+    memset(&hvolt, 0U, sizeof(hvolt));
     hvolt.can_payload.cellboard_id = identity_get_cellboard_id();
     return VOLT_OK;
 }

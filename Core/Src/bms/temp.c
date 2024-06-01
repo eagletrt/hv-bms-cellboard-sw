@@ -15,7 +15,7 @@
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
-struct {
+static struct {
     raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
     raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
 
@@ -24,8 +24,7 @@ struct {
 
 
 TempReturnCode temp_init(void) {
-    memset(htemp.temperatures, 0U, CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT * sizeof(raw_temp_t));
-    memset(htemp.discharge_temperatures, 0U, CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT * sizeof(raw_temp_t));
+    memset(&htemp, 0U, sizeof(htemp));
     htemp.can_payload.cellboard_id = identity_get_cellboard_id();
     return TEMP_OK;
 }

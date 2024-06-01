@@ -20,13 +20,15 @@
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
+// TODO: Refactoring (better way to add and handle new tasks)
 static ticks_t tasks_interval[TASKS_COUNT] = { 
     [TASKS_ID_SEND_STATUS] = BMS_CELLBOARD_STATUS_CYCLE_TIME_MS,
     [TASKS_ID_SEND_VERSION] = BMS_CELLBOARD_VERSION_CYCLE_TIME_MS,
     [TASKS_ID_SEND_VOLTAGES] = BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS,
     [TASKS_ID_SEND_TEMPERATURES] = BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, 
+    [TASKS_ID_SEND_BALANCING_STATUS] = BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS,
     [TASKS_ID_CHECK_WATCHDOG] = 200U,
-    [TASKS_ID_RUN_BMS_MANAGER] = 2U
+    [TASKS_ID_RUN_BMS_MANAGER] = 2U,
 };
 
 void _tasks_send_status(void) {
@@ -53,6 +55,12 @@ void _tasks_send_temperatures(void) {
     can_comm_tx_add(BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 
+void _tasks_send_balancing_status(void) {
+    size_t byte_size;
+    uint8_t * payload = bal_get_canlib_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_BALANCING_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
 void _tasks_check_watchdog(void) {
     watchdog_routine(timebase_get_time());
 }
@@ -68,6 +76,7 @@ TasksReturnCode tasks_init(milliseconds_t resolution) {
     tasks_interval[TASKS_ID_SEND_VERSION] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, resolution);
     tasks_interval[TASKS_ID_SEND_VOLTAGES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, resolution);
     tasks_interval[TASKS_ID_SEND_TEMPERATURES] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, resolution);
+    tasks_interval[TASKS_ID_SEND_BALANCING_STATUS] = TIMEBASE_TIME_TO_TICKS(BMS_CELLBOARD_BALANCING_STATUS, resolution);
     tasks_interval[TASKS_ID_CHECK_WATCHDOG] = TIMEBASE_TIME_TO_TICKS(200U, resolution);
     tasks_interval[TASKS_ID_RUN_BMS_MANAGER] = TIMEBASE_TIME_TO_TICKS(2U, resolution);
     return TASKS_OK;
@@ -88,6 +97,8 @@ tasks_callback tasks_get_callback_from_id(TasksId id) {
             return _tasks_send_voltages;
         case TASKS_ID_SEND_TEMPERATURES:
             return _tasks_send_temperatures;
+        case TASKS_ID_SEND_BALANCING_STATUS:
+            return _tasks_send_balancing_status;
         case TASKS_ID_CHECK_WATCHDOG:
             return _tasks_check_watchdog;
         case TASKS_ID_RUN_BMS_MANAGER:

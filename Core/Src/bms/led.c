@@ -68,7 +68,7 @@ void led_set_enable(bool enabled) {
 }
 
 LedReturnCode led_routine(milliseconds_t t) {
-    LedStatus state = (LedStatus)blinky_routine(&hled.blinker, hled.pattern_size);
+    LedStatus state = (LedStatus)blinky_routine(&hled.blinker, t);
     hled.set(state);
     return LED_OK;
 }

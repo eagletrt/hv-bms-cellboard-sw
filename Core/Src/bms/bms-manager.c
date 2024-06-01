@@ -429,6 +429,15 @@ BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
     return BMS_MANAGER_OK;
 }
 
+bit_flag32_t bms_manager_get_discharge_cells(void) {
+    bit_flag32_t cells = 0U;
+    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
+        // Get cells from config
+        cells |= (hmanager.actual_config[ltc].DCC << (ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
+    }
+    return cells;
+}
+
 BmsManagerReturnCode bms_manager_run(void) {
 #define BMS_MANAGER_COUNTER ((__COUNTER__) - counter_base)
 
@@ -449,8 +458,6 @@ BmsManagerReturnCode bms_manager_run(void) {
             break;
         case BMS_MANAGER_COUNTER:
             ret = _bms_manager_read_gpios(LTC6811_AVAR);
-            break;
-        case BMS_MANAGER_COUNTER:
             ret = _bms_manager_read_gpios(LTC6811_AVBR);
             break;
         case BMS_MANAGER_COUNTER:

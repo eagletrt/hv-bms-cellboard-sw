@@ -76,7 +76,7 @@ BmsManagerReturnCode bms_manager_init(
 /**
  * @brief Set the cells to discharge
  *
- * @param cells The bitmask where the n-th bit represent the n-th cell up to 32
+ * @param cells The bitmask where the n-th bit represent the n-th cell (up to 32)
  *
  * @return BmsManagerReturnCode
  *     - BMS_MANAGER_OK
@@ -84,9 +84,16 @@ BmsManagerReturnCode bms_manager_init(
 BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells);
 
 /**
+ * @brief Get the cells that are being currently discharged
+ *
+ * @return bit_flag32_t The bitmask where the n-th bit represent the n-th cell (up to 32)
+ */
+bit_flag32_t bms_manager_get_discharge_cells(void);
+
+/**
  * @brief Run a single bms manager operation
  *
- * @details This function should be run with a certain interval, preferably 2ms
+ * @details This function should be run with a certain interval, preferably under 5 ms
  * 
  * @return BmsManagerReturnCode
  *     - BMS_MANAGER_OK
@@ -96,6 +103,8 @@ BmsManagerReturnCode bms_manager_run(void);
 #else  // CONF_BMS_MANAGER_MODULE_ENABLE
 
 #define bms_manager_init(send, send_receive) (BMS_MANAGER_OK)
+#define bms_manager_set_discharge_cells(cells) (BMS_BMS_MANAGER_OK)
+#define bms_manager_get_discharge_cells() (0U)
 #define bms_manager_run() (BMS_MANAGER_OK)
 
 #endif // CONF_BMS_MANAGER_MODULE_ENABLE

@@ -111,6 +111,15 @@ BalReturnCode bal_pause(void);
  */
 BalReturnCode bal_resume(void);
 
+/**
+ * @brief Get a pointer to the CAN payload of the balancing info
+ *
+ * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ *
+ * @return bms_cellboard_balancing_status_converted_t* A pointer to the payload
+ */
+bms_cellboard_balancing_status_converted_t bal_get_can_payload(size_t * byte_size);
+
 #else  // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
@@ -121,6 +130,7 @@ BalReturnCode bal_resume(void);
 #define bal_stop() (BAL_OK)
 #define bal_pause() (BAL_OK)
 #define bal_resume() (BAL_OK)
+#define bal_ge_bal_get_can_payload(byte_size) (NULL)
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 
