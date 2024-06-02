@@ -80,38 +80,6 @@ BalReturnCode bal_init(void) {
     return BAL_OK;
 }
 
-bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byte_size) {
-    if (byte_size != NULL)
-        *byte_size = sizeof(hbal.can_payload);
-
-    uint32_t cells = bms_manager_get_discharge_cells();
-    hbal.can_payload.discharging_cell_0 = CELLBOARD_BIT_GET(cells, 0U);
-    hbal.can_payload.discharging_cell_1 = CELLBOARD_BIT_GET(cells, 1U);
-    hbal.can_payload.discharging_cell_2 = CELLBOARD_BIT_GET(cells, 2U);
-    hbal.can_payload.discharging_cell_3 = CELLBOARD_BIT_GET(cells, 3U);
-    hbal.can_payload.discharging_cell_4 = CELLBOARD_BIT_GET(cells, 4U);
-    hbal.can_payload.discharging_cell_5 = CELLBOARD_BIT_GET(cells, 5U);
-    hbal.can_payload.discharging_cell_6 = CELLBOARD_BIT_GET(cells, 6U);
-    hbal.can_payload.discharging_cell_7 = CELLBOARD_BIT_GET(cells, 7U);
-    hbal.can_payload.discharging_cell_8 = CELLBOARD_BIT_GET(cells, 8U);
-    hbal.can_payload.discharging_cell_9 = CELLBOARD_BIT_GET(cells, 9U);
-    hbal.can_payload.discharging_cell_10 = CELLBOARD_BIT_GET(cells, 10U);
-    hbal.can_payload.discharging_cell_11 = CELLBOARD_BIT_GET(cells, 11U);
-    hbal.can_payload.discharging_cell_12 = CELLBOARD_BIT_GET(cells, 12U);
-    hbal.can_payload.discharging_cell_13 = CELLBOARD_BIT_GET(cells, 13U);
-    hbal.can_payload.discharging_cell_14 = CELLBOARD_BIT_GET(cells, 14U);
-    hbal.can_payload.discharging_cell_15 = CELLBOARD_BIT_GET(cells, 15U);
-    hbal.can_payload.discharging_cell_16 = CELLBOARD_BIT_GET(cells, 16U);
-    hbal.can_payload.discharging_cell_17 = CELLBOARD_BIT_GET(cells, 17U);
-    hbal.can_payload.discharging_cell_18 = CELLBOARD_BIT_GET(cells, 18U);
-    hbal.can_payload.discharging_cell_19 = CELLBOARD_BIT_GET(cells, 19U);
-    hbal.can_payload.discharging_cell_20 = CELLBOARD_BIT_GET(cells, 20U);
-    hbal.can_payload.discharging_cell_21 = CELLBOARD_BIT_GET(cells, 21U);
-    hbal.can_payload.discharging_cell_22 = CELLBOARD_BIT_GET(cells, 22U);
-    hbal.can_payload.discharging_cell_23 = CELLBOARD_BIT_GET(cells, 23U);
-    return &hbal.can_payload;
-}
-
 // TODO: Handle unavailable watchdog
 void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload) {
     if (payload == NULL)
@@ -199,6 +167,38 @@ BalReturnCode bal_resume(void) {
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
     hbal.paused = false;
     return BAL_OK;
+}
+
+bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byte_size) {
+    if (byte_size != NULL)
+        *byte_size = sizeof(hbal.can_payload);
+
+    uint32_t cells = bms_manager_get_discharge_cells();
+    hbal.can_payload.discharging_cell_0 = CELLBOARD_BIT_GET(cells, 0U);
+    hbal.can_payload.discharging_cell_1 = CELLBOARD_BIT_GET(cells, 1U);
+    hbal.can_payload.discharging_cell_2 = CELLBOARD_BIT_GET(cells, 2U);
+    hbal.can_payload.discharging_cell_3 = CELLBOARD_BIT_GET(cells, 3U);
+    hbal.can_payload.discharging_cell_4 = CELLBOARD_BIT_GET(cells, 4U);
+    hbal.can_payload.discharging_cell_5 = CELLBOARD_BIT_GET(cells, 5U);
+    hbal.can_payload.discharging_cell_6 = CELLBOARD_BIT_GET(cells, 6U);
+    hbal.can_payload.discharging_cell_7 = CELLBOARD_BIT_GET(cells, 7U);
+    hbal.can_payload.discharging_cell_8 = CELLBOARD_BIT_GET(cells, 8U);
+    hbal.can_payload.discharging_cell_9 = CELLBOARD_BIT_GET(cells, 9U);
+    hbal.can_payload.discharging_cell_10 = CELLBOARD_BIT_GET(cells, 10U);
+    hbal.can_payload.discharging_cell_11 = CELLBOARD_BIT_GET(cells, 11U);
+    hbal.can_payload.discharging_cell_12 = CELLBOARD_BIT_GET(cells, 12U);
+    hbal.can_payload.discharging_cell_13 = CELLBOARD_BIT_GET(cells, 13U);
+    hbal.can_payload.discharging_cell_14 = CELLBOARD_BIT_GET(cells, 14U);
+    hbal.can_payload.discharging_cell_15 = CELLBOARD_BIT_GET(cells, 15U);
+    hbal.can_payload.discharging_cell_16 = CELLBOARD_BIT_GET(cells, 16U);
+    hbal.can_payload.discharging_cell_17 = CELLBOARD_BIT_GET(cells, 17U);
+    hbal.can_payload.discharging_cell_18 = CELLBOARD_BIT_GET(cells, 18U);
+    hbal.can_payload.discharging_cell_19 = CELLBOARD_BIT_GET(cells, 19U);
+    hbal.can_payload.discharging_cell_20 = CELLBOARD_BIT_GET(cells, 20U);
+    hbal.can_payload.discharging_cell_21 = CELLBOARD_BIT_GET(cells, 21U);
+    hbal.can_payload.discharging_cell_22 = CELLBOARD_BIT_GET(cells, 22U);
+    hbal.can_payload.discharging_cell_23 = CELLBOARD_BIT_GET(cells, 23U);
+    return &hbal.can_payload;
 }
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE

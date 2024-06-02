@@ -17,33 +17,66 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-/** @brief Total number of tasks */
+/**@brief Total number of tasks */
 #define TASKS_COUNT (TASKS_ID_COUNT)
+
+/**
+ * @brief List of tasks parameters
+ *
+ * @attention !!! DO NOT USE THIS MACRO OUTSIDE OF THIS FILE !!!
+ *
+ * @attention This file uses X macros (https://en.wikipedia.org/wiki/X_macro)
+ * to make it easier to add more tasks without to much changes to the code
+ *
+ * @details To add a new task add a field to this list and give it the right parameters
+ * then go to the source file and implement the callback function
+ *
+ * @param name The name associated with the task (have to be unique)
+ * @param start The first moment when the task is executed (in ticks)
+ * @param interval How often the task should run
+ * @param exec A pointer to the task function callback
+ */
+#define TASKS_X_LIST \
+    TASKS_X(SEND_STATUS, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
+    TASKS_X(SEND_VERSION, 1U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
+    TASKS_X(SEND_VOLTAGES, 2U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
+    TASKS_X(SEND_TEMPERATURES, 3U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, 4U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
+    TASKS_X(CHECK_WATCHDOG, 5U, 200U, _tasks_check_watchdog) \
+    TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager)
+
+/**
+ * @brief Enumeration of tasks
+ *
+ * @details This enum is mainly used to get the total number of tasks at compile time
+ * but can also be used to get a specific tasks given a name in the format TASKS_ID_[NAME]
+ */
+#define TASKS_X(NAME, START, INTERVAL, EXEC) TASKS_ID_##NAME,
+typedef enum {
+    TASKS_X_LIST
+    TASKS_ID_COUNT
+} TasksId;
+#undef TASKS_X
 
 /** @brief Type definition for a function that excecutes a single task */
 typedef void (* tasks_callback)(void);
 
 /**
- * @brief Tasks identifiers
+ * @brief Definition of a single task
  *
- * @details
- *     - TASKS_ID_SEND_STATUS send the cellboard status via the CAN bus
- *     - TASKS_ID_SEND_VERSION send the cellboard version via the CAN bus
- *     - TASKS_ID_SEND_VOLTAGES send the cells voltages via the CAN bus
- *     - TASKS_ID_SEND_TEMPERATURES send the cells temperatures via the CAN bus
- *     - TASKS_ID_CHECK_WATCHDOG check the status of the watchogs
- *     - TASKS_ID_RUN_BMS_MANAGER run the BMS manager operations
+ * @details An interval of 0 means that the task is only run once
+ *
+ * @param id The task identifier
+ * @param start The time when the tasks is executed first
+ * @param interval The amount of time that must elapsed before the tasks is re-executed
+ * @param exec A pointer to the task callback
  */
-typedef enum {
-    TASKS_ID_SEND_STATUS,
-    TASKS_ID_SEND_VERSION,
-    TASKS_ID_SEND_VOLTAGES,
-    TASKS_ID_SEND_TEMPERATURES,
-    TASKS_ID_SEND_BALANCING_STATUS,
-    TASKS_ID_CHECK_WATCHDOG,
-    TASKS_ID_RUN_BMS_MANAGER,
-    TASKS_ID_COUNT
-} TasksId;
+typedef struct {
+    TasksId id;
+    ticks_t start;
+    ticks_t interval;
+    tasks_callback exec;
+} Task;
 
 /**
  * @brief Return code for the tasks module functions
@@ -68,27 +101,47 @@ typedef enum {
 TasksReturnCode tasks_init(milliseconds_t resolution);
 
 /**
- * @brief Get the task interval from its identifier
+ * @brief Get a pointer to the tasks
  *
- * @param id The task identifier
+ * @param id The identifier of the task
  *
- * @return ticks_t The task interval or 0 if not found
+ * @return Task* The pointer to the tasks or NULL if the id is not valid
  */
-ticks_t tasks_get_interval_from_id(TasksId id);
+Task * tasks_get_task(TasksId id);
 
 /**
- * @brief Get the task callback from its identifier
+ * @brief Get the start time of the task
  *
- * @param id The task identifier
+ * @param id The identifier of the task
  *
- * @return tasks_callback A pointer to the task callaback or NULL if not found
+ * @return ticks_t The task start time or 0 if the id is not valid
  */
-tasks_callback tasks_get_callback_from_id(TasksId id);
+ticks_t tasks_get_start(TasksId id);
+
+/**
+ * @brief Get the interval time of the task
+ *
+ * @param id The identifier of the task
+ *
+ * @return ticks_t The task interval time or 0 if the id is not valid
+ */
+ticks_t tasks_get_interval(TasksId id);
+
+/**
+ * @brief Get a pointer to the task callback
+ *
+ * @param id The identifier of the task
+ *
+ * @return tasks_callback The task callback or NULL if the id is not valid
+ */
+tasks_callback tasks_get_callback(TasksId id);
 
 #else  // CONF_TASKS_MODULE_ENABLE
 
 #define tasks_init(resolution) (TASKS_OK)
-#define tasks_get_interval_from_id(id) (0U)
-#define tasks_get_callback_from_id(id) (NULL)
+#define tasks_get_task(id) (NULL)
+#define tasks_get_start(id) (0U)
+#define tasks_get_interval(id) (0U)
+#define tasks_get_callback(id) (NULL)
 
 #endif // CONF_TASKS_MODULE_ENABLE

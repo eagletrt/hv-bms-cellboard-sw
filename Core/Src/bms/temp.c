@@ -15,6 +15,7 @@
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
+// TODO: Send discharge temperatures
 static struct {
     raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
     raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
