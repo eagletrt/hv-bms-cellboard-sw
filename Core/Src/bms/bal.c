@@ -52,7 +52,6 @@ static struct {
     BalParams params;
 } hbal;
 
-// TODO: Handle discharge PWM
 void _bal_timeout(void) {
     // Stop balancing
     hbal.event.type = FSM_EVENT_TYPE_BALANCING_STOP;

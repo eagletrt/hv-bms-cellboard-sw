@@ -16,6 +16,7 @@
 #include "watchdog.h"
 #include "timebase.h"
 #include "bal.h"
+#include "canlib_device.h"
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 

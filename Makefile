@@ -56,6 +56,7 @@ ULIBS_DIR = $(LIB_DIR)/micro-libs
 # C sources
 C_SOURCES = \
 $(shell find $(SRC_DIR) -name "*.c") \
+$(CANLIB_DIR)/canlib_device.c \
 $(shell find $(CANLIB_DIR)/bms -name "*.c") \
 $(BLINKY_C_SOURCES) \
 $(BMS_MONITOR_C_SOURCES) \
@@ -145,7 +146,7 @@ AS_INCLUDES =
 # C includes
 C_INCLUDES =  \
 $(addprefix -I,$(shell find $(INC_DIR) -type d)) \
-$(addprefix -I,$(shell find $(CANLIB_DIR)/bms -type d)) \
+$(addprefix -I,$(shell find $(CANLIB_DIR) -type d)) \
 $(BLINKY_C_INCLUDE_DIRS_PREFIX) \
 $(BMS_MONITOR_C_INCLUDE_DIRS_PREFIX) \
 $(RING_BUFFER_C_INCLUDE_DIRS_PREFIX) \
