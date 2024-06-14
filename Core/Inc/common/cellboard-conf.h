@@ -3,7 +3,7 @@
  * @date 2024-04-16
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @breif Main configuration for the cellboard project
+ * @brief Main configuration for the cellboard project
  *
  * @attention Do not touch unless you known whay you are doing
  */

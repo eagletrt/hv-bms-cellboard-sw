@@ -240,6 +240,12 @@ typedef float millivolt_t;
 /** @brief Function callback that resets the microcontroller */
 typedef void (* system_reset_callback_t)(void);
 
+/** @brief Function callback used to enter a critical section */
+typedef void (* interrupt_critical_section_enter_t)(void);
+
+/** @brief Function callback used to exit a critical section */
+typedef void (* interrupt_critical_section_exit_t)(void);
+
 /** @} */
 
 /*** ######################### ENUMS DEFINITIONS ######################### ***/

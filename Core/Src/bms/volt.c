@@ -12,6 +12,8 @@
 
 #include "cellboard-def.h"
 #include "identity.h"
+#include "timebase.h"
+#include "error.h"
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
@@ -27,6 +29,15 @@ static struct {
     bms_cellboard_cells_voltage_converted_t can_payload;
 } hvolt;
 
+/**
+ * @brief Check if the voltage values are in range otherwise set an error
+ *
+ * @param value The raw voltage value
+ */
+inline void _volt_check_values(raw_volt_t value) {
+    ERROR_TOGGLE_IF(value <= VOLT_MILLIVOLT_TO_VALUE(VOLT_MIN_VALUE), ERROR_GROUP_UNDER_VOLTAGE, 0U, timebase_get_time());
+    ERROR_TOGGLE_IF(value >= VOLT_MILLIVOLT_TO_VALUE(VOLT_MAX_VALUE), ERROR_GROUP_OVER_VOLTAGE, 0U, timebase_get_time());
+}
 
 VoltReturnCode volt_init(void) {
     memset(&hvolt, 0U, sizeof(hvolt));
@@ -38,6 +49,7 @@ VoltReturnCode volt_update_value(size_t index, raw_volt_t value) {
     if (index > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     hvolt.voltages[index] = value;
+    _volt_check_values(value);
     return VOLT_OK;
 }
 
@@ -45,6 +57,8 @@ VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size
     if (index + size > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
+    for (size_t i = 0U; i < size; ++i)
+        _volt_check_values(hvolt.voltages[index]);
     return VOLT_OK;
 }
 
@@ -54,7 +68,7 @@ const raw_volt_t * volt_get_values(void) {
 
 bit_flag32_t volt_select_values(millivolt_t target) {
     bit_flag32_t bits = 0U;
-    const size_t cnt = CELLBOARD_MAX(CELLBOARD_SEGMENT_SERIES_COUNT, sizeof(bits) * 8U);
+    const size_t cnt = CELLBOARD_MIN(CELLBOARD_SEGMENT_SERIES_COUNT, sizeof(bits) * 8U);
 
     // Iterate over cells and choose cells which voltage is greater than the target
     for (size_t i = 0U; i < cnt; ++i) {
@@ -88,6 +102,10 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
         offset = 0U;
     return &hvolt.can_payload;
+}
+
+VoltReturnCode volt_routine(void) {
+    return VOLT_OK;
 }
 
 

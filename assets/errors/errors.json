@@ -1,0 +1,34 @@
+{
+    "errors": [
+        {
+            "name": "CELLBOARD_ID",
+            "timeout": 0,
+            "instances": 1
+        },
+        {
+            "name": "UNDER_VOLTAGE",
+            "timeout": 50,
+            "instances": 1
+        },
+        { 
+            "name": "OVER_VOLTAGE",
+            "timeout": 50,
+            "instances": 1
+        },
+        { 
+            "name": "UNDER_TEMPERATURE",
+            "timeout": 200,
+            "instances": 1
+        },
+        { 
+            "name": "OVER_TEMPERATURE",
+            "timeout": 200,
+            "instances": 1
+        },
+        { 
+            "name": "CAN",
+            "timeout": 100,
+            "instances": 1
+        }
+    ]
+}

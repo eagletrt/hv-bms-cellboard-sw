@@ -286,6 +286,7 @@ CanCommReturnCode can_comm_rx_add(
     return CAN_COMM_OK;
 }
 
+// TODO: Set error if CAN communication is not working
 CanCommReturnCode can_comm_routine(void) {
     if (!CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled))
         return CAN_COMM_DISABLED;

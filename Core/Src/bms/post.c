@@ -15,6 +15,7 @@
 #include "volt.h"
 #include "temp.h"
 #include "bal.h"
+#include "error.h"
 
 #ifdef CONF_POST_MODULE_ENABLE
 
@@ -27,25 +28,35 @@ PostReturnCode post_run(PostInitData data) {
         data.spi_send == NULL ||
         data.spi_send_receive == NULL ||
         data.led_set == NULL ||
-        data.led_toggle == NULL)
+        data.led_toggle == NULL ||
+        data.cs_enter == NULL ||
+        data.cs_exit == NULL)
         return POST_NULL_POINTER;
 
-    identity_init(data.id); // Have to be always called first
+    /**
+     * This function has to be always called before every other init function
+     * because most of the functionality of the BMS strictly depends on the
+     * cellboard ID
+     */
+    identity_init(data.id);
 
-    // TODO: Test that every peripheral is working
-    // TODO: Call all the init functions
-    // TODO: Return errors based on function return codes
-    
-    // Some return values are ignored because always OK
+    /**
+     * All the initialization function of the modules are called
+     * Some of the function return values can be ignored because they are either
+     * always OK or some assertion can be made (like for the NULL checks)
+     */
     (void)timebase_init(1U);
-    (void)bms_manager_init(data.spi_send, data.spi_send_receive); // NULL check for callbacks above
+    (void)bms_manager_init(data.spi_send, data.spi_send_receive);
     (void)volt_init();
     (void)temp_init();
-    (void)can_comm_init(data.can_send); // NULL check for send above
+    (void)can_comm_init(data.can_send);
     (void)bal_init();
     (void)programmer_init(data.system_reset);
-    (void)led_init(data.led_set, data.led_toggle); // Id and NULL checks above
- 
+    (void)led_init(data.led_set, data.led_toggle);
+    error_init(data.cs_enter, data.cs_exit);
+
+    // TODO: Test that every peripheral is working
+    // TODO: Return errors based on function return codes 
     return POST_OK;
 }
 

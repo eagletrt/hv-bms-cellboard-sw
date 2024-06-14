@@ -83,7 +83,7 @@ static char * led_return_code_name[] = {
     [LED_INVALID_CELLBOARD_ID] = "invalid cellboard id"
 };
 
-static char * led_return_code_name[] = {
+static char * led_return_code_description[] = {
     [LED_OK] = "executed succesfully",
     [LED_NULL_POINTER] = "attempt to dereference a NULL pointer",
     [LED_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier"

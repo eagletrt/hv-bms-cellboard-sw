@@ -16,8 +16,30 @@
 
 #include "bms_network.h"
 
-// TODO: Convert read voltage value to millivolt
-#define VOLT_VALUE_TO_MILLIVOLT(value) (0U)
+/** @brief Minimum and maximum allowed cell voltage in millivolt */
+#define VOLT_MIN_MILLIVOLT (2800.f)
+#define VOLT_MAX_MILLIVOLT (4200.f)
+
+/** @brief Minimum and maximum allowed cell voltage raw values */
+#define VOLT_MIN_VALUE (VOLT_MILLIVOLT_TO_VALUE(VOLT_MIN_MILLIVOLT))
+#define VOLT_MAX_VALUE (VOLT_MILLIVOLT_TO_VALUE(VOLT_MAX_MILLIVOLT))
+
+/**
+ * @brief Convert a raw voltage value to millivolt
+ *
+ * @param value The value to convert
+ *
+ * @return millivolt_t The converted voltage in millivolt
+ */
+#define VOLT_VALUE_TO_MILLIVOLT(value) ((millivolt_t)(value / 10.f))
+/**
+ * @brief Convert a voltage in millivolt to the raw voltage value
+ *
+ * @param value The value to convert in millivolt
+ *
+ * @return raw_volt_t The raw voltage value
+ */
+#define VOLT_MILLIVOLT_TO_VALUE(value) ((raw_volt_t)(value * 10.f))
 
 /**
  * @brief Return code for the voltage module functions

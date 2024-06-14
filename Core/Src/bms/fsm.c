@@ -25,6 +25,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "watchdog.h"
 #include "programmer.h"
 #include "bal.h"
+#include "error.h"
 /*** USER CODE END MACROS ***/
 
 
@@ -189,6 +190,7 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_IDLE ***/
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+  error_routine();
 
   // Check for flash request
   if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
@@ -251,6 +253,7 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_FLASH ***/
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+  error_routine();
   ProgrammerReturnCode code = programmer_routine();
   if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
       next_state = FSM_STATE_IDLE;
@@ -279,6 +282,7 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_DISCHARGE ***/
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+  error_routine();
 
   // Check for balancing request
   if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
@@ -312,6 +316,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
   /*** USER CODE BEGIN DO_COOLDOWN ***/
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
+  error_routine();
 
   // Check for balancing request
   if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)

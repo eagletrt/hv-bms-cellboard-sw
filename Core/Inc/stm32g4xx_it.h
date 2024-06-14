@@ -57,6 +57,20 @@ void PendSV_Handler(void);
 void SysTick_Handler(void);
 /* USER CODE BEGIN EFP */
 
+/**
+ * @brief Enter a critical section
+ *
+ * @details This function disables all interrupt to avoid concurrency related problems
+ */
+void it_cs_enter(void);
+
+/**
+ * @brief Exit a critical section
+ *
+ * @details This function re-enable all the interrupts and restore their states
+ */
+void it_cs_exit(void);
+
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

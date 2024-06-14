@@ -70,6 +70,25 @@ extern ADC_HandleTypeDef hadc3;
  */
 #define ADC_VALUE_TO_VOLTAGE(value) ((millivolt_t)((value) / ((1 << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
 
+/**
+ * @brief Return code for the ADC module functions
+ *
+ * @details
+ *     - ADC_OK the function executed succefully
+ *     - ADC_NULL_POINTER a NULL pointer was given to a function
+ *     - ADC_TIMEOUT the ADC converstion has taken too long to complete
+ *     - ADC_START_ERROR the ADC cannot be started
+ *     - ADC_POLL_ERROR there was an error while polling for the conversion status
+ *     - ADC_STOP_ERROR the ADC cannot be stopped
+ */
+typedef enum {
+    ADC_OK,
+    ADC_NULL_POINTER,
+    ADC_TIMEOUT,
+    ADC_START_ERROR,
+    ADC_POLL_ERROR,
+    ADC_STOP_ERROR
+} AdcReturnCode;
 
 /* USER CODE END Private defines */
 
@@ -82,9 +101,17 @@ void MX_ADC3_Init(void);
 /**
  * @brief Read the cellboard identifier number encoded as a certain voltage range
  *
- * @return CellboardId The index of the current segment
+ * @param out[out] The variable where the cellboard identifier is copied into
+ *
+ * @return AdcReturnCode
+ *     - ADC_NULL_POINTER if the out pointer is NULL
+ *     - ADC_START_ERROR if the ADC cannot be started
+ *     - ADC_TIMEOUT if the polling times out
+ *     - ADC_POLL_ERROR an error happened during the poll for conversion operation
+ *     - ADC_STOP_ERROR if the ADC cannot be stopped
+ *     - ADC_OK otherwise
  */
-CellboardId adc_read_cellboard_id(void);
+AdcReturnCode adc_read_cellboard_id(CellboardId * out);
 
 /* USER CODE END Prototypes */
 

@@ -200,4 +200,16 @@ void SysTick_Handler(void)
 
 /* USER CODE BEGIN 1 */
 
+static uint32_t primask;
+
+void it_cs_enter(void) {
+    primask = __get_PRIMASK();
+    __disable_irq();
+}
+
+void it_cs_exit(void) {
+    if (!primask)
+        __enable_irq();
+}
+
 /* USER CODE END 1 */

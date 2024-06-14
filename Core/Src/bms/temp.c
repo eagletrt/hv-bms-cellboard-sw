@@ -23,6 +23,10 @@ static struct {
     bms_cell_temperatures_converted_t can_payload;
 } htemp;
 
+inline _temp_check_values(raw_temp_t value) {
+    ERROR_TOGGLE_IF(value <= TEMP_CELSIUS_TO_VALUE(TEMP_), ERROR_GROUP_UNDER_TEMPERATURE, 0U, timebase_get_time());
+    ERROR_TOGGLE_IF(value <= TEMP_VOL, ERROR_GROUP_OVER_TEMPERATURE, 0U, timebase_get_time());
+}
 
 TempReturnCode temp_init(void) {
     memset(&htemp, 0U, sizeof(htemp));

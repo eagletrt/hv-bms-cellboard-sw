@@ -17,20 +17,21 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-
-
 #include "main.h"
 #include "adc.h"
 #include "fdcan.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "stm32g4xx_it.h"
 #include "fsm.h"
 #include "post.h"
+#include "error.h"
 
 /* USER CODE END Includes */
 
@@ -103,22 +104,36 @@ int main(void)
   MX_FDCAN1_Init();
   MX_SPI3_Init();
   MX_USART2_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
   fsm_state_t fsm_state = FSM_STATE_INIT;
 
   // Get the cellboard identifier
-  // TODO: Add function to send data via CAN
-  CellboardId id = adc_read_cellboard_id();
   PostInitData init_data = {
-      .id = id,
       .system_reset = system_reset,
       .can_send = can_send,
       .spi_send = spi_send,
       .spi_send_receive = spi_send_and_receive,
       .led_set = gpio_led_set_state,
       .led_toggle = gpio_led_toggle_state,
+      .cs_enter = it_cs_enter,
+      .cs_exit = it_cs_exit
   };
+  
+  // Go to the fatal state the cellboard identifier cannot be read
+  AdcReturnCode adc_code = ADC_TIMEOUT;
+  for (size_t i = 0U; adc_code != ADC_OK && i < 10U; ++i)
+      adc_code = adc_read_cellboard_id(&init_data.id);
+
+  if (adc_code != ADC_OK) {
+      // The error handler is not yet initialized so the init function is called
+      // before the error is expired
+      error_init(init_data.cs_enter, init_data.cs_exit);
+      error_expire_immediate(ERROR_GROUP_CELLBOARD_ID, 0U);
+      fsm_state = FSM_STATE_FATAL;
+  }
+
   fsm_run_state(fsm_state, &init_data);
 
   /* USER CODE END 2 */

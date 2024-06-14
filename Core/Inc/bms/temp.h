@@ -16,6 +16,33 @@
 
 #include "bms_network.h"
 
+// TODO: Set minimum and maximum allowed temperatures
+/** @brief Minimum and maximum allowed cell temperature in celsius */
+#define TEMP_MIN_CELSIUS (-20.f)
+#define TEMP_MAX_CELSIUS (60.f)
+
+/** @brief Minimum and maximum allowed cell temperature raw values */
+#define TEMP_MIN_VALUE (TEMP_CELSIUS_TO_VALUE(TEMP_MIN_CELSIUS))
+#define TEMP_MAX_VALUE (TEMP_CELSIUS_TO_VALUE(TEMP_MAX_CELSIUS))
+
+// TODO: Define conversion macros for the cells temperatures
+/**
+ * @brief Convert a raw temperature value to celsius
+ *
+ * @param value The value to convert
+ *
+ * @return celsius_t The converted temperature in celsius
+ */
+#define TEMP_VALUE_TO_CELSIUS(value) ((celsius_t)(0U))
+/**
+ * @brief Convert a temperature in celsius to the raw tempearture value
+ *
+ * @param value The value to convert in celsius
+ *
+ * @return raw_temp_t The raw temperature value
+ */
+#define TEMP_CELSIUS_TO_VALUE(value) ((raw_temp_t)(0U))
+
 /**
  * @brief Return code for the temperature module functions
  *
