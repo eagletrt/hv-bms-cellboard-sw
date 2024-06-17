@@ -123,20 +123,17 @@ inline void fsm_event_trigger(fsm_event_data_t *event) {
 // valid return states: FSM_STATE_IDLE, FSM_STATE_FATAL
 fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   fsm_state_t next_state = FSM_STATE_IDLE;
-  
-  memset(&hfsm, 0U, sizeof(hfsm));
-
-  hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
-  
+   
   /*** USER CODE BEGIN DO_INIT ***/
-  // Run POST and verify that everything is working
-  PostInitData * post_data = (PostInitData *)data;
-  PostReturnCode status = POST_OK;
 
-  if (post_data == NULL)
-      status = POST_NULL_POINTER;
-  else
-      status = post_run(*post_data);
+  // Initialize the FSM handler
+  memset(&hfsm, 0U, sizeof(hfsm));
+  hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
+
+  // Run the Power On Self Test
+  PostReturnCode status = (data == NULL) ?
+      POST_NULL_POINTER :
+      post_run(*(PostInitData *)data);
 
   // Init canlib payloads
   CellboardId id = identity_get_cellboard_id();
@@ -150,7 +147,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
       &hfsm.discharge_wdg,
       TIMEBASE_TIME_TO_TICKS(FSM_DISCHARGE_TIMEOUT, resolution),
       _fsm_discharge_timeout
-      );
+  );
   (void)watchdog_init(
       &hfsm.cooldown_wdg,
       TIMEBASE_TIME_TO_TICKS(FSM_COOLDOWN_TIMEOUT, resolution),
@@ -163,6 +160,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
           break;
 
       default:
+          error_expire_immediate(ERROR_GROUP_POST, 0U);
           next_state = FSM_STATE_FATAL;
           break;
   }

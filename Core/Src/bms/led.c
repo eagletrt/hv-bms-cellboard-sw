@@ -31,7 +31,7 @@
  * @param pattern The main blinking pattern
  * @param pattern_size The size of the pattern
  */
-static struct {
+static struct LedHandler {
     led_set_state_callback_t set;
     led_toggle_state_callback_t toggle;
 

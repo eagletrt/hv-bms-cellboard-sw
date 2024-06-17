@@ -52,8 +52,6 @@ typedef struct {
     bms_manager_send_receive_callback_t spi_send_receive;
     led_set_state_callback_t led_set;
     led_toggle_state_callback_t led_toggle;
-    interrupt_critical_section_enter_t cs_enter;
-    interrupt_critical_section_exit_t cs_exit;
 } PostInitData;
 
 #ifdef CONF_POST_MODULE_ENABLE

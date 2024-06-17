@@ -3,31 +3,43 @@
         {
             "name": "CELLBOARD_ID",
             "timeout": 0,
+            "description": "error set when the cellboard identifier cannot be read correctly",
+            "instances": 1
+        },
+        {
+            "name": "POST",
+            "timeout": 0,
+            "description": "a problem raise during the Power On Self Test",
             "instances": 1
         },
         {
             "name": "UNDER_VOLTAGE",
             "timeout": 50,
+            "description": "a cell voltage value is too low",
             "instances": 1
         },
         { 
             "name": "OVER_VOLTAGE",
             "timeout": 50,
+            "description": "a cell voltage value is too high",
             "instances": 1
         },
         { 
             "name": "UNDER_TEMPERATURE",
             "timeout": 200,
+            "description": "a cell temperature value is too low",
             "instances": 1
         },
         { 
             "name": "OVER_TEMPERATURE",
             "timeout": 200,
+            "description": "a cell temperature value is too high",
             "instances": 1
         },
         { 
             "name": "CAN",
             "timeout": 100,
+            "description": "CAN bus communication is not working",
             "instances": 1
         }
     ]

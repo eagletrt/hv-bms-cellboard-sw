@@ -109,31 +109,33 @@ int main(void)
 
   fsm_state_t fsm_state = FSM_STATE_INIT;
 
-  // Get the cellboard identifier
+  /*
+   * Since the error module functions are needed even before the POST is executed
+   * the initialization function has to be called here instead of inside the
+   * POST procedure, this is needed to reduce code complexity and repetitions
+   */
+  error_init(it_cs_enter, it_cs_exit);
+
+  // Prepare data for the POST procedure
   PostInitData init_data = {
       .system_reset = system_reset,
       .can_send = can_send,
       .spi_send = spi_send,
       .spi_send_receive = spi_send_and_receive,
       .led_set = gpio_led_set_state,
-      .led_toggle = gpio_led_toggle_state,
-      .cs_enter = it_cs_enter,
-      .cs_exit = it_cs_exit
+      .led_toggle = gpio_led_toggle_state
   };
   
-  // Go to the fatal state the cellboard identifier cannot be read
+  // Read the cellboard ID from the ADC
   AdcReturnCode adc_code = ADC_TIMEOUT;
   for (size_t i = 0U; adc_code != ADC_OK && i < 10U; ++i)
       adc_code = adc_read_cellboard_id(&init_data.id);
 
+  // Go to the FATAL state if the cellboard ID cannot be read correctly
   if (adc_code != ADC_OK) {
-      // The error handler is not yet initialized so the init function is called
-      // before the error is expired
-      error_init(init_data.cs_enter, init_data.cs_exit);
       error_expire_immediate(ERROR_GROUP_CELLBOARD_ID, 0U);
       fsm_state = FSM_STATE_FATAL;
   }
-
   fsm_run_state(fsm_state, &init_data);
 
   /* USER CODE END 2 */
