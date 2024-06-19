@@ -4,7 +4,7 @@ Battery Management System of a single segment of the High Voltage battery pack.
 
 ## Dependencies
 
-Build dependencies
+Build dependencies:
 
 - [Git](https://www.git-scm.com/) (used to clone this project, **recommended**)
 - [Make](https://www.gnu.org/software/make/)
@@ -18,7 +18,7 @@ Flash and debug dependencies:
 > [!NOTE]
 > For GNU/Linux distributions might be needed to perform some additional steps
 > to flash or debug this project, for additional info follow this short guide:
-> [](https://freeelectron.ro/installing-st-link-v2-to-flash-stm32-targets-on-linux/)
+> [Installing st-link to flash STM32 targets on Linux](https://freeelectron.ro/installing-st-link-v2-to-flash-stm32-targets-on-linux/)
 
 ## Folder structure
 
@@ -44,7 +44,7 @@ The [Core](Core) contains three directories:
 
 1. `Src`: where the source code is located
 2. `Inc`: where the header files are located
-3. `Lib`: where all the dependencies of the project are located (i.e. canlib, micro-libs, ecc...)
+3. `Lib`: where all the dependencies of the project are located (*i.e.* canlib, micro-libs, ecc...)
 
 Inside the Src and Inc folder, the files **inside** the `bms` folder is treated as
 **machine independent code** and it should be possible to *port* it to other platforms
@@ -52,8 +52,8 @@ with ease.
 
 > [!WARNING]
 > Just copy-pasting the code to another platform project is not sufficient for it to work,
-> there a few function that has to be implemented, for example the ones used to communicate
-> using the peripheral (CAN bus, SPI, ecc...)
+> there a few functions that has to be implemented, for example the ones used to communicate
+> via the peripherals (CAN bus, SPI, ecc...)
 
 ## Usage
 
@@ -64,7 +64,7 @@ git clone --recurse-submodules git@github.com:eagletrt/hv-bms-cellboard-sw.git
 ```
 
 > [!TIP]
-> When cloning with GIT SSH is recommended but it first need to be configured correctly
+> When cloning with GIT SSH is recommended, but it first need to be configured correctly. \
 > To do this look for any guide on the internet, you should be able to do that right? (*sorry (;_;)*)
 
 Once you cloned the project go into the root folder and run `make` to build it.
