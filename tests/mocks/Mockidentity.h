@@ -28,14 +28,34 @@ void Mockidentity_Verify(void);
 
 
 
+#define identity_init_Ignore() identity_init_CMockIgnore()
+void identity_init_CMockIgnore(void);
+#define identity_init_StopIgnore() identity_init_CMockStopIgnore()
+void identity_init_CMockStopIgnore(void);
 #define identity_init_Expect(id) identity_init_CMockExpect(__LINE__, id)
 void identity_init_CMockExpect(UNITY_LINE_TYPE cmock_line, CellboardId id);
+#define identity_get_cellboard_id_IgnoreAndReturn(cmock_retval) identity_get_cellboard_id_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void identity_get_cellboard_id_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, CellboardId cmock_to_return);
+#define identity_get_cellboard_id_StopIgnore() identity_get_cellboard_id_CMockStopIgnore()
+void identity_get_cellboard_id_CMockStopIgnore(void);
 #define identity_get_cellboard_id_ExpectAndReturn(cmock_retval) identity_get_cellboard_id_CMockExpectAndReturn(__LINE__, cmock_retval)
 void identity_get_cellboard_id_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, CellboardId cmock_to_return);
+#define identity_get_build_time_IgnoreAndReturn(cmock_retval) identity_get_build_time_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void identity_get_build_time_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, milliseconds_t cmock_to_return);
+#define identity_get_build_time_StopIgnore() identity_get_build_time_CMockStopIgnore()
+void identity_get_build_time_CMockStopIgnore(void);
 #define identity_get_build_time_ExpectAndReturn(cmock_retval) identity_get_build_time_CMockExpectAndReturn(__LINE__, cmock_retval)
 void identity_get_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, milliseconds_t cmock_to_return);
+#define identity_get_string_build_time_IgnoreAndReturn(cmock_retval) identity_get_string_build_time_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void identity_get_string_build_time_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, char* cmock_to_return);
+#define identity_get_string_build_time_StopIgnore() identity_get_string_build_time_CMockStopIgnore()
+void identity_get_string_build_time_CMockStopIgnore(void);
 #define identity_get_string_build_time_ExpectAndReturn(cmock_retval) identity_get_string_build_time_CMockExpectAndReturn(__LINE__, cmock_retval)
 void identity_get_string_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, char* cmock_to_return);
+#define identity_get_can_payload_IgnoreAndReturn(cmock_retval) identity_get_can_payload_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void identity_get_can_payload_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, bms_cellboard_version_converted_t* cmock_to_return);
+#define identity_get_can_payload_StopIgnore() identity_get_can_payload_CMockStopIgnore()
+void identity_get_can_payload_CMockStopIgnore(void);
 #define identity_get_can_payload_ExpectAndReturn(byte_size, cmock_retval) identity_get_can_payload_CMockExpectAndReturn(__LINE__, byte_size, cmock_retval)
 void identity_get_can_payload_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, size_t* byte_size, bms_cellboard_version_converted_t* cmock_to_return);
 

@@ -51,10 +51,19 @@ typedef struct _CMOCK_identity_get_can_payload_CALL_INSTANCE
 
 static struct MockidentityInstance
 {
+  char identity_init_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE identity_init_CallInstance;
+  char identity_get_cellboard_id_IgnoreBool;
+  CellboardId identity_get_cellboard_id_FinalReturn;
   CMOCK_MEM_INDEX_TYPE identity_get_cellboard_id_CallInstance;
+  char identity_get_build_time_IgnoreBool;
+  milliseconds_t identity_get_build_time_FinalReturn;
   CMOCK_MEM_INDEX_TYPE identity_get_build_time_CallInstance;
+  char identity_get_string_build_time_IgnoreBool;
+  char* identity_get_string_build_time_FinalReturn;
   CMOCK_MEM_INDEX_TYPE identity_get_string_build_time_CallInstance;
+  char identity_get_can_payload_IgnoreBool;
+  bms_cellboard_version_converted_t* identity_get_can_payload_FinalReturn;
   CMOCK_MEM_INDEX_TYPE identity_get_can_payload_CallInstance;
 } Mock;
 
@@ -65,30 +74,40 @@ void Mockidentity_Verify(void)
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_MEM_INDEX_TYPE call_instance;
   call_instance = Mock.identity_init_CallInstance;
+  if (Mock.identity_init_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_identity_init);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.identity_get_cellboard_id_CallInstance;
+  if (Mock.identity_get_cellboard_id_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_identity_get_cellboard_id);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.identity_get_build_time_CallInstance;
+  if (Mock.identity_get_build_time_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_identity_get_build_time);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.identity_get_string_build_time_CallInstance;
+  if (Mock.identity_get_string_build_time_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_identity_get_string_build_time);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.identity_get_can_payload_CallInstance;
+  if (Mock.identity_get_can_payload_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_identity_get_can_payload);
@@ -114,6 +133,11 @@ void identity_init(CellboardId id)
   UNITY_SET_DETAIL(CMockString_identity_init);
   cmock_call_instance = (CMOCK_identity_init_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.identity_init_CallInstance);
   Mock.identity_init_CallInstance = CMock_Guts_MemNext(Mock.identity_init_CallInstance);
+  if (Mock.identity_init_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -130,6 +154,16 @@ void CMockExpectParameters_identity_init(CMOCK_identity_init_CALL_INSTANCE* cmoc
          sizeof(CellboardId[sizeof(id) == sizeof(CellboardId) ? 1 : -1])); /* add CellboardId to :treat_as_array if this causes an error */
 }
 
+void identity_init_CMockIgnore(void)
+{
+  Mock.identity_init_IgnoreBool = (char)1;
+}
+
+void identity_init_CMockStopIgnore(void)
+{
+  Mock.identity_init_IgnoreBool = (char)0;
+}
+
 void identity_init_CMockExpect(UNITY_LINE_TYPE cmock_line, CellboardId id)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_init_CALL_INSTANCE));
@@ -137,6 +171,7 @@ void identity_init_CMockExpect(UNITY_LINE_TYPE cmock_line, CellboardId id)
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.identity_init_CallInstance = CMock_Guts_MemChain(Mock.identity_init_CallInstance, cmock_guts_index);
+  Mock.identity_init_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_identity_init(cmock_call_instance, id);
 }
@@ -148,10 +183,39 @@ CellboardId identity_get_cellboard_id(void)
   UNITY_SET_DETAIL(CMockString_identity_get_cellboard_id);
   cmock_call_instance = (CMOCK_identity_get_cellboard_id_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.identity_get_cellboard_id_CallInstance);
   Mock.identity_get_cellboard_id_CallInstance = CMock_Guts_MemNext(Mock.identity_get_cellboard_id_CallInstance);
+  if (Mock.identity_get_cellboard_id_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.identity_get_cellboard_id_FinalReturn;
+    memcpy((void*)(&Mock.identity_get_cellboard_id_FinalReturn), (void*)(&cmock_call_instance->ReturnVal),
+         sizeof(CellboardId[sizeof(cmock_call_instance->ReturnVal) == sizeof(CellboardId) ? 1 : -1])); /* add CellboardId to :treat_as_array if this causes an error */
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   UNITY_CLR_DETAILS();
   return cmock_call_instance->ReturnVal;
+}
+
+void identity_get_cellboard_id_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, CellboardId cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_get_cellboard_id_CALL_INSTANCE));
+  CMOCK_identity_get_cellboard_id_CALL_INSTANCE* cmock_call_instance = (CMOCK_identity_get_cellboard_id_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.identity_get_cellboard_id_CallInstance = CMock_Guts_MemChain(Mock.identity_get_cellboard_id_CallInstance, cmock_guts_index);
+  Mock.identity_get_cellboard_id_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.identity_get_cellboard_id_IgnoreBool = (char)1;
+}
+
+void identity_get_cellboard_id_CMockStopIgnore(void)
+{
+  if(Mock.identity_get_cellboard_id_IgnoreBool)
+    Mock.identity_get_cellboard_id_CallInstance = CMock_Guts_MemNext(Mock.identity_get_cellboard_id_CallInstance);
+  Mock.identity_get_cellboard_id_IgnoreBool = (char)0;
 }
 
 void identity_get_cellboard_id_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, CellboardId cmock_to_return)
@@ -161,6 +225,7 @@ void identity_get_cellboard_id_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, 
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.identity_get_cellboard_id_CallInstance = CMock_Guts_MemChain(Mock.identity_get_cellboard_id_CallInstance, cmock_guts_index);
+  Mock.identity_get_cellboard_id_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   memcpy((void*)(&cmock_call_instance->ReturnVal), (void*)(&cmock_to_return),
          sizeof(CellboardId[sizeof(cmock_to_return) == sizeof(CellboardId) ? 1 : -1])); /* add CellboardId to :treat_as_array if this causes an error */
@@ -173,10 +238,39 @@ milliseconds_t identity_get_build_time(void)
   UNITY_SET_DETAIL(CMockString_identity_get_build_time);
   cmock_call_instance = (CMOCK_identity_get_build_time_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.identity_get_build_time_CallInstance);
   Mock.identity_get_build_time_CallInstance = CMock_Guts_MemNext(Mock.identity_get_build_time_CallInstance);
+  if (Mock.identity_get_build_time_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.identity_get_build_time_FinalReturn;
+    memcpy((void*)(&Mock.identity_get_build_time_FinalReturn), (void*)(&cmock_call_instance->ReturnVal),
+         sizeof(milliseconds_t[sizeof(cmock_call_instance->ReturnVal) == sizeof(milliseconds_t) ? 1 : -1])); /* add milliseconds_t to :treat_as_array if this causes an error */
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   UNITY_CLR_DETAILS();
   return cmock_call_instance->ReturnVal;
+}
+
+void identity_get_build_time_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, milliseconds_t cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_get_build_time_CALL_INSTANCE));
+  CMOCK_identity_get_build_time_CALL_INSTANCE* cmock_call_instance = (CMOCK_identity_get_build_time_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.identity_get_build_time_CallInstance = CMock_Guts_MemChain(Mock.identity_get_build_time_CallInstance, cmock_guts_index);
+  Mock.identity_get_build_time_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.identity_get_build_time_IgnoreBool = (char)1;
+}
+
+void identity_get_build_time_CMockStopIgnore(void)
+{
+  if(Mock.identity_get_build_time_IgnoreBool)
+    Mock.identity_get_build_time_CallInstance = CMock_Guts_MemNext(Mock.identity_get_build_time_CallInstance);
+  Mock.identity_get_build_time_IgnoreBool = (char)0;
 }
 
 void identity_get_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, milliseconds_t cmock_to_return)
@@ -186,6 +280,7 @@ void identity_get_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, mi
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.identity_get_build_time_CallInstance = CMock_Guts_MemChain(Mock.identity_get_build_time_CallInstance, cmock_guts_index);
+  Mock.identity_get_build_time_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   memcpy((void*)(&cmock_call_instance->ReturnVal), (void*)(&cmock_to_return),
          sizeof(milliseconds_t[sizeof(cmock_to_return) == sizeof(milliseconds_t) ? 1 : -1])); /* add milliseconds_t to :treat_as_array if this causes an error */
@@ -198,10 +293,38 @@ char* identity_get_string_build_time(void)
   UNITY_SET_DETAIL(CMockString_identity_get_string_build_time);
   cmock_call_instance = (CMOCK_identity_get_string_build_time_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.identity_get_string_build_time_CallInstance);
   Mock.identity_get_string_build_time_CallInstance = CMock_Guts_MemNext(Mock.identity_get_string_build_time_CallInstance);
+  if (Mock.identity_get_string_build_time_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.identity_get_string_build_time_FinalReturn;
+    Mock.identity_get_string_build_time_FinalReturn = cmock_call_instance->ReturnVal;
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   UNITY_CLR_DETAILS();
   return cmock_call_instance->ReturnVal;
+}
+
+void identity_get_string_build_time_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, char* cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_get_string_build_time_CALL_INSTANCE));
+  CMOCK_identity_get_string_build_time_CALL_INSTANCE* cmock_call_instance = (CMOCK_identity_get_string_build_time_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.identity_get_string_build_time_CallInstance = CMock_Guts_MemChain(Mock.identity_get_string_build_time_CallInstance, cmock_guts_index);
+  Mock.identity_get_string_build_time_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.identity_get_string_build_time_IgnoreBool = (char)1;
+}
+
+void identity_get_string_build_time_CMockStopIgnore(void)
+{
+  if(Mock.identity_get_string_build_time_IgnoreBool)
+    Mock.identity_get_string_build_time_CallInstance = CMock_Guts_MemNext(Mock.identity_get_string_build_time_CallInstance);
+  Mock.identity_get_string_build_time_IgnoreBool = (char)0;
 }
 
 void identity_get_string_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, char* cmock_to_return)
@@ -211,6 +334,7 @@ void identity_get_string_build_time_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_l
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.identity_get_string_build_time_CallInstance = CMock_Guts_MemChain(Mock.identity_get_string_build_time_CallInstance, cmock_guts_index);
+  Mock.identity_get_string_build_time_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   cmock_call_instance->ReturnVal = cmock_to_return;
 }
@@ -222,6 +346,14 @@ bms_cellboard_version_converted_t* identity_get_can_payload(size_t* byte_size)
   UNITY_SET_DETAIL(CMockString_identity_get_can_payload);
   cmock_call_instance = (CMOCK_identity_get_can_payload_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.identity_get_can_payload_CallInstance);
   Mock.identity_get_can_payload_CallInstance = CMock_Guts_MemNext(Mock.identity_get_can_payload_CallInstance);
+  if (Mock.identity_get_can_payload_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.identity_get_can_payload_FinalReturn;
+    Mock.identity_get_can_payload_FinalReturn = cmock_call_instance->ReturnVal;
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -238,6 +370,26 @@ void CMockExpectParameters_identity_get_can_payload(CMOCK_identity_get_can_paylo
   cmock_call_instance->Expected_byte_size = byte_size;
 }
 
+void identity_get_can_payload_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, bms_cellboard_version_converted_t* cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_get_can_payload_CALL_INSTANCE));
+  CMOCK_identity_get_can_payload_CALL_INSTANCE* cmock_call_instance = (CMOCK_identity_get_can_payload_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.identity_get_can_payload_CallInstance = CMock_Guts_MemChain(Mock.identity_get_can_payload_CallInstance, cmock_guts_index);
+  Mock.identity_get_can_payload_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.identity_get_can_payload_IgnoreBool = (char)1;
+}
+
+void identity_get_can_payload_CMockStopIgnore(void)
+{
+  if(Mock.identity_get_can_payload_IgnoreBool)
+    Mock.identity_get_can_payload_CallInstance = CMock_Guts_MemNext(Mock.identity_get_can_payload_CallInstance);
+  Mock.identity_get_can_payload_IgnoreBool = (char)0;
+}
+
 void identity_get_can_payload_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, size_t* byte_size, bms_cellboard_version_converted_t* cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_identity_get_can_payload_CALL_INSTANCE));
@@ -245,6 +397,7 @@ void identity_get_can_payload_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, s
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.identity_get_can_payload_CallInstance = CMock_Guts_MemChain(Mock.identity_get_can_payload_CallInstance, cmock_guts_index);
+  Mock.identity_get_can_payload_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_identity_get_can_payload(cmock_call_instance, byte_size);
   cmock_call_instance->ReturnVal = cmock_to_return;

@@ -1,0 +1,7 @@
+:cmock:
+    :attributes:
+      - __funky
+      - __intrinsic
+    :when_ptr: :compare
+    :plugins: 
+      - :ignore
