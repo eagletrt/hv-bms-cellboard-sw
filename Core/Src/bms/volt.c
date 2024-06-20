@@ -17,17 +17,8 @@
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
-/**
- * @brief Voltages handler structure
- *
- * @param voltages The array of raw cells voltages
- * @param can_payload The canlib payload of the cells voltages
- */
-static struct {
-    raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
-
-    bms_cellboard_cells_voltage_converted_t can_payload;
-} hvolt;
+//WARNING: This structure should never be used outside of this file
+_STATIC _VoltHandler hvolt; 
 
 /**
  * @brief Check if the voltage values are in range otherwise set an error

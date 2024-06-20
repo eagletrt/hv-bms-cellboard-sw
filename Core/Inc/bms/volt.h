@@ -55,6 +55,18 @@ typedef enum {
     VOLT_OUT_OF_BOUNDS
 } VoltReturnCode;
 
+
+/**
+ * @brief Voltages handler structure
+ *
+ * @param voltages The array of raw cells voltages
+ * @param can_payload The canlib payload of the cells voltages
+ */
+typedef struct {
+    raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
+    bms_cellboard_cells_voltage_converted_t can_payload;
+} _VoltHandler;
+
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
 /**

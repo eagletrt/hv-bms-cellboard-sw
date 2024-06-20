@@ -27,6 +27,15 @@
  */
 #define CELLBOARD_UNUSED(_) ((void)(_))
 
+/**
+ * @brief Static type which toggles if a test is running
+ */
+#ifdef TEST
+#define _STATIC
+#else
+#define _STATIC static
+#endif
+
 /*** ######################### CONSTANTS ################################# ***/
 
 /**

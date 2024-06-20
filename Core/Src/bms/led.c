@@ -14,32 +14,13 @@
 
 #ifdef CONF_LED_MODULE_ENABLE
 
-/** @brief Maximum size of the pattern */
-#define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
-
 /** @brief Timings for the led status in ms */
 #define LED_SHORT_ON (250U)
 #define LED_SHORT_OFF (250U)
 #define LED_LONG_OFF (1000U)
 
-/**
- * @brief LED handler structure
- *
- * @param set A pointer to the function callback used to set the led state
- * @param toggle A pointer to the function callback used to toggle the led state
- * @param blinker The structure handler used to blink the LED
- * @param pattern The main blinking pattern
- * @param pattern_size The size of the pattern
- */
-static struct {
-    led_set_state_callback_t set;
-    led_toggle_state_callback_t toggle;
-
-    Blinky blinker;
-    uint16_t pattern[LED_PATTERN_MAX_SIZE];
-    size_t pattern_size;
-} hled;
-
+//WARNING: this structure should never be used outside this file
+_STATIC _LedHandler hled;
 
 LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t toggle) {
     if (set == NULL || toggle == NULL)

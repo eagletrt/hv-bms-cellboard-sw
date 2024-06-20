@@ -31,26 +31,8 @@ typedef struct {
     millivolt_t threshold;
 } BalParams;
 
-/**
- * @brief Balancing handler structure
- *
- * @details The requested parameters are expected to be equals to the actual parameters
- *
- * @param event The FSM event data
- * @param can_payload The canlib payload of the balancing module
- * @param watchdog The watchdog that stops the balancing procedure when timed out
- * @param active True if the balancing is active, false otherwise
- * @param paused True if the balancing is paused, false otherwise
- * @param params The balancing parameters
- */
-static struct {
-    fsm_event_data_t event;
-    bms_cellboard_balancing_status_converted_t can_payload;
-    Watchdog watchdog;
-
-    bool active, paused;
-    BalParams params;
-} hbal;
+// WARNING: this structure should not be used outside of this file
+_STATIC struct _BalHandler hbal;
 
 void _bal_timeout(void) {
     // Stop balancing
