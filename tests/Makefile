@@ -29,7 +29,7 @@ else
 	RUN = ./
 endif
 
-FLAGS = -DUNIT_TEST -DSTM32G4A1xx -fdata-sections -ffunction-sections
+FLAGS = -DUNIT_TEST -DSTM32G4A1xx -fdata-sections -ffunction-sections -g
 
 LIB_DIR = ../Core/Lib
 MICRO_LIB_DIR = $(LIB_DIR)/micro-libs
