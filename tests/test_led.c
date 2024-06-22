@@ -1,7 +1,5 @@
 #include "unity.h"
 #include "led.h"
-#include "mocks/Mockidentity.h"
-#include "cellboard-def.h"
 
 #define TEST_CELLBOARD_ID CELLBOARD_ID_3
 
@@ -21,9 +19,6 @@ void test_led_init() {
 
 int main() {
     UNITY_BEGIN();
-
-    identity_get_cellboard_id_IgnoreAndReturn(TEST_CELLBOARD_ID);
-
     RUN_TEST(test_led_init);
     return UNITY_END();
 }

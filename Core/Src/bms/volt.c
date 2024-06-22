@@ -25,7 +25,7 @@ _STATIC _VoltHandler hvolt;
  *
  * @param value The raw voltage value
  */
-inline void _volt_check_values(raw_volt_t value) {
+void _volt_check_values(raw_volt_t value) {
     ERROR_TOGGLE_IF(value <= VOLT_MILLIVOLT_TO_VALUE(VOLT_MIN_VALUE), ERROR_GROUP_UNDER_VOLTAGE, 0U, timebase_get_time());
     ERROR_TOGGLE_IF(value >= VOLT_MILLIVOLT_TO_VALUE(VOLT_MAX_VALUE), ERROR_GROUP_OVER_VOLTAGE, 0U, timebase_get_time());
 }

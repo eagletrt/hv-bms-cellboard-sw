@@ -19,18 +19,6 @@
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
-/**
- * @brief Definition of the balancing parameters
- *
- * @param target The minimum target voltage that can be reached while discharging (in mV)
- * @param threshold The minimum difference between the maxiumum and minimum
- * cell voltages that can be reached (in mV)
- */
-typedef struct {
-    millivolt_t target;
-    millivolt_t threshold;
-} BalParams;
-
 // WARNING: this structure should not be used outside of this file
 _STATIC struct _BalHandler hbal;
 

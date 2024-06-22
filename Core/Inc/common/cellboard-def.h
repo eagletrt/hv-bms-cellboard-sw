@@ -30,7 +30,7 @@
 /**
  * @brief Static type which toggles if a test is running
  */
-#ifdef TEST
+#ifdef UNIT_TEST
 #define _STATIC
 #else
 #define _STATIC static

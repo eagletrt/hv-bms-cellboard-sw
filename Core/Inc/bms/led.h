@@ -56,7 +56,6 @@ typedef enum {
     LED_INVALID_CELLBOARD_ID
 } LedReturnCode;
 
-
 /**
  * @brief LED handler structure
  *
@@ -78,7 +77,7 @@ typedef struct {
 #ifdef CONF_LED_MODULE_ENABLE 
 
 /**
- * @brief Initialize the internal LED handler
+   @brief Initialize the internal LED handler
  *
  * @details The LED handler is disabled by default after initialization
  *

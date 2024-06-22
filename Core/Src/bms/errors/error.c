@@ -230,7 +230,7 @@ void _error_expire_immediate(ErrorData data) {
 
     // Add error to the list of expired errors
     if (ring_buffer_push_back(&expired_errors, &err) != RING_BUFFER_OK)
-        break;
+        return;
 
     // Remove the error from the list of running errors
     signed_size_t index = min_heap_find(&running_errors, &err);

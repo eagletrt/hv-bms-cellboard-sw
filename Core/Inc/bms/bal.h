@@ -14,6 +14,8 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 #include "bms_network.h"
+#include "fsm.h"
+#include "watchdog.h"
 
 /** @brief Balancing threshold range in mV */
 #define BAL_THRESHOLD_MIN ((millivolt_t)5.f)
@@ -41,6 +43,18 @@ typedef enum {
     BAL_BUSY,
     BAL_WATCHDOG_ERROR
 } BalReturnCode;
+
+/**
+ * @brief Definition of the balancing parameters
+ *
+ * @param target The minimum target voltage that can be reached while discharging (in mV)
+ * @param threshold The minimum difference between the maxiumum and minimum
+ * cell voltages that can be reached (in mV)
+ */
+typedef struct {
+    millivolt_t target;
+    millivolt_t threshold;
+} BalParams;
 
 /**
  * @brief Balancing handler structure
