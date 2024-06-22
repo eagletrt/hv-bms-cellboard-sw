@@ -80,7 +80,8 @@ BIN_DIR = bin
 BIN_TIMEBASE_DIR = $(BIN_DIR)/timebase
 BIN_ERROR_DIR = $(BIN_DIR)/errors
 
-TESTS = test_led
+TESTS = test_led \
+		test_volt
 
 test_all: $(TESTS)
 
