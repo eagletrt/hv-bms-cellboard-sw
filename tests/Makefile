@@ -113,6 +113,7 @@ $(BIN_DIR)/canlib_device.o: $(BIN_DIR)
 $(BIN_DIR)/ltc6811.o: $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/bms-monitor/src/ltc6811.c $(INCLUDES) -o $(BIN_DIR)/ltc6811.o
 
+.PRECIOUS: $(MOCKS_DIR)/Mock%.c 
 $(MOCKS_DIR)/Mock%.c: $(INC_DIR)/%.h $(MOCKS_CONF) 
 	ruby $(MICRO_LIB_DIR)/CMock/lib/cmock.rb -o$(MOCKS_CONF) $< 
 
@@ -125,12 +126,6 @@ $(BIN_DIR)/%.o: $(BMS_DIR)/%.c $(BIN_DIR)
 test_%: test_%.c $(BIN_DIR) $(OBJS)
 	$(CC) $< $(FLAGS) $(OBJS) -o $@ $(INCLUDES)
 	$(RUN)$@
-
-bms: $(BMS_OBJS)
-
-lib: $(LIB_OBJS)
-
-mocks: $(MOCK_OBJS)
 
 clean:
 	rm -rf bin $(TESTS) $(MOCKS_DIR)
