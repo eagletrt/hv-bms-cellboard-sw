@@ -32,8 +32,8 @@
  * @param instance The instance of the error
  * @param The current time (in ms)
  */
-#define ERROR_TOGGLE_IF(condition, group, instance, timestamp) \
-    ((condition) ? error_set(group, instance, timestamp) : error_reset(group, instance))
+#define ERROR_TOGGLE_IF(condition, group, instance, timestamp) 
+    //((condition) ? error_set(group, instance, timestamp) : error_reset(group, instance))
 
 /** @brief Type of the error that categorize a group of instances */
 typedef enum {

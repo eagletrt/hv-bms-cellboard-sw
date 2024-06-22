@@ -36,7 +36,7 @@ LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t
         hled.pattern[hled.pattern_size++] = LED_SHORT_ON;
     }
     hled.pattern[hled.pattern_size++] = LED_LONG_OFF;
-    
+
     // Initialize the blinker structure
     blinky_init(&hled.blinker, hled.pattern, hled.pattern_size, true, BLINKY_LOW);
     blinky_enable(&hled.blinker, false);

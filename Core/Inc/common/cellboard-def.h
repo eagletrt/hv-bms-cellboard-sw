@@ -32,8 +32,10 @@
  */
 #ifdef UNIT_TEST
 #define _STATIC
+#define _INLINE
 #else
 #define _STATIC static
+#define _INLINE inline
 #endif
 
 /*** ######################### CONSTANTS ################################# ***/
