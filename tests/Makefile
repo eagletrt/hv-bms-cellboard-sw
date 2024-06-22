@@ -1,3 +1,5 @@
+UNAME := $(shell uname)
+
 INCLUDES = 	-I ../Core/Inc/bms/ \
 			-I ../Core/Inc/bms/timebase \
 			-I ../Core/Inc/bms/errors \
@@ -19,7 +21,13 @@ INCLUDES = 	-I ../Core/Inc/bms/ \
 			-I $(LIB_DIR)/can/bms \
 			-I mocks
 
-CC = x86_64-linux-musl-cc
+ifeq ($(UNAME), Darwin)
+	CC = aarch64-linux-musl-cc
+	RUN = docker run -it --rm -v .:/home alpine /home/
+else
+	CC = gcc
+	RUN = ./
+endif
 
 FLAGS = -DUNIT_TEST -DSTM32G4A1xx -fdata-sections -ffunction-sections
 
@@ -116,7 +124,7 @@ $(BIN_DIR)/%.o: $(BMS_DIR)/%.c $(BIN_DIR)
 
 test_%: test_%.c $(BIN_DIR) $(OBJS)
 	$(CC) $< $(FLAGS) $(OBJS) -o $@ $(INCLUDES)
-	./$@
+	$(RUN)$@
 
 bms: $(BMS_OBJS)
 
