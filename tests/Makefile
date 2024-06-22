@@ -125,5 +125,5 @@ lib: $(LIB_OBJS)
 mocks: $(MOCK_OBJS)
 
 clean:
-	rm -rf bin $(TESTS)
+	rm -rf bin $(TESTS) $(MOCKS_DIR)
 
