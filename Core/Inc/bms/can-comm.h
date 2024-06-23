@@ -17,6 +17,13 @@
 #include "cellboard-def.h"
 #include "bms_network.h"
 
+#include "fsm.h"
+#include "programmer.h"
+#include "ring-buffer.h"
+#include "watchdog.h"
+#include "timebase.h"
+#include "bal.h"
+
 
 /**
  * @brief Return code for the CAN communication module functions
@@ -113,6 +120,31 @@ typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
  */
 typedef void (* can_comm_canlib_payload_handle_callback)(void * payload);
 
+/**
+ * @brief CAN manager handler structure
+ *
+ * @details The enabled bit flag 
+ *
+ * @param enabled Flag used to enable or disable the CAN communication
+ * @param tx_buf Transmission messages circular buffer
+ * @param rx_buf Reception messages circular buffer
+ * @param send A pointer to the callback used to send the data via CAN
+ * @param rx_device The reception canlib message handler
+ * @param rx_raw The reception raw data of the message
+ * @param rx_conv The reception converted data of the message
+ */
+typedef struct {
+    bit_flag8_t enabled;
+    RingBuffer(CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE) tx_buf;
+    RingBuffer(CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE) rx_buf;
+
+    can_comm_transmit_callback_t send;
+
+    // Canlib devices
+    device_t rx_device;
+    uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
+    uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
+} _CanCommHandler;
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 
@@ -197,8 +229,7 @@ CanCommReturnCode can_comm_send_immediate(
  *
  * @param index The CAN index mapped to its identifier
  * @param frame_type The frame type
- * @param data The payload of the message
- * @param size The payload size in bytes
+ * @param data The payload of the message @param size The payload size in bytes
  *
  * @return CanCommReturnCode
  *     - CAN_COMM_DISABLED the CAN manager is disabled
