@@ -90,43 +90,48 @@ $(BIN_DIR):
 	mkdir $(BIN_TIMEBASE_DIR)
 	mkdir $(BIN_ERROR_DIR)
 
-$(BIN_DIR)/unity.o: $(BIN_DIR)
+$(BIN_DIR)/unity.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/Unity/src/unity.c $(INCLUDES) -o $(BIN_DIR)/unity.o
 
-$(BIN_DIR)/cmock.o: $(BIN_DIR)
+$(BIN_DIR)/cmock.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/Cmock/src/cmock.c $(INCLUDES) -o $(BIN_DIR)/cmock.o
 
-$(BIN_DIR)/blinky.o: $(BIN_DIR)
+$(BIN_DIR)/blinky.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/blinky/src/blinky.c $(INCLUDES) -o $(BIN_DIR)/blinky.o
 
-$(BIN_DIR)/ring-buffer.o: $(BIN_DIR)
+$(BIN_DIR)/ring-buffer.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/ring-buffer/src/ring-buffer.c $(INCLUDES) -o $(BIN_DIR)/ring-buffer.o
 
-$(BIN_DIR)/min-heap.o: $(BIN_DIR)
+$(BIN_DIR)/min-heap.o:| $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/min-heap/src/min-heap.c $(INCLUDES) -o $(BIN_DIR)/min-heap.o
 
-$(BIN_DIR)/bms_network.o: $(BIN_DIR)
+$(BIN_DIR)/bms_network.o: | $(BIN_DIR)
 	$(CC) -c $(LIB_DIR)/can/lib/bms/bms_network.c $(INCLUDES) -o $(BIN_DIR)/bms_network.o
 	
-$(BIN_DIR)/canlib_device.o: $(BIN_DIR)
+$(BIN_DIR)/canlib_device.o: | $(BIN_DIR)
 	$(CC) -c $(LIB_DIR)/can/lib/canlib_device.c $(INCLUDES) -o $(BIN_DIR)/canlib_device.o
 
-$(BIN_DIR)/ltc6811.o: $(BIN_DIR)
+$(BIN_DIR)/ltc6811.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/bms-monitor/src/ltc6811.c $(INCLUDES) -o $(BIN_DIR)/ltc6811.o
 
 .PRECIOUS: $(MOCKS_DIR)/Mock%.c 
 $(MOCKS_DIR)/Mock%.c: $(INC_DIR)/%.h $(MOCKS_CONF) 
 	ruby $(MICRO_LIB_DIR)/CMock/lib/cmock.rb -o$(MOCKS_CONF) $< 
 
-$(BIN_DIR)/Mock%.o: $(MOCKS_DIR)/Mock%.c $(BIN_DIR) $(BIN_DIR)/cmock.o
+$(BIN_DIR)/Mock%.o: $(MOCKS_DIR)/Mock%.c $(BIN_DIR)/cmock.o | $(BIN_DIR)
 	$(CC) -c $< -o $@ $(INCLUDES) $(FLAGS)
 
-$(BIN_DIR)/%.o: $(BMS_DIR)/%.c $(BIN_DIR)
+$(BIN_DIR)/%.o: $(BMS_DIR)/%.c | $(BIN_DIR) 
 	$(CC) -c $< -o $@ $(INCLUDES) $(FLAGS)
 
-test_%: test_%.c $(BIN_DIR) $(OBJS)
+test_%: test_%.c $(OBJS) | $(BIN_DIR)
 	$(CC) $< $(FLAGS) $(OBJS) -o $@ $(INCLUDES)
-	$(RUN)$@
+
+run_test_%: test_%
+	$(RUN)$<
+
+run_test: $(TESTS)
+	$(foreach test, $(TESTS), $(RUN)$(test);)
 
 clean:
 	rm -rf bin $(TESTS) $(MOCKS_DIR)
