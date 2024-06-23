@@ -1,5 +1,4 @@
 #include "unity.h"
-#include <stdio.h>
 #include "led.h"
 #include "identity.h"
 #include "cellboard-def.h"

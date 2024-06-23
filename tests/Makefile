@@ -81,7 +81,8 @@ BIN_TIMEBASE_DIR = $(BIN_DIR)/timebase
 BIN_ERROR_DIR = $(BIN_DIR)/errors
 
 TESTS = test_led \
-		test_volt
+		test_volt \
+		test_bal 
 
 test_all: $(TESTS)
 
@@ -124,6 +125,8 @@ $(BIN_DIR)/Mock%.o: $(MOCKS_DIR)/Mock%.c $(BIN_DIR)/cmock.o | $(BIN_DIR)
 $(BIN_DIR)/%.o: $(BMS_DIR)/%.c | $(BIN_DIR) 
 	$(CC) -c $< -o $@ $(INCLUDES) $(FLAGS)
 
+.PRECIOUS: $(BIN_DIR)/%.o
+.PRECIOUS: test_%
 test_%: test_%.c $(OBJS) | $(BIN_DIR)
 	$(CC) $< $(FLAGS) $(OBJS) -o $@ $(INCLUDES)
 

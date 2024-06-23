@@ -20,7 +20,7 @@
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
 // WARNING: this structure should not be used outside of this file
-_STATIC struct _BalHandler hbal;
+_STATIC _BalHandler hbal;
 
 void _bal_timeout(void) {
     // Stop balancing

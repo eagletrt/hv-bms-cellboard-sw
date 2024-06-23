@@ -68,14 +68,14 @@ typedef struct {
  * @param paused True if the balancing is paused, false otherwise
  * @param params The balancing parameters
  */
-_STATIC struct _BalHandler{
+typedef struct {
     fsm_event_data_t event;
     bms_cellboard_balancing_status_converted_t can_payload;
     Watchdog watchdog;
 
     bool active, paused;
     BalParams params;
-};
+} _BalHandler;
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
