@@ -96,7 +96,7 @@ $(BIN_DIR)/unity.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/Unity/src/unity.c $(INCLUDES) -o $(BIN_DIR)/unity.o
 
 $(BIN_DIR)/cmock.o: | $(BIN_DIR)
-	$(CC) -c $(MICRO_LIB_DIR)/Cmock/src/cmock.c $(INCLUDES) -o $(BIN_DIR)/cmock.o
+	$(CC) -c $(MICRO_LIB_DIR)/CMock/src/cmock.c $(INCLUDES) -o $(BIN_DIR)/cmock.o
 
 $(BIN_DIR)/blinky.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/blinky/src/blinky.c $(INCLUDES) -o $(BIN_DIR)/blinky.o
