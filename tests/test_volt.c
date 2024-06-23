@@ -1,3 +1,11 @@
+/**
+ * @file test_volt.c
+ * @date 2024-06-22
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the voltage module
+ */
+
 #include "unity.h"
 #include "volt.h"
 #include "cellboard-def.h"

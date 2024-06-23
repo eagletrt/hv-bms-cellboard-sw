@@ -1,3 +1,12 @@
+/**
+ * @file test_can-comm.c
+ * @date 2024-06-23
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the can-comm module
+ */
+
+
 #include "unity.h"
 #include "can-comm.h"
 #include "identity.h"

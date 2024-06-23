@@ -1,3 +1,11 @@
+/**
+ * @file test_bal.c
+ * @date 2024-06-23
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the bal module
+ */
+
 #include "unity.h"
 #include "bal.h"
 #include "identity.h"

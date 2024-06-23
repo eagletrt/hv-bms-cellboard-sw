@@ -1,3 +1,11 @@
+/**
+ * @file test_led.c
+ * @date 2024-06-21
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the led module
+ */
+
 #include "unity.h"
 #include "led.h"
 #include "identity.h"

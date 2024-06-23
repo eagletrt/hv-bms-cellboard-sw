@@ -1,3 +1,12 @@
+/**
+ * @file test_identity.c
+ * @date 2024-06-23
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the identity module
+ */
+
+
 #include "unity.h"
 #include "identity.h"
 #include "cellboard-def.h"

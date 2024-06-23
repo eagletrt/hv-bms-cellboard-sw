@@ -1,3 +1,11 @@
+/**
+ * @file test_programmer.c
+ * @date 2024-06-23
+ * @author Riccardo Segala [riccardo.segala@icloud.com]
+ *
+ * @brief Test functions for the programmer module
+ */
+
 #include "unity.h"
 #include "programmer.h"
 #include "identity.h"
