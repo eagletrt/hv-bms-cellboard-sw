@@ -86,6 +86,7 @@ TESTS = test_led \
 		test_identity \
 		test_bms-manager \
 		test_can-comm \
+		test_programmer
 
 
 test_all: $(TESTS)
