@@ -16,6 +16,13 @@
 
 #include "bms_network.h"
 
+typedef struct {
+    CellboardId cellboard_id;
+    milliseconds_t build_time;
+
+    bms_cellboard_version_converted_t can_payload;
+} _IdentityHandler;
+
 /**
  * @brief Initialize all the info about the cellboard identity
  *

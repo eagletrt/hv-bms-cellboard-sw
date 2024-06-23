@@ -13,13 +13,8 @@
 
 #define BUILD_TIME_STR (__DATE__" "__TIME__)
 
-static struct {
-    CellboardId cellboard_id;
-    milliseconds_t build_time;
-
-    bms_cellboard_version_converted_t can_payload;
-} hidentity;
-
+// WARNING: this structure should not be used outside of this file
+_STATIC _IdentityHandler hidentity;
 
 void identity_init(CellboardId id) {
     hidentity.cellboard_id = id;
