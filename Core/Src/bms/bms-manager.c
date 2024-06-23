@@ -22,31 +22,7 @@
 #define BMS_MANAGER_OPEN_WIRE_THRESHOLD ((millivolt_t)-400.f)
 #define BMS_MANAGER_OPEN_WIRE_ZERO ((millivolt_t)0.00005f)
 
-/**
- * @brief BMS manager handler structure
- *
- * @details The pup and pud arrays are used for the open wire check
- * @details The requested configuration should match the actual configuration
- *
- * @param send A pointer to the callback used to send the data via SPI
- * @param send_receive A pointer to the callback used to send and receive the data via SPI
- * @param chain The LTC handler structure
- * @param actual_config The actual configuration register read from the LTC
- * @param requested_config The requested configuration register of the LTC
- * @param pup An array of cells voltages read with pull-up active and inactive (see LTC6811_PUP)
- * @param run_state Index of the current operation of the manager
- */
-struct {
-    bms_manager_send_callback_t send;
-    bms_manager_send_receive_callback_t send_receive;
-
-    Ltc6811Chain chain;
-    Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
-    Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
-    raw_volt_t pup[2U][CELLBOARD_SEGMENT_SERIES_COUNT];
-
-    size_t run_state;
-} hmanager;
+_BmsManagerHandler hmanager;
 
 /**
  * @brief Function used to send data via SPI if not provided by the user in the init function

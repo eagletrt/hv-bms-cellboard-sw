@@ -12,6 +12,10 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
+#include "ltc6811.h"
+#include "volt.h"
+#include "temp.h"
+
 /**
  * @brief Return code for the BMS manager module functions
  *
@@ -57,6 +61,33 @@ typedef void (* bms_manager_send_receive_callback_t)(
 
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
+
+/**
+ * @brief BMS manager handler structure
+ *
+ * @details The pup and pud arrays are used for the open wire check
+ * @details The requested configuration should match the actual configuration
+ *
+ * @param send A pointer to the callback used to send the data via SPI
+ * @param send_receive A pointer to the callback used to send and receive the data via SPI
+ * @param chain The LTC handler structure
+ * @param actual_config The actual configuration register read from the LTC
+ * @param requested_config The requested configuration register of the LTC
+ * @param pup An array of cells voltages read with pull-up active and inactive (see LTC6811_PUP)
+ * @param run_state Index of the current operation of the manager
+ */
+typedef struct {
+    bms_manager_send_callback_t send;
+    bms_manager_send_receive_callback_t send_receive;
+
+    Ltc6811Chain chain;
+    Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    raw_volt_t pup[2U][CELLBOARD_SEGMENT_SERIES_COUNT];
+
+    size_t run_state;
+} _BmsManagerHandler;
+
 
 /**
  * @brief Initialize the bms manager internal handler structure

@@ -83,7 +83,9 @@ BIN_ERROR_DIR = $(BIN_DIR)/errors
 TESTS = test_led \
 		test_volt \
 		test_bal \
-		test_identity 
+		test_identity \
+		test_bms-manager 
+
 
 test_all: $(TESTS)
 
