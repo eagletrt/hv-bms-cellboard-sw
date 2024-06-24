@@ -1,19 +1,19 @@
 UNAME := $(shell uname)
 
-INCLUDES = 	-I ../Core/Inc/bms/ \
-			-I ../Core/Inc/bms/timebase \
-			-I ../Core/Inc/bms/errors \
-			-I ../Core/Inc/common/ \
-			-I ../Core/Inc/ \
+INCLUDES = 	-I $(INC_DIR)/bms/ \
+			-I $(INC_DIR)/bms/timebase \
+			-I $(INC_DIR)/bms/errors \
+			-I $(INC_DIR)/common/ \
+			-I $(INC_DIR) \
 			-I $(MICRO_LIB_DIR)/bms-monitor/inc \
 			-I $(LIB_DIR)/can/lib/bms/ \
 			-I ../Drivers/STM32G4xx_HAL_Driver/Inc \
 			-I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy \
 			-I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include \
 			-I ../Drivers/CMSIS/Include \
-			-I $(LIB_DIR)/micro-libs/Unity/src/ \
-			-I $(LIB_DIR)/micro-libs/CMock/src/ \
-			-I $(LIB_DIR)/micro-libs/blinky/inc \
+			-I $(MICRO_LIB_DIR)/Unity/src/ \
+			-I $(MICRO_LIB_DIR)/CMock/src/ \
+			-I $(MICRO_LIB_DIR)/blinky/inc \
 			-I $(MICRO_LIB_DIR)/ring-buffer/inc \
 			-I $(MICRO_LIB_DIR)/min-heap/inc \
 			-I $(MICRO_LIB_DIR)/bms-monitor/inc \
