@@ -12,6 +12,7 @@
 
 #include "cellboard-def.h"
 #include "identity.h"
+#include "error.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
@@ -23,9 +24,44 @@ static struct {
     bms_cell_temperatures_converted_t can_payload;
 } htemp;
 
-inline _temp_check_values(raw_temp_t value) {
-    ERROR_TOGGLE_IF(value <= TEMP_CELSIUS_TO_VALUE(TEMP_), ERROR_GROUP_UNDER_TEMPERATURE, 0U, timebase_get_time());
-    ERROR_TOGGLE_IF(value <= TEMP_VOL, ERROR_GROUP_OVER_TEMPERATURE, 0U, timebase_get_time());
+/**
+ * @brief Check if the cells temperature values are in range otherwise set an error
+ *
+ * @param value The raw temperature value to check
+ */
+inline void _temp_check_cells_value(raw_temp_t value) {
+    ERROR_TOGGLE_IF(
+        value <= TEMP_MIN_VALUE,
+        ERROR_GROUP_UNDER_TEMPERATURE,
+        ERROR_UNDER_TEMPERATURE_INSTANCE_CELLS,
+        timebase_get_time()
+    );
+    ERROR_TOGGLE_IF(
+        value >= TEMP_MAX_VALUE, 
+        ERROR_GROUP_OVER_TEMPERATURE,
+        ERROR_OVER_TEMPERATURE_INSTANCE_CELLS, 
+        timebase_get_time()
+    );
+}
+
+/**
+ * @brief Check if the discharge temperature values are in range otherwise set an error
+ *
+ * @param value The raw temperature value to check
+ */
+inline void _temp_check_discharge_value(raw_temp_t value) {
+    ERROR_TOGGLE_IF(
+        value <= TEMP_MIN_VALUE,
+        ERROR_GROUP_UNDER_TEMPERATURE,
+        ERROR_UNDER_TEMPERATURE_INSTANCE_DISCHARGE,
+        timebase_get_time()
+    );
+    ERROR_TOGGLE_IF(
+        value >= TEMP_MAX_VALUE,
+        ERROR_GROUP_OVER_TEMPERATURE,
+        ERROR_OVER_TEMPERATURE_INSTANCE_DISCHARGE,
+        timebase_get_time()
+    );
 }
 
 TempReturnCode temp_init(void) {
@@ -38,6 +74,7 @@ TempReturnCode temp_update_value(size_t index, raw_temp_t value) {
     if (index > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.temperatures[index] = value;
+    _temp_check_cells_value(value);
     return TEMP_OK;
 }
 
@@ -45,6 +82,8 @@ TempReturnCode temp_update_values(size_t index, raw_temp_t * values, size_t size
     if (index + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     memcpy(htemp.temperatures, values + index, size * sizeof(htemp.temperatures[0]));
+    for (size_t i = 0U; i < size; ++i)
+        _temp_check_cells_value(htemp.temperatures[index + i]);
     return TEMP_OK;
 }
 
@@ -52,6 +91,7 @@ TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
     if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.discharge_temperatures[index] = value;
+    _temp_check_discharge_value(value);
     return TEMP_OK;
 }
 
@@ -59,6 +99,8 @@ TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * values, s
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     memcpy(htemp.discharge_temperatures, values + index, size * sizeof(htemp.discharge_temperatures[0]));
+    for (size_t i = 0U; i < size; ++i)
+        _temp_check_discharge_value(htemp.discharge_temperatures[index + i]);
     return TEMP_OK;
 }
 

@@ -1,4 +1,10 @@
 digraph "fsm" {
+    bgcolor="white"
+    layout="dot"
+    center=true
+    concentrate=false
+    // splines="ortho"
+
     init [
         style="filled"
         color="#66ff66"

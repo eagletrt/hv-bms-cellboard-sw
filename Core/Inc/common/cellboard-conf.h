@@ -27,7 +27,7 @@
 
 /**
  * @defgroup modules
- * @brief Enable or disable the internal modules of the cellboard project
+ * @brief Enable or disable the internal modules of the project
  * {@
  */
 #define CONF_POST_MODULE_ENABLE

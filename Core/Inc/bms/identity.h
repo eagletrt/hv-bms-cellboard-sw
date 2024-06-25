@@ -17,6 +17,14 @@
 #include "bms_network.h"
 
 /**
+ * @brief Definition of the string containing the latest build time
+ *
+ * @details The build time string is in the following format %b %d %Y %H:%M:%S
+ * -> month day year hours:minutes:seconds (e.g. Apr 28 2024 11:45:15)
+ */
+#define IDENTITY_BUILD_TIME_STR (__DATE__" "__TIME__)
+
+/**
  * @brief Initialize all the info about the cellboard identity
  *
  * @param id The cellboard id
@@ -33,20 +41,12 @@ CellboardId identity_get_cellboard_id(void);
 /**
  * @brief Get the cellboard software build time in unix timestamp format (seconds)
  *
- * @return milliseconds_t The build time
+ * @return seconds_t The build time
  */
-milliseconds_t identity_get_build_time(void);
+seconds_t identity_get_build_time(void);
 
 /**
- * @brief Get the cellboard software build time string in the following format
- * %b %d %Y %H:%M:%S -> month day year hours:minutes:seconds (e.g. Apr 28 2024 11:45:15)
- *
- * @return char* The build time formatted string
- */
-char * identity_get_string_build_time(void);
-
-/**
- * @brief Get a pointer to the CAN payload of the cellboard identity info
+ * @brief Get a pointer to the canlib payload of the cellboard identity info
  *
  * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *

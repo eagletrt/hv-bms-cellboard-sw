@@ -18,7 +18,7 @@
 #include "watchdog.h"
 
 /** @brief The programmer flash timeout in ms */
-#define PROGRAMMER_FLASH_TIMEOUT ((milliseconds_t)(30000U))
+#define PROGRAMMER_FLASH_TIMEOUT ((milliseconds_t)(1000U))
 
 /**
  * @brief Programmer handler structure
@@ -78,6 +78,7 @@ ProgrammerReturnCode programmer_init(system_reset_callback_t reset) {
     hprogrammer.target = MAINBOARD_ID;
     _programmer_flash_reset_flags();
 
+    // TODO: Watchdog for the entire procedure?
     // Initialize watchdogs
     (void)watchdog_init(
         &hprogrammer.watchdog,
@@ -104,7 +105,7 @@ void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * p
     hprogrammer.flash_stop = false;
     hprogrammer.flashing = false;
 
-    watchdog_start(&hprogrammer.watchdog);
+    watchdog_restart(&hprogrammer.watchdog);
 
     // Trigger event
     fsm_event_trigger(&hprogrammer.flash_event);

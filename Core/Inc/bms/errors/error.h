@@ -4,12 +4,12 @@
  * https://github.com/eagletrt/micro-utils/tree/master/error-handler-generator
  *
  * Error_gen version 1.6.1
- * Generation date: 2024-06-17 18:45:48 +0200
+ * Generation date: 2024-06-18 13:51:17 +0200
  * Generated from: errors.json
  * With prefix: none
  * The error handler contains:
  *     - 7 error groups
- *     - 7 total error instances
+ *     - 9 total error instances
  ******************************************************************************/
 
 #ifndef ERROR_H
@@ -20,7 +20,7 @@
 #include <stddef.h>
 
 // Total number of error instances
-#define ERROR_INSTANCE_COUNT 7
+#define ERROR_INSTANCE_COUNT 9
 
 /**
  * @brief Set or reset an instance of an error based on a condition
@@ -39,12 +39,12 @@
  * @brief Type of the error that categorize a group of instances
  *
  * @details
- *     - ERROR_GROUP_CELLBOARD_ID error set when the cellboard identifier cannot be read correctly
- *     - ERROR_GROUP_POST a problem raise during the Power On Self Test
- *     - ERROR_GROUP_UNDER_VOLTAGE a cell voltage value is too low
- *     - ERROR_GROUP_OVER_VOLTAGE a cell voltage value is too high
- *     - ERROR_GROUP_UNDER_TEMPERATURE a cell temperature value is too low
- *     - ERROR_GROUP_OVER_TEMPERATURE a cell temperature value is too high
+ *     - ERROR_GROUP_CELLBOARD_ID error set when the cellboard identifier is unknown and cannot obtained
+ *     - ERROR_GROUP_POST the Power On Self Test procedure failed
+ *     - ERROR_GROUP_UNDER_VOLTAGE a voltage value is lower than a certain threshold
+ *     - ERROR_GROUP_OVER_VOLTAGE a voltage value is higher than a certain threshold
+ *     - ERROR_GROUP_UNDER_TEMPERATURE a temperature value is lower than a certain threshold
+ *     - ERROR_GROUP_OVER_TEMPERATURE a temperature value is higher than a certain threshold
  *     - ERROR_GROUP_CAN CAN bus communication is not working
  */
 typedef enum {
@@ -57,6 +57,33 @@ typedef enum {
     ERROR_GROUP_CAN,
     ERROR_GROUP_COUNT
 } ErrorGroup;
+
+/** @brief Aliases for the under_voltage error group instances */
+typedef enum {
+    ERROR_UNDER_VOLTAGE_INSTANCE_CELLS = 0
+} ErrorUnderVoltageInstanceAlias;
+
+/** @brief Aliases for the over_voltage error group instances */
+typedef enum {
+    ERROR_OVER_VOLTAGE_INSTANCE_CELLS = 0
+} ErrorOverVoltageInstanceAlias;
+
+/** @brief Aliases for the under_temperature error group instances */
+typedef enum {
+    ERROR_UNDER_TEMPERATURE_INSTANCE_CELLS = 0,
+    ERROR_UNDER_TEMPERATURE_INSTANCE_DISCHARGE = 1
+} ErrorUnderTemperatureInstanceAlias;
+
+/** @brief Aliases for the over_temperature error group instances */
+typedef enum {
+    ERROR_OVER_TEMPERATURE_INSTANCE_CELLS = 0,
+    ERROR_OVER_TEMPERATURE_INSTANCE_DISCHARGE = 1
+} ErrorOverTemperatureInstanceAlias;
+
+/** @brief Aliases for the can error group instances */
+typedef enum {
+    ERROR_CAN_INSTANCE_BMS = 0
+} ErrorCanInstanceAlias;
 
 /** @brief Single error instance type definition */
 typedef uint16_t ErrorInstance;

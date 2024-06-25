@@ -3,32 +3,38 @@
  * @date 2024-04-26
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Module that stores the information about the identity of the current cellboard
- * running this code
+ * @brief Module that stores the information about the identity of the current board
  */
 
 #include "identity.h"
 
 #include <time.h>
+#include <string.h>
 
-#define BUILD_TIME_STR (__DATE__" "__TIME__)
-
+/**
+ * @brief Identity module handler structure
+ *
+ * @param cellboard_id The identifier of the current cellboard
+ * @param build_time The unix timestamp of the latest build time
+ * @param can_payload The payload of the canlib message containing the cellboard version
+ */
 static struct {
     CellboardId cellboard_id;
-    milliseconds_t build_time;
+    seconds_t build_time;
 
     bms_cellboard_version_converted_t can_payload;
 } hidentity;
 
-
 void identity_init(CellboardId id) {
+    memset(&hidentity, 0U, sizeof(hidentity));
+
     hidentity.cellboard_id = id;
 
     // TODO: Build time at compile time
     // Get build time
     struct tm tm = { 0 };
     // Ignore warnings from this line
-    if (strptime(BUILD_TIME_STR, "%b %d %Y %H:%M:%S", &tm) != NULL)
+    if (strptime(IDENTITY_BUILD_TIME_STR, "%b %d %Y %H:%M:%S", &tm) != NULL)
         hidentity.build_time = mktime(&tm);
 
     // Update canlib payload info
@@ -41,12 +47,8 @@ CellboardId identity_get_cellboard_id(void) {
     return hidentity.cellboard_id;
 }
 
-milliseconds_t identity_get_build_time(void) {
+seconds_t identity_get_build_time(void) {
     return hidentity.build_time;
-}
-
-char * identity_get_string_build_time(void) {
-    return BUILD_TIME_STR;
 }
 
 bms_cellboard_version_converted_t * identity_get_can_payload(size_t * byte_size) {

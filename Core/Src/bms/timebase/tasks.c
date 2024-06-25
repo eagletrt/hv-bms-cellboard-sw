@@ -43,7 +43,7 @@ void _tasks_send_status(void) {
 /** @brief Send the version info via CAN */
 void _tasks_send_version(void) {
     size_t byte_size;
-    uint8_t * payload = (uint8_t *)(&byte_size);
+    uint8_t * payload = (uint8_t *)identity_get_can_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 

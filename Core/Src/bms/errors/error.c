@@ -4,12 +4,12 @@
  * https://github.com/eagletrt/micro-utils/tree/master/error-handler-generator
  *
  * Error_gen version 1.6.1
- * Generation date: 2024-06-17 18:45:48 +0200
+ * Generation date: 2024-06-18 13:51:17 +0200
  * Generated from: errors.json
  * With prefix: none
  * The error handler contains:
  *     - 7 error groups
- *     - 7 total error instances
+ *     - 9 total error instances
  ******************************************************************************/
 
 #include "error.h"
@@ -43,8 +43,8 @@ static const uint16_t instances[] = {
     [ERROR_GROUP_POST] = 1,
     [ERROR_GROUP_UNDER_VOLTAGE] = 1,
     [ERROR_GROUP_OVER_VOLTAGE] = 1,
-    [ERROR_GROUP_UNDER_TEMPERATURE] = 1,
-    [ERROR_GROUP_OVER_TEMPERATURE] = 1,
+    [ERROR_GROUP_UNDER_TEMPERATURE] = 2,
+    [ERROR_GROUP_OVER_TEMPERATURE] = 2,
     [ERROR_GROUP_CAN] = 1
 };
 /** @brief Error timeout for each group */
@@ -63,8 +63,8 @@ static Error error_cellboard_id_instances[1];
 static Error error_post_instances[1];
 static Error error_under_voltage_instances[1];
 static Error error_over_voltage_instances[1];
-static Error error_under_temperature_instances[1];
-static Error error_over_temperature_instances[1];
+static Error error_under_temperature_instances[2];
+static Error error_over_temperature_instances[2];
 static Error error_can_instances[1];
 static Error * errors[] = {    
     [ERROR_GROUP_CELLBOARD_ID] = error_cellboard_id_instances,

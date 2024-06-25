@@ -34,9 +34,19 @@ static struct {
  *
  * @param value The raw voltage value
  */
-inline void _volt_check_values(raw_volt_t value) {
-    ERROR_TOGGLE_IF(value <= VOLT_MILLIVOLT_TO_VALUE(VOLT_MIN_VALUE), ERROR_GROUP_UNDER_VOLTAGE, 0U, timebase_get_time());
-    ERROR_TOGGLE_IF(value >= VOLT_MILLIVOLT_TO_VALUE(VOLT_MAX_VALUE), ERROR_GROUP_OVER_VOLTAGE, 0U, timebase_get_time());
+inline void _volt_check_value(raw_volt_t value) {
+    ERROR_TOGGLE_IF(
+        value <= VOLT_MIN_VALUE,
+        ERROR_GROUP_UNDER_VOLTAGE,
+        ERROR_UNDER_VOLTAGE_INSTANCE_CELLS,
+        timebase_get_time()
+    );
+    ERROR_TOGGLE_IF(
+        value >= VOLT_MAX_VALUE,
+        ERROR_GROUP_OVER_VOLTAGE,
+        ERROR_UNDER_VOLTAGE_INSTANCE_CELLS,
+        timebase_get_time()
+    );
 }
 
 VoltReturnCode volt_init(void) {
@@ -49,7 +59,7 @@ VoltReturnCode volt_update_value(size_t index, raw_volt_t value) {
     if (index > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     hvolt.voltages[index] = value;
-    _volt_check_values(value);
+    _volt_check_value(value);
     return VOLT_OK;
 }
 
@@ -58,7 +68,7 @@ VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size
         return VOLT_OUT_OF_BOUNDS;
     memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
     for (size_t i = 0U; i < size; ++i)
-        _volt_check_values(hvolt.voltages[index]);
+        _volt_check_value(hvolt.voltages[index + i]);
     return VOLT_OK;
 }
 
@@ -95,10 +105,11 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
     static size_t offset = 0U;
     hvolt.can_payload.offset = offset;
     hvolt.can_payload.voltage_0 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset]);
-    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
-    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
-    hvolt.can_payload.voltage_3 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
+    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 1]);
+    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 2]);
+    hvolt.can_payload.voltage_3 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 3]);
 
+    offset += 4;
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
         offset = 0U;
     return &hvolt.can_payload;

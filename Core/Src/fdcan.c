@@ -172,7 +172,7 @@ int32_t _can_get_dlc_from_size(size_t size) {
  * 
  * @return int32_t The frame type or negative error code
  */
-int32_t _can_get_frame_type_from_index(CanFrameType type) {
+int32_t _can_get_frame_typename_from_frame_type(CanFrameType type) {
     switch (type) {
         case CAN_FRAME_TYPE_DATA:
             return FDCAN_DATA_FRAME;
@@ -186,12 +186,12 @@ int32_t _can_get_frame_type_from_index(CanFrameType type) {
 /**
  * @brief Get the canFrameType enum value from the CAN TxFrameType
  *
- * @param index The CAN frame type value
+ * @param typename The CAN frame type value
  * 
  * @return CanFrameType The frame type enum value or negative error code
  */
-CanFrameType _can_get_index_from_frame_type(uint32_t index) {
-    switch (index) {
+CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {
+    switch (typename) {
         case FDCAN_DATA_FRAME:
             return CAN_FRAME_TYPE_DATA;
         case FDCAN_REMOTE_FRAME:
@@ -217,7 +217,7 @@ CanCommReturnCode can_send(
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
 
     // Get and check the frame type
-    int32_t type = _can_get_frame_type_from_index(frame_type);
+    int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
     if (type < 0)
         return CAN_COMM_INVALID_FRAME_TYPE;
  
@@ -248,11 +248,11 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
     //     return;
 
     FDCAN_RxHeaderTypeDef header;
-    uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
+    uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
         Error_Handler();
     
-    CanFrameType frame_type = _can_get_index_from_frame_type(header.RxFrameType);
+    CanFrameType frame_type = _can_get_frame_type_from_fram_typename(header.RxFrameType);
     if (frame_type < 0)
         return;
 

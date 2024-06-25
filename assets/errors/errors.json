@@ -3,44 +3,82 @@
         {
             "name": "CELLBOARD_ID",
             "timeout": 0,
-            "description": "error set when the cellboard identifier cannot be read correctly",
+            "description": "error set when the cellboard identifier is unknown and cannot obtained",
             "instances": 1
         },
         {
             "name": "POST",
             "timeout": 0,
-            "description": "a problem raise during the Power On Self Test",
+            "description": "the Power On Self Test procedure failed",
             "instances": 1
         },
         {
             "name": "UNDER_VOLTAGE",
             "timeout": 50,
-            "description": "a cell voltage value is too low",
-            "instances": 1
+            "description": "a voltage value is lower than a certain threshold",
+            "instances": 1,
+            "details": [
+                {
+                    "id": 0,
+                    "alias": "CELLS"
+                }
+            ]
         },
         { 
             "name": "OVER_VOLTAGE",
             "timeout": 50,
-            "description": "a cell voltage value is too high",
-            "instances": 1
+            "description": "a voltage value is higher than a certain threshold",
+            "instances": 1,
+            "details": [
+                {
+                    "id": 0,
+                    "alias": "CELLS"
+                }
+            ]
         },
         { 
             "name": "UNDER_TEMPERATURE",
             "timeout": 200,
-            "description": "a cell temperature value is too low",
-            "instances": 1
+            "description": "a temperature value is lower than a certain threshold",
+            "instances": 2,
+            "details": [
+                {
+                    "id": 0,
+                    "alias": "CELLS"
+                },
+                {
+                    "id": 1,
+                    "alias": "DISCHARGE"
+                }
+            ]
         },
         { 
             "name": "OVER_TEMPERATURE",
             "timeout": 200,
-            "description": "a cell temperature value is too high",
-            "instances": 1
+            "description": "a temperature value is higher than a certain threshold",
+            "instances": 2,
+            "details": [
+                {
+                    "id": 0,
+                    "alias": "CELLS"
+                },
+                {
+                    "id": 1,
+                    "alias": "DISCHARGE"
+                }
+            ]
         },
         { 
             "name": "CAN",
             "timeout": 100,
             "description": "CAN bus communication is not working",
-            "instances": 1
+            "instances": 1,
+            "details": [
+                {
+                    "id": 0,
+                    "alias": "BMS"
+                }
+            ]
         }
     ]
 }

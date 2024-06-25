@@ -12,10 +12,11 @@
 
 #include "fsm.h"
 #include "programmer.h"
-#include "ring-buffer.h"
 #include "watchdog.h"
 #include "timebase.h"
 #include "bal.h"
+
+#include "ring-buffer.h"
 #include "canlib_device.h"
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
@@ -101,8 +102,8 @@
  */
 static struct CanCommHandler  {
     bit_flag8_t enabled;
-    RingBuffer(CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE) tx_buf;
-    RingBuffer(CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE) rx_buf;
+    RingBuffer(CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE) tx_buf;
+    RingBuffer(CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE) rx_buf;
 
     can_comm_transmit_callback_t send;
 
@@ -136,9 +137,9 @@ CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send) {
     hcan_comm.send = send;
 
     // Return values are ignored becuase the buffer addresses are always not NULL
-    (void)ring_buffer_init(&hcan_comm.tx_buf, CanMessage, CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE, NULL, NULL);
+    (void)ring_buffer_init(&hcan_comm.tx_buf, CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE, NULL, NULL);
     // TODO: Add callbacks to stop CAN reception interrupt during ring buffer operations
-    (void)ring_buffer_init(&hcan_comm.rx_buf, CanMessage, CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE, NULL, NULL);
+    (void)ring_buffer_init(&hcan_comm.rx_buf, CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE, NULL, NULL);
 
     // Initialize the canlib device
     device_init(&hcan_comm.rx_device);
@@ -197,7 +198,7 @@ CanCommReturnCode can_comm_send_immediate(
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
-    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+    if (size > CAN_COMM_MAX_PAYLOAD_BYTE_SIZE)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
@@ -235,7 +236,7 @@ CanCommReturnCode can_comm_tx_add(
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
-    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+    if (size > CAN_COMM_MAX_PAYLOAD_BYTE_SIZE)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
@@ -268,7 +269,7 @@ CanCommReturnCode can_comm_rx_add(
         return CAN_COMM_INVALID_INDEX;
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
-    if (size > CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE)
+    if (size > CAN_COMM_MAX_PAYLOAD_BYTE_SIZE)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
@@ -297,7 +298,7 @@ CanCommReturnCode can_comm_routine(void) {
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT) &&
         ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK)
     {
-        uint8_t data[CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE];
+        uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
         int size = 0;
         const can_id_t can_id = bms_id_from_index(tx_msg.index);
 

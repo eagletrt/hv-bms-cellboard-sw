@@ -3,7 +3,7 @@
  * @date 2024-04-16
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Custom definitions used inside the cellboard project
+ * @brief Custom definitions used inside the project
  */
 
 #ifndef CELLBOARD_DEF_H
@@ -37,7 +37,6 @@
 
 /** @brief Total number of cellboards */
 #define CELLBOARD_COUNT (CELLBOARD_ID_COUNT)
-
 
 /** @brief Total number of LTC chips of the cellboards */
 #define CELLBOARD_SEGMENT_LTC_COUNT (2U)
@@ -81,17 +80,6 @@
 #define CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT (5U)
 /** @brief Total number of temperatures of the discharge resistance that can be read at the same time from a single segment */
 #define CELLBOARD_DISCHARGE_TEMP_SENSOR_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT))
-
-/** @brief Maximum number of bytes of the data in a CAN message */
-#define CELLBOARD_CAN_MAX_PAYLOAD_BYTE_SIZE (8U)
-
-/** @brief Mask used to check the valid bits of a CAN identifier */
-#define CELLBOARD_CAN_VALID_ID_MASK (0x7FFU)
-#define CELLBOARD_CAN_VALID_EXT_ID_MASK (0x1FFFFFFFU)
-
-/** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
-#define CELLBOARD_CAN_TX_BUFFER_BYTE_SIZE (16U)
-#define CELLBOARD_CAN_RX_BUFFER_BYTE_SIZE (16U)
 
 /** @} */
 

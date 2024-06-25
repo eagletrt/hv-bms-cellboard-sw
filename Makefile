@@ -153,11 +153,8 @@ C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32G4A1xx
 
-# AS includes
-AS_INCLUDES = 
-
-# C includes
-C_INCLUDES =  \
+# Custom includes
+CUSTOM_INCLUDES = \
 $(addprefix -I,$(shell find $(INC_DIR)/bms -type d)) \
 $(addprefix -I,$(shell find $(INC_DIR)/common -type d)) \
 $(addprefix -I,$(shell find $(CANLIB_DIR) -type d)) \
@@ -165,7 +162,13 @@ $(BLINKY_C_INCLUDE_DIRS_PREFIX) \
 $(BMS_MONITOR_C_INCLUDE_DIRS_PREFIX) \
 $(RING_BUFFER_C_INCLUDE_DIRS_PREFIX) \
 $(MIN_HEAP_C_INCLUDE_DIRS_PREFIX) \
--I$(ULIBS_DIR)/timer-utils \
+-I$(ULIBS_DIR)/timer-utils
+
+# AS includes
+AS_INCLUDES = 
+
+# C includes
+C_INCLUDES =  \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32G4xx/Include \
@@ -176,7 +179,7 @@ $(MIN_HEAP_C_INCLUDE_DIRS_PREFIX) \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(CUSTOM_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
@@ -244,10 +247,15 @@ clean:
 #######################################
 # flash
 #######################################
-flash: $(BUILD_DIR)/$(TARGET).bin
-	st-flash --flash=512k --reset write $< 0x08000000
+# flash: $(BUILD_DIR)/$(TARGET).elf
+# 	openocd -f ./openocd.cfg -c "program $< verify reset exit"
 
-  
+#######################################
+# Debug
+#######################################
+debug: $(BUILD_DIR)/$(TARGET).elf
+	$(PREFIX)gdb --eval-command="target extended-remote :3333" $<
+
 #######################################
 # dependencies
 #######################################

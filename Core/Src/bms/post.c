@@ -15,7 +15,6 @@
 #include "volt.h"
 #include "temp.h"
 #include "bal.h"
-#include "error.h"
 
 #ifdef CONF_POST_MODULE_ENABLE
 

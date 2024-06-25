@@ -17,6 +17,16 @@
 #include "cellboard-def.h"
 #include "bms_network.h"
 
+/** @brief Maximum number of bytes of the payload in a CAN message */
+#define CAN_COMM_MAX_PAYLOAD_BYTE_SIZE (8U)
+
+/** @brief Mask used to check the bits of a CAN identifier */
+#define CAN_COMM_ID_MASK (0x7FFU)
+#define CAN_COMM_EXT_ID_MASK (0x1FFFFFFFU)
+
+/** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
+#define CAN_COMM_TX_BUFFER_BYTE_SIZE (16U)
+#define CAN_COMM_RX_BUFFER_BYTE_SIZE (16U)
 
 /**
  * @brief Return code for the CAN communication module functions
