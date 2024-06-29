@@ -80,9 +80,9 @@ bit_flag32_t volt_select_values(millivolt_t target) {
     bit_flag32_t bits = 0U;
     const size_t cnt = CELLBOARD_MIN(CELLBOARD_SEGMENT_SERIES_COUNT, sizeof(bits) * 8U);
 
-    // Iterate over cells and choose cells which voltage is greater than the target
+    // Iterate over cells and choose the one which voltage is greater than the target
     for (size_t i = 0U; i < cnt; ++i) {
-        if (VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[i]) > target)
+        if (hvolt.voltages[i] > VOLT_MILLIVOLT_TO_VALUE(target))
             bits = CELLBOARD_BIT_SET(bits, i);
     }
     return bits;
@@ -104,10 +104,10 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
 
     static size_t offset = 0U;
     hvolt.can_payload.offset = offset;
-    hvolt.can_payload.voltage_0 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset]);
-    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 1]);
-    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 2]);
-    hvolt.can_payload.voltage_3 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset + 3]);
+    hvolt.can_payload.voltage_0 = hvolt.voltages[offset];
+    hvolt.can_payload.voltage_1 = hvolt.voltages[offset + 1];
+    hvolt.can_payload.voltage_2 = hvolt.voltages[offset + 2];
+    hvolt.can_payload.voltage_3 = hvolt.voltages[offset + 3];
 
     offset += 4;
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)

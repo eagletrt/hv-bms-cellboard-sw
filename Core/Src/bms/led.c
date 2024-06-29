@@ -79,14 +79,12 @@ static char * led_module_name = "led";
 
 static char * led_return_code_name[] = {
     [LED_OK] = "ok",
-    [LED_NULL_POINTER] = "null pointer",
-    [LED_INVALID_CELLBOARD_ID] = "invalid cellboard id"
+    [LED_NULL_POINTER] = "null pointer"
 };
 
 static char * led_return_code_description[] = {
     [LED_OK] = "executed succesfully",
-    [LED_NULL_POINTER] = "attempt to dereference a NULL pointer",
-    [LED_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier"
+    [LED_NULL_POINTER] = "attempt to dereference a NULL pointer"
 };
 
 #endif // CONF_LED_STRINGS_ENABLE

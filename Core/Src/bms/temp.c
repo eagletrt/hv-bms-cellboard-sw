@@ -128,9 +128,9 @@ bms_cell_temperatures_converted_t * temp_get_canlib_payload(size_t * byte_size) 
 
     static size_t offset = 0U;
     htemp.can_payload.offset = offset;
-    htemp.can_payload.temperature0 = TEMP_VALUE_TO_CELSIUS(htemp.temperatures[offset]);
-    htemp.can_payload.temperature1 = TEMP_VALUE_TO_CELSIUS(htemp.temperatures[++offset]);
-    htemp.can_payload.temperature2 = TEMP_VALUE_TO_CELSIUS(htemp.temperatures[++offset]);
+    htemp.can_payload.temperature0 = htemp.temperatures[offset];
+    htemp.can_payload.temperature1 = htemp.temperatures[++offset];
+    htemp.can_payload.temperature2 = htemp.temperatures[++offset];
 
     if (offset >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         offset = 0U;

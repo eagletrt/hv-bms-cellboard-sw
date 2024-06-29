@@ -128,6 +128,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
 
   // Initialize the FSM handler
   memset(&hfsm, 0U, sizeof(hfsm));
+  hfsm.fsm_state = FSM_STATE_INIT;
   hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
 
   // Run the Power On Self Test

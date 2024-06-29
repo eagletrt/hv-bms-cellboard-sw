@@ -168,7 +168,7 @@ $(MIN_HEAP_C_INCLUDE_DIRS_PREFIX) \
 AS_INCLUDES = 
 
 # C includes
-C_INCLUDES =  \
+C_INCLUDES = \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32G4xx/Include \

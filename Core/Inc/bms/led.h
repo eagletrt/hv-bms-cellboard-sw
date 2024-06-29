@@ -82,14 +82,14 @@ void led_set_enable(bool enabled);
  * @param t The current time in ms
  *
  * @return LedReturnCode
- *     LED_OK
+ *     - LED_OK
  */
 LedReturnCode led_routine(milliseconds_t t);
 
 
 #else  // CONF_LED_MODULE_ENABLE 
 
-#define led_init(id) (LED_OK)
+#define led_init(set, toggle) (LED_OK)
 #define led_set_enable(enabled) CELLBOARD_NOPE()
 #define led_routine(t) (LED_OK)
 
