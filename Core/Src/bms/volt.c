@@ -23,7 +23,7 @@
  * @param voltages The array of raw cells voltages
  * @param can_payload The canlib payload of the cells voltages
  */
-static struct {
+_STATIC struct {
     raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
 
     bms_cellboard_cells_voltage_converted_t can_payload;
@@ -34,7 +34,7 @@ static struct {
  *
  * @param value The raw voltage value
  */
-inline void _volt_check_value(raw_volt_t value) {
+_STATIC_INLINE void _volt_check_value(raw_volt_t value) {
     ERROR_TOGGLE_IF(
         value <= VOLT_MIN_VALUE,
         ERROR_GROUP_UNDER_VOLTAGE,
@@ -102,7 +102,7 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
     if (byte_size != NULL)
         *byte_size = sizeof(hvolt.can_payload);
 
-    static size_t offset = 0U;
+    _STATIC size_t offset = 0U;
     hvolt.can_payload.offset = offset;
     hvolt.can_payload.voltage_0 = hvolt.voltages[offset];
     hvolt.can_payload.voltage_1 = hvolt.voltages[offset + 1];
@@ -122,7 +122,7 @@ VoltReturnCode volt_routine(void) {
 
 #ifdef CONF_VOLTAGE_STRINGS_ENABLE
 
-static char * volt_module_name = "voltage";
+_STATIC char * volt_module_name = "voltage";
 
 sttic char * volt_return_code_name[] = {
     [VOLT_OK] = "ok",
@@ -130,7 +130,7 @@ sttic char * volt_return_code_name[] = {
     [VOLT_OUT_OF_BOUNDS] = "out of bounds"
 };
 
-static char * volt_return_code_description[] = {
+_STATIC char * volt_return_code_description[] = {
     [VOLT_OK] = "executed successfully",
     [VOLT_NULL_POINTER] = "attempt to dereference a null pointer"
     [VOLT_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"

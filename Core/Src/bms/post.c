@@ -72,16 +72,16 @@ PostReturnCode post_run(PostInitData data) {
 
 #ifdef CONF_POST_STRINGS_ENABLE
 
-static char * post_module_name = "post";
+_STATIC char * post_module_name = "post";
 
-static char * post_return_code_name[] = {
+_STATIC char * post_return_code_name[] = {
     [POST_OK] = "ok",
     [POST_INVALID_CELLBOARD_ID] = "invalid cellboard id",
     [POST_NULL_POINTER] = "null pointer",
     [POST_WATCHDOG_INVALID_MESSAGE] = "invalid watchdog message"
 };
 
-static char * post_return_code_description[] = {
+_STATIC char * post_return_code_description[] = {
     [POST_OK] = "executed successfully",
     [POST_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier",
     [POST_NULL_POINTER] = "attempt to dereference a null pointer",

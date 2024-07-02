@@ -19,7 +19,7 @@
 
 bms_watchdog watchdog;
 
-static can_index_t watched_ids[WATCHDOG_INDEX_COUNT] = {
+_STATIC can_index_t watched_ids[WATCHDOG_INDEX_COUNT] = {
     BMS_MAINBOARD_STATUS_INDEX
 };
 
@@ -31,11 +31,11 @@ WatchdogReturnCode watchdog_init(void) {
     return WATCHDOG_OK;
 }
 
-inline bool watchdog_is_active(can_index_t index) {
+_STATIC_INLINE bool watchdog_is_active(can_index_t index) {
     return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.activated, index);
 }
 
-inline bool watchdog_is_timed_out(can_index_t index) {
+_STATIC_INLINE bool watchdog_is_timed_out(can_index_t index) {
     return index >= bms_MESSAGE_COUNT ? false : CANLIB_BITTEST_ARRAY(watchdog.timeout, index);
 }
 
@@ -103,15 +103,15 @@ WatchdogReturnCode watchdog_routine(time timestamp) {
 
 #ifdef CONF_WATCHDOG_STRINGS_ENABLE
 
-static char * watchdog_module_name = "watchdog"
+_STATIC char * watchdog_module_name = "watchdog"
 
-static char * watchdog_return_code_name[] = {
+_STATIC char * watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "ok",
     [WATCHDOG_INVALID_ID] = "invalid id",
     [WATCHDOG_TIMEOUT] = "timeout"
 };
 
-static char * watchdog_return_code_description[] = {
+_STATIC char * watchdog_return_code_description[] = {
     [WATCHDOG_OK] = "executed succesfully",
     [WATCHDOG_INVALID_ID] = "an invalid CAN identifier was used",
     [WATCHDOG_TIMEOUT] = "a watchdog has timed out"

@@ -15,7 +15,6 @@
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"
-#include "watchdog.h"
 #include "bms-manager.h"
 #include "bal.h"
 
@@ -29,7 +28,7 @@
  *
  * @param tasks The array of tasks
  */
-static struct {
+_STATIC struct {
     Task tasks[TASKS_COUNT];
 } htasks;
 
@@ -68,12 +67,6 @@ void _tasks_send_balancing_status(void) {
     can_comm_tx_add(BMS_CELLBOARD_BALANCING_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
    
-/** @brief Run the watchdog routine */
-void _tasks_check_watchdog(void) {
-    // Canlib watchdog
-    watchdog_routine(timebase_get_time());
-}
-
 /** @brief Run the bms manager procedures */
 void _tasks_run_bms_manager(void) {
     bms_manager_run();
@@ -124,18 +117,18 @@ tasks_callback tasks_get_callback(TasksId id) {
 
 #ifdef CONF_TASKS_STRINGS_ENABLE
 
-static char * tasks_module_name = "tasks";
+_STATIC char * tasks_module_name = "tasks";
 
-static char * tasks_return_code_name[] = {
+_STATIC char * tasks_return_code_name[] = {
     [TASKS_OK] = "ok"
 };
 
-static char * tasks_return_code_descritpion[] = {
+_STATIC char * tasks_return_code_descritpion[] = {
     [TASKS_OK] = "executed successfully"
 };
 
 #define TASKS_X(NAME, START, INTERVAL, EXEC) [TASKS_NAME_TO_ID(NAME)] = #NAME,
-static char * tasks_id_name[] = {
+_STATIC char * tasks_id_name[] = {
     TASKS_X_LIST
 };
 #undef TASKS_X

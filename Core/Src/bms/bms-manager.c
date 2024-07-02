@@ -55,7 +55,7 @@ struct {
  * @param size The number of bytes to send
  */
 void _bms_manager_send(uint8_t * data, size_t size) {
-    static uint8_t aux;
+    _STATIC uint8_t aux;
     hmanager.send_receive(data, &aux, size, 0U);
 }
 
@@ -505,9 +505,9 @@ BmsManagerReturnCode bms_manager_run(void) {
 
 #ifdef CONF_BMS_STRINGS_MODULE_ENABLE
 
-static char * bms_manager_module_name = "bms manager";
+_STATIC char * bms_manager_module_name = "bms manager";
 
-static char * bms_manager_return_code_name[] = {
+_STATIC char * bms_manager_return_code_name[] = {
     [BMS_MANAGER_OK] = "ok",
     [BMS_MANAGER_NULL_POINTER] = "null pointer",
     [BMS_MANAGER_ENCODE_ERROR] = "encode error",
@@ -516,7 +516,7 @@ static char * bms_manager_return_code_name[] = {
     [BMS_MANAGER_BUSY] = "busy"
 };
 
-static char * bms_manager_return_code_description[] = {
+_STATIC char * bms_manager_return_code_description[] = {
     [BMS_MANAGER_OK] = "executed succesfully",
     [BMS_MANAGER_NULL_POINTER] = "attempt to dereference a NULL pointer",
     [BMS_MANAGER_ENCODE_ERROR] = "error while encoding of data",

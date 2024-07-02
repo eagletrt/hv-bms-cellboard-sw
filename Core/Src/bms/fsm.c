@@ -67,7 +67,7 @@ fsm_event_data_t * fsm_fired_event = NULL;
  * @param discharge_wdg Watchdog used for the discharge procedure
  * @param cooldown_wdg Watchdog used for the cooldown procedure
  */
-static struct {
+_STATIC struct {
     fsm_state_t fsm_state;
     bms_cellboard_status_converted_t status_can_payload;
     bms_cellboard_flash_response_converted_t flash_can_payload;
@@ -94,12 +94,12 @@ void _fsm_cooldown_timeout(void) {
 
 
 // Function to check if an event has fired
-inline bool fsm_is_event_triggered() {
+bool fsm_is_event_triggered() {
     return fsm_fired_event != NULL;
 }
 
 // Function to trigger an event
-inline void fsm_event_trigger(fsm_event_data_t *event) {
+void fsm_event_trigger(fsm_event_data_t *event) {
     if (fsm_fired_event != NULL)
         return;
     fsm_fired_event = event ? event : &(fsm_event_data_t){};

@@ -100,7 +100,7 @@
  * @param rx_raw The reception raw data of the message
  * @param rx_conv The reception converted data of the message
  */
-static struct CanCommHandler  {
+_STATIC struct CanCommHandler  {
     bit_flag8_t enabled;
     RingBuffer(CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE) tx_buf;
     RingBuffer(CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE) rx_buf;
@@ -342,9 +342,9 @@ CanCommReturnCode can_comm_routine(void) {
 
 #ifdef CONF_CAN_COMM_STRINGS_ENABLE
 
-static char * can_comm_module_name = "can communication";
+_STATIC char * can_comm_module_name = "can communication";
 
-static char * can_comm_return_code_name[] = {
+_STATIC char * can_comm_return_code_name[] = {
     [CAN_COMM_OK] = "ok",
     [CAN_COMM_NULL_POINTER] = "null pointer",
     [CAN_COMM_DISABLED] = "disabled",
@@ -356,7 +356,7 @@ static char * can_comm_return_code_name[] = {
     [CAN_COMM_TRANSMISSION_ERROR] = "transmission error"
 };
 
-static char * can_comm_return_code_description[] = {
+_STATIC char * can_comm_return_code_description[] = {
     [CAN_COMM_OK] = "executed succesfully",
     [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer"
     [CAN_COMM_DISABLED] = "the can manager is not enabled"

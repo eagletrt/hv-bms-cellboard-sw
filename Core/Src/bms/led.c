@@ -31,7 +31,7 @@
  * @param pattern The main blinking pattern
  * @param pattern_size The size of the pattern
  */
-static struct LedHandler {
+_STATIC struct LedHandler {
     led_set_state_callback_t set;
     led_toggle_state_callback_t toggle;
 
@@ -75,14 +75,14 @@ LedReturnCode led_routine(milliseconds_t t) {
 
 #ifdef CONF_LED_STRINGS_ENABLE
 
-static char * led_module_name = "led";
+_STATIC char * led_module_name = "led";
 
-static char * led_return_code_name[] = {
+_STATIC char * led_return_code_name[] = {
     [LED_OK] = "ok",
     [LED_NULL_POINTER] = "null pointer"
 };
 
-static char * led_return_code_description[] = {
+_STATIC char * led_return_code_description[] = {
     [LED_OK] = "executed succesfully",
     [LED_NULL_POINTER] = "attempt to dereference a NULL pointer"
 };

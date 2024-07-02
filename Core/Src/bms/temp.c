@@ -13,15 +13,17 @@
 #include "cellboard-def.h"
 #include "identity.h"
 #include "error.h"
+#include "timebase.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
 // TODO: Send discharge temperatures
-static struct {
+_STATIC struct {
     raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
     raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
 
-    bms_cell_temperatures_converted_t can_payload;
+    bms_cellboard_cells_temperature_converted_t can_payload;
+    size_t offset;
 } htemp;
 
 /**
@@ -29,7 +31,7 @@ static struct {
  *
  * @param value The raw temperature value to check
  */
-inline void _temp_check_cells_value(raw_temp_t value) {
+_STATIC_INLINE void _temp_check_cells_value(raw_temp_t value) {
     ERROR_TOGGLE_IF(
         value <= TEMP_MIN_VALUE,
         ERROR_GROUP_UNDER_TEMPERATURE,
@@ -49,7 +51,7 @@ inline void _temp_check_cells_value(raw_temp_t value) {
  *
  * @param value The raw temperature value to check
  */
-inline void _temp_check_discharge_value(raw_temp_t value) {
+_STATIC_INLINE void _temp_check_discharge_value(raw_temp_t value) {
     ERROR_TOGGLE_IF(
         value <= TEMP_MIN_VALUE,
         ERROR_GROUP_UNDER_TEMPERATURE,
@@ -122,33 +124,34 @@ TempReturnCode temp_dump_values(raw_temp_t * out, size_t start, size_t size) {
 }
 
 // TODO: Macro to convert raw values to °C
-bms_cell_temperatures_converted_t * temp_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_cells_temperature_converted_t * temp_get_canlib_payload(size_t * byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(htemp.can_payload);
 
-    static size_t offset = 0U;
-    htemp.can_payload.offset = offset;
-    htemp.can_payload.temperature0 = htemp.temperatures[offset];
-    htemp.can_payload.temperature1 = htemp.temperatures[++offset];
-    htemp.can_payload.temperature2 = htemp.temperatures[++offset];
+    htemp.can_payload.offset = htemp.offset;
+    htemp.can_payload.temperature_0 = htemp.temperatures[htemp.offset];
+    htemp.can_payload.temperature_1 = htemp.temperatures[htemp.offset + 1U];
+    htemp.can_payload.temperature_2 = htemp.temperatures[htemp.offset + 2U];
+    htemp.can_payload.temperature_3 = htemp.temperatures[htemp.offset + 3U];
 
-    if (offset >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
-        offset = 0U;
+    htemp.offset += 4U;
+    if (htemp.offset >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
+        htemp.offset = 0U;
 
     return &htemp.can_payload;
 }
 
 #ifdef CONF_TEMPEATURE_STRINGS_ENABLE
 
-static char * temp_module_name = "temperature";
+_STATIC char * temp_module_name = "temperature";
 
-static char * temp_return_code_name[] = {
+_STATIC char * temp_return_code_name[] = {
     [TEMP_OK] = "ok",
     [TEMP_NULL_POINTER] = "null pointer",
     [TEMP_OUT_OF_BOUNDS] = "out of bounds"
 };
 
-static char * temp_return_code_description[] = {
+_STATIC char * temp_return_code_description[] = {
     [TEMP_OK] = "executed successfully",
     [TEMP_NULL_POINTER] = "attempt to dereference a null pointer",
     [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"

@@ -11,6 +11,8 @@
  *
  * @details To use the functions inside this file define the TASKS_IMPLEMENTATION macro
  */
+#ifndef TASKS_H
+#define TASKS_H
 
 #include <stddef.h>
 
@@ -42,7 +44,6 @@
     TASKS_X(SEND_VOLTAGES, 2U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
     TASKS_X(SEND_TEMPERATURES, 3U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
     TASKS_X(SEND_BALANCING_STATUS, 4U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
-    TASKS_X(CHECK_WATCHDOG, 5U, 200U, _tasks_check_watchdog) \
     TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager)
 
 /**
@@ -145,3 +146,5 @@ tasks_callback tasks_get_callback(TasksId id);
 #define tasks_get_callback(id) (NULL)
 
 #endif // CONF_TASKS_MODULE_ENABLE
+
+#endif // TASKS_H

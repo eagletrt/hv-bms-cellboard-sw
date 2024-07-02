@@ -18,8 +18,8 @@
 
 // TODO: Set minimum and maximum allowed temperatures
 /** @brief Minimum and maximum allowed cell temperature in celsius */
-#define TEMP_MIN_CELSIUS (-20.f)
-#define TEMP_MAX_CELSIUS (60.f)
+#define TEMP_MIN_CELSIUS (-10.f)
+#define TEMP_MAX_CELSIUS (100.f)
 
 /** @brief Minimum and maximum allowed cell temperature raw values */
 #define TEMP_MIN_VALUE (TEMP_CELSIUS_TO_VALUE(TEMP_MIN_CELSIUS))

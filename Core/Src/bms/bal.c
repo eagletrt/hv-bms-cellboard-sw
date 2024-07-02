@@ -43,7 +43,7 @@ typedef struct {
  * @param paused True if the balancing is paused, false otherwise
  * @param params The balancing parameters
  */
-static struct {
+_STATIC struct {
     fsm_event_data_t event;
     bms_cellboard_balancing_status_converted_t can_payload;
     Watchdog watchdog;
@@ -202,16 +202,16 @@ bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byt
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE
 
-static char * bal_module_name = "balancing";
+_STATIC char * bal_module_name = "balancing";
 
-static char * bal_return_code_name[] = {
+_STATIC char * bal_return_code_name[] = {
     [BAL_OK] = "ok",
     [BAL_NULL_POINTER] = "null pointer",
     [BAL_BUSY] = "busy",
     [BAL_WATCHDOG_ERROR] = "watchdog error"
 };
 
-static char * bal_return_code_description[] = {
+_STATIC char * bal_return_code_description[] = {
     [BAL_OK] = "executed succesfully",
     [BAL_NULL_POINTER] = "attempt to dereference a null pointer",
     [BAL_BUSY] = "the target is busy",

@@ -47,10 +47,10 @@ typedef struct {
  * @param scheduled_tasks The heap of scheduled tasks that has to be executed
  * @param scheduled_watchdogs The heap of scheduled watchdogs that are currently running
  */
-static struct {
+_STATIC struct {
     bool enabled;
     milliseconds_t resolution; // in ms
-    volatile ticks_t t;
+    _VOLATILE ticks_t t;
 
     MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled_tasks;
     MinHeap(TimebaseScheduledWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT) scheduled_watchdogs;
@@ -119,7 +119,7 @@ TimebaseReturnCode timebase_init(milliseconds_t resolution_ms) {
     return TIMEBASE_OK;
 }
 
-inline void timebase_set_enable(bool enabled) {
+void timebase_set_enable(bool enabled) {
     htimebase.enabled = enabled;
 }
 
@@ -251,9 +251,9 @@ TimebaseReturnCode timebase_routine(void) {
 
 #ifdef CONF_TIMEBASE_STRINGS_ENABLE
 
-static char * timebase_module_name = "timebase";
+_STATIC char * timebase_module_name = "timebase";
 
-static char * timebase_return_code_name[] = {
+_STATIC char * timebase_return_code_name[] = {
     [TIMEBASE_OK] = "ok",
     [TIMEBASE_NULL_POINTER] = "null pointer",
     [TIMEBASE_DISABLED] = "disabled",
@@ -262,7 +262,7 @@ static char * timebase_return_code_name[] = {
     [TIMEBASE_WATCHDOG_UNAVAILABLE] = "watchdog unavailable"
 };
 
-static char * timebase_return_code_description[] = {
+_STATIC char * timebase_return_code_description[] = {
     [TIMEBASE_OK] = "executed successfully",
     [TIMEBASE_NULL_POINTER] = "attempt to dereference a null pointer",
     [TIMEBASE_DISABLE] = "the timebase is not enabled",

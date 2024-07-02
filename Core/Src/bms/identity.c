@@ -18,7 +18,7 @@
  * @param build_time The unix timestamp of the latest build time
  * @param can_payload The payload of the canlib message containing the cellboard version
  */
-static struct {
+_STATIC struct {
     CellboardId cellboard_id;
     seconds_t build_time;
 

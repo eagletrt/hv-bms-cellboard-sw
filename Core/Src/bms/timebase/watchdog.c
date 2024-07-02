@@ -134,9 +134,9 @@ bool watchdog_is_timed_out(Watchdog * watchdog) {
 
 #ifdef CONF_WATCHDOG_STRINGS_ENABLE
 
-static char * watchdog_module_name = "watchdog";
+_STATIC char * watchdog_module_name = "watchdog";
 
-static char * watchdog_return_code_name[] = {
+_STATIC char * watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "ok",
     [WATCHDOG_NULL_POINTER] = "null pointer",
     [WATCHDOG_BUSY] = "busy",
@@ -145,7 +145,7 @@ static char * watchdog_return_code_name[] = {
     [WATCHDOG_UNAVAILABLE] = "unavailable"
 };
 
-static char * watchdog_return_code_name[] = {
+_STATIC char * watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "executed sucessfully",
     [WATCHDOG_NULL_POINTER] = "attempt to dereference a null pointer"
     [WATCHDOG_BUSY] = "the watchdog is already running",

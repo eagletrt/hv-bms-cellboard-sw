@@ -32,7 +32,7 @@
  * @param watchog The watchdog used for the flash procedure
  * @param timeout True if the watchdog has timed-out, false otherwise
  */
-static struct {
+_STATIC struct {
     system_reset_callback_t reset;
     fsm_event_data_t flash_event;
     bms_cellboard_flash_response_converted_t can_payload;
