@@ -83,15 +83,14 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
     if (byte_size != NULL)
         *byte_size = sizeof(hvolt.can_payload);
 
-    static size_t offset = 0U;
-    hvolt.can_payload.offset = offset;
-    hvolt.can_payload.voltage_0 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[offset]);
-    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
-    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
-    hvolt.can_payload.voltage_3 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++offset]);
+    hvolt.can_payload.offset = hvolt.offset;
+    hvolt.can_payload.voltage_0 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[hvolt.offset]);
+    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++hvolt.offset]);
+    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++hvolt.offset]);
+    hvolt.can_payload.voltage_3 = VOLT_VALUE_TO_MILLIVOLT(hvolt.voltages[++hvolt.offset]);
 
-    if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
-        offset = 0U;
+    if (hvolt.offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
+        hvolt.offset = 0U;
     return &hvolt.can_payload;
 }
 

@@ -15,7 +15,10 @@
 
 extern _TempHandler htemp;
 
-void setUp() {}
+void setUp() {
+    identity_init(CELLBOARD_ID);
+    temp_init();
+}
 
 void tearDown() {}
 
@@ -49,8 +52,6 @@ void test_temp_get_values() {
 }
 
 int main() {
-
-    identity_init(CELLBOARD_ID);
 
     UNITY_BEGIN();
     return UNITY_END();

@@ -15,23 +15,30 @@
 
 extern _LedHandler hled;
 
-void setUp() {}
+void setUp() {
+    identity_init(CELLBOARD_ID);
+}
 
 void tearDown() {}
 
-void test_led_init() {
-    TEST_ASSERT_EQUAL(LED_NULL_POINTER, led_init(NULL, NULL));
-    TEST_ASSERT_EQUAL(LED_OK, led_init((void*) 0x01, (void*) 0x01));
 
+void test_led_init_return_null() {
+    TEST_ASSERT_EQUAL(LED_NULL_POINTER, led_init(NULL, NULL));
+}
+
+void test_led_init_return_ok() {
+    TEST_ASSERT_EQUAL(LED_OK, led_init((void*) 0x01, (void*) 0x01));
+}
+
+void test_led_init_return_pattern_size() {
     led_init((void*) 0x01, (void*) 0x01);
     TEST_ASSERT_EQUAL((CELLBOARD_ID+1)*2+1, hled.pattern_size);
 }
 
 int main() {
-
-    identity_init(CELLBOARD_ID);
-
     UNITY_BEGIN();
-    RUN_TEST(test_led_init);
+    RUN_TEST(test_led_init_return_null);
+    RUN_TEST(test_led_init_return_ok);
+    RUN_TEST(test_led_init_return_pattern_size);
     return UNITY_END();
 }

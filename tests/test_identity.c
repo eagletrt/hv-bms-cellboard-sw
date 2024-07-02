@@ -15,33 +15,45 @@
 
 extern _IdentityHandler hidentity;
 
-void setUp() {}
+void setUp() {
+    identity_init(CELLBOARD_ID);
+}
 
 void tearDown() {}
 
 void test_identity_init() {
-    identity_init(CELLBOARD_ID);
     TEST_ASSERT_EQUAL(CELLBOARD_ID, hidentity.can_payload.cellboard_id);
 }
 
 void test_identity_get_cellboard_id() {
-    identity_init(CELLBOARD_ID);
     TEST_ASSERT_EQUAL(CELLBOARD_ID, identity_get_cellboard_id());
 }
 
-void test_identity_get_can_payload() {
-    identity_init(CELLBOARD_ID);
+void test_identity_get_can_payload_size() {
     size_t size = 0;
     bms_cellboard_version_converted_t * payload = identity_get_can_payload(&size);
     TEST_ASSERT_EQUAL(sizeof(hidentity.can_payload), size);
+}
+
+void test_identity_get_can_payload_not_null() {
+    size_t size = 0;
+    bms_cellboard_version_converted_t * payload = identity_get_can_payload(&size);
     TEST_ASSERT_NOT_NULL(payload);
+}
+
+void test_identity_get_can_payload_cellboard_id() {
+    size_t size = 0;
+    bms_cellboard_version_converted_t * payload = identity_get_can_payload(&size);
     TEST_ASSERT_EQUAL(CELLBOARD_ID, payload->cellboard_id);
 }
+
 
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_identity_init);
     RUN_TEST(test_identity_get_cellboard_id);
-    RUN_TEST(test_identity_get_can_payload);
+    RUN_TEST(test_identity_get_can_payload_size);
+    RUN_TEST(test_identity_get_can_payload_not_null);
+    RUN_TEST(test_identity_get_can_payload_cellboard_id);
     return UNITY_END();
 }

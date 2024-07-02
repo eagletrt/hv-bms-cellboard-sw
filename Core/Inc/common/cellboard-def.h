@@ -30,11 +30,12 @@
 /**
  * @brief Static type which toggles if a test is running
  */
-#ifdef UNIT_TEST
-#define _STATIC
-#define _INLINE
-#else
+
+#ifndef _STATIC
 #define _STATIC static
+#endif
+
+#ifndef _INLINE
 #define _INLINE inline
 #endif
 

@@ -63,6 +63,7 @@ typedef enum {
  * @param can_payload The canlib payload of the cells voltages
  */
 typedef struct {
+    size_t offset;
     raw_volt_t voltages[CELLBOARD_SEGMENT_SERIES_COUNT];
     bms_cellboard_cells_voltage_converted_t can_payload;
 } _VoltHandler;

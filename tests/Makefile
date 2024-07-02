@@ -29,7 +29,7 @@ else
 	RUN = ./
 endif
 
-FLAGS = -DUNIT_TEST -DSTM32G4A1xx -fdata-sections -ffunction-sections -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
+FLAGS = -D_STATIC="" -D_INLINE="" -DSTM32G4A1xx -fdata-sections -ffunction-sections -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
 LIB_DIR = ../Core/Lib
 MICRO_LIB_DIR = $(LIB_DIR)/micro-libs
