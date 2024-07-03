@@ -28,6 +28,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "cellboard-conf.h"
+#include "cellboard-def.h"
+
 #include "stm32g4xx_it.h"
 #include "fsm.h"
 #include "post.h"
@@ -136,7 +139,7 @@ int main(void)
       error_expire_immediate(ERROR_GROUP_CELLBOARD_ID, 0U);
       fsm_state = FSM_STATE_FATAL;
   }
-  fsm_run_state(fsm_state, &init_data);
+  fsm_state = fsm_run_state(fsm_state, &init_data);
 
   /* USER CODE END 2 */
 
@@ -144,12 +147,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    fsm_run_state(fsm_state, NULL);
+    fsm_state = fsm_run_state(fsm_state, NULL);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+    /*
+     * while(1) {
+     *     fetenderi = HIGH;
+     *     bccanti = HIGH;
+     * }
+     *
+     * */
+    }
   /* USER CODE END 3 */
 }
 
