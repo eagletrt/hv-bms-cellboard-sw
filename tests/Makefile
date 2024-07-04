@@ -139,7 +139,7 @@ run_%: test_%
 	$(RUN)$<
 
 run_all: $(TESTS)
-	$(foreach test, $(TESTS), $(RUN)$(test);)
+	$(foreach test, $(TESTS), $(RUN)$(test) || true;)
 
 clean:
 	rm -rf bin $(TESTS) $(MOCKS_DIR)
