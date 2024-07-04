@@ -16,9 +16,13 @@
 
 extern _CanCommHandler hcan_comm;
 
+void can_comm_send(can_id_t id, CanFrameType frame_type, uint8_t *data, int size) {
+    // Do nothing
+}
+
 void setUp() {
     identity_init(CELLBOARD_ID);
-    can_comm_init((void*) 0x01);
+    can_comm_init(can_comm_send);
 }
 
 void tearDown() {}
@@ -28,7 +32,7 @@ void test_can_comm_init_null() {
 }
 
 void test_can_comm_init_ok() {
-    TEST_ASSERT_EQUAL(CAN_COMM_OK, can_comm_init((void*) 0x01));
+    TEST_ASSERT_EQUAL(CAN_COMM_OK, can_comm_init(can_comm_send));
 }
 
 void test_can_comm_enable_all() {
