@@ -208,7 +208,7 @@ CanCommReturnCode can_send(
     const uint8_t * data,
     size_t size)
 {
-    if (id >= bms_MESSAGE_COUNT)
+    if (id > CAN_COMM_ID_MASK)
         return CAN_COMM_INVALID_INDEX;
 
     // Get and check for data length
