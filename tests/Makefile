@@ -135,10 +135,10 @@ $(BIN_DIR)/%.o: $(BMS_DIR)/%.c | $(BIN_DIR)
 test_%: test_%.c $(OBJS) | $(BIN_DIR)
 	$(CC) $< $(FLAGS) $(OBJS) -o $@ $(INCLUDES)
 
-run_test_%: test_%
+run_%: test_%
 	$(RUN)$<
 
-run_test: $(TESTS)
+run_all: $(TESTS)
 	$(foreach test, $(TESTS), $(RUN)$(test);)
 
 clean:
