@@ -38,14 +38,11 @@ extern ADC_HandleTypeDef hadc1;
 
 extern ADC_HandleTypeDef hadc2;
 
-extern ADC_HandleTypeDef hadc3;
-
 /* USER CODE BEGIN Private defines */
 
 /** @brief Redefinition for the ADC handlers */
 #define HADC_TEMPS_1 hadc1
 #define HADC_TEMPS_2 hadc2
-#define HADC_CELLBOARD_ID hadc3
 
 /** @brief Conversion timeout for the ADC conversion in ms */
 #define ADC_CONVERSION_TIMEOUT (10U)
@@ -94,24 +91,8 @@ typedef enum {
 
 void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
-void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
-/**
- * @brief Read the cellboard identifier number encoded as a certain voltage range
- *
- * @param out[out] The variable where the cellboard identifier is copied into
- *
- * @return AdcReturnCode
- *     - ADC_NULL_POINTER if the out pointer is NULL
- *     - ADC_START_ERROR if the ADC cannot be started
- *     - ADC_TIMEOUT if the polling times out
- *     - ADC_POLL_ERROR an error happened during the poll for conversion operation
- *     - ADC_STOP_ERROR if the ADC cannot be stopped
- *     - ADC_OK otherwise
- */
-AdcReturnCode adc_read_cellboard_id(CellboardId * out);
 
 /* USER CODE END Prototypes */
 

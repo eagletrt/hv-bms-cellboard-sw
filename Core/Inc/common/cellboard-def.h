@@ -199,6 +199,23 @@
  */
 #define CELLBOARD_BIT_TOGGLE(VAR, BIT) ((VAR) ^ (1U << (BIT)))
 
+/**
+ * @brief Set or reset a specific bit of a variable based on a boolean condition
+ *
+ * @attention This macro do not modify the variable but returns a new value
+ *
+ * @param VAR The variable that should be changed
+ * @param CONDITION The boolean condition to check
+ * @param BIT The position of the bit to set
+ *
+ * @return The value of the modified variable
+ */
+#define CELLBOARD_BIT_TOGGLE_IF(VAR, CONDITION, BIT) ( \
+        (CONDITION) ? \
+        CELLBOARD_BIT_SET(VAR, BIT) : \
+        CELLBOARD_BIT_RESET(VAR, BIT) \
+    )
+
 /** @} */
 
 /*** ######################### TYPE DEFINITIONS ########################## ***/

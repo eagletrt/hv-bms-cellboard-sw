@@ -34,14 +34,19 @@ extern "C" {
 
 extern TIM_HandleTypeDef htim6;
 
+extern TIM_HandleTypeDef htim7;
+
 /* USER CODE BEGIN Private defines */
 
 /** @brief Error timer definition */
-#define TIM_ERROR htim6
+#define HTIM_ERROR htim6
+/** @brief Timebase timer definition */
+#define HTIM_TIMEBASE htim7
 
 /* USER CODE END Private defines */
 
 void MX_TIM6_Init(void);
+void MX_TIM7_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 

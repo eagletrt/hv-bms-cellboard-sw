@@ -61,14 +61,20 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = NRST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(NRST_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA5 PA6 PA7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  /*Configure GPIO pins : PAPin PAPin PAPin */
+  GPIO_InitStruct.Pin = ID_SELECTOR_0_Pin|ID_SELECTOR_1_Pin|ID_SELECTOR_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin PAPin PAPin */
   GPIO_InitStruct.Pin = MUX_A0_Pin|MUX_A1_Pin|MUX_A2_Pin|MUX_A3_Pin;
@@ -84,12 +90,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 2 */
@@ -100,6 +100,26 @@ void gpio_led_set_state(LedStatus state) {
 
 void gpio_led_toggle_state(void) {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+}
+
+CellboardId gpio_get_cellboard_id(void) {
+    CellboardId id = 0;
+    /*
+     * Get the individual bits of the cellboard identifier
+     * The bits are inverted because it is Aris fault
+     */
+    bool bit_0 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_0_GPIO_Port, ID_SELECTOR_0_Pin);
+    bool bit_1 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
+    bool bit_2 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
+
+    // Set the identifier using the bits
+    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_0, 0U);
+    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_1, 1U);
+    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_2, 2U);
+
+    if (id >= CELLBOARD_ID_COUNT)
+        id = CELLBOARD_ID_5;
+    return id;
 }
 
 /* USER CODE END 2 */

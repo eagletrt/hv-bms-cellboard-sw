@@ -69,8 +69,12 @@ void Error_Handler(void);
 #define USART_RX_GPIO_Port GPIOA
 #define MUX_OUT2_Pin GPIO_PIN_4
 #define MUX_OUT2_GPIO_Port GPIOA
-#define ID_SELECTOR_Pin GPIO_PIN_0
-#define ID_SELECTOR_GPIO_Port GPIOB
+#define ID_SELECTOR_0_Pin GPIO_PIN_5
+#define ID_SELECTOR_0_GPIO_Port GPIOA
+#define ID_SELECTOR_1_Pin GPIO_PIN_6
+#define ID_SELECTOR_1_GPIO_Port GPIOA
+#define ID_SELECTOR_2_Pin GPIO_PIN_7
+#define ID_SELECTOR_2_GPIO_Port GPIOA
 #define MUX_A0_Pin GPIO_PIN_8
 #define MUX_A0_GPIO_Port GPIOA
 #define MUX_A1_Pin GPIO_PIN_9

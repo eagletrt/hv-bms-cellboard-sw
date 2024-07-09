@@ -80,6 +80,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+  for (size_t i = 0; i < 1000000; ++i)
+        ;
 
   /* USER CODE END 1 */
 
@@ -97,27 +99,30 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
+  /*
+   * Delay needed for the soft-start of the DC-DC
+   */
+  // HAL_Delay(1000);
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
-  MX_ADC3_Init();
   MX_FDCAN1_Init();
   MX_SPI3_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
-  fsm_state_t fsm_state = FSM_STATE_INIT;
-
-  /*
-   * Since the error module functions are needed even before the POST is executed
-   * the initialization function has to be called here instead of inside the
-   * POST procedure, this is needed to reduce code complexity and repetitions
+  /**
+   * Start the timer used to increment the timebase internal counter
    */
-  error_init(it_cs_enter, it_cs_exit);
+  HAL_TIM_Base_Start_IT(&HTIM_TIMEBASE);
+
+  fsm_state_t fsm_state = FSM_STATE_INIT;
 
   // Prepare data for the POST procedure
   PostInitData init_data = {
@@ -130,17 +135,9 @@ int main(void)
   };
   
   // Read the cellboard ID from the ADC
-  AdcReturnCode adc_code = ADC_TIMEOUT;
-  for (size_t i = 0U; adc_code != ADC_OK && i < 10U; ++i)
-      adc_code = adc_read_cellboard_id(&init_data.id);
+  init_data.id = gpio_get_cellboard_id();
 
-  // Go to the FATAL state if the cellboard ID cannot be read correctly
-  if (adc_code != ADC_OK) {
-      error_expire_immediate(ERROR_GROUP_CELLBOARD_ID, 0U);
-      fsm_state = FSM_STATE_FATAL;
-  }
   fsm_state = fsm_run_state(fsm_state, &init_data);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
