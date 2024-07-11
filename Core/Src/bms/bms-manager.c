@@ -518,7 +518,7 @@ _STATIC char * bms_manager_return_code_name[] = {
 
 _STATIC char * bms_manager_return_code_description[] = {
     [BMS_MANAGER_OK] = "executed succesfully",
-    [BMS_MANAGER_NULL_POINTER] = "attempt to dereference a NULL pointer",
+    [BMS_MANAGER_NULL_POINTER] = "attempt to dereference a null pointer",
     [BMS_MANAGER_ENCODE_ERROR] = "error while encoding of data",
     [BMS_MANAGER_DECODE_ERROR] = "error while decoding of data",
     [BMS_MANAGER_OPEN_WIRE] = "open wire detected",

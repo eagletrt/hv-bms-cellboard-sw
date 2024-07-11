@@ -80,8 +80,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  for (size_t i = 0; i < 1000000; ++i)
-        ;
 
   /* USER CODE END 1 */
 
@@ -98,11 +96,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
-  /*
-   * Delay needed for the soft-start of the DC-DC
-   */
-  // HAL_Delay(1000);
 
   /* USER CODE END SysInit */
 
@@ -183,7 +176,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
   RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV4;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {

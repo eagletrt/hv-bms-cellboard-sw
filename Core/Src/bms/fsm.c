@@ -188,6 +188,7 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_IDLE ***/
   (void)timebase_routine();
+  (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
   error_routine();
 
@@ -223,6 +224,7 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_FATAL ***/
   (void)timebase_routine();
+  (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
 
   // Check for flash request
