@@ -97,7 +97,7 @@ $(BIN_DIR):
 	mkdir $(BIN_ERROR_DIR)
 
 $(BIN_DIR)/unity.o: | $(BIN_DIR)
-	$(CC) -c $(MICRO_LIB_DIR)/Unity/src/unity.c $(INCLUDES) -o $(BIN_DIR)/unity.o
+	$(CC) -c $(MICRO_LIB_DIR)/Unity/src/unity.c $(INCLUDES) -D UNITY_OUTPUT_COLOR -o $(BIN_DIR)/unity.o
 
 $(BIN_DIR)/cmock.o: | $(BIN_DIR)
 	$(CC) -c $(MICRO_LIB_DIR)/CMock/src/cmock.c $(INCLUDES) -o $(BIN_DIR)/cmock.o
