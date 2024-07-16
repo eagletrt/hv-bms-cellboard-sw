@@ -18,7 +18,7 @@ extern _CanCommHandler hcan_comm;
 
 
 bool sended;
-CanCommReturnCode can_comm_send(can_id_t id, CanFrameType frame_type, uint8_t *data, int size) {
+CanCommReturnCode can_comm_send(can_id_t id, CanFrameType frame_type, const uint8_t *data, size_t size) {
     sended = true;
     return CAN_COMM_OK;
 }
