@@ -69,7 +69,7 @@ void _tasks_send_balancing_status(void) {
    
 /** @brief Run the bms manager procedures */
 void _tasks_run_bms_manager(void) {
-    bms_manager_run();
+    bms_manager_routine();
 }
 
 TasksReturnCode tasks_init(milliseconds_t resolution) {

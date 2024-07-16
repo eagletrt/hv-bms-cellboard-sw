@@ -9,6 +9,7 @@
 
 #include "post.h"
 
+#include "error.h"
 #include "identity.h"
 #include "programmer.h"
 #include "timebase.h"
@@ -29,10 +30,15 @@
  *     - POST_OK
  */
 PostReturnCode _post_modules_init(PostInitData * data) {
+    /*
+     * The error initialization function has to be the executed before every other
+     * init function to ensure the correctness of the program
+     */
+    error_init(data->cs_enter, data->cs_exit);
     /**
      * The identity module has to be initialized before every other module
-     * because most of the functionality of the BMS strictly depends on the
-     * cellboard ID
+     * (with the exception of the error module) because most of the functionality
+     * of the BMS strictly depends on the cellboard identifier contiained inside it
      */
     identity_init(data->id);
 

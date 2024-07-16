@@ -42,7 +42,7 @@ void MX_SPI3_Init(void)
   hspi3.Init.Direction = SPI_DIRECTION_2LINES;
   hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi3.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
   hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
@@ -50,7 +50,7 @@ void MX_SPI3_Init(void)
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi3.Init.CRCPolynomial = 7;
   hspi3.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi3.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  hspi3.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
   if (HAL_SPI_Init(&hspi3) != HAL_OK)
   {
     Error_Handler();
@@ -119,28 +119,83 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 /* USER CODE BEGIN 1 */
 
 // TODO: Return and check errors
-void spi_send(uint8_t * data, size_t size) {
+BmsManagerReturnCode spi_send(uint8_t * data, size_t size) {
+    BmsManagerReturnCode code = BMS_MANAGER_ERROR;
+
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
     // TODO: Non-blocking or set a decent enough timeout
     HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+    switch (status) {
+        case HAL_TIMEOUT: 
+        case HAL_ERROR: 
+            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            break;
+        case HAL_BUSY:
+            code = BMS_MANAGER_BUSY;
+            break;
+        case HAL_OK:
+            code = BMS_MANAGER_OK;
+            break;
+        default:
+            code = BMS_MANAGER_ERROR;
+            break;
+    }
 
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
+    return code;
 }
 
-void spi_send_and_receive(
+BmsManagerReturnCode spi_send_and_receive(
     uint8_t * data,
     uint8_t * out,
     size_t size,
     size_t out_size)
 {
+    BmsManagerReturnCode code = BMS_MANAGER_ERROR;
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
     // TODO: Non-blocking or set a decent enough timeout
     HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+    switch (status) {
+        case HAL_TIMEOUT: 
+        case HAL_ERROR: 
+            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            break;
+        case HAL_BUSY:
+            code = BMS_MANAGER_BUSY;
+            break;
+        case HAL_OK:
+            code = BMS_MANAGER_OK;
+            break;
+        default:
+            code = BMS_MANAGER_ERROR;
+            break;
+    }
+    if (code != BMS_MANAGER_OK) {
+        HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
+        return code;
+    }
+
     status = HAL_SPI_Receive(&HSPI_LTC, out, out_size, 1U + out_size / 125U);
+    switch (status) {
+        case HAL_TIMEOUT: 
+        case HAL_ERROR: 
+            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            break;
+        case HAL_BUSY:
+            code = BMS_MANAGER_BUSY;
+            break;
+        case HAL_OK:
+            code = BMS_MANAGER_OK;
+            break;
+        default:
+            code = BMS_MANAGER_ERROR;
+            break;
+    }
 
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
+    return code;
 }
 
 /* USER CODE END 1 */

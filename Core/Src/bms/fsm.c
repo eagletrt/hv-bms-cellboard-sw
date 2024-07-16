@@ -192,13 +192,18 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   (void)led_routine(timebase_get_time());
   error_routine();
 
-  // Check for flash request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
-      next_state = FSM_STATE_FLASH;
+  // if (error_get_expired() > 0U)
+  //       next_state = FSM_STATE_FATAL;
+  if (fsm_is_event_triggered()) {
+      // Check for flash request
+      if (fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
+          next_state = FSM_STATE_FLASH;
+      // Check for balancing request
+      if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
+          next_state = FSM_STATE_DISCHARGE;
+  }
 
-  // Check for balancing request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
-      next_state = FSM_STATE_DISCHARGE;
+
   /*** USER CODE END DO_IDLE ***/
   
   switch (next_state) {

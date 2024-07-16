@@ -97,7 +97,6 @@ VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size) {
     return VOLT_OK;
 }
 
-// TODO: Macro to convert raw values to mV
 bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hvolt.can_payload);

@@ -30,6 +30,11 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include "cellboard-def.h"
+#include "cellboard-conf.h"
+
+#include "bms-manager.h"
+
 /* USER CODE END Includes */
 
 extern SPI_HandleTypeDef hspi3;
@@ -58,8 +63,14 @@ void MX_SPI3_Init(void);
  *
  * @param data A pointer to the data to send
  * @param size The length of the data in bytes
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
  */
-void spi_send(uint8_t * data, size_t size);
+BmsManagerReturnCode spi_send(uint8_t * data, size_t size);
 
 /**
  * @brief Send and receive data via SPI
@@ -68,8 +79,14 @@ void spi_send(uint8_t * data, size_t size);
  * @param out[out] A pointer where the received data is stored
  * @param size The length of the sent data in bytes
  * @param out_size The length of the received data in bytes
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission or reception of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
  */
-void spi_send_and_receive(
+BmsManagerReturnCode spi_send_and_receive(
     uint8_t * data,
     uint8_t * out,
     size_t size,

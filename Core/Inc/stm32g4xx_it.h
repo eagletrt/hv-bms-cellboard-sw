@@ -59,16 +59,18 @@ void TIM7_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /**
- * @brief Enter a critical section
+ * @brief Function used to enter a critical section of the code
+ * where concurrency can cause problems
  *
- * @details This function disables all interrupt to avoid concurrency related problems
+ * @details This function disables all interrupts to avoid concurrency
  */
 void it_cs_enter(void);
 
 /**
- * @brief Exit a critical section
+ * @brief Function used to exit a critical section of the code
+ * where concurrency can cause problems
  *
- * @details This function re-enable all the interrupts and restore their states
+ * @details This function restore all interrupts status to avoid concurrency
  */
 void it_cs_exit(void);
 

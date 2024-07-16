@@ -1,0 +1,33 @@
+digraph "fsm" {
+    bgcolor="white"
+    layout="dot"
+    center=true
+    concentrate=false
+    // splines="ortho"
+
+    init
+    write_configuration
+    read_configuration
+
+    start_volt_conversion
+    poll_volt_status
+    read_voltage
+    
+    init -> write_configuration
+
+    write_configuration -> read_configuration
+    write_configuration -> start_volt_conversion
+
+    read_configuration -> write_configuration
+    read_configuration -> start_volt_conversion
+
+    start_volt_conversion -> poll_volt_status
+    start_volt_conversion -> write_configuration
+
+    poll_volt_status -> poll_volt_status
+    poll_volt_status -> read_voltage
+    poll_volt_status -> write_configuration
+
+    read_voltage -> read_voltage
+    read_voltage -> write_configuration
+}

@@ -20,7 +20,7 @@
 // TODO: Send discharge temperatures
 _STATIC struct {
     raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
-    raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT];
+    raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT];
 
     bms_cellboard_cells_temperature_converted_t can_payload;
     size_t offset;
@@ -90,7 +90,7 @@ TempReturnCode temp_update_values(size_t index, raw_temp_t * values, size_t size
 }
 
 TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
-    if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
+    if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.discharge_temperatures[index] = value;
     _temp_check_discharge_value(value);
@@ -98,7 +98,7 @@ TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
 }
 
 TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * values, size_t size) {
-    if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_SENSOR_COUNT)
+    if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     memcpy(htemp.discharge_temperatures, values + index, size * sizeof(htemp.discharge_temperatures[0]));
     for (size_t i = 0U; i < size; ++i)

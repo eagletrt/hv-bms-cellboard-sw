@@ -6,11 +6,25 @@
  * @brief Manager for the BMS monitor operations
  */
 
+#ifndef BMS_MANAGER_H
+#define BMS_MANAGER_H
+
 #include <stddef.h>
 #include <stdint.h>
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
+
+#include "volt.h"
+#include "ltc6811.h"
+
+/** @brief Thresholds used during the open wire check in mV */
+#define BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT ((millivolt_t)-400.f)
+#define BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT ((millivolt_t)0.00005f)
+
+/** @brief Thresholds used during the open wire check in mV * 10 */
+#define BMS_MANAGER_OPEN_WIRE_THRESHOLD VOLT_MILLIVOLT_TO_VALUE(BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT)
+#define BMS_MANAGER_OPEN_WIRE_ZERO VOLT_MILLIVOLT_TO_VALUE(BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT)
 
 /**
  * @brief Return code for the BMS manager module functions
@@ -21,7 +35,9 @@
  *     - BMS_MANAGER_ENCODE_ERROR some data could not be encoded correctly
  *     - BMS_MANAGER_DECODE_ERROR some data could not be decoded correctly
  *     - BMS_MANAGER_OPEN_WIRE an open wire is detected
- *     - BMS_MANAGER_BUSY the manager is busy making ADC conversions
+ *     - BMS_MANAGER_BUSY the manager or the peripheral is busy
+ *     - BMS_MANAGER_COMMUNICATION_ERROR communiction error with the LTCs
+ *     - BMS_MANAGER_ERROR generic error with unkown cause
  */
 typedef enum {
     BMS_MANAGER_OK,
@@ -29,16 +45,29 @@ typedef enum {
     BMS_MANAGER_ENCODE_ERROR,
     BMS_MANAGER_DECODE_ERROR,
     BMS_MANAGER_OPEN_WIRE,
-    BMS_MANAGER_BUSY
+    BMS_MANAGER_BUSY,
+    BMS_MANAGER_COMMUNICATION_ERROR,
+    BMS_MANAGER_ERROR
 } BmsManagerReturnCode;
+
+/** @brief List of voltage registers */
+typedef enum {
+    BMS_MANAGER_VOLTAGE_REGISTER_A,
+    BMS_MANAGER_VOLTAGE_REGISTER_B,
+    BMS_MANAGER_VOLTAGE_REGISTER_C,
+    BMS_MANAGER_VOLTAGE_REGISTER_D,
+    BMS_MANAGER_VOLTAGE_REGISTER_COUNT
+} BmsManagerVoltageRegister;
 
 /**
  * @brief Callback used to send data via SPI
  *
  * @param data A pointer to the data to send
  * @param size The length of the data in bytes
+ *
+ * @return BmsManagerReturnCode The result of the data transmission
  */
-typedef void (* bms_manager_send_callback_t)(uint8_t * data, size_t size);
+typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * data, size_t size);
 
 /**
  * @brief Callback used to send and receive data via SPI
@@ -47,13 +76,45 @@ typedef void (* bms_manager_send_callback_t)(uint8_t * data, size_t size);
  * @param out[out] A pointer where the received data is stored
  * @param size The length of the sent data in bytes
  * @param out_size The length of the received data in bytes
+ *
+ * @return BmsManagerReturnCode The result of the data transmission and reception
  */
-typedef void (* bms_manager_send_receive_callback_t)(
+typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
     uint8_t * data,
     uint8_t * out,
     size_t size,
     size_t out_size
 );
+
+/**
+ * @brief Type definitino for the BMS manager handler structure
+ *
+ * @attention This struct should not be used outside of this module
+ *
+ * @details The pup and pud arrays are used for the open wire check
+ * @details The requested configuration should match the actual configuration
+ *
+ * @param send A pointer to the callback used to send the data via SPI
+ * @param send_receive A pointer to the callback used to send and receive the data via SPI
+ * @param chain The LTC handler structure
+ * @param actual_config The actual configuration register read from the LTC
+ * @param requested_config The requested configuration register of the LTC
+ * @param pup An array of cells voltages read with pull-up active and inactive (see LTC6811_PUP)
+ * @param communication_error_count A counter of the communication errors
+ * @param state The current state of the BMS monitor FSM
+ */
+typedef struct {
+    bms_manager_send_callback_t send;
+    bms_manager_send_receive_callback_t send_receive;
+
+    Ltc6811Chain chain;
+    Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    raw_volt_t pup[2U][CELLBOARD_SEGMENT_SERIES_COUNT];
+
+    size_t communication_error_count;
+    void * state; // Have to be casted to 'bms_monitor_fsm_state_t'
+} _BmsManagerHandler;
 
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
@@ -72,6 +133,89 @@ BmsManagerReturnCode bms_manager_init(
     bms_manager_send_callback_t send,
     bms_manager_send_receive_callback_t send_receive
 );
+
+/**
+ * @brief Routine that handles the communication with the BMS monitor
+ *
+ * @details This function should be called periodically with a certain interval
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_OK
+ */
+BmsManagerReturnCode bms_manager_routine(void);
+
+/**
+ * @brief Write the configuration registers of the BMS monitor
+ *
+ * @attention This function does not ensure that the data is correctly stored inside the LTCs
+ * to check if the registers are updated correctly a read command has to be performed
+ * 
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR error while encoding the command
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_write_configuration(void);
+
+/**
+ * @brief Read the configuration registers from the BMS monitor
+ * 
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the received data
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_read_configuration(void);
+
+/**
+ * @brief Start the cells voltage ADC conversion
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_start_volt_conversion(void);
+
+/**
+ * @brief Check if the started ADC conversion has ended
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_poll_conversion_status(void);
+
+/**
+ * @brief Read the cells voltages from the BMS monitor
+ *
+ * @param reg The register to read from
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
+
+
+
+
+
+
 
 /**
  * @brief Set the cells to discharge
@@ -98,13 +242,22 @@ bit_flag32_t bms_manager_get_discharge_cells(void);
  * @return BmsManagerReturnCode
  *     - BMS_MANAGER_OK
  */
-BmsManagerReturnCode bms_manager_run(void);
+// BmsManagerReturnCode bms_manager_run(void);
+
+
+Ltc6811Cfgr * bms_manager_get_requested_config();
+Ltc6811Cfgr * bms_manager_get_actual_config();
 
 #else  // CONF_BMS_MANAGER_MODULE_ENABLE
 
 #define bms_manager_init(send, send_receive) (BMS_MANAGER_OK)
-#define bms_manager_set_discharge_cells(cells) (BMS_BMS_MANAGER_OK)
-#define bms_manager_get_discharge_cells() (0U)
-#define bms_manager_run() (BMS_MANAGER_OK)
+#define bms_manager_routine() (BMS_MANAGER_OK)
+#define bms_manager_write_configuration() (BMS_MANAGER_OK)
+#define bms_manager_read_configuration() (BMS_MANAGER_OK)
+#define bms_manager_start_volt_conversion() (BMS_MANAGER_OK)
+#define bms_manager_poll_conversion_status() (BMS_MANAGER_OK)
+#define bms_manager_read_voltages(reg) (BMS_MANAGER_OK)
 
 #endif // CONF_BMS_MANAGER_MODULE_ENABLE
+
+#endif // BMS_MANAGER_H
