@@ -40,6 +40,8 @@
         * EXTI
         * Free pins are configured automatically as Analog (this feature is enabled through
         * the Code Generation settings)
+     PA0   ------> SharedAnalog_PA0
+     PA1   ------> SharedAnalog_PA1
 */
 void MX_GPIO_Init(void)
 {
@@ -63,6 +65,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(NRST_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PAPin PAPin */
+  GPIO_InitStruct.Pin = MUX_OUT0_Pin|MUX_OUT1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin PAPin */
   GPIO_InitStruct.Pin = ID_SELECTOR_0_Pin|ID_SELECTOR_1_Pin|ID_SELECTOR_2_Pin;
@@ -120,6 +128,22 @@ CellboardId gpio_get_cellboard_id(void) {
     if (id >= CELLBOARD_ID_COUNT)
         id = CELLBOARD_ID_5;
     return id;
+}
+
+void gpio_set_mux_address(uint8_t address) {
+    if (address >= CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT)
+        return;
+    
+    // Get the address bits
+    bool b0 = CELLBOARD_BIT_GET(address, 0U);
+    bool b1 = CELLBOARD_BIT_GET(address, 1U);
+    bool b2 = CELLBOARD_BIT_GET(address, 2U);
+    bool b3 = CELLBOARD_BIT_GET(address, 3U);
+
+    HAL_GPIO_WritePin(MUX_A0_GPIO_Port, MUX_A0_Pin, (GPIO_PinState)b0);
+    HAL_GPIO_WritePin(MUX_A1_GPIO_Port, MUX_A1_Pin, (GPIO_PinState)b1);
+    HAL_GPIO_WritePin(MUX_A2_GPIO_Port, MUX_A2_Pin, (GPIO_PinState)b2);
+    HAL_GPIO_WritePin(MUX_A3_GPIO_Port, MUX_A3_Pin, (GPIO_PinState)b3);
 }
 
 /* USER CODE END 2 */

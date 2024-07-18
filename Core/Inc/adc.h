@@ -34,23 +34,21 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern ADC_HandleTypeDef hadc1;
-
 extern ADC_HandleTypeDef hadc2;
 
 /* USER CODE BEGIN Private defines */
 
 /** @brief Redefinition for the ADC handlers */
-#define HADC_TEMPS_1 hadc1
-#define HADC_TEMPS_2 hadc2
+#define HADC_TEMPS hadc2
 
-/** @brief Conversion timeout for the ADC conversion in ms */
-#define ADC_CONVERSION_TIMEOUT (10U)
+/** @brief Total number of ADC channels used */
+#define ADC_DMA_CHANNEL_COUNT (3U)
 
 /** @brief ADC reference voltage in mV */
 #define ADC_VREF ((millivolt_t)3300.0f)
 /** @brief ADC resolution in bits */
 #define ADC_RESOLUTION (12U)
+
 /**
  * @brief Voltage range that correspond to a certian cellboard index in mV
  *
@@ -65,7 +63,7 @@ extern ADC_HandleTypeDef hadc2;
  *
  * @return millivolt_t The converted voltage value
  */
-#define ADC_VALUE_TO_VOLTAGE(value) ((millivolt_t)((value) / ((1 << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
+#define ADC_VALUE_TO_VOLTAGE(value) ((millivolt_t)((value) / ((1U << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
 
 /**
  * @brief Return code for the ADC module functions
@@ -89,10 +87,12 @@ typedef enum {
 
 /* USER CODE END Private defines */
 
-void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+/** @brief Start the temperature ADC conversion using DMA */
+void adc_temperature_start_conversion(void);
 
 /* USER CODE END Prototypes */
 

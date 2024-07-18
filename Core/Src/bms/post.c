@@ -49,7 +49,7 @@ PostReturnCode _post_modules_init(PostInitData * data) {
     (void)timebase_init(1U);
     (void)bms_manager_init(data->spi_send, data->spi_send_receive);
     (void)volt_init();
-    (void)temp_init();
+    (void)temp_init(data->gpio_set_address, data->adc_start);
     (void)can_comm_init(data->can_send);
     (void)bal_init();
     (void)programmer_init(data->system_reset);

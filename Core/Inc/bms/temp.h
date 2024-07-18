@@ -21,51 +21,136 @@
 #define TEMP_MIN_CELSIUS (-10.f)
 #define TEMP_MAX_CELSIUS (100.f)
 
-/** @brief Minimum and maximum allowed cell temperature raw values */
-#define TEMP_MIN_VALUE (TEMP_CELSIUS_TO_VALUE(TEMP_MIN_CELSIUS))
-#define TEMP_MAX_VALUE (TEMP_CELSIUS_TO_VALUE(TEMP_MAX_CELSIUS))
+/** @brief Minimum and maximum allowed cell temperature voltage values in V */
+#define TEMP_MIN_VOLT (temp_celsius_to_volt(TEMP_MIN_CELSIUS))
+#define TEMP_MAX_VOLT (temp_celsius_to_volt(TEMP_MAX_CELSIUS))
 
-// TODO: Define conversion macros for the cells temperatures
+/** @brief Minimum and maximum allowed cell temperature raw values */
+#define TEMP_MIN_VALUE (TEMP_VOLT_TO_VALUE(TEMP_MIN_VOLT))
+#define TEMP_MAX_VALUE (TEMP_VOLT_TO_VALUE(TEMP_MAX_VOLT))
+
+/** @brief Coefficients used to convert the raw voltage value to a temperature value */
+#define TEMP_COEFF_0 ( 178.576844350760100)
+#define TEMP_COEFF_1 (-191.452565283213000)
+#define TEMP_COEFF_2 ( 157.718845424355800)
+#define TEMP_COEFF_3 (- 82.208401759749450)
+#define TEMP_COEFF_4 (  22.346389336008915)
+#define TEMP_COEFF_5 (-  2.510048743779666)
+
+/** @brief Temperature voltage reference in V */
+#define TEMP_VREF ((volt_t)3.3)
+
 /**
- * @brief Convert a raw temperature value to celsius
+ * @brief Convert a raw temperature value to the corresponding voltage value
  *
- * @param value The value to convert
+ * @param value The raw temperature value
  *
- * @return celsius_t The converted temperature in celsius
+ * @return volt_t The voltage value in V
  */
-#define TEMP_VALUE_TO_CELSIUS(value) ((celsius_t)(0U))
+#define TEMP_VALUE_TO_VOLT(value) ((volt_t)((value) / 4095.0 * TEMP_VREF))
+
 /**
- * @brief Convert a temperature in celsius to the raw tempearture value
+ * @brief Convert a voltage value in V to the corresponding raw temperature value
  *
- * @param value The value to convert in celsius
+ * @param volt The voltage value in V
  *
  * @return raw_temp_t The raw temperature value
  */
-#define TEMP_CELSIUS_TO_VALUE(value) ((raw_temp_t)(0U))
+#define TEMP_VOLT_TO_VALUE(volt) ((raw_temp_t)((volt) / TEMP_VREF * 4095.0))
+
+/**
+ * @brief Type definition for a function callback that sets the muliplexer address
+ * 
+ * @param address The address to set
+ */
+typedef void (* temp_set_mux_address_callback_t)(uint8_t address);
+
+/** @brief Type definition for a function callback that starts the ADC conversion */
+typedef void (* temp_start_conversion_callback_t)(void);
 
 /**
  * @brief Return code for the temperature module functions
  *
  * @details
  *     - TEMP_OK the function executed successfully
+ *     - TEMP_BUSY the module is busy and cannot execute the requested function
  *     - TEMP_NULL_POINTER a NULL pointer is given as parameter or used inside the function
  *     - TEMP_OUT_OF_BOUNDS an index (or pointer) value is greater/lower than the maximum/minimum allowed value
  */
 typedef enum {
     TEMP_OK,
     TEMP_NULL_POINTER,
+    TEMP_BUSY,
     TEMP_OUT_OF_BOUNDS
 } TempReturnCode;
+
+/**
+ * @brief Type definition for the temperature module handler structure
+ *
+ * @param set_address A pointer to the function callback used to set the multiplexer address
+ * @param start_conversion A pointer to the function callback used to start the ADC conversion
+ * @param busy Flag that is true if the ADC is busy making conversions
+ * @param address The current address of the multiplexer
+ * @param temperature The raw cells temperature values
+ * @param discharge_temperature The raw discharge resistors temperature values
+ * @param can_payload The canlib payload used to send the temperature data via CAN
+ * @param offset An offset used when the canlib payload is sent
+ */
+typedef struct {
+    temp_set_mux_address_callback_t set_address;
+    temp_start_conversion_callback_t start_conversion;
+
+    bool busy;
+    uint8_t address;
+    raw_temp_t temperatures[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT];
+    raw_temp_t discharge_temperatures[CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT];
+
+    bms_cellboard_cells_temperature_converted_t can_payload;
+    size_t offset;
+} _TempHandler;
+
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
 /**
  * @brief Initialize the temperature module
  *
+ * @param set_address A pointer to the function callback used to set the multiplexer address
+ * @param start_conversion A pointer to the function callback used to start the ADC conversion
+ *
  * @return TempReturnCode
+ *     - TEMP_NULL_POINTER if any of the parameters are NULL
+ *     - TEMP_OK otherwise
+ */
+TempReturnCode temp_init(
+    temp_set_mux_address_callback_t set_address,
+    temp_start_conversion_callback_t start_conversion
+);
+
+/**
+ * @brief Convert a voltage value to celsius
+ *
+ * @param value The value to convert in V
+ *
+ * @return celsius_t The converted temperature in celsius
+ */
+celsius_t temp_volt_to_celsius(volt_t value);
+
+/**
+ * @brief Start the ADC conversion to get the cells temperature values
+ *
+ * @return TempRetutrnCode
  *     - TEMP_OK
  */
-TempReturnCode temp_init(void);
+TempReturnCode temp_start_conversion(void);
+
+/**
+ * @brief Notify the temperature module that the conversion is completed
+ *
+ * @param values A pointer to the array of values to copy
+ * @param size The number of elements to copy
+ */
+TempReturnCode temp_notify_conversion_complete(raw_temp_t * values, size_t size);
 
 /**
  * @brief Update a single temperature value

@@ -261,7 +261,7 @@ typedef uint32_t microseconds_t;
 typedef uint16_t raw_temp_t;
 
 /** @brief Temperature value in °C */
-typedef float temp_t;
+typedef float celsius_t;
 
 /**
  * @brief Raw voltage value

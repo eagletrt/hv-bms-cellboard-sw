@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    gpio.h
+  * @file    dma.h
   * @brief   This file contains all the function prototypes for
-  *          the gpio.c file
+  *          the dma.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#ifndef __DMA_H__
+#define __DMA_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,12 +28,9 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+/* DMA memory to memory transfer handles -------------------------------------*/
+
 /* USER CODE BEGIN Includes */
-
-#include <stdbool.h>
-
-#include "cellboard-def.h"
-#include "led.h"
 
 /* USER CODE END Includes */
 
@@ -41,38 +38,15 @@ extern "C" {
 
 /* USER CODE END Private defines */
 
-void MX_GPIO_Init(void);
+void MX_DMA_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
-/**
- * @brief Set the state of the on-board LED
- *
- * @param state The state to set
- */
-void gpio_led_set_state(LedStatus state);
-
-/**
- * @brief Toggle the current state of the LED
- */
-void gpio_led_toggle_state(void);
-
-/**
- * @brief Get the current cellboard identifier
- *
- * @return CellboardId The ID of the cellboard or -1 on error
- */
-CellboardId gpio_get_cellboard_id(void);
-
-/**
- * @brief Set the address of the multiplexer used to get the cells temperature measurements
- */
-void gpio_set_mux_address(uint8_t address);
 
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ GPIO_H__ */
+
+#endif /* __DMA_H__ */
 

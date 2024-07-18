@@ -71,6 +71,10 @@ void _tasks_send_balancing_status(void) {
     uint8_t * payload = (uint8_t *)bal_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_BALANCING_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
+
+void _tasks_read_temperatures(void) {
+    temp_start_conversion();
+}
    
 /** @brief Run the bms manager procedures */
 void _tasks_run_bms_manager(void) {
@@ -78,7 +82,7 @@ void _tasks_run_bms_manager(void) {
 }
 
 /** @brief Read all the voltages from the BMS monitor */
-void _tasks_read_bms_manager_read_voltages(void) {
+void _tasks_read_bms_manager_voltages(void) {
     htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
     bms_monitor_fsm_event_trigger(&htasks.fsm_event);
 }

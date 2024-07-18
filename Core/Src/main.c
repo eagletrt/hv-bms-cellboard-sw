@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dma.h"
 #include "fdcan.h"
 #include "spi.h"
 #include "tim.h"
@@ -31,11 +32,11 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "stm32g4xx_it.h"
 #include "fsm.h"
 #include "post.h"
 #include "error.h"
 
+#include "stm32g4xx_it.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,7 +102,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
+  MX_DMA_Init();
   MX_ADC2_Init();
   MX_FDCAN1_Init();
   MX_SPI3_Init();
@@ -120,11 +121,15 @@ int main(void)
   // Prepare data for the POST procedure
   PostInitData init_data = {
       .system_reset = system_reset,
+      .cs_enter = it_cs_enter,
+      .cs_exit = it_cs_exit,
       .can_send = can_send,
       .spi_send = spi_send,
       .spi_send_receive = spi_send_and_receive,
       .led_set = gpio_led_set_state,
-      .led_toggle = gpio_led_toggle_state
+      .led_toggle = gpio_led_toggle_state,
+      .gpio_set_address = gpio_set_mux_address,
+      .adc_start = adc_temperature_start_conversion
   };
   
   // Read the cellboard ID from the ADC
@@ -138,7 +143,6 @@ int main(void)
   while (1)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

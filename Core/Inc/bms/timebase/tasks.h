@@ -40,12 +40,13 @@
  */
 #define TASKS_X_LIST \
     TASKS_X(SEND_STATUS, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
-    TASKS_X(SEND_VERSION, 1U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
-    TASKS_X(SEND_VOLTAGES, 2U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
-    TASKS_X(SEND_TEMPERATURES, 3U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
-    TASKS_X(SEND_BALANCING_STATUS, 4U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
+    TASKS_X(SEND_VERSION, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
+    TASKS_X(SEND_VOLTAGES, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
+    TASKS_X(SEND_TEMPERATURES, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
+    TASKS_X(READ_TEMPERATURES, 0U, 10U, _tasks_read_temperatures) \
     TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager) \
-    TASKS_X(READ_BMS_MANAGER_READ_VOLTAGES, 6U, 5U, _tasks_read_bms_manager_read_voltages)
+    TASKS_X(READ_BMS_MANAGER_VOLTAGES, 6U, 5U, _tasks_read_bms_manager_voltages)
 
 /**
  * @brief Enumeration of tasks
