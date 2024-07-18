@@ -8,6 +8,8 @@
 
 #include "tasks.h"
 
+#include <string.h>
+
 #include "bms_network.h"
 #include "can-comm.h"
 #include "fsm.h"
@@ -15,6 +17,7 @@
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"
+#include "bms-monitor-fsm.h"
 #include "bms-manager.h"
 #include "bal.h"
 
@@ -29,6 +32,8 @@
  * @param tasks The array of tasks
  */
 _STATIC struct {
+    bms_monitor_fsm_event_data_t fsm_event;
+
     Task tasks[TASKS_COUNT];
 } htasks;
 
@@ -72,9 +77,18 @@ void _tasks_run_bms_manager(void) {
     bms_manager_routine();
 }
 
+/** @brief Read all the voltages from the BMS monitor */
+void _tasks_read_bms_manager_read_voltages(void) {
+    htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
+    bms_monitor_fsm_event_trigger(&htasks.fsm_event);
+}
+
 TasksReturnCode tasks_init(milliseconds_t resolution) {
     if (resolution == 0U)
         resolution = 1U;
+    memset(&htasks, 0U, sizeof(htasks));
+
+    htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_IGNORED;
 
     // Initialize the tasks with the X macro
 #define TASKS_X(NAME, START, INTERVAL, EXEC) \

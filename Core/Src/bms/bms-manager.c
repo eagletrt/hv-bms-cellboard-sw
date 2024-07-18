@@ -145,6 +145,27 @@ BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
     return code;
 }
 
+BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
+    // Encode the command
+    uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
+    size_t byte_size = ltc6811_adax_encode_broadcast(
+        &hmanager.chain,
+        LTC6811_MD_27KHZ_14KHZ,
+        LTC6811_CHG_GPIO_ALL,
+        cmd
+    );
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+        return BMS_MANAGER_ENCODE_ERROR;
+
+    // Send command bytes
+    BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
+    if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
+        _bms_manager_inc_communication_error_counter();
+    else
+        _bms_manager_reset_communication_error_counter();
+    return code;
+}
+
 BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
     // Encode command
     uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
@@ -179,7 +200,13 @@ BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg) {
     raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
 
     // Send command bytes
-    hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
+    BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
+    if (code != BMS_MANAGER_OK) {
+        if (code != BMS_MANAGER_BUSY)
+            _bms_manager_inc_communication_error_counter();
+        return code;
+    }
+    _bms_manager_reset_communication_error_counter();
 
     byte_size = ltc6811_rdcv_decode_broadcast(&hmanager.chain, data, volts);
     if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
@@ -203,63 +230,77 @@ BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg) {
     return BMS_MANAGER_OK;
 };
 
-
-
-
-
-
-
-/**
- * @brief Start the GPIO voltage ADC conversion
- *
- * @param gpio The GPIO to get the voltage from
- *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
- *     - BMS_MANAGER_OK otherwise
- */
-BmsManagerReturnCode _bms_manager_start_gpio_conversion(Ltc6811Chg gpio) {
+BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister reg) {
     // Encode the command
-    uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    size_t byte_size = ltc6811_adax_encode_broadcast(
+    uint8_t cmd[LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
+    size_t byte_size = ltc6811_rdaux_encode_broadcast(
         &hmanager.chain,
-        LTC6811_MD_27KHZ_14KHZ,
-        gpio,
+        (Ltc6811Avxr)reg,
         cmd
     );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
         return BMS_MANAGER_ENCODE_ERROR;
 
+    uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
+    raw_temp_t temp[LTC6811_REG_AUX_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
+
     // Send command bytes
-    hmanager.send(cmd, byte_size);
+    BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
+    if (code != BMS_MANAGER_OK) {
+        if (code != BMS_MANAGER_BUSY)
+            _bms_manager_inc_communication_error_counter();
+        return code;
+    }
+    _bms_manager_reset_communication_error_counter();
+
+    byte_size = ltc6811_rdaux_decode_broadcast(&hmanager.chain, data, temp);
+    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+        return BMS_MANAGER_DECODE_ERROR;
+
+    // Save temperatures
+    // Only the last LTC has the temperature sensors attached
+    const size_t ltc = 1U;
+    /*
+     * Each register contains 3 temperatures up to 10 (the last value of the last
+     * register is not counted) the first LTC is connected to the first 5 temperature
+     * sensors and the second to the last 5 but the single register
+     * is read from all the LTCs in the chain so the object has to be calculated
+     * accordingly to the register and LTC from which the temperature is read
+     *
+     * The FIRST sensor is connected to the LAST LTC, so the order of the temperatures
+     * has to be swapped (temperature 0 to 4 goes to 5 and temperature 5 to 9 goes to 0)
+     */
+    const size_t temp_size = reg >= BMS_MANAGER_TEMPERATURE_REGISTER_B ?
+        LTC6811_REG_AUX_COUNT - 1U :
+        LTC6811_REG_AUX_COUNT;
+    size_t index = reg * LTC6811_REG_AUX_COUNT;
+    size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_AUX_COUNT;
+    temp_update_discharge_values(index, temp + off, temp_size);
     return BMS_MANAGER_OK;
 }
 
-/**
- * @brief Start the combined cells and GPIO voltage ADC conversion
- *
- * @details This function start the conversion for all 12 cells and the first 2 GPIOs
- *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
- *     - BMS_MANAGER_OK otherwise
- */
-BmsManagerReturnCode _bms_manager_start_combined_conversion(void) {
-    // Encode the command
-    uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    size_t byte_size = ltc6811_adcvax_encode_broadcast(
-        &hmanager.chain,
-        LTC6811_MD_27KHZ_14KHZ,
-        LTC6811_DCP_DISABLED,
-        cmd
-    );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
-        return BMS_MANAGER_ENCODE_ERROR;
+BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
+    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
+        // The first 12 cells are connected to the last LTC
+        const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
 
-    // Send command bytes
-    hmanager.send(cmd, byte_size);
+        // Select the correct cells for each LTC
+        bit_flag16_t dcc = (cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
+            ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+
+        // Set configuration
+        hmanager.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_DCTO_OFF : LTC6811_DCTO_30S;
+        hmanager.requested_config[ltc].DCC = dcc;
+    }
     return BMS_MANAGER_OK;
 }
+
+
+
+
+
+
+
 
 /**
  * @brief Start the open wire ADC conversion
@@ -293,17 +334,6 @@ BmsManagerReturnCode _bms_manager_start_open_wire_conversion(Ltc6811Pup pull_up,
     return BMS_MANAGER_OK;
 }
 
-
-/**
- * @brief Read the gpio voltages from the LTCs
- *
- * @param reg The register to read from
- *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
- *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
- *     - BMS_MANAGER_OK otherwise
- */
 BmsManagerReturnCode _bms_manager_read_gpios(Ltc6811Avxr reg) {
     // Encode the command
     uint8_t cmd[LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
@@ -424,20 +454,6 @@ BmsManagerReturnCode _bms_manager_check_open_wire(void) {
     return BMS_MANAGER_OK;
 }
 
-
-BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
-    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
-        // Select the correct cells for each LTC
-        bit_flag16_t dcc = (cells >> (ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
-            ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
-
-        // Set configuration
-        hmanager.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_DCTO_OFF : LTC6811_DCTO_30S;
-        hmanager.requested_config[ltc].DCC = dcc;
-    }
-    return BMS_MANAGER_OK;
-}
-
 bit_flag32_t bms_manager_get_discharge_cells(void) {
     bit_flag32_t cells = 0U;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
@@ -516,13 +532,6 @@ bit_flag32_t bms_manager_get_discharge_cells(void) {
 //
 // #undef BMS_MANAGER_COUNTER
 // }
-
-Ltc6811Cfgr * bms_manager_get_requested_config() {
-    return hmanager.requested_config;
-}
-Ltc6811Cfgr * bms_manager_get_actual_config() {
-    return hmanager.actual_config;
-}
 
 #ifdef CONF_BMS_STRINGS_MODULE_ENABLE
 

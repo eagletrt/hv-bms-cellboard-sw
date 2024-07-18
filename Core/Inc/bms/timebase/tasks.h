@@ -44,7 +44,8 @@
     TASKS_X(SEND_VOLTAGES, 2U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
     TASKS_X(SEND_TEMPERATURES, 3U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
     TASKS_X(SEND_BALANCING_STATUS, 4U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
-    TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager)
+    TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager) \
+    TASKS_X(READ_BMS_MANAGER_READ_VOLTAGES, 6U, 5U, _tasks_read_bms_manager_read_voltages)
 
 /**
  * @brief Enumeration of tasks

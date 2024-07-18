@@ -59,6 +59,13 @@ typedef enum {
     BMS_MANAGER_VOLTAGE_REGISTER_COUNT
 } BmsManagerVoltageRegister;
 
+/** @brief List of temperatures registers */
+typedef enum {
+    BMS_MANAGER_TEMPERATURE_REGISTER_A,
+    BMS_MANAGER_TEMPERATURE_REGISTER_B,
+    BMS_MANAGER_TEMPERATURE_REGISTER_COUNT
+} BmsManagerTemperatureRegister;
+
 /**
  * @brief Callback used to send data via SPI
  *
@@ -185,6 +192,18 @@ BmsManagerReturnCode bms_manager_read_configuration(void);
 BmsManagerReturnCode bms_manager_start_volt_conversion(void);
 
 /**
+ * @brief Start the discharge resistors temperatures ADC conversion
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_start_temp_conversion(void);
+
+/**
  * @brief Check if the started ADC conversion has ended
  *
  * @return BmsManagerReturnCode
@@ -211,11 +230,20 @@ BmsManagerReturnCode bms_manager_poll_conversion_status(void);
  */
 BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
 
-
-
-
-
-
+/**
+ * @brief Read the discharge resistors temperatures from the LTCs
+ *
+ * @param reg The register to read from
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister reg);
 
 /**
  * @brief Set the cells to discharge
@@ -226,6 +254,11 @@ BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
  *     - BMS_MANAGER_OK
  */
 BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells);
+
+
+
+
+
 
 /**
  * @brief Get the cells that are being currently discharged
@@ -243,10 +276,6 @@ bit_flag32_t bms_manager_get_discharge_cells(void);
  *     - BMS_MANAGER_OK
  */
 // BmsManagerReturnCode bms_manager_run(void);
-
-
-Ltc6811Cfgr * bms_manager_get_requested_config();
-Ltc6811Cfgr * bms_manager_get_actual_config();
 
 #else  // CONF_BMS_MANAGER_MODULE_ENABLE
 
