@@ -204,6 +204,20 @@ BmsManagerReturnCode bms_manager_start_volt_conversion(void);
 BmsManagerReturnCode bms_manager_start_temp_conversion(void);
 
 /**
+ * @brief Start the open wire ADC conversion
+ *
+ * @param pull_up Pull-up/pull-down option to select
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_start_open_wire_conversion(Ltc6811Pup pull_up);
+
+/**
  * @brief Check if the started ADC conversion has ended
  *
  * @return BmsManagerReturnCode

@@ -26,16 +26,7 @@
 /** @brief Convert a task name to the corresponding TasksId name */
 #define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
 
-/**
- * @brief Tasks hanlder struct
- *
- * @param tasks The array of tasks
- */
-_STATIC struct {
-    bms_monitor_fsm_event_data_t fsm_event;
-
-    Task tasks[TASKS_COUNT];
-} htasks;
+_STATIC _TasksHandler htasks;
 
 /** @brief Send the current FSM status via CAN */
 void _tasks_send_status(void) {
@@ -81,10 +72,12 @@ void _tasks_run_bms_manager(void) {
     bms_manager_routine();
 }
 
-/** @brief Read all the voltages from the BMS monitor */
-void _tasks_read_bms_manager_voltages(void) {
+/** @brief Start a single bms manager operation */
+void _tasks_start_bms_manager_operation(void) {
     htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
     bms_monitor_fsm_event_trigger(&htasks.fsm_event);
+//     if (++htasks.fsm_event.type >= BMS_MONITOR_FSM_EVENT_TYPE_COUNT)
+//         htasks.fsm_event.type = 0U;
 }
 
 TasksReturnCode tasks_init(milliseconds_t resolution) {

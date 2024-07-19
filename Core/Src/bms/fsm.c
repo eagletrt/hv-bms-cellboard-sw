@@ -81,13 +81,13 @@ _STATIC struct {
 
 void _fsm_discharge_timeout(void) {
     // Stop balancing
-    hfsm.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
+    hfsm.event.type = FSM_EVENT_TYPE_COOLDOWN_REQUEST;
     fsm_event_trigger(&hfsm.event);
 }
 
 void _fsm_cooldown_timeout(void) {
     // Stop balancing
-    hfsm.event.type = FSM_EVENT_TYPE_COOLDOWN_REQUEST;
+    hfsm.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
     fsm_event_trigger(&hfsm.event);
 }
 /*** USER CODE END GLOBALS ***/
@@ -199,7 +199,7 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
       if (fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
           next_state = FSM_STATE_FLASH;
       // Check for balancing request
-      if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
+      else if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
           next_state = FSM_STATE_DISCHARGE;
   }
 
@@ -260,6 +260,7 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
   error_routine();
+
   ProgrammerReturnCode code = programmer_routine();
   if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
       next_state = FSM_STATE_IDLE;
@@ -287,15 +288,18 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_DISCHARGE ***/
   (void)timebase_routine();
+  (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
   error_routine();
 
   // Check for balancing request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
-      next_state = FSM_STATE_IDLE;
-  // Check for cooldown request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_COOLDOWN_REQUEST)
-      next_state = FSM_STATE_COOLDOWN;
+  if (fsm_is_event_triggered()) {
+      if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+          next_state = FSM_STATE_IDLE;
+      // Check for cooldown request
+      else if (fsm_fired_event->type == FSM_EVENT_TYPE_COOLDOWN_REQUEST)
+          next_state = FSM_STATE_COOLDOWN;
+  }
   /*** USER CODE END DO_DISCHARGE ***/
   
   switch (next_state) {
@@ -321,15 +325,18 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN DO_COOLDOWN ***/
   (void)timebase_routine();
+  (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
   error_routine();
 
   // Check for balancing request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
-      next_state = FSM_STATE_IDLE;
-  // Check for discharge request
-  if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_DISCHARGE_REQUEST)
-      next_state = FSM_STATE_DISCHARGE;
+  if (fsm_is_event_triggered()) {
+      if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+          next_state = FSM_STATE_IDLE;
+      // Check for discharge request
+      else if (fsm_fired_event->type == FSM_EVENT_TYPE_DISCHARGE_REQUEST)
+          next_state = FSM_STATE_DISCHARGE;
+  }
   /*** USER CODE END DO_COOLDOWN ***/
   
   switch (next_state) {

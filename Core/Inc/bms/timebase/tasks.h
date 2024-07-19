@@ -19,6 +19,8 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
+#include "bms-monitor-fsm.h"
+
 /**@brief Total number of tasks */
 #define TASKS_COUNT (TASKS_ID_COUNT)
 
@@ -46,7 +48,21 @@
     TASKS_X(SEND_BALANCING_STATUS, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
     TASKS_X(READ_TEMPERATURES, 0U, 10U, _tasks_read_temperatures) \
     TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager) \
-    TASKS_X(READ_BMS_MANAGER_VOLTAGES, 6U, 5U, _tasks_read_bms_manager_voltages)
+    TASKS_X(START_BMS_MANAGER_OPERATION, 6U, 5U, _tasks_start_bms_manager_operation)
+
+/** @brief Type definition for a function that excecutes a single task */
+typedef void (* tasks_callback)(void);
+
+
+/**
+ * @brief Return code for the tasks module functions
+ *
+ * @details
+ *     - TASKS_OK the function executed succesfully
+ */
+typedef enum {
+    TASKS_OK
+} TasksReturnCode;
 
 /**
  * @brief Enumeration of tasks
@@ -61,8 +77,6 @@ typedef enum {
 } TasksId;
 #undef TASKS_X
 
-/** @brief Type definition for a function that excecutes a single task */
-typedef void (* tasks_callback)(void);
 
 /**
  * @brief Definition of a single task
@@ -82,14 +96,18 @@ typedef struct {
 } Task;
 
 /**
- * @brief Return code for the tasks module functions
+ * @brief Type definition for the tasks structure handler
  *
- * @details
- *     - TASKS_OK the function executed succesfully
+ * @attention This struct should not be used outside of this module
+ *
+ * @param fsm_event Event used to start an operation of the BMS monitor
+ * @param tasks List of tasks
  */
-typedef enum {
-    TASKS_OK
-} TasksReturnCode;
+typedef struct {
+    bms_monitor_fsm_event_data_t fsm_event;
+
+    Task tasks[TASKS_COUNT];
+} _TasksHandler;
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 

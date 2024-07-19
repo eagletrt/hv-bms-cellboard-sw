@@ -166,6 +166,29 @@ BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
     return code;
 }
 
+BmsManagerReturnCode bms_manager_start_open_wire_conversion(Ltc6811Pup pull_up) {
+    // Encode the command
+    uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
+    size_t byte_size = ltc6811_adow_encode_broadcast(
+        &hmanager.chain,
+        LTC6811_MD_27KHZ_14KHZ,
+        pull_up,
+        LTC6811_DCP_DISABLED,
+        LTC6811_CH_ALL,
+        cmd
+    );
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+        return BMS_MANAGER_ENCODE_ERROR;
+
+    // Send command bytes
+    BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
+    if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
+        _bms_manager_inc_communication_error_counter();
+    else
+        _bms_manager_reset_communication_error_counter();
+    return code;
+}
+
 BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
     // Encode command
     uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
@@ -315,24 +338,6 @@ BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode _bms_manager_start_open_wire_conversion(Ltc6811Pup pull_up, Ltc6811Ch cells) {
-    // Encode the command
-    uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    size_t byte_size = ltc6811_adow_encode_broadcast(
-        &hmanager.chain,
-        LTC6811_MD_27KHZ_14KHZ,
-        pull_up,
-        LTC6811_DCP_DISABLED,
-        cells,
-        cmd
-    );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
-        return BMS_MANAGER_ENCODE_ERROR;
-
-    // Send command bytes
-    hmanager.send(cmd, byte_size);
-    return BMS_MANAGER_OK;
-}
 
 BmsManagerReturnCode _bms_manager_read_gpios(Ltc6811Avxr reg) {
     // Encode the command
@@ -462,76 +467,6 @@ bit_flag32_t bms_manager_get_discharge_cells(void) {
     }
     return cells;
 }
-
-// BmsManagerReturnCode bms_manager_run(void) {
-// #define BMS_MANAGER_COUNTER ((__COUNTER__) - counter_base)
-//
-//     const size_t counter_base = __COUNTER__;
-//     BmsManagerReturnCode ret = BMS_MANAGER_OK;
-//     switch (hmanager.run_state) {
-//         case 0U:
-//             ret = _bms_manager_start_volt_conversion(LTC6811_CH_ALL);
-//             break;
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_read_voltages(LTC6811_CVAR);
-//             ret = _bms_manager_read_voltages(LTC6811_CVBR);
-//             break;
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_read_voltages(LTC6811_CVCR);
-//             ret = _bms_manager_read_voltages(LTC6811_CVDR);
-//             break;
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_write_configuration();
-//             break; 
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_read_configuration();
-//             break;
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_start_gpio_conversion(LTC6811_CHG_GPIO_ALL);
-//             break;
-//         case BMS_MANAGER_COUNTER:
-//             ret = _bms_manager_read_gpios(LTC6811_AVAR);
-//             // ret = _bms_manager_read_gpios(LTC6811_AVBR);
-//             break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE, LTC6811_CH_ALL);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE, LTC6811_CH_ALL);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVAR, LTC6811_PUP_ACTIVE);
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVBR, LTC6811_PUP_ACTIVE);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVCR, LTC6811_PUP_ACTIVE);
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVDR, LTC6811_PUP_ACTIVE);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE, LTC6811_CH_ALL);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE, LTC6811_CH_ALL);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVAR, LTC6811_PUP_INACTIVE);
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVBR, LTC6811_PUP_INACTIVE);
-//         //     break;
-//         // case BMS_MANAGER_COUNTER:
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVCR, LTC6811_PUP_INACTIVE);
-//         //     ret = _bms_manager_read_open_wire_voltages(LTC6811_CVDR, LTC6811_PUP_INACTIVE);
-//         //     // TODO: Set error with open wire
-//         //     ret = _bms_manager_check_open_wire();
-//         //     break;
-//         default:
-//             break;
-//     }
-//     if (++hmanager.run_state >= BMS_MANAGER_COUNTER)
-//         hmanager.run_state = 0U;
-//     return ret;
-//
-// #undef BMS_MANAGER_COUNTER
-// }
 
 #ifdef CONF_BMS_STRINGS_MODULE_ENABLE
 

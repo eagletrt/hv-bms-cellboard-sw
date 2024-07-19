@@ -19,6 +19,14 @@ digraph "fsm" {
     start_temp_conversion
     poll_temp_status
     read_temperature
+
+    /* Open wire */
+    start_open_wire_pud_conversion
+    poll_open_wire_pud_status
+    read_open_wire_pud
+    start_open_wire_pup_conversion
+    poll_open_wire_pup_status
+    read_open_wire_pup
     
     /* Initialization */
     init -> write_configuration
@@ -27,10 +35,12 @@ digraph "fsm" {
     write_configuration -> read_configuration
     write_configuration -> start_volt_conversion
     write_configuration -> start_temp_conversion
+    write_configuration -> start_open_wire_pud_conversion
 
     read_configuration -> write_configuration
     read_configuration -> start_volt_conversion
     read_configuration -> start_temp_conversion
+    read_configuration -> start_open_wire_pud_conversion
 
     /* Read voltages */
     start_volt_conversion -> poll_volt_status
@@ -53,4 +63,28 @@ digraph "fsm" {
 
     read_temperature -> read_temperature
     read_temperature -> write_configuration
+
+    /* Open wire */
+    start_open_wire_pud_conversion -> start_open_wire_pud_conversion
+    start_open_wire_pud_conversion -> poll_open_wire_pud_status
+    start_open_wire_pud_conversion -> write_configuration
+
+    poll_open_wire_pud_status -> poll_open_wire_pud_status
+    poll_open_wire_pud_status -> read_open_wire_pud
+    poll_open_wire_pud_status -> write_configuration
+
+    read_open_wire_pud -> read_open_wire_pud
+    read_open_wire_pud -> start_open_wire_pup_conversion
+    read_open_wire_pud -> write_configuration
+
+    start_open_wire_pup_conversion -> start_open_wire_pup_conversion
+    start_open_wire_pup_conversion -> poll_open_wire_pup_status
+    start_open_wire_pup_conversion -> write_configuration
+
+    poll_open_wire_pup_status -> poll_open_wire_pup_status
+    poll_open_wire_pup_status -> read_open_wire_pup
+    poll_open_wire_pup_status -> write_configuration
+
+    read_open_wire_pup -> read_open_wire_pup
+    read_open_wire_pup -> write_configuration
 }

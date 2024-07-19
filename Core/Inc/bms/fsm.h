@@ -24,8 +24,8 @@ Functions and types have been generated with prefix "fsm_"
 #include "bms_network.h"
 
 /** @brief Timeouts for the discharge and cooldown watchdogs in ms */
-#define FSM_DISCHARGE_TIMEOUT ((milliseconds_t)(30000U))
-#define FSM_COOLDOWN_TIMEOUT ((milliseconds_t)(5000U))
+#define FSM_DISCHARGE_TIMEOUT ((milliseconds_t)(2000U))
+#define FSM_COOLDOWN_TIMEOUT ((milliseconds_t)(18000U))
 
 /**
  * @brief Definition of the possible events types
