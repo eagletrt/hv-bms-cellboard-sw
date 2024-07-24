@@ -23,7 +23,7 @@
 #define BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT ((millivolt_t)0.00005f)
 
 /** @brief Thresholds used during the open wire check in mV * 10 */
-#define BMS_MANAGER_OPEN_WIRE_THRESHOLD VOLT_MILLIVOLT_TO_VALUE(BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT)
+#define BMS_MANAGER_OPEN_WIRE_THRESHOLD (-((int16_t)VOLT_MILLIVOLT_TO_VALUE(-(BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT))))
 #define BMS_MANAGER_OPEN_WIRE_ZERO VOLT_MILLIVOLT_TO_VALUE(BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT)
 
 /**
@@ -65,6 +65,12 @@ typedef enum {
     BMS_MANAGER_TEMPERATURE_REGISTER_B,
     BMS_MANAGER_TEMPERATURE_REGISTER_COUNT
 } BmsManagerTemperatureRegister;
+
+/** @brief List of open wire procedure operations */
+typedef enum {
+    BMS_MANAGER_OPEN_WIRE_OPERATION_PUD = LTC6811_PUP_INACTIVE,
+    BMS_MANAGER_OPEN_WIRE_OPERATION_PUP = LTC6811_PUP_ACTIVE,
+} BmsManagerOpenWireOperation;
 
 /**
  * @brief Callback used to send data via SPI
@@ -108,7 +114,6 @@ typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
  * @param requested_config The requested configuration register of the LTC
  * @param pup An array of cells voltages read with pull-up active and inactive (see LTC6811_PUP)
  * @param communication_error_count A counter of the communication errors
- * @param state The current state of the BMS monitor FSM
  */
 typedef struct {
     bms_manager_send_callback_t send;
@@ -120,9 +125,7 @@ typedef struct {
     raw_volt_t pup[2U][CELLBOARD_SEGMENT_SERIES_COUNT];
 
     size_t communication_error_count;
-    void * state; // Have to be casted to 'bms_monitor_fsm_state_t'
 } _BmsManagerHandler;
-
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
 
@@ -260,6 +263,38 @@ BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
 BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister reg);
 
 /**
+ * @brief Read the cells voltages after the open wire conversion from the LTCs
+ *
+ * @param reg The register to read from
+ * @param op The type of operation completed before the readings (Pull-up/Pull-down)
+ *
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
+ *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
+ *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_ERROR if an unkown error happens
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_read_open_wire_voltages(BmsManagerVoltageRegister reg, BmsManagerOpenWireOperation op);
+
+/**
+ * @brief Check for open wires
+ *
+ * @details To check for open wire the delta between the converted voltages values
+ * is calculated for all the 12 cells excluded the first, then the open wire
+ * is detected if:
+ *     - The first pull up voltage value is 0.0000 (an epsilon is used to avoid float precision errors)
+ *     - The last pull-down voltage value is 0.0000 (same as above)
+ *     - At least one delta voltage value is below the -400 mV threshold
+ *     
+ * @return BmsManagerReturnCode
+ *     - BMS_MANAGER_OPEN_WIRE if an open wire is detected
+ *     - BMS_MANAGER_OK otherwise
+ */
+BmsManagerReturnCode bms_manager_check_open_wire(void);
+
+/**
  * @brief Set the cells to discharge
  *
  * @param cells The bitmask where the n-th bit represent the n-th cell (up to 32)
@@ -269,27 +304,12 @@ BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister
  */
 BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells);
 
-
-
-
-
-
 /**
  * @brief Get the cells that are being currently discharged
  *
  * @return bit_flag32_t The bitmask where the n-th bit represent the n-th cell (up to 32)
  */
 bit_flag32_t bms_manager_get_discharge_cells(void);
-
-/**
- * @brief Run a single bms manager operation
- *
- * @details This function should be run with a certain interval, preferably under 5 ms
- * 
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_OK
- */
-// BmsManagerReturnCode bms_manager_run(void);
 
 #else  // CONF_BMS_MANAGER_MODULE_ENABLE
 
@@ -298,8 +318,14 @@ bit_flag32_t bms_manager_get_discharge_cells(void);
 #define bms_manager_write_configuration() (BMS_MANAGER_OK)
 #define bms_manager_read_configuration() (BMS_MANAGER_OK)
 #define bms_manager_start_volt_conversion() (BMS_MANAGER_OK)
+#define bms_manager_start_temp_conversion() (BMS_MANAGER_OK)
+#define bms_manager_start_open_wire_conversion() (BMS_MANAGER_OK)
 #define bms_manager_poll_conversion_status() (BMS_MANAGER_OK)
 #define bms_manager_read_voltages(reg) (BMS_MANAGER_OK)
+#define bms_manager_read_temperatures(reg, op) (BMS_MANAGER_OK)
+#define bms_manager_check_open_wire() (BMS_MANAGER_OK)
+#define bms_manager_set_discharge_cells(cells) (BMS_MANAGER_OK)
+#define bms_manager_get_discharge_cells() (0U)
 
 #endif // CONF_BMS_MANAGER_MODULE_ENABLE
 

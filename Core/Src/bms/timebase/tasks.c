@@ -74,9 +74,16 @@ void _tasks_run_bms_manager(void) {
 
 /** @brief Start a single bms manager operation */
 void _tasks_start_bms_manager_operation(void) {
-    htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
-    bms_monitor_fsm_event_trigger(&htasks.fsm_event);
-//     if (++htasks.fsm_event.type >= BMS_MONITOR_FSM_EVENT_TYPE_COUNT)
+    bms_monitor_fsm_state_t fsm_state = bms_monitor_fsm_get_state();
+    if (fsm_state == BMS_MONITOR_FSM_STATE_WRITE_CONFIGURATION ||
+        fsm_state == BMS_MONITOR_FSM_STATE_READ_CONFIGURATION)
+    {
+        htasks.fsm_event.type = htasks.fsm_event.type == BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES ?
+            BMS_MONITOR_FSM_EVENT_TYPE_START_OPEN_WIRE_CHECK :
+            BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
+        bms_monitor_fsm_event_trigger(&htasks.fsm_event);
+    }
+    // if (++htasks.fsm_event.type >= BMS_MONITOR_FSM_EVENT_TYPE_COUNT)
 //         htasks.fsm_event.type = 0U;
 }
 

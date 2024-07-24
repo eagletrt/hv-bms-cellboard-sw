@@ -61,9 +61,6 @@ BmsManagerReturnCode bms_manager_init(
     hmanager.send = (send == NULL) ? _bms_manager_send : send;
     hmanager.send_receive = send_receive;
 
-    bms_monitor_fsm_state_t * state = (bms_monitor_fsm_state_t *)&hmanager.state;
-    *state = BMS_MONITOR_FSM_STATE_INIT;
-
     // Initialize the LTCs
     ltc6811_chain_init(&hmanager.chain, CELLBOARD_SEGMENT_LTC_COUNT);
 
@@ -74,8 +71,8 @@ BmsManagerReturnCode bms_manager_init(
 }
 
 BmsManagerReturnCode bms_manager_routine(void) {
-    bms_monitor_fsm_state_t * state = (bms_monitor_fsm_state_t *)&hmanager.state;
-    *state = bms_monitor_fsm_run_state(*state, NULL);
+    _STATIC bms_monitor_fsm_state_t state = BMS_MONITOR_FSM_STATE_INIT;
+    state = bms_monitor_fsm_run_state(state, NULL);
     return BMS_MANAGER_OK;
 }
 
@@ -302,92 +299,12 @@ BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister
     return BMS_MANAGER_OK;
 }
 
-BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
-    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
-        // The first 12 cells are connected to the last LTC
-        const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
-
-        // Select the correct cells for each LTC
-        bit_flag16_t dcc = (cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
-            ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
-
-        // Set configuration
-        hmanager.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_DCTO_OFF : LTC6811_DCTO_30S;
-        hmanager.requested_config[ltc].DCC = dcc;
-    }
-    return BMS_MANAGER_OK;
-}
-
-
-
-
-
-
-
-
-/**
- * @brief Start the open wire ADC conversion
- *
- * @details The first part of the open wire procedure needs the pull up set to 1
- * the second one requires a pull up of 0
- *
- * @param pull_up Internal pull up used for the open wire ADC conversion
- * @param cells The cells to get the voltage from
- *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
- *     - BMS_MANAGER_OK otherwise
- */
-
-BmsManagerReturnCode _bms_manager_read_gpios(Ltc6811Avxr reg) {
-    // Encode the command
-    uint8_t cmd[LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    size_t byte_size = ltc6811_rdaux_encode_broadcast(
-        &hmanager.chain,
-        reg,
-        cmd
-    );
-    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
-        return BMS_MANAGER_ENCODE_ERROR;
-
-    uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    raw_temp_t temps[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
-
-    // Send command bytes
-    hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
-
-    byte_size = ltc6811_rdaux_decode_broadcast(&hmanager.chain, data, temps);
-    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
-        return BMS_MANAGER_DECODE_ERROR;
-
-    /*
-     * Only the last LTC has the sensors on the discharge resistors so the first
-     * one is ignored
-     */
-    size_t ltc = 1U;
-    size_t index = (reg * LTC6811_REG_AUX_COUNT) + (ltc * LTC6811_AUX_COUNT);
-    size_t off = ltc * LTC6811_REG_AUX_COUNT;
-    (void)temp_update_discharge_values(index, temps + off, LTC6811_REG_AUX_COUNT - (reg == LTC6811_AVBR));
-    return BMS_MANAGER_OK;
-};
-
-/**
- * @brief Read the cells voltages after the open wire conversion from the LTCs
- *
- * @param reg The register to read from
- * @param pull_up Internal pull up used for the open wire ADC conversion
- *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
- *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
- *     - BMS_MANAGER_OK otherwise
- */
-BmsManagerReturnCode _bms_manager_read_open_wire_voltages(Ltc6811Cvxr reg, Ltc6811Pup pull_up) {
+BmsManagerReturnCode bms_manager_read_open_wire_voltages(BmsManagerVoltageRegister reg, BmsManagerOpenWireOperation op) {
     // Encode the command
     uint8_t cmd[LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     size_t byte_size = ltc6811_rdcv_encode_broadcast(
         &hmanager.chain,
-        reg,
+        (Ltc6811Cvxr)reg,
         cmd
     );
     if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
@@ -397,7 +314,13 @@ BmsManagerReturnCode _bms_manager_read_open_wire_voltages(Ltc6811Cvxr reg, Ltc68
     raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
 
     // Send command bytes
-    hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
+    BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
+    if (code != BMS_MANAGER_OK) {
+        if (code != BMS_MANAGER_BUSY)
+            _bms_manager_inc_communication_error_counter();
+        return code;
+    }
+    _bms_manager_reset_communication_error_counter();
 
     byte_size = ltc6811_rdcv_decode_broadcast(&hmanager.chain, data, volts);
     if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
@@ -416,45 +339,43 @@ BmsManagerReturnCode _bms_manager_read_open_wire_voltages(Ltc6811Cvxr reg, Ltc68
          */
         size_t index = (reg * LTC6811_REG_CELL_COUNT) + (ltc * LTC6811_CELL_COUNT);
         size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_CELL_COUNT;
-        raw_volt_t * dest = hmanager.pup[pull_up];
-        memcpy(dest + index, volts + off, LTC6811_REG_CELL_COUNT);
+        memcpy(hmanager.pup[op] + index, volts + off, LTC6811_REG_CELL_COUNT * sizeof(volts[0]));
+        // memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
+        // volt_update_values(index, volts + off, LTC6811_REG_CELL_COUNT);
     }
     return BMS_MANAGER_OK;
 };
 
-/**
- * @brief Check for open wire
- *
- * @details To check for open wire the delta between the converted voltages values
- * is calculated for all the 12 cells excluded the first, then the open wire
- * is detected if:
- *     - The first pull up voltage value is 0.0000 (an epsilon is used to avoid float precision errors)
- *     - The last pull-down voltage value is 0.0000 (same as above)
- *     - At least one delta voltage value is below the -400 mV threshold
- *     
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_OPEN_WIRE if an open wire is detected
- *     - BMS_MANAGER_OK otherwise
- */
-BmsManagerReturnCode _bms_manager_check_open_wire(void) {
-    /*
-     */
-    float dv;
+BmsManagerReturnCode bms_manager_check_open_wire(void) {
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // Check first and last voltages
-        dv = VOLT_VALUE_TO_MILLIVOLT(hmanager.pup[LTC6811_PUP_ACTIVE][0U]);
-        if (dv >= -BMS_MANAGER_OPEN_WIRE_ZERO && dv <= BMS_MANAGER_OPEN_WIRE_ZERO)
+        if (hmanager.pup[LTC6811_PUP_ACTIVE][0U] == BMS_MANAGER_OPEN_WIRE_ZERO)
             return BMS_MANAGER_OPEN_WIRE;
-        dv = VOLT_VALUE_TO_MILLIVOLT(hmanager.pup[LTC6811_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U]);
-        if (dv >= -BMS_MANAGER_OPEN_WIRE_ZERO && dv <= BMS_MANAGER_OPEN_WIRE_ZERO)
+        if (hmanager.pup[LTC6811_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] == BMS_MANAGER_OPEN_WIRE_ZERO)
             return BMS_MANAGER_OPEN_WIRE;
 
         // Check other voltages
         for (size_t i = 1U; i <= CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
-            dv = VOLT_VALUE_TO_MILLIVOLT(hmanager.pup[LTC6811_PUP_ACTIVE][i] - hmanager.pup[LTC6811_PUP_INACTIVE][i]);
-            if (dv < BMS_MANAGER_OPEN_WIRE_ZERO)
+            int16_t dv = (int16_t)hmanager.pup[LTC6811_PUP_ACTIVE][i] - (int16_t)hmanager.pup[LTC6811_PUP_INACTIVE][i];
+            if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD)
                 return BMS_MANAGER_OPEN_WIRE;
         }
+    }
+    return BMS_MANAGER_OK;
+}
+
+BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
+    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
+        // The first 12 cells are connected to the last LTC
+        const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
+
+        // Select the correct cells for each LTC
+        bit_flag16_t dcc = (cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
+            ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+
+        // Set configuration
+        hmanager.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_DCTO_OFF : LTC6811_DCTO_30S;
+        hmanager.requested_config[ltc].DCC = dcc;
     }
     return BMS_MANAGER_OK;
 }
@@ -491,7 +412,7 @@ _STATIC char * bms_manager_return_code_description[] = {
     [BMS_MANAGER_OPEN_WIRE] = "open wire detected",
     [BMS_MANAGER_BUSY] = "the manager or peripheral are busy",
     [BMS_MANAGER_COMMUNICATION_ERROR] = "error during data transmission or reception",
-    [BMS_MANAGER_ERROR] = "unkonw error"
+    [BMS_MANAGER_ERROR] = "unknown error"
 };
 
 #endif // CONF_BMS_STRINGS_MODULE_ENABLE
