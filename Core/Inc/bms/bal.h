@@ -13,15 +13,26 @@
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
+
 #include "bms_network.h"
 
+#include "volt.h"
+
 /** @brief Balancing threshold range in mV */
-#define BAL_THRESHOLD_MIN ((millivolt_t)5.f)
-#define BAL_THRESHOLD_MAX ((millivolt_t)200.f)
+#define BAL_THRESHOLD_MIN_MILLIVOLT ((millivolt_t)5.f)
+#define BAL_THRESHOLD_MAX_MILLIVOLT ((millivolt_t)200.f)
+
+/** @brief Balancing threshold range raw values */
+#define BAL_THRESHOLD_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MAX_MILLIVOLT))
+#define BAL_THRESHOLD_MIN (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MIN_MILLIVOLT))
 
 /** @brief Balancing target range in mV */
-#define BAL_TARGET_MIN ((millivolt_t)2800.f)
-#define BAL_TARGET_MAX ((millivolt_t)4200.f)
+#define BAL_TARGET_MIN_MILLIVOLT ((millivolt_t)2800.f)
+#define BAL_TARGET_MAX_MILLIVOLT ((millivolt_t)4200.f)
+
+/** @brief Balancing threshold range raw values */
+#define BAL_TARGET_MIN (VOLT_MILLIVOLT_TO_VALUE(BAL_TARGET_MIN_MILLIVOLT))
+#define BAL_TARGET_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_TARGET_MAX_MILLIVOLT))
 
 /** @brief Balancing timeouts in ms */
 #define BAL_TIMEOUT ((milliseconds_t)(3000U))

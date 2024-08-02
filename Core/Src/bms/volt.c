@@ -76,13 +76,13 @@ const raw_volt_t * volt_get_values(void) {
     return hvolt.voltages;
 }
 
-bit_flag32_t volt_select_values(millivolt_t target) {
+bit_flag32_t volt_select_values(raw_volt_t target) {
     bit_flag32_t bits = 0U;
     const size_t cnt = CELLBOARD_MIN(CELLBOARD_SEGMENT_SERIES_COUNT, sizeof(bits) * 8U);
 
     // Iterate over cells and choose the one which voltage is greater than the target
     for (size_t i = 0U; i < cnt; ++i) {
-        if (hvolt.voltages[i] > VOLT_MILLIVOLT_TO_VALUE(target))
+        if (hvolt.voltages[i] > target)
             bits = CELLBOARD_BIT_SET(bits, i);
     }
     return bits;

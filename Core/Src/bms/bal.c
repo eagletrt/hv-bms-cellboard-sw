@@ -22,13 +22,13 @@
 /**
  * @brief Definition of the balancing parameters
  *
- * @param target The minimum target voltage that can be reached while discharging (in mV)
+ * @param target The minimum target voltage raw value that can be reached while discharging
  * @param threshold The minimum difference between the maxiumum and minimum
- * cell voltages that can be reached (in mV)
+ * cell voltages that can be reached
  */
 typedef struct {
-    millivolt_t target;
-    millivolt_t threshold;
+    raw_volt_t target;
+    raw_volt_t threshold;
 } BalParams;
 
 /**
@@ -124,7 +124,7 @@ BalReturnCode bal_start(void) {
         return BAL_WATCHDOG_ERROR;
 
     // Set discharge configuration
-    millivolt_t target = hbal.params.target + hbal.params.threshold;
+    raw_volt_t target = hbal.params.target + hbal.params.threshold;
     bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
 
@@ -161,7 +161,7 @@ BalReturnCode bal_resume(void) {
         return BAL_OK;
 
     // Set discharge configuration
-    millivolt_t target = hbal.params.target + hbal.params.threshold;
+    raw_volt_t target = hbal.params.target + hbal.params.threshold;
     bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
     hbal.paused = false;

@@ -110,11 +110,11 @@ const raw_volt_t * volt_get_values(void);
  * if the bit value is 1 the cell voltage is greater than the target, less or
  * equal otherwise
  *
- * @param target The target voltage in mV
+ * @param target The target voltage raw value
  *
  * @return bit_flag32_t The bitmask of cells
  */
-bit_flag32_t volt_select_values(millivolt_t target);
+bit_flag32_t volt_select_values(raw_volt_t target);
 
 /**
  * @brief Copy a list of adjacent voltages
