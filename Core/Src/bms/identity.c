@@ -8,6 +8,7 @@
 
 #include "identity.h"
 
+#define _XOPEN_SOURCE
 #include <time.h>
 #include <string.h>
 

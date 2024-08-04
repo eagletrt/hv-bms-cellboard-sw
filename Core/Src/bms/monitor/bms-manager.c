@@ -340,8 +340,6 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(BmsManagerVoltageRegist
         size_t index = (reg * LTC6811_REG_CELL_COUNT) + (ltc * LTC6811_CELL_COUNT);
         size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_CELL_COUNT;
         memcpy(hmanager.pup[op] + index, volts + off, LTC6811_REG_CELL_COUNT * sizeof(volts[0]));
-        // memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
-        // volt_update_values(index, volts + off, LTC6811_REG_CELL_COUNT);
     }
     return BMS_MANAGER_OK;
 };

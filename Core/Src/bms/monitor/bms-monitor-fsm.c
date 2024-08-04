@@ -18,6 +18,9 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 /*** USER CODE BEGIN MACROS ***/
 #include <stdint.h>
 #include <string.h>
+
+#include "timebase.h"
+#include "error.h"
 /*** USER CODE END MACROS ***/
 
 
@@ -637,8 +640,18 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud(bms_monitor_fsm_st
 void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
-  // TODO: Set or reset error
-  bms_manager_check_open_wire(); 
+  BmsManagerReturnCode code = bms_manager_check_open_wire(); 
+  switch (code) {
+      case BMS_MANAGER_OK:
+          error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
+          break;
+      case BMS_MANAGER_OPEN_WIRE:
+          error_set(ERROR_GROUP_OPEN_WIRE, 0U, timebase_get_time());
+          break;
+      default:
+          // Do nothing
+          break;
+  }
   /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
 

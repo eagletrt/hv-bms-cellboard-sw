@@ -23,8 +23,8 @@
 #define BAL_THRESHOLD_MAX_MILLIVOLT ((millivolt_t)200.f)
 
 /** @brief Balancing threshold range raw values */
-#define BAL_THRESHOLD_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MAX_MILLIVOLT))
 #define BAL_THRESHOLD_MIN (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MIN_MILLIVOLT))
+#define BAL_THRESHOLD_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MAX_MILLIVOLT))
 
 /** @brief Balancing target range in mV */
 #define BAL_TARGET_MIN_MILLIVOLT ((millivolt_t)2800.f)

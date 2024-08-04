@@ -70,7 +70,7 @@ BalReturnCode bal_init(void) {
     hbal.params.target = BAL_TARGET_MAX;
     hbal.params.threshold = BAL_THRESHOLD_MAX;
 
-    // Initialize main balancing watchog
+    // Initialize main balancing watchdog
     (void)watchdog_init(
         &hbal.watchdog,
         TIMEBASE_TIME_TO_TICKS(BAL_TIMEOUT, timebase_get_resolution()),
