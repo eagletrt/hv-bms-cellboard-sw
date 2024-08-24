@@ -43,6 +43,7 @@
 #define TASKS_X_LIST \
     TASKS_X(SEND_STATUS, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
     TASKS_X(SEND_VERSION, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
+    TASKS_X(SEND_ERRORS, 0U, BMS_CELLBOARD_ERRORS_CYCLE_TIME_MS, _tasks_send_errors) \
     TASKS_X(SEND_VOLTAGES, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
     TASKS_X(SEND_TEMPERATURES, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
     TASKS_X(SEND_BALANCING_STATUS, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
@@ -52,7 +53,6 @@
 
 /** @brief Type definition for a function that excecutes a single task */
 typedef void (* tasks_callback)(void);
-
 
 /**
  * @brief Return code for the tasks module functions

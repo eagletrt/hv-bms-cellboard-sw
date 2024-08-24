@@ -646,7 +646,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
           error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
           break;
       case BMS_MANAGER_OPEN_WIRE:
-          error_set(ERROR_GROUP_OPEN_WIRE, 0U, timebase_get_time());
+          error_set(ERROR_GROUP_OPEN_WIRE, 0U);
           break;
       default:
           // Do nothing

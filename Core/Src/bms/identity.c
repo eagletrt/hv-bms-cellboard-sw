@@ -8,7 +8,6 @@
 
 #include "identity.h"
 
-#define _XOPEN_SOURCE
 #include <time.h>
 #include <string.h>
 
@@ -52,7 +51,7 @@ seconds_t identity_get_build_time(void) {
     return hidentity.build_time;
 }
 
-bms_cellboard_version_converted_t * identity_get_can_payload(size_t * byte_size) {
+bms_cellboard_version_converted_t * identity_get_canlib_payload(size_t * byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hidentity.can_payload);
 

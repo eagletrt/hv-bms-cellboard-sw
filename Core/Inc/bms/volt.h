@@ -95,9 +95,9 @@ VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size
 /**
  * @brief Get a pointer to the array where the voltage values are stored
  *
- * @return raw_volt_t * The pointer to the array
+ * @return raw_volt_t*[CELLBOARD_SEGMENT_SERIES_COUNT] The pointer to the array
  */
-const raw_volt_t * volt_get_values(void);
+const raw_volt_t (*volt_get_values(void))[CELLBOARD_SEGMENT_SERIES_COUNT];
 
 /**
  * @brief Get a bitmask of cells which voltage is STRICTLY greater than

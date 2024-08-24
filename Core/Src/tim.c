@@ -205,7 +205,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim) {
     else if (htim->Instance == HTIM_ERROR.Instance) {
         // Stop the timer and expire the error
         HAL_TIM_Base_Stop_IT(&HTIM_ERROR);
-        error_expire();
+        // error_expire();
     }
 }
 

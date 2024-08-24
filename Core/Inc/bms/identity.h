@@ -10,6 +10,12 @@
 #ifndef IDENTITY_H
 #define IDENTITY_H
 
+/*** !!! Needed for strptime function !!! ***/
+#define _GNU_SOURCE
+#define __USE_XOPEN
+#define _XOPEN_SOURCE
+/********************************************/
+
 #include <stddef.h>
 
 #include "cellboard-def.h"
@@ -52,6 +58,6 @@ seconds_t identity_get_build_time(void);
  *
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t * identity_get_can_payload(size_t * byte_size);
+bms_cellboard_version_converted_t * identity_get_canlib_payload(size_t * byte_size);
 
 #endif  // IDENTITY_H

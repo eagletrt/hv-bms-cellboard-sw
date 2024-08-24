@@ -20,6 +20,7 @@
 #include "bms-monitor-fsm.h"
 #include "bms-manager.h"
 #include "bal.h"
+#include "error.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
@@ -30,35 +31,42 @@ _STATIC _TasksHandler htasks;
 
 /** @brief Send the current FSM status via CAN */
 void _tasks_send_status(void) {
-    size_t byte_size;
-    uint8_t * payload = (uint8_t *)fsm_get_can_payload(&byte_size);
+    size_t byte_size = 0U;
+    uint8_t * payload = (uint8_t *)fsm_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 
 /** @brief Send the version info via CAN */
 void _tasks_send_version(void) {
-    size_t byte_size;
-    uint8_t * payload = (uint8_t *)identity_get_can_payload(&byte_size);
+    size_t byte_size = 0U;
+    uint8_t * payload = (uint8_t *)identity_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+}
+
+/** @brief Send the errors status via CAN */
+void _tasks_send_errors(void) {
+    size_t byte_size = 0U;
+    uint8_t * payload = (uint8_t *)error_get_canlib_payload(&byte_size);
+    can_comm_tx_add(BMS_CELLBOARD_ERRORS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 
 /** @brief Send the cells voltages via CAN */
 void _tasks_send_voltages(void) {
-    size_t byte_size;
+    size_t byte_size = 0U;
     uint8_t * payload = (uint8_t *)volt_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_CELLS_VOLTAGE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 
 /** @brief Send the cells temperatures via CAN */
 void _tasks_send_temperatures(void) {
-    size_t byte_size;
+    size_t byte_size = 0U;
     uint8_t * payload = (uint8_t *)temp_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }
 
 /** @brief Send the current balancing status info via CAN */
 void _tasks_send_balancing_status(void) {
-    size_t byte_size;
+    size_t byte_size = 0U;
     uint8_t * payload = (uint8_t *)bal_get_canlib_payload(&byte_size);
     can_comm_tx_add(BMS_CELLBOARD_BALANCING_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
 }

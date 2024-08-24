@@ -34,19 +34,16 @@ _STATIC struct {
  *
  * @param value The raw voltage value
  */
-_STATIC_INLINE void _volt_check_value(raw_volt_t value) {
-    ERROR_TOGGLE_IF(
-        value <= VOLT_MIN_VALUE,
-        ERROR_GROUP_UNDER_VOLTAGE,
-        ERROR_UNDER_VOLTAGE_INSTANCE_CELLS,
-        timebase_get_time()
-    );
-    ERROR_TOGGLE_IF(
-        value >= VOLT_MAX_VALUE,
-        ERROR_GROUP_OVER_VOLTAGE,
-        ERROR_UNDER_VOLTAGE_INSTANCE_CELLS,
-        timebase_get_time()
-    );
+_STATIC_INLINE void _volt_check_value(size_t index, raw_volt_t value) {
+    if (value <= VOLT_MIN_VALUE)
+        error_set(ERROR_GROUP_UNDER_VOLTAGE, index);
+    else
+        error_reset(ERROR_GROUP_UNDER_VOLTAGE, index);
+
+    if (value >= VOLT_MAX_VALUE)
+        error_set(ERROR_GROUP_OVER_VOLTAGE, index);
+    else
+        error_reset(ERROR_GROUP_OVER_VOLTAGE, index);
 }
 
 VoltReturnCode volt_init(void) {
@@ -59,7 +56,7 @@ VoltReturnCode volt_update_value(size_t index, raw_volt_t value) {
     if (index > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     hvolt.voltages[index] = value;
-    _volt_check_value(value);
+    _volt_check_value(index, value);
     return VOLT_OK;
 }
 
@@ -68,12 +65,12 @@ VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size
         return VOLT_OUT_OF_BOUNDS;
     memcpy(hvolt.voltages + index, values, size * sizeof(hvolt.voltages[0]));
     for (size_t i = 0U; i < size; ++i)
-        _volt_check_value(hvolt.voltages[index + i]);
+        _volt_check_value(index + i, hvolt.voltages[index + i]);
     return VOLT_OK;
 }
 
-const raw_volt_t * volt_get_values(void) {
-    return hvolt.voltages;
+const raw_volt_t (*volt_get_values(void))[CELLBOARD_SEGMENT_SERIES_COUNT] {
+    return &hvolt.voltages;
 }
 
 bit_flag32_t volt_select_values(raw_volt_t target) {

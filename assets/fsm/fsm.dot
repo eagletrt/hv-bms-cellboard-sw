@@ -21,7 +21,7 @@ digraph "fsm" {
     ]
 
     init -> idle [label="start"]
-    init -> fatal [label="handle_fatal_error"]
+    init -> fatal [label="handle_init_error"]
 
     idle -> idle
     idle -> discharge [label="start_discharge"]

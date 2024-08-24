@@ -1,12 +1,6 @@
 {
     "errors": [
         {
-            "name": "CELLBOARD_ID",
-            "timeout": 0,
-            "description": "error set when the cellboard identifier is unknown and cannot obtained",
-            "instances": 1
-        },
-        {
             "name": "POST",
             "timeout": 0,
             "description": "the Power On Self Test procedure failed",
@@ -79,6 +73,24 @@
                     "alias": "BMS"
                 }
             ]
+        },
+        {
+            "name": "FLASH",
+            "timeout": 50,
+            "description": "The flash procedure could not be completed safely",
+            "instances": 1
+        },
+        {
+            "name": "BMS_MONITOR",
+            "timeout": 100,
+            "description": "BMS monitor communication is not working",
+            "instances": 1
+        },
+        {
+            "name": "OPEN_WIRE",
+            "timeout": 50,
+            "description": "The BMS monitor detected an open-wire",
+            "instances": 1
         }
     ]
 }

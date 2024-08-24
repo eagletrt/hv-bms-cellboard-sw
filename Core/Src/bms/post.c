@@ -34,7 +34,7 @@ PostReturnCode _post_modules_init(PostInitData * data) {
      * The error initialization function has to be the executed before every other
      * init function to ensure the correctness of the program
      */
-    error_init(data->cs_enter, data->cs_exit);
+    error_init();
     /**
      * The identity module has to be initialized before every other module
      * (with the exception of the error module) because most of the functionality
@@ -73,6 +73,9 @@ PostReturnCode post_run(PostInitData data) {
 
     // TODO: Test that every peripheral is working
 
+    // Set error
+    if (post_code != POST_OK)
+        error_set(ERROR_GROUP_POST, 0U);
     return post_code;
 }
 

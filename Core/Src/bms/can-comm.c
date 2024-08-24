@@ -15,6 +15,7 @@
 #include "watchdog.h"
 #include "timebase.h"
 #include "bal.h"
+#include "error.h"
 
 #include "ring-buffer.h"
 #include "canlib_device.h"
@@ -318,14 +319,29 @@ CanCommReturnCode can_comm_routine(void) {
             data,
             size
         );
+
+        // TODO: Wait a certain amount before set the error?
+        switch (ret) {
+            case CAN_COMM_INVALID_INDEX:
+            case CAN_COMM_INVALID_PAYLOAD_SIZE:
+            case CAN_COMM_INVALID_FRAME_TYPE:
+                // Do nothing
+                break;
+            case CAN_COMM_OK:
+                error_reset(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
+                break;
+            default:
+                error_set(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
+                break;
+        }
     }
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
         ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK)
     {
         const can_id_t can_id = bms_id_from_index(rx_msg.index);
 
-        // TODO: Reset canlib watchdog
-        // (void)watchdog_reset(rx_msg.index, timebase_get_time());
+        // Reset CAN error
+        error_reset(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message
