@@ -5,20 +5,20 @@ digraph "fsm" {
     concentrate=false
     // splines="ortho"
 
-    /* Main operations */
+    /* Initialization */
     init
-    write_configuration
-    read_configuration
 
     /* Read voltages */
     start_volt_conversion
     poll_volt_status
     read_voltage
+    volt_comm_error
 
     /* Read temperatures */
     start_temp_conversion
     poll_temp_status
     read_temperature
+    temp_comm_error
 
     /* Open wire */
     start_open_wire_pup_conversion
@@ -27,67 +27,59 @@ digraph "fsm" {
     start_open_wire_pud_conversion
     poll_open_wire_pud_status
     read_open_wire_pud
+    open_wire_comm_error
     
     /* Initialization */
-    init -> write_configuration
-
-    /* Main operations */
-    write_configuration -> read_configuration
-    write_configuration -> start_volt_conversion
-    write_configuration -> start_temp_conversion
-    write_configuration -> start_open_wire_pup_conversion
-
-    read_configuration -> write_configuration
-    read_configuration -> start_volt_conversion
-    read_configuration -> start_temp_conversion
-    read_configuration -> start_open_wire_pup_conversion
+    init -> start_volt_conversion
 
     /* Read voltages */
-    start_volt_conversion -> poll_volt_status 
-    start_volt_conversion -> write_configuration
+    start_volt_conversion -> poll_volt_status
+    start_volt_conversion -> volt_comm_error
 
+    poll_volt_status -> read_voltage
     poll_volt_status -> poll_volt_status
-    poll_volt_status -> read_voltage [label="reset_poll_err_counter"]
-    poll_volt_status -> write_configuration [label="reset_poll_err_counter"]
+    poll_volt_status -> volt_comm_error
 
-    read_voltage -> read_voltage
-    read_voltage -> write_configuration
+    read_voltage -> start_temp_conversion
+    read_voltage -> volt_comm_error
+
+    volt_comm_error -> start_temp_conversion
 
     /* Read temperatures */
     start_temp_conversion -> poll_temp_status
-    start_temp_conversion -> write_configuration
+    start_temp_conversion -> temp_comm_error
 
+    poll_temp_status -> read_temperature
     poll_temp_status -> poll_temp_status
-    poll_temp_status -> read_temperature [label="reset_poll_err_counter"]
-    poll_temp_status -> write_configuration [label="reset_poll_err_counter"]
+    poll_temp_status -> temp_comm_error
 
-    read_temperature -> read_temperature
-    read_temperature -> write_configuration
+    read_temperature -> start_open_wire_pup_conversion
+    read_temperature -> temp_comm_error
+
+    temp_comm_error -> start_open_wire_pup_conversion
 
     /* Open wire */
-    start_open_wire_pup_conversion -> start_open_wire_pup_conversion
     start_open_wire_pup_conversion -> poll_open_wire_pup_status
-    start_open_wire_pup_conversion -> write_configuration
+    start_open_wire_pup_conversion -> open_wire_comm_error
 
+    poll_open_wire_pup_status -> start_open_wire_pup_conversion
+    poll_open_wire_pup_status -> read_open_wire_pup
     poll_open_wire_pup_status -> poll_open_wire_pup_status
-    poll_open_wire_pup_status -> start_open_wire_pup_conversion [label="reset_poll_err_counter"]
-    poll_open_wire_pup_status -> read_open_wire_pup [label="reset_poll_err_counter"]
-    poll_open_wire_pup_status -> write_configuration [label="reset_poll_err_counter"]
+    poll_open_wire_pup_status -> open_wire_comm_error
 
-    read_open_wire_pup -> read_open_wire_pup
     read_open_wire_pup -> start_open_wire_pud_conversion
-    read_open_wire_pup -> write_configuration
+    read_open_wire_pup -> open_wire_comm_error
 
-    start_open_wire_pud_conversion -> start_open_wire_pud_conversion
     start_open_wire_pud_conversion -> poll_open_wire_pud_status
-    start_open_wire_pud_conversion -> write_configuration
+    start_open_wire_pud_conversion -> open_wire_comm_error
 
-    poll_open_wire_pud_status -> start_open_wire_pud_conversion [label="reset_poll_err_counter"]
+    poll_open_wire_pud_status -> start_open_wire_pud_conversion
+    poll_open_wire_pud_status -> read_open_wire_pud
     poll_open_wire_pud_status -> poll_open_wire_pud_status
-    poll_open_wire_pud_status -> read_open_wire_pud [label="reset_poll_err_counter"]
-    poll_open_wire_pud_status -> write_configuration [label="reset_poll_err_counter"]
+    poll_open_wire_pud_status -> open_wire_comm_error
 
-    read_open_wire_pud -> read_open_wire_pud
-    read_open_wire_pud -> write_configuration [label="check_open_wire"]
-    read_open_wire_pud -> read_configuration
+    read_open_wire_pud -> start_volt_conversion [label="check_open_wire"]
+    read_open_wire_pud -> open_wire_comm_error
+
+    open_wire_comm_error -> start_volt_conversion
 }

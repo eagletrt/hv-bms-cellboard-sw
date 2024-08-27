@@ -80,27 +80,10 @@ void _tasks_run_bms_manager(void) {
     bms_manager_routine();
 }
 
-/** @brief Start a single bms manager operation */
-void _tasks_start_bms_manager_operation(void) {
-    bms_monitor_fsm_state_t fsm_state = bms_monitor_fsm_get_state();
-    if (fsm_state == BMS_MONITOR_FSM_STATE_WRITE_CONFIGURATION ||
-        fsm_state == BMS_MONITOR_FSM_STATE_READ_CONFIGURATION)
-    {
-        htasks.fsm_event.type = htasks.fsm_event.type == BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES ?
-            BMS_MONITOR_FSM_EVENT_TYPE_START_OPEN_WIRE_CHECK :
-            BMS_MONITOR_FSM_EVENT_TYPE_READ_VOLTAGES;
-        bms_monitor_fsm_event_trigger(&htasks.fsm_event);
-    }
-    // if (++htasks.fsm_event.type >= BMS_MONITOR_FSM_EVENT_TYPE_COUNT)
-//         htasks.fsm_event.type = 0U;
-}
-
 TasksReturnCode tasks_init(milliseconds_t resolution) {
     if (resolution == 0U)
         resolution = 1U;
     memset(&htasks, 0U, sizeof(htasks));
-
-    htasks.fsm_event.type = BMS_MONITOR_FSM_EVENT_TYPE_IGNORED;
 
     // Initialize the tasks with the X macro
 #define TASKS_X(NAME, START, INTERVAL, EXEC) \

@@ -48,8 +48,7 @@
     TASKS_X(SEND_TEMPERATURES, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
     TASKS_X(SEND_BALANCING_STATUS, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
     TASKS_X(READ_TEMPERATURES, 0U, 10U, _tasks_read_temperatures) \
-    TASKS_X(RUN_BMS_MANAGER, 6U, 2U, _tasks_run_bms_manager) \
-    TASKS_X(START_BMS_MANAGER_OPERATION, 6U, 7U, _tasks_start_bms_manager_operation)
+    TASKS_X(RUN_BMS_MANAGER, 0U, 4U, _tasks_run_bms_manager)
 
 /** @brief Type definition for a function that excecutes a single task */
 typedef void (* tasks_callback)(void);

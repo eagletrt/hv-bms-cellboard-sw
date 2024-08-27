@@ -30,6 +30,11 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart2;
@@ -41,6 +46,9 @@ extern UART_HandleTypeDef huart2;
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+void uart_log_ms(uint32_t ms, const char* fmt, ...);
+void uart_log(const char *fmt, ...);
 
 /* USER CODE END Prototypes */
 
