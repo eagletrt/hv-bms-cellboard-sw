@@ -9,6 +9,7 @@
 #include "bms-manager.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #include "bms-monitor-fsm.h"
 #include "temp.h"
@@ -412,6 +413,41 @@ _STATIC char * bms_manager_return_code_description[] = {
     [BMS_MANAGER_COMMUNICATION_ERROR] = "error during data transmission or reception",
     [BMS_MANAGER_ERROR] = "unknown error"
 };
+
+int bms_manager_get_config_string(Ltc6811Cfgr config, char * const out, size_t size) {
+    const char * const fmt =
+        "adcopt: %3hu\r\n"
+        "dten:   %3hu\r\n"
+        "refon:  %3hu\r\n"
+        "gpio: 0x%03hx\r\n"
+        "vuv:  0x%03hx\r\n"
+        "vov:  0x%03hx\r\n"
+        "dcc:  0x%03hx\r\n"
+        "dcto:   %3hu\r\n";
+    return snprintf(
+        out, size, fmt,
+        config.ADCOPT,
+        config.DTEN,
+        config.REFON,
+        config.GPIO,
+        config.VUV,
+        config.VOV,
+        config.DCC,
+        config.DCTO
+    );
+}
+
+int bms_manager_get_requested_config_string(size_t ltc, char * const out, size_t size) {
+    if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
+        return 0;
+    return bms_manager_get_config_string(hmanager.requested_config[ltc], out, size);
+}
+
+int bms_manager_get_actual_config_string(size_t ltc, char * const out, size_t size) {
+    if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
+        return 0;
+    return bms_manager_get_config_string(hmanager.actual_config[ltc], out, size);
+}
 
 #endif // CONF_BMS_STRINGS_MODULE_ENABLE
 

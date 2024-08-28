@@ -311,6 +311,49 @@ BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells);
  */
 bit_flag32_t bms_manager_get_discharge_cells(void);
 
+#ifdef CONF_BMS_MANAGER_STRINGS_ENABLE
+
+/**
+ * @brief Get a formatted string representation of the LTC6811 configuration
+ *
+ * @param config The configuration of the chip
+ * @param out[out] The output string
+ * @param size The maximum size of the output string
+ *
+ * @return int The number of byte written inside the string or -1 on error
+ */
+int bms_manager_get_config_string(Ltc6811Cfgr config, char * const out, size_t size);
+
+/**
+ * @brief Get a formtted string representation of the requested config for a single LTC
+ *
+ * @param ltc The chip to get the config from
+ * @param out[out] The output string
+ * @param size The maximum size of the output string
+ *
+ * @return int The number of byte written inside the string or -1 on error
+ */
+int bms_manager_get_requested_config_string(size_t ltc, char * const out, size_t size);
+
+/**
+ * @brief Get a formtted string representation of the actual config for a single LTC
+ *
+ * @param ltc The chip to get the config from
+ * @param out[out] The output string
+ * @param size The maximum size of the output string
+ *
+ * @return int The number of byte written inside the string or -1 on error
+ */
+int bms_manager_get_actual_config_string(size_t ltc, char * const out, size_t size);
+
+#else  // CONF_BMS_MANAGER_STRINGS_ENABLE
+
+#define bms_manager_get_config_string(config, out, size) (0)
+#define bms_manager_get_requested_config_string(config, out, size) (0)
+#define bms_manager_get_actual_config_string(config, out, size) (0)
+
+#endif // CONF_BMS_MANAGER_STRINGS_ENABLE
+
 #else  // CONF_BMS_MANAGER_MODULE_ENABLE
 
 #define bms_manager_init(send, send_receive) (BMS_MANAGER_OK)
