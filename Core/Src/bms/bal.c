@@ -88,8 +88,10 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
         return;
  
     // Update data
-    hbal.params.target = CELLBOARD_CLAMP(payload->target, BAL_TARGET_MIN, BAL_TARGET_MAX);
-    hbal.params.threshold = CELLBOARD_CLAMP(payload->threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
+    raw_volt_t target = VOLT_VOLT_TO_VALUE(payload->target);
+    raw_volt_t threshold = VOLT_VOLT_TO_VALUE(payload->threshold);
+    hbal.params.target = CELLBOARD_CLAMP(target, BAL_TARGET_MIN, BAL_TARGET_MAX);
+    hbal.params.threshold = CELLBOARD_CLAMP(threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
 
     // Reset watchdog for each new message
     WatchdogReturnCode code = watchdog_reset(&hbal.watchdog);
