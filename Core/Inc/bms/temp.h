@@ -16,6 +16,15 @@
 
 #include "bms_network.h"
 
+
+/** @brief Minimum and maximum limit for the temperature values in V */
+#define TEMP_MIN_LIMIT_VOLT (0.f)
+#define TEMP_MAX_LIMIT_VOLT (3.f)
+
+/** @brief Minimum and maximum limit for the temperature raw values*/
+#define TEMP_MIN_LIMIT_VALUE (TEMP_VOLT_TO_VALUE(TEMP_MIN_LIMIT_VOLT))
+#define TEMP_MAX_LIMIT_VALUE (TEMP_VOLT_TO_VALUE(TEMP_MAX_LIMIT_VOLT))
+
 // TODO: Set minimum and maximum allowed temperatures
 /** @brief Minimum and maximum allowed cell temperature in celsius */
 #define TEMP_MIN_CELSIUS (-10.f)

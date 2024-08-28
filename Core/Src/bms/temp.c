@@ -116,7 +116,8 @@ TempReturnCode temp_notify_conversion_complete(raw_temp_t * values, size_t size)
 TempReturnCode temp_update_value(size_t index, raw_temp_t value) {
     if (index > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    htemp.temperatures[index] = value;
+    // Values are clamped to fit into the range of the polynomial
+    htemp.temperatures[index] = CELLBOARD_CLAMP(value, TEMP_MIN_LIMIT_VALUE, TEMP_MAX_LIMIT_VALUE);
     _temp_check_cells_value(value);
     return TEMP_OK;
 }
@@ -124,15 +125,18 @@ TempReturnCode temp_update_value(size_t index, raw_temp_t value) {
 TempReturnCode temp_update_values(size_t index, raw_temp_t * values, size_t size) {
     if (index + size > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    memcpy(htemp.temperatures + index, values, size * sizeof(htemp.temperatures[0]));
-    for (size_t i = 0U; i < size; ++i)
+    // Values are clamped to fit into the range of the polynomial
+    for (size_t i = 0U; i < size; ++i) {
+        htemp.temperatures[index + i] = CELLBOARD_CLAMP(values[i], TEMP_MIN_LIMIT_VALUE, TEMP_MAX_LIMIT_VALUE);
         _temp_check_cells_value(htemp.temperatures[index + i]);
+    }
     return TEMP_OK;
 }
 
 TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
     if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
+    // TODO: Limit discharge temperatures
     htemp.discharge_temperatures[index] = value;
     _temp_check_discharge_value(value);
     return TEMP_OK;
@@ -141,6 +145,7 @@ TempReturnCode temp_update_discharge_value(size_t index, raw_temp_t value) {
 TempReturnCode temp_update_discharge_values(size_t index, raw_temp_t * values, size_t size) {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
+    // TODO: Limit discharge temperatures
     memcpy(htemp.discharge_temperatures + index, values, size * sizeof(htemp.discharge_temperatures[0]));
     for (size_t i = 0U; i < size; ++i)
         _temp_check_discharge_value(htemp.discharge_temperatures[index + i]);
