@@ -97,12 +97,14 @@ celsius_t temp_volt_to_celsius(volt_t value) {
     const double v3 = v2 * v;
     const double v4 = v2 * v2;
     const double v5 = v4 * v;
+    const double v6 = v3 * v3;
     return TEMP_COEFF_0 + 
         TEMP_COEFF_1 * v + 
         TEMP_COEFF_2 * v2 + 
         TEMP_COEFF_3 * v3 + 
         TEMP_COEFF_4 * v4 + 
-        TEMP_COEFF_5 * v5;
+        TEMP_COEFF_5 * v5 +
+        TEMP_COEFF_6 * v6;
 }
 
 TempReturnCode temp_notify_conversion_complete(raw_temp_t * values, size_t size) {

@@ -30,12 +30,13 @@
 #define TEMP_MAX_VALUE (TEMP_VOLT_TO_VALUE(TEMP_MAX_VOLT))
 
 /** @brief Coefficients used to convert the raw voltage value to a temperature value */
-#define TEMP_COEFF_0 ( 178.576844350760100)
-#define TEMP_COEFF_1 (-191.452565283213000)
-#define TEMP_COEFF_2 ( 157.718845424355800)
-#define TEMP_COEFF_3 (- 82.208401759749450)
-#define TEMP_COEFF_4 (  22.346389336008915)
-#define TEMP_COEFF_5 (-  2.510048743779666)
+#define TEMP_COEFF_0 ( 148.305319086073000)
+#define TEMP_COEFF_1 (-317.553729396941300)
+#define TEMP_COEFF_2 ( 444.564306449468700)
+#define TEMP_COEFF_3 (-378.912004657724100)
+#define TEMP_COEFF_4 ( 180.457759604731300)
+#define TEMP_COEFF_5 (- 44.504609710405890)
+#define TEMP_COEFF_6 (   4.399756702462762)
 
 /** @brief Temperature voltage reference in V */
 #define TEMP_VREF ((volt_t)3.3)
