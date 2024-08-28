@@ -31,7 +31,17 @@
  *
  * @return millivolt_t The converted voltage in millivolt
  */
-#define VOLT_VALUE_TO_MILLIVOLT(value) ((millivolt_t)(value / 10.f))
+#define VOLT_VALUE_TO_MILLIVOLT(value) ((millivolt_t)(value * 0.1f))
+
+/**
+ * @brief Convert a raw voltage value to volt
+ *
+ * @param value The value to convert
+ *
+ * @return volt_t The converted voltage in volt
+ */
+#define VOLT_VALUE_TO_VOLT(value) ((volt_t)(VOLT_VALUE_TO_MILLIVOLT(value) * 0.001f))
+
 /**
  * @brief Convert a voltage in millivolt to the raw voltage value
  *
@@ -40,6 +50,15 @@
  * @return raw_volt_t The raw voltage value
  */
 #define VOLT_MILLIVOLT_TO_VALUE(value) ((raw_volt_t)(value * 10.f))
+
+/**
+ * @brief Convert a voltage in volt to the raw voltage value
+ *
+ * @param value The value in volt to convert
+ *
+ * @return raw_volt_t The raw voltage value
+ */
+#define VOLT_VOLT_TO_VALUE(value) ((raw_volt_t)(VOLT_MILLIVOLT_TO_VALUE(value) * 1000.f))
 
 /**
  * @brief Return code for the voltage module functions

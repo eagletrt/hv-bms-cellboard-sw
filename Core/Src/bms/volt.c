@@ -100,10 +100,13 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
 
     _STATIC size_t offset = 0U;
     hvolt.can_payload.offset = offset;
-    hvolt.can_payload.voltage_0 = hvolt.voltages[offset];
-    hvolt.can_payload.voltage_1 = hvolt.voltages[offset + 1];
-    hvolt.can_payload.voltage_2 = hvolt.voltages[offset + 2];
-    hvolt.can_payload.voltage_3 = hvolt.voltages[offset + 3];
+    hvolt.can_payload.voltage_0 = VOLT_VALUE_TO_VOLT(hvolt.voltages[offset]);
+    hvolt.can_payload.voltage_1 = VOLT_VALUE_TO_VOLT(hvolt.voltages[offset + 1]);
+    hvolt.can_payload.voltage_2 = VOLT_VALUE_TO_VOLT(hvolt.voltages[offset + 2]);
+    /*
+     * hvolt.can_payload.voltage_3 = hvolt.voltages[offset + 3];
+     * TODO: fix cantools's handling of non 2^n size for floating point values     
+     */
 
     offset += 4;
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)

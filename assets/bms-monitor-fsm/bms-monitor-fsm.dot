@@ -4,82 +4,61 @@ digraph "fsm" {
     center=true
     concentrate=false
     // splines="ortho"
+ 
 
-    /* Initialization */
-    init
-
-    /* Read voltages */
-    start_volt_conversion
-    poll_volt_status
-    read_voltage
-    volt_comm_error
-
-    /* Read temperatures */
-    start_temp_conversion
-    poll_temp_status
-    read_temperature
-    temp_comm_error
-
-    /* Open wire */
-    start_open_wire_pup_conversion
-    poll_open_wire_pup_status
-    read_open_wire_pup
-    start_open_wire_pud_conversion
-    poll_open_wire_pud_status
-    read_open_wire_pud
-    open_wire_comm_error
-    
     /* Initialization */
     init -> start_volt_conversion
 
     /* Read voltages */
-    start_volt_conversion -> poll_volt_status
-    start_volt_conversion -> volt_comm_error
-
-    poll_volt_status -> read_voltage
-    poll_volt_status -> poll_volt_status
-    poll_volt_status -> volt_comm_error
-
-    read_voltage -> start_temp_conversion
-    read_voltage -> volt_comm_error
-
-    volt_comm_error -> start_temp_conversion
+    start_volt_conversion -> volt_write_configuration
+    volt_write_configuration -> volt_read_configuration
+    volt_read_configuration -> read_volt_a
+    // volt_read_configuration -> poll_volt_status
+    // poll_volt_status -> start_temp_conversion [label="volt_conversion_error"]
+    // poll_volt_status -> read_volt_a
+    read_volt_a -> read_volt_b
+    read_volt_b -> read_volt_c
+    read_volt_c -> read_volt_d
+    read_volt_d -> start_temp_conversion
 
     /* Read temperatures */
-    start_temp_conversion -> poll_temp_status
-    start_temp_conversion -> temp_comm_error
-
-    poll_temp_status -> read_temperature
-    poll_temp_status -> poll_temp_status
-    poll_temp_status -> temp_comm_error
-
-    read_temperature -> start_open_wire_pup_conversion
-    read_temperature -> temp_comm_error
-
-    temp_comm_error -> start_open_wire_pup_conversion
+    start_temp_conversion -> temp_write_configuration
+    temp_write_configuration -> temp_read_configuration
+    temp_read_configuration -> read_temp_a
+    // temp_read_configuration -> poll_temp_status
+    // poll_temp_status -> start_open_wire_pup_conversion_first [label="temp_conversion_error"]
+    // poll_temp_status -> read_temp_a
+    read_temp_a -> read_temp_b
+    read_temp_b -> start_open_wire_pup_conversion_first
 
     /* Open wire */
-    start_open_wire_pup_conversion -> poll_open_wire_pup_status
-    start_open_wire_pup_conversion -> open_wire_comm_error
+    start_open_wire_pup_conversion_first -> open_wire_pup_write_configuration
+    open_wire_pup_write_configuration -> start_open_wire_pup_conversion_second
+    // open_wire_pup_write_configuration -> poll_open_wire_pup_status_first
+    // poll_open_wire_pup_status_first -> start_volt_conversion [label="open_wire_conversion_error"]
+    // poll_open_wire_pup_status_first -> start_open_wire_pup_conversion_second
+    start_open_wire_pup_conversion_second -> open_wire_pup_read_configuration
+    open_wire_pup_read_configuration -> read_open_wire_pup_a
+    // open_wire_pup_read_configuration -> poll_open_wire_pup_status_second
+    // poll_open_wire_pup_status_second -> start_volt_conversion [label="open_wire_conversion_error"]
+    // poll_open_wire_pup_status_second -> read_open_wire_pup_a
+    read_open_wire_pup_a -> read_open_wire_pup_b
+    read_open_wire_pup_b -> read_open_wire_pup_c
+    read_open_wire_pup_c -> read_open_wire_pup_d
+    read_open_wire_pup_d -> start_open_wire_pud_conversion_first
 
-    poll_open_wire_pup_status -> start_open_wire_pup_conversion
-    poll_open_wire_pup_status -> read_open_wire_pup
-    poll_open_wire_pup_status -> poll_open_wire_pup_status
-    poll_open_wire_pup_status -> open_wire_comm_error
-
-    read_open_wire_pup -> start_open_wire_pud_conversion
-    read_open_wire_pup -> open_wire_comm_error
-
-    start_open_wire_pud_conversion -> poll_open_wire_pud_status
-    start_open_wire_pud_conversion -> open_wire_comm_error
-
-    poll_open_wire_pud_status -> start_open_wire_pud_conversion
-    poll_open_wire_pud_status -> read_open_wire_pud
-    poll_open_wire_pud_status -> poll_open_wire_pud_status
-    poll_open_wire_pud_status -> open_wire_comm_error
-
-    read_open_wire_pud -> start_volt_conversion [label="check_open_wire"]
-    read_open_wire_pud -> open_wire_comm_error
-
-    open_wire_comm_error -> start_volt_conversion
+    start_open_wire_pud_conversion_first -> open_wire_pud_write_configuration
+    open_wire_pud_write_configuration -> start_open_wire_pud_conversion_second
+    // open_wire_pud_write_configuration -> poll_open_wire_pud_status_first
+    // poll_open_wire_pud_status_first -> start_volt_conversion [label="open_wire_conversion_error"]
+    // poll_open_wire_pud_status_first -> start_open_wire_pud_conversion_second
+    start_open_wire_pud_conversion_second -> open_wire_pud_read_configuration
+    open_wire_pud_read_configuration -> read_open_wire_pud_a
+    // open_wire_pud_read_configuration -> poll_open_wire_pud_status_second
+    // poll_open_wire_pud_status_second -> start_volt_conversion [label="open_wire_conversion_error"]
+    // poll_open_wire_pud_status_second -> read_open_wire_pud_a
+    read_open_wire_pud_a -> read_open_wire_pud_b
+    read_open_wire_pud_b -> read_open_wire_pud_c
+    read_open_wire_pud_c -> read_open_wire_pud_d
+    read_open_wire_pud_d -> start_volt_conversion [label="check_open_wire"]
 }

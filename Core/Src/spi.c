@@ -125,7 +125,7 @@ BmsManagerReturnCode spi_send(uint8_t * data, size_t size) {
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
     // TODO: Non-blocking or set a decent enough timeout
-    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, size * 3U);
     switch (status) {
         case HAL_TIMEOUT: 
         case HAL_ERROR: 
@@ -156,7 +156,7 @@ BmsManagerReturnCode spi_send_and_receive(
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
     // TODO: Non-blocking or set a decent enough timeout
-    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, 1U + size / 125U);
+    HAL_StatusTypeDef status = HAL_SPI_Transmit(&HSPI_LTC, data, size, size * 3U);
     switch (status) {
         case HAL_TIMEOUT: 
         case HAL_ERROR: 
@@ -177,7 +177,7 @@ BmsManagerReturnCode spi_send_and_receive(
         return code;
     }
 
-    status = HAL_SPI_Receive(&HSPI_LTC, out, out_size, 1U + out_size / 125U);
+    status = HAL_SPI_Receive(&HSPI_LTC, out, out_size, out_size * 3U);
     switch (status) {
         case HAL_TIMEOUT: 
         case HAL_ERROR: 
