@@ -36,6 +36,10 @@
 #include "post.h"
 
 #include "stm32g4xx_it.h"
+
+
+
+#include "bms-monitor-fsm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,43 +81,38 @@ void demo() {
 
     const raw_volt_t (* volt_values)[CELLBOARD_SEGMENT_SERIES_COUNT] = volt_get_values();
 
-    uart_log("=== VOLT VALUES ===\n");
-    for(size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
-        uart_log("%f\n", VOLT_VALUE_TO_VOLT(volt_values[i]));
+    uart_log("=== VOLT VALUES ===\r\n");
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
+        uart_log("%f\r\n", VOLT_VALUE_TO_VOLT((*volt_values)[i]));
     }
-    uart_log("\n\n");
+    uart_log("\r\n\r\n");
 
-    const raw_temp_t (* temp_values)[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT] = temp_get_values();
+    const raw_temp_t * temp_values = temp_get_values();
 
-    uart_log("=== TEMPERATURE VALUES ===\n");
-    for(size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
-        uart_log("%d\n", temp_values[i]);
+    uart_log("=== TEMPERATURE VALUES ===\r\n");
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        uart_log("%d\r\n", temp_values[i]);
     }
-    uart_log("\n\n");
+    uart_log("\r\n\r\n");
 
-    const raw_temp_t (* discharge_temp_values)[CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT] = temp_get_values();
+    // const raw_temp_t * discharge_temp_values = temp_get_values();
+    //
+    // uart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
+    // for(size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
+    //     uart_log("%d\n", discharge_temp_values[i]);
+    // }
+    // uart_log("\n\n");
 
-    uart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
-    for(size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
-        uart_log("%d\n", discharge_temp_values[i]);
-    }
-    uart_log("\n\n");
+    static bit_flag32_t cells = 1U;
+    static uint32_t t = 0U;
 
-    static bit_flag32_t cells = 1;
-    static uint32_t last_timestamp = HAL_GetTick();
-
-    uint32_t curr_timestamp = HAL_GetTick();
-    if(curr_timestamp - last_timestamp > 100) {
-
-        cells = (cells >> 1) & 0xFFFFFF;
-        if(cells == 0)
-            cells = 1;
-
+    if (HAL_GetTick() - t >= 250U) {
         bms_manager_set_discharge_cells(cells);
-
-        last_timestamp = curr_timestamp;
+        cells = (cells << 1U) & 0xFFFFFF;
+        if (cells == 0U)
+            cells = 1U;
+        t = HAL_GetTick();
     }
-
 }
 
 #endif
@@ -183,6 +182,7 @@ int main(void)
   init_data.id = gpio_get_cellboard_id();
 
   fsm_state = fsm_run_state(fsm_state, &init_data);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -192,9 +192,12 @@ int main(void)
     fsm_state = fsm_run_state(fsm_state, NULL);
 
 #ifdef CONF_DEMO_ENABLE
-    demo();
+    _STATIC uint32_t t = 0U;
+    if (HAL_GetTick() - t >= 250U) {
+        demo();
+        t = HAL_GetTick();
+    }
 #endif
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
