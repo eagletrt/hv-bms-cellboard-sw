@@ -65,4 +65,16 @@
 
 /** @} */
 
+/*** ######################### DEBUG INFORMATION ####################### ***/
+
+/**
+ * @defgroup debug
+ * @brief Add useful debug utilities
+ * {@
+ */
+
+// Enable small demo to test all cellboard functionality
+#define CONF_DEMO_ENABLE
+
+
 #endif  // CELLBOARD_CONF_H

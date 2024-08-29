@@ -70,6 +70,54 @@ void system_reset(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+#ifdef CONF_DEMO_ENABLE
+
+void demo() {
+    uart_log("\033[H");
+
+    const raw_volt_t (* volt_values)[CELLBOARD_SEGMENT_SERIES_COUNT] = volt_get_values();
+
+    uart_log("=== VOLT VALUES ===\n");
+    for(size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
+        uart_log("%f\n", VOLT_VALUE_TO_VOLT(volt_values[i]));
+    }
+    uart_log("\n\n");
+
+    const raw_temp_t (* temp_values)[CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT] = temp_get_values();
+
+    uart_log("=== TEMPERATURE VALUES ===\n");
+    for(size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        uart_log("%d\n", temp_values[i]);
+    }
+    uart_log("\n\n");
+
+    const raw_temp_t (* discharge_temp_values)[CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT] = temp_get_values();
+
+    uart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
+    for(size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
+        uart_log("%d\n", discharge_temp_values[i]);
+    }
+    uart_log("\n\n");
+
+    static bit_flag32_t cells = 1;
+    static uint32_t last_timestamp = HAL_GetTick();
+
+    uint32_t curr_timestamp = HAL_GetTick();
+    if(curr_timestamp - last_timestamp > 100) {
+
+        cells = (cells >> 1) & 0xFFFFFF;
+        if(cells == 0)
+            cells = 1;
+
+        bms_manager_set_discharge_cells(cells);
+
+        last_timestamp = curr_timestamp;
+    }
+
+}
+
+#endif
+
 /* USER CODE END 0 */
 
 /**
@@ -142,6 +190,11 @@ int main(void)
   while (1)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
+
+#ifdef CONF_DEMO_ENABLE
+    demo();
+#endif
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
