@@ -355,6 +355,7 @@ BmsManagerReturnCode bms_manager_check_open_wire(void) {
 
         // Check other voltages
         for (size_t i = 1U; i <= CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
+            // TODO: Save and send via CAN cell that failed the open wire check
             int16_t dv = (int16_t)hmanager.pup[LTC6811_PUP_ACTIVE][i] - (int16_t)hmanager.pup[LTC6811_PUP_INACTIVE][i];
             if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD)
                 return BMS_MANAGER_OPEN_WIRE;

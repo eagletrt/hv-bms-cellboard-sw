@@ -174,6 +174,15 @@ bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byt
     if (byte_size != NULL)
         *byte_size = sizeof(hbal.can_payload);
 
+    // Update balancing status
+    hbal.can_payload.status = bms_cellboard_balancing_status_status_stopped;
+    if (bal_is_active()) {
+        hbal.can_payload.status = bal_is_paused() ?
+            bms_cellboard_balancing_status_status_paused :
+            bms_cellboard_balancing_status_status_running;
+    }
+
+    // Update discharging cells
     uint32_t cells = bms_manager_get_discharge_cells();
     hbal.can_payload.discharging_cell_0 = CELLBOARD_BIT_GET(cells, 0U);
     hbal.can_payload.discharging_cell_1 = CELLBOARD_BIT_GET(cells, 1U);
