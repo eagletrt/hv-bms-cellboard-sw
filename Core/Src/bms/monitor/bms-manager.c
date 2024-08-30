@@ -298,8 +298,9 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
     for (size_t i = 0U; i < temp_size; ++i) {
         // TODO: Add temperature conversion with right coefficients
         CELLBOARD_UNUSED(off);
-        const celsius_t value = 0U; // _bms_manager_raw_temp_to_celsius(temp[off + i]);
-        temp_update_value(index + i, value);
+        CELLBOARD_UNUSED(index);
+        // const celsius_t value = 0U; // _bms_manager_raw_temp_to_celsius(temp[off + i]);
+        // temp_update_value(index + i, value);
     }
     return BMS_MANAGER_OK;
 }

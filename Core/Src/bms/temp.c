@@ -117,13 +117,13 @@ TempReturnCode temp_start_conversion(void) {
 }
 
 TempReturnCode temp_notify_conversion_complete(const volt_t * const values, size_t size) {
-    htemp.busy = false;
     const size_t index = htemp.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
         const celsius_t temp = _temp_volt_to_celsius(values[i]);
         temp_update_value(index + i, temp);
     }
+    htemp.busy = false;
     return TEMP_OK;
 }
 

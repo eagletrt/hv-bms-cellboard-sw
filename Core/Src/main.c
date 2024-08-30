@@ -78,16 +78,35 @@ _STATIC void demo() {
     const cells_volt_t * const volt_values = volt_get_values();
 
     usart_log("=== VOLT VALUES ===\r\n");
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
-        usart_log("%f\r\n", (*volt_values)[i]);
+
+    usart_log("   ");
+    for (size_t i = 0U; i < 6U; ++i) 
+        usart_log("%5d", i);
+
+    usart_log("\r\n");
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT / 6U; ++i) {
+        usart_log("%d  ", i);
+        for (size_t j = 0U; j < 6U; ++j) { 
+            usart_log("%5.02f V ", (*volt_values)[i * 6U + j]);
+        }
+        usart_log("\r\n");
     }
     usart_log("\r\n\r\n");
 
     const cells_temp_t * const temp_values = temp_get_values();
 
     usart_log("=== TEMPERATURE VALUES ===\r\n");
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
-        usart_log("%f\r\n", (*temp_values)[i]);
+
+    for (size_t i = 0U; i < 8U; ++i) 
+        usart_log("  %7d", i);
+
+    usart_log("\r\n");
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / 8U; ++i) {
+        usart_log("%d  ", i);
+        for (size_t j = 0U; j < 8U; ++j) {
+            usart_log("%9.02f C", (*temp_values)[i * 8U + j]);
+        }
+        usart_log("\r\n");
     }
     usart_log("\r\n\r\n");
 
