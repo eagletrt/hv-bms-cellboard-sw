@@ -22,7 +22,6 @@ Functions and types have been generated with prefix "fsm_"
 #include "post.h"
 #include "timebase.h"
 #include "identity.h"
-#include "watchdog.h"
 #include "programmer.h"
 #include "bal.h"
 /*** USER CODE END MACROS ***/
@@ -57,26 +56,7 @@ transition_func_t *const fsm_transition_table[FSM_NUM_STATES][FSM_NUM_STATES] = 
 fsm_event_data_t * fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-/**
- * @brief FSM handler structure
- *
- * @param fsm_state The current state of the FSM
- * @param status_can_paylod The canlib payload for the FSM status
- * @param flash_can_paylod The canlib payload for the flash response
- * @param discharge_wdg Watchdog used for the discharge procedure
- * @param cooldown_wdg Watchdog used for the cooldown procedure
- */
-_STATIC struct {
-    fsm_state_t fsm_state;
-    bms_cellboard_status_converted_t status_can_payload;
-    bms_cellboard_flash_response_converted_t flash_can_payload;
-
-    fsm_event_data_t event;
-    Watchdog discharge_wdg;
-    Watchdog cooldown_wdg;
-} hfsm = {
-    .fsm_state = FSM_STATE_INIT
-};
+_STATIC _FsmHandler hfsm = { .fsm_state = FSM_STATE_INIT };
 
 void _fsm_discharge_timeout(void) {
     // Stop balancing
@@ -131,26 +111,26 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
   hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
 
   // Run the Power On Self Test
-  PostReturnCode status = (data == NULL) ?
+  const PostReturnCode status = (data == NULL) ?
       POST_NULL_POINTER :
       post_run(*(PostInitData *)data);
 
   // Init canlib payloads
-  CellboardId id = identity_get_cellboard_id();
+  const CellboardId id = identity_get_cellboard_id();
   hfsm.status_can_payload.cellboard_id = (int)id;
   hfsm.flash_can_payload.cellboard_id = (int)id;
   hfsm.flash_can_payload.ready = true;
 
   // Initialize discharge and cooldown watchdogs
-  milliseconds_t resolution = timebase_get_resolution();
+  const milliseconds_t resolution = timebase_get_resolution();
   (void)watchdog_init(
       &hfsm.discharge_wdg,
-      TIMEBASE_TIME_TO_TICKS(FSM_DISCHARGE_TIMEOUT, resolution),
+      TIMEBASE_MS_TO_TICKS(FSM_DISCHARGE_TIMEOUT_MS, resolution),
       _fsm_discharge_timeout
   );
   (void)watchdog_init(
       &hfsm.cooldown_wdg,
-      TIMEBASE_TIME_TO_TICKS(FSM_COOLDOWN_TIMEOUT, resolution),
+      TIMEBASE_MS_TO_TICKS(FSM_COOLDOWN_TIMEOUT_MS, resolution),
       _fsm_cooldown_timeout
   );
 
@@ -184,6 +164,8 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_IDLE ***/
+  CELLBOARD_UNUSED(data);
+
   (void)timebase_routine();
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
@@ -222,6 +204,8 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_FATAL ***/
+  CELLBOARD_UNUSED(data);
+
   (void)timebase_routine();
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
@@ -251,11 +235,13 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_FLASH ***/
+  CELLBOARD_UNUSED(data);
+
   (void)timebase_routine();
   (void)led_routine(timebase_get_time());
   (void)can_comm_routine();
 
-  ProgrammerReturnCode code = programmer_routine();
+  const ProgrammerReturnCode code = programmer_routine();
   if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
       next_state = FSM_STATE_IDLE;
   /*** USER CODE END DO_FLASH ***/
@@ -281,6 +267,8 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_DISCHARGE ***/
+  CELLBOARD_UNUSED(data);
+
   (void)timebase_routine();
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
@@ -317,6 +305,8 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
   
   
   /*** USER CODE BEGIN DO_COOLDOWN ***/
+  CELLBOARD_UNUSED(data);
+
   (void)timebase_routine();
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
@@ -364,6 +354,8 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
 void fsm_start(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START ***/
+  CELLBOARD_UNUSED(data);
+
   // Enable modules
   can_comm_enable_all(); 
   timebase_set_enable(true);
@@ -376,6 +368,8 @@ void fsm_start(fsm_state_data_t *data) {
 void fsm_handle_init_error(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN HANDLE_INIT_ERROR ***/
+  CELLBOARD_UNUSED(data);
+
   // Enable modules
   can_comm_enable_all(); 
   timebase_set_enable(true);
@@ -389,6 +383,8 @@ void fsm_handle_init_error(fsm_state_data_t *data) {
 void fsm_start_flash_procedure(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_FLASH_PROCEDURE ***/
+  CELLBOARD_UNUSED(data);
+
   // TODO: Take actions based on the flash target and change payload ready flag if not ready
   can_comm_send_immediate(
       BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
@@ -407,6 +403,8 @@ void fsm_start_flash_procedure(fsm_state_data_t *data) {
 void fsm_start_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_DISCHARGE ***/
+  CELLBOARD_UNUSED(data);
+
   // TODO: Handle watchdog unavailabe
   (void)bal_start();
   (void)watchdog_restart(&hfsm.discharge_wdg);
@@ -421,7 +419,7 @@ void fsm_start_discharge(fsm_state_data_t *data) {
 void fsm_handle_fatal_error(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
-  
+  CELLBOARD_UNUSED(data); 
   /*** USER CODE END HANDLE_FATAL_ERROR ***/
 }
 
@@ -430,6 +428,8 @@ void fsm_handle_fatal_error(fsm_state_data_t *data) {
 void fsm_stop_flash_procedure(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN STOP_FLASH_PROCEDURE ***/
+  CELLBOARD_UNUSED(data);
+
   // Restart data transmission after flash procedure
   can_comm_enable(CAN_COMM_TX_ENABLE_BIT);
   /*** USER CODE END STOP_FLASH_PROCEDURE ***/
@@ -441,6 +441,8 @@ void fsm_stop_flash_procedure(fsm_state_data_t *data) {
 void fsm_stop_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN STOP_DISCHARGE ***/
+  CELLBOARD_UNUSED(data);
+
   bal_stop();
   (void)watchdog_stop(&hfsm.discharge_wdg);
   (void)watchdog_stop(&hfsm.cooldown_wdg);
@@ -452,6 +454,8 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
 void fsm_start_cooldown(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START_COOLDOWN ***/
+  CELLBOARD_UNUSED(data);
+
   bal_pause();
   (void)watchdog_stop(&hfsm.discharge_wdg);
   // TODO: Handle watchdog unavailabe
@@ -464,6 +468,8 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
 void fsm_restart_discharge(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN RESTART_DISCHARGE ***/
+  CELLBOARD_UNUSED(data);
+
   bal_resume();
   (void)watchdog_stop(&hfsm.cooldown_wdg);
   // TODO: Handle watchdog unavailabe
@@ -509,12 +515,11 @@ fsm_state_t fsm_get_status(void) {
     return hfsm.fsm_state;
 }
 
-bms_cellboard_status_converted_t * fsm_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_status_converted_t * fsm_get_status_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hfsm.status_can_payload);
-
-    // Cellboard id is saved during init
-    hfsm.status_can_payload.status = hfsm.fsm_state;
+    // Cellboard id is saved during the init state
+    hfsm.status_can_payload.status = (bms_cellboard_status_status)hfsm.fsm_state;
     return &hfsm.status_can_payload;
 }
 /*** USER CODE END FUNCTIONS ***/

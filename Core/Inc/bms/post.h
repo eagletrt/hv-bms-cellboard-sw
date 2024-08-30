@@ -75,7 +75,7 @@ typedef struct {
  *     - POST_WATCHDOG_INVALID_MESSAGE the watchdog are using an invalid message
  *     - POST_OK otherwise
  */
-PostReturnCode post_run(PostInitData data);
+PostReturnCode post_run(const PostInitData data);
 
 #else  // CONF_POST_MODULE_ENABLE
 

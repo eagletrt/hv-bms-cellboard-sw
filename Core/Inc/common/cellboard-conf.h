@@ -11,8 +11,6 @@
 #ifndef CELLBOARD_CONF_H
 #define CELLBOARD_CONF_H
 
-#include "cellboard-def.h"
-
 /*** ######################### LIBRARIES MACROS ########################## ***/
 
 /**
@@ -76,5 +74,9 @@
 // Enable small demo to test all cellboard functionality
 #define CONF_DEMO_ENABLE
 
+// Enable custom asserts
+#define CONF_FULL_ASSERT_ENABLE
+
+/** @} */
 
 #endif  // CELLBOARD_CONF_H

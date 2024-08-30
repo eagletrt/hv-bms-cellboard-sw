@@ -35,11 +35,16 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "cellboard-def.h"
+
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
+
+// Maximum buffer size
+#define USART_MAX_BUF_SIZE (10000U)
 
 /* USER CODE END Private defines */
 
@@ -47,8 +52,22 @@ void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-void uart_log_ms(uint32_t ms, const char* fmt, ...);
-void uart_log(const char *fmt, ...);
+/**
+ * @brief Print a formatted string via the UART
+ *
+ * @param fmt The string format
+ * @param ... values to put inside the formatted string (optional)
+ */
+void usart_log(const char * const fmt, ...);
+
+/**
+ * @brief Print a formatted string with a certain interval via the UART
+ *
+ * @param interval The interval in ms
+ * @param fmt The string format
+ * @param ... values to put inside the formatted string (optional)
+ */
+void usart_log_ms(const milliseconds_t interval, const char * const fmt, ...);
 
 /* USER CODE END Prototypes */
 

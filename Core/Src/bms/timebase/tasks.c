@@ -24,53 +24,81 @@
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
-/** @brief Convert a task name to the corresponding TasksId name */
-#define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
-
 _STATIC _TasksHandler htasks;
 
 /** @brief Send the current FSM status via CAN */
 void _tasks_send_status(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)fsm_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)fsm_get_status_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_STATUS_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
 /** @brief Send the version info via CAN */
 void _tasks_send_version(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)identity_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_VERSION_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)identity_get_version_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_VERSION_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
 /** @brief Send the errors status via CAN */
 void _tasks_send_errors(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)error_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_ERRORS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)error_get_errors_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_ERRORS_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
 /** @brief Send the cells voltages via CAN */
 void _tasks_send_voltages(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)volt_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_CELLS_VOLTAGE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)volt_get_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_CELLS_VOLTAGE_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
 /** @brief Send the cells temperatures via CAN */
 void _tasks_send_temperatures(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)temp_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)temp_get_cells_temp_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
 /** @brief Send the current balancing status info via CAN */
 void _tasks_send_balancing_status(void) {
     size_t byte_size = 0U;
-    uint8_t * payload = (uint8_t *)bal_get_canlib_payload(&byte_size);
-    can_comm_tx_add(BMS_CELLBOARD_BALANCING_STATUS_INDEX, CAN_FRAME_TYPE_DATA, payload, byte_size);
+    const uint8_t * const payload = (const uint8_t * const)bal_get_status_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_BALANCING_STATUS_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
 }
 
+/** @brief Start the temperatures conversion */
 void _tasks_read_temperatures(void) {
     temp_start_conversion();
 }
@@ -90,7 +118,7 @@ TasksReturnCode tasks_init(milliseconds_t resolution) {
     do { \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].id = TASKS_NAME_TO_ID(NAME); \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].start = (START); \
-        htasks.tasks[TASKS_NAME_TO_ID(NAME)].interval = TIMEBASE_TIME_TO_TICKS(INTERVAL, resolution); \
+        htasks.tasks[TASKS_NAME_TO_ID(NAME)].interval = TIMEBASE_MS_TO_TICKS(INTERVAL, resolution); \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].exec = (EXEC); \
     } while(0U);
 
@@ -100,25 +128,25 @@ TasksReturnCode tasks_init(milliseconds_t resolution) {
     return TASKS_OK;
 }
 
-Task * tasks_get_task(TasksId id) {
+Task * tasks_get_task(const TasksId id) {
     if (id >= TASKS_ID_COUNT)
         return NULL;
     return &htasks.tasks[id];
 }
 
-ticks_t tasks_get_start(TasksId id) {
+ticks_t tasks_get_start(const TasksId id) {
     if (id >= TASKS_ID_COUNT)
         return 0U;
     return htasks.tasks[id].start;
 }
 
-ticks_t tasks_get_interval(TasksId id) {
+ticks_t tasks_get_interval(const TasksId id) {
     if (id >= TASKS_ID_COUNT)
         return 0U;
     return htasks.tasks[id].interval;
 }
 
-tasks_callback tasks_get_callback(TasksId id) {
+tasks_callback tasks_get_callback(const TasksId id) {
     if (id >= TASKS_ID_COUNT)
         return 0U;
     return htasks.tasks[id].exec;

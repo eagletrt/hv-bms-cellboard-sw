@@ -18,13 +18,19 @@
 #include "volt.h"
 #include "ltc6811.h"
 
-/** @brief Thresholds used during the open wire check in mV */
-#define BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT ((millivolt_t)-400.f)
-#define BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT ((millivolt_t)0.00005f)
+/** @brief Thresholds used during the open wire check in V */
+#define BMS_MANAGER_OPEN_WIRE_THRESHOLD_V (-0.400f)
+#define BMS_MANAGER_OPEN_WIRE_ZERO_V (0.000005f)
 
-/** @brief Thresholds used during the open wire check in mV * 10 */
-#define BMS_MANAGER_OPEN_WIRE_THRESHOLD (-((int16_t)VOLT_MILLIVOLT_TO_VALUE(-(BMS_MANAGER_OPEN_WIRE_THRESHOLD_MILLIVOLT))))
-#define BMS_MANAGER_OPEN_WIRE_ZERO VOLT_MILLIVOLT_TO_VALUE(BMS_MANAGER_OPEN_WIRE_ZERO_MILLIVOLT)
+/**
+ * @brief Convert the raw value read from the LTC to a voltage value in V
+ *
+ * @param value The raw value
+ *
+ * @return volt_t The converted voltage value in V
+ */
+// TODO: Move macro into the bms monitor library
+#define BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(value) ((value) * 0.0001f)
 
 /**
  * @brief Return code for the BMS manager module functions
@@ -52,18 +58,18 @@ typedef enum {
 
 /** @brief List of voltage registers */
 typedef enum {
-    BMS_MANAGER_VOLTAGE_REGISTER_A,
-    BMS_MANAGER_VOLTAGE_REGISTER_B,
-    BMS_MANAGER_VOLTAGE_REGISTER_C,
-    BMS_MANAGER_VOLTAGE_REGISTER_D,
-    BMS_MANAGER_VOLTAGE_REGISTER_COUNT
+    BMS_MANAGER_VOLTAGE_REGISTER_A = LTC6811_CVAR,
+    BMS_MANAGER_VOLTAGE_REGISTER_B = LTC6811_CVBR,
+    BMS_MANAGER_VOLTAGE_REGISTER_C = LTC6811_CVCR,
+    BMS_MANAGER_VOLTAGE_REGISTER_D = LTC6811_CVDR,
+    BMS_MANAGER_VOLTAGE_REGISTER_COUNT = LTC6811_CVXR_COUNT
 } BmsManagerVoltageRegister;
 
 /** @brief List of temperatures registers */
 typedef enum {
-    BMS_MANAGER_TEMPERATURE_REGISTER_A,
-    BMS_MANAGER_TEMPERATURE_REGISTER_B,
-    BMS_MANAGER_TEMPERATURE_REGISTER_COUNT
+    BMS_MANAGER_TEMPERATURE_REGISTER_A = LTC6811_AVAR,
+    BMS_MANAGER_TEMPERATURE_REGISTER_B = LTC6811_AVBR,
+    BMS_MANAGER_TEMPERATURE_REGISTER_COUNT = LTC6811_AVXR_COUNT
 } BmsManagerTemperatureRegister;
 
 /** @brief List of open wire procedure operations */
@@ -80,7 +86,7 @@ typedef enum {
  *
  * @return BmsManagerReturnCode The result of the data transmission
  */
-typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * data, size_t size);
+typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * const data, const size_t size);
 
 /**
  * @brief Callback used to send and receive data via SPI
@@ -93,14 +99,14 @@ typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * data, siz
  * @return BmsManagerReturnCode The result of the data transmission and reception
  */
 typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
-    uint8_t * data,
-    uint8_t * out,
-    size_t size,
-    size_t out_size
+    uint8_t * const data,
+    uint8_t * const out,
+    const size_t size,
+    const size_t out_size
 );
 
 /**
- * @brief Type definitino for the BMS manager handler structure
+ * @brief Type definition for the BMS manager handler structure
  *
  * @attention This struct should not be used outside of this module
  *
@@ -112,7 +118,7 @@ typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
  * @param chain The LTC handler structure
  * @param actual_config The actual configuration register read from the LTC
  * @param requested_config The requested configuration register of the LTC
- * @param pup An array of cells voltages read with pull-up active and inactive (see LTC6811_PUP)
+ * @param pup An array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_PUP)
  * @param communication_error_count A counter of the communication errors
  */
 typedef struct {
@@ -122,7 +128,7 @@ typedef struct {
     Ltc6811Chain chain;
     Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
     Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
-    raw_volt_t pup[2U][CELLBOARD_SEGMENT_SERIES_COUNT];
+    cells_volt_t pup[2U];
 
     size_t communication_error_count;
 } _BmsManagerHandler;
@@ -139,10 +145,7 @@ typedef struct {
  *     - BMS_MANAGER_NULL_POINTER if the send/receive callback pointer is NULL
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_init(
-    bms_manager_send_callback_t send,
-    bms_manager_send_receive_callback_t send_receive
-);
+BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive);
 
 /**
  * @brief Routine that handles the communication with the BMS monitor
@@ -218,7 +221,7 @@ BmsManagerReturnCode bms_manager_start_temp_conversion(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_start_open_wire_conversion(Ltc6811Pup pull_up);
+BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pull_up);
 
 /**
  * @brief Check if the started ADC conversion has ended
@@ -245,7 +248,7 @@ BmsManagerReturnCode bms_manager_poll_conversion_status(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
+BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister reg);
 
 /**
  * @brief Read the discharge resistors temperatures from the LTCs
@@ -260,7 +263,7 @@ BmsManagerReturnCode bms_manager_read_voltages(BmsManagerVoltageRegister reg);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister reg);
+BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRegister reg);
 
 /**
  * @brief Read the cells voltages after the open wire conversion from the LTCs
@@ -276,7 +279,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(BmsManagerTemperatureRegister
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_open_wire_voltages(BmsManagerVoltageRegister reg, BmsManagerOpenWireOperation op);
+BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltageRegister reg, const BmsManagerOpenWireOperation op);
 
 /**
  * @brief Check for open wires
@@ -302,7 +305,7 @@ BmsManagerReturnCode bms_manager_check_open_wire(void);
  * @return BmsManagerReturnCode
  *     - BMS_MANAGER_OK
  */
-BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells);
+BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32_t cells);
 
 /**
  * @brief Get the cells that are being currently discharged
@@ -322,7 +325,11 @@ bit_flag32_t bms_manager_get_discharge_cells(void);
  *
  * @return int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_config_string(Ltc6811Cfgr config, char * const out, size_t size);
+int bms_manager_get_config_string(
+    const Ltc6811Cfgr config,
+    char * const out,
+    const size_t size
+);
 
 /**
  * @brief Get a formtted string representation of the requested config for a single LTC
@@ -333,7 +340,11 @@ int bms_manager_get_config_string(Ltc6811Cfgr config, char * const out, size_t s
  *
  * @return int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_requested_config_string(size_t ltc, char * const out, size_t size);
+int bms_manager_get_requested_config_string(
+    const size_t ltc,
+    char * const out,
+    const size_t size
+);
 
 /**
  * @brief Get a formtted string representation of the actual config for a single LTC
@@ -344,7 +355,11 @@ int bms_manager_get_requested_config_string(size_t ltc, char * const out, size_t
  *
  * @return int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_actual_config_string(size_t ltc, char * const out, size_t size);
+int bms_manager_get_actual_config_string(
+    const size_t ltc,
+    char * const out,
+    const size_t size
+);
 
 #else  // CONF_BMS_MANAGER_STRINGS_ENABLE
 

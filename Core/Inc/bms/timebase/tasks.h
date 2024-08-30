@@ -50,6 +50,9 @@
     TASKS_X(READ_TEMPERATURES, 0U, 10U, _tasks_read_temperatures) \
     TASKS_X(RUN_BMS_MANAGER, 0U, 2U, _tasks_run_bms_manager)
 
+/** @brief Convert a task name to the corresponding TasksId name */
+#define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
+
 /** @brief Type definition for a function that excecutes a single task */
 typedef void (* tasks_callback)(void);
 
@@ -127,7 +130,7 @@ TasksReturnCode tasks_init(milliseconds_t resolution);
  *
  * @return Task* The pointer to the tasks or NULL if the id is not valid
  */
-Task * tasks_get_task(TasksId id);
+Task * tasks_get_task(const TasksId id);
 
 /**
  * @brief Get the start time of the task
@@ -136,7 +139,7 @@ Task * tasks_get_task(TasksId id);
  *
  * @return ticks_t The task start time or 0 if the id is not valid
  */
-ticks_t tasks_get_start(TasksId id);
+ticks_t tasks_get_start(const TasksId id);
 
 /**
  * @brief Get the interval time of the task
@@ -145,7 +148,7 @@ ticks_t tasks_get_start(TasksId id);
  *
  * @return ticks_t The task interval time or 0 if the id is not valid
  */
-ticks_t tasks_get_interval(TasksId id);
+ticks_t tasks_get_interval(const TasksId id);
 
 /**
  * @brief Get a pointer to the task callback
@@ -154,7 +157,7 @@ ticks_t tasks_get_interval(TasksId id);
  *
  * @return tasks_callback The task callback or NULL if the id is not valid
  */
-tasks_callback tasks_get_callback(TasksId id);
+tasks_callback tasks_get_callback(const TasksId id);
 
 #else  // CONF_TASKS_MODULE_ENABLE
 

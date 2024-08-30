@@ -10,8 +10,15 @@
 #ifndef PROGRAMMER_H
 #define PROGRAMMER_H
 
-#include "bms_network.h"
 #include "cellboard-def.h"
+
+#include "bms_network.h"
+
+#include "fsm.h"
+#include "watchdog.h"
+
+/** @brief The programmer flash timeout in ms */
+#define PROGRAMMER_FLASH_TIMEOUT_MS (1000U)
 
 /**
  * @brief Return code for the programmer module functions 
@@ -28,6 +35,33 @@ typedef enum {
 } ProgrammerReturnCode;
 
 /**
+ * @brief Type definition for the programmer handler structure
+ *
+ * @attention This structure should not be used outside of this module
+ *
+ * @param reset A pointer to a function that resets the microcontroller
+ * @param flash_event The FSM event data
+ * @param can_payload The flash response canlib data
+ * @param target The identifier of the cellboard(or mainboard) to flash
+ * @param flash_request True if a flash request is received, false otherwise
+ * @param flashing True if the cellboard is flashing, false otherwise
+ * @param watchog The watchdog used for the flash procedure
+ * @param timeout True if the watchdog has timed-out, false otherwise
+ */
+typedef struct {
+    system_reset_callback_t reset;
+    fsm_event_data_t flash_event;
+    bms_cellboard_flash_response_converted_t can_payload;
+
+    CellboardId target;
+    bool flash_request;
+    bool flashing;
+    bool flash_stop;
+
+    Watchdog watchdog;
+} _ProgrammerHandler;
+
+/**
  * @brief Intialize the internal programmer handler structure
  *
  * @param reset A pointer to the function that resets the microcontroller
@@ -35,21 +69,21 @@ typedef enum {
  * @return ProgrammerReturnCode
  *     - PROGRAMMER_OK
  */
-ProgrammerReturnCode programmer_init(system_reset_callback_t reset);
+ProgrammerReturnCode programmer_init(const system_reset_callback_t reset);
 
 /**
  * @brief Handle the received flash request
  *
  * @param payload A pointer to the canlib payload of the request
  */
-void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * payload);
+void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t * const payload);
 
 /**
  * @brief Handle the received actual flash command
  *
  * @param payload A pointer to the canlib payload of the command
  */
-void programmer_flash_handle(bms_cellboard_flash_converted_t * payload);
+void programmer_flash_handle(const bms_cellboard_flash_converted_t * const payload);
 
 /**
  * @brief Routine that should be called during the flash procedure

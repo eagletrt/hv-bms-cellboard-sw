@@ -11,21 +11,9 @@
 #include <time.h>
 #include <string.h>
 
-/**
- * @brief Identity module handler structure
- *
- * @param cellboard_id The identifier of the current cellboard
- * @param build_time The unix timestamp of the latest build time
- * @param can_payload The payload of the canlib message containing the cellboard version
- */
-_STATIC struct {
-    CellboardId cellboard_id;
-    seconds_t build_time;
+_STATIC _IdentityHandler hidentity;
 
-    bms_cellboard_version_converted_t can_payload;
-} hidentity;
-
-void identity_init(CellboardId id) {
+void identity_init(const CellboardId id) {
     memset(&hidentity, 0U, sizeof(hidentity));
 
     hidentity.cellboard_id = id;
@@ -38,9 +26,9 @@ void identity_init(CellboardId id) {
         hidentity.build_time = mktime(&tm);
 
     // Update canlib payload info
-    hidentity.can_payload.cellboard_id = id;
-    hidentity.can_payload.component_build_time = hidentity.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
-    hidentity.can_payload.canlib_build_time = CANLIB_BUILD_TIME;
+    hidentity.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)id;
+    hidentity.version_can_payload.component_build_time = hidentity.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
+    hidentity.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
 }
 
 CellboardId identity_get_cellboard_id(void) {
@@ -51,9 +39,8 @@ seconds_t identity_get_build_time(void) {
     return hidentity.build_time;
 }
 
-bms_cellboard_version_converted_t * identity_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(hidentity.can_payload);
-
-    return &hidentity.can_payload;
+        *byte_size = sizeof(hidentity.version_can_payload);
+    return &hidentity.version_can_payload;
 }

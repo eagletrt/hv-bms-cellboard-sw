@@ -16,7 +16,8 @@
 
 _STATIC ErrorLibHandler herror;
 
-bms_cellboard_errors_converted_t can_payload;
+// Canlib payload containing the errors
+_STATIC bms_cellboard_errors_converted_t errors_can_payload;
 
 /** @brief Total number of instances for each group */
 const size_t instances[] = {
@@ -77,17 +78,17 @@ ErrorReturnCode error_init(void) {
         ERROR_GROUP_COUNT
     ) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
-    memset(&can_payload, 0U, sizeof(can_payload));
+    memset(&errors_can_payload, 0U, sizeof(errors_can_payload));
     return ERROR_OK;
 }
 
-ErrorReturnCode error_set(ErrorGroup group, error_instance_t instance) {
+ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance) {
     if (errorlib_error_set(&herror, (errorlib_error_group_t)group, instance) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
     return ERROR_OK;
 }
 
-ErrorReturnCode error_reset(ErrorGroup group, error_instance_t instance) {
+ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance) {
     if (errorlib_error_reset(&herror, (errorlib_error_group_t)group, instance) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
     return ERROR_OK;
@@ -97,12 +98,12 @@ size_t error_get_expired(void) {
     return errorlib_get_expired(&herror);
 }
 
-bms_cellboard_errors_converted_t * error_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(can_payload);
+        *byte_size = sizeof(errors_can_payload);
     // TODO: Set canlib payload data
     // can_payload.can = errorlib_error_get_status(&herror, ERROR_GROUP_CAN);
-    return &can_payload;
+    return &errors_can_payload;
 }
 
 #ifdef CONF_ERROR_STRINGS_ENABLE

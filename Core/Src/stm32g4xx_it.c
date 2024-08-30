@@ -258,7 +258,7 @@ void TIM7_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
-static uint32_t primask;
+_STATIC uint32_t primask;
 
 void it_cs_enter(void) {
     primask = __get_PRIMASK();

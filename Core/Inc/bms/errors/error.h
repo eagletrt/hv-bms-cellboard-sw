@@ -27,6 +27,7 @@
 #define ERROR_GROUP_BMS_MONITOR_INSTANCE_COUNT (1U)
 #define ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT (1U)
 
+/** @brief Type redefinition for an error instance */
 typedef errorlib_error_instance_t error_instance_t;
 
 /**
@@ -80,8 +81,8 @@ typedef enum {
  * @brief Initialization of the internal error handler structure
  */
 ErrorReturnCode error_init(void);
-ErrorReturnCode error_set(ErrorGroup group, error_instance_t instance);
-ErrorReturnCode error_reset(ErrorGroup group, error_instance_t instance);
+ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance);
+ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance);
 size_t error_get_expired(void);
 
 /**
@@ -91,7 +92,7 @@ size_t error_get_expired(void);
  *
  * @return bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cellboard_errors_converted_t * error_get_canlib_payload(size_t * byte_size);
+bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_ERROR_MODULE_ENABLE
 
@@ -99,7 +100,7 @@ bms_cellboard_errors_converted_t * error_get_canlib_payload(size_t * byte_size);
 #define error_set(group, instance) (ERROR_OK)
 #define error_reset(group, instance) (ERROR_OK)
 #define error_get_expired() (0U)
-#define error_get_canlib_payload(byte_size) (NULL)
+#define error_get_errors_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_ERROR_MODULE_ENABLE
 

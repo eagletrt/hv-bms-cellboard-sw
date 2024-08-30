@@ -11,6 +11,8 @@
 
 #include <stdint.h>
 
+#include "cellboard-conf.h"
+
 /**
  * @brief No operation
  *
@@ -219,6 +221,46 @@
         CELLBOARD_BIT_RESET(VAR, BIT) \
     )
 
+/**
+ * @brief Convert a value gathered from an ADC to a voltage in V
+ *
+ * @param VALUE The raw value to convert
+ * @param VREF The voltage reference in V
+ * @param RES The resolution of the ADC in bits
+ */
+#define CELLBOARD_ADC_RAW_VALUE_TO_VOLT(VALUE, VREF, RES) ((float)(VALUE) / ((1U << RES) - 1U) * (VREF))
+
+/**
+ * @brief Compile time assertion
+ *
+ * @details Useful for debugging, should be disabled when compiled for release
+ */
+#ifdef CONF_FULL_ASSERT_ENABLE
+
+/**
+ * @brief Make an assertion about an expression
+ *
+ * @details If the assertion fails a the cellboard_assert_failed function is
+ * called giving the file, line, date and time parameters to get better debug info
+ */
+#define CELLBOARD_ASSERT(expression) ((expression) ? \
+    CELLBOARD_NOPE() : \
+    cellboard_assert_failed(__FILE__, __LINE__))
+
+/**
+ * @brief Debug function called when an assertion fails
+ *
+ * @param file The file where the assert failed
+ * @param line The line where the assert failed
+ */
+void cellboard_assert_failed(const char * file, const int line);
+
+#else  // CONF_FULL_ASSERT_ENABLE
+
+#define CELLBOARD_ASSERT(expression) CELLBOARD_NOPE()
+
+#endif  // CONF_FULL_ASSERT_ENABLE
+
 /** @} */
 
 /*** ######################### TYPE DEFINITIONS ########################## ***/
@@ -332,10 +374,12 @@ typedef enum {
  * @brief Definition of possible CAN frame types
  *
  * @details
+ *     - CAN_FRAME_TYPE_INVALID a non existent CAN frame type
  *     - CAN_FRAME_TYPE_DATA the CAN frame that contains data
  *     - CAN_FRAME_TYPE_REMOTE the CAN frame used to request a data transmission from another node in the network
  */
 typedef enum {
+    CAN_FRAME_TYPE_INVALID = -1,
     CAN_FRAME_TYPE_DATA,
     CAN_FRAME_TYPE_REMOTE,
     CAN_FRAME_TYPE_COUNT

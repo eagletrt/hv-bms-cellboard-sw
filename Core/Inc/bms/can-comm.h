@@ -15,7 +15,9 @@
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
+
 #include "bms_network.h"
+#include "ring-buffer.h"
 
 /** @brief Maximum number of bytes of the payload in a CAN message */
 #define CAN_COMM_MAX_PAYLOAD_BYTE_SIZE (8U)
@@ -27,6 +29,71 @@
 /** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
 #define CAN_COMM_TX_BUFFER_BYTE_SIZE (16U)
 #define CAN_COMM_RX_BUFFER_BYTE_SIZE (16U)
+
+/** @brief Mask for the bits that defines if the CAN module is enabled or not */
+#define CAN_COMM_ENABLED_ALL_MASK \
+    ( \
+        (1U << CAN_COMM_RX_ENABLE_BIT) | \
+        (1U << CAN_COMM_TX_ENABLE_BIT) \
+    )
+
+/**
+ * @brief Enable a single bit of the internal flag
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to set
+ */
+#define CAN_COMM_ENABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_SET(FLAG, BIT))
+/**
+ * @brief Disable a single bit of the internal flag
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to reset
+ */
+#define CAN_COMM_DISABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_RESET(FLAG, BIT))
+/**
+ * @brief Toggle a single bit of the internal flag
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to flip
+ */
+#define CAN_COMM_TOGGLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_TOGGLE(FLAG, BIT))
+/**
+ * @brief Check if a specific bit of the internal flag is set
+ *
+ * @param FLAG The internal flag
+ * @param BIT The bit of the flag to check
+ *
+ * @return bool True if the bit is set, false otherwise
+ */
+#define CAN_COMM_IS_ENABLED(FLAG, BIT) CELLBOARD_BIT_GET(FLAG, BIT)
+
+/**
+ * @brief Enable all the bits of the internal flag
+ *
+ * @param FLAG The internal flag
+ */
+#define CAN_COMM_ENABLE_ALL(FLAG) ((FLAG) |= CAN_COMM_ENABLED_ALL_MASK)
+/**
+ * @brief Disable all the bits of the internal flag
+ *
+ * @param FLAG The internal flag
+ */
+#define CAN_COMM_DISABLE_ALL(FLAG) ((FLAG) &= ~CAN_COMM_ENABLED_ALL_MASK)
+/**
+ * @brief Toggle all the bits of the internal flag
+ *
+ * @param FLAG The internal flag
+ */
+#define CAN_COMM_TOGGLE_ALL(FLAG) ((FLAG) ^= CAN_COMM_ENABLED_ALL_MASK)
+/**
+ * @brief Check if all the bits of the internal flag are set
+ *
+ * @param FLAG The internal flag
+ *
+ * @return bool True if all the bits are set, false otherwise
+ */
+#define CAN_COMM_IS_ENABLED_ALL(FLAG) (((FLAG) & CAN_COMM_ENABLED_ALL_MASK) == CAN_COMM_ENABLED_ALL_MASK)
 
 /**
  * @brief Return code for the CAN communication module functions
@@ -108,10 +175,10 @@ typedef struct {
  */
 typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_id_t id,
-    CanFrameType frame_type,
-    const uint8_t * data,
-    size_t size
+    const can_id_t id,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size
 );
 
 /**
@@ -121,7 +188,33 @@ typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
  *
  * @param payload A pointer to the converted canlib structure data
  */
-typedef void (* can_comm_canlib_payload_handle_callback)(void * payload);
+typedef void (* can_comm_canlib_payload_handle_callback)(const void * const payload);
+
+/**
+ * @brief CAN manager handler structure
+ *
+ * @details The enabled bit flag 
+ *
+ * @param enabled Flag used to enable or disable the CAN communication
+ * @param tx_buf Transmission messages circular buffer
+ * @param rx_buf Reception messages circular buffer
+ * @param send A pointer to the callback used to send the data via CAN
+ * @param rx_device The reception canlib message handler
+ * @param rx_raw The reception raw data of the message
+ * @param rx_conv The reception converted data of the message
+ */
+typedef struct  {
+    bit_flag8_t enabled;
+    RingBuffer(CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE) tx_buf;
+    RingBuffer(CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE) rx_buf;
+
+    can_comm_transmit_callback_t send;
+
+    // Canlib devices
+    device_t rx_device;
+    uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
+    uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
+} _CanCommHandler;
 
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
@@ -135,7 +228,7 @@ typedef void (* can_comm_canlib_payload_handle_callback)(void * payload);
  *     - CAN_COMM_NULL_POINTER a NULL pointer was given as parameter
  *     - CAN_COMM_OK otherwise
  */
-CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send);
+CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send);
 
 /** @brief Enable the CAN manager */
 void can_comm_enable_all(void);
@@ -155,14 +248,14 @@ bool can_comm_is_enabled_all(void);
  *
  * @param bit The bit to enable
  */
-void can_comm_enable(CanCommEnableBit bit);
+void can_comm_enable(const CanCommEnableBit bit);
 
 /**
  * @brief Disable a single bit of the internal handler flag
  *
  * @param bit The bit to disable
  */
-void can_comm_disable(CanCommEnableBit bit);
+void can_comm_disable(const CanCommEnableBit bit);
 
 /**
  * @brief Check if a single bit of the internal handler flag is enabled
@@ -171,7 +264,7 @@ void can_comm_disable(CanCommEnableBit bit);
  *
  * @return bool True if the manager is enabled, false otherwise
  */
-bool can_comm_is_enabled(CanCommEnableBit bit);
+bool can_comm_is_enabled(const CanCommEnableBit bit);
 
 /**
  * @brief Immediately send the message via the CAN bus
@@ -194,10 +287,10 @@ bool can_comm_is_enabled(CanCommEnableBit bit);
  *     - CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_comm_send_immediate(
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size
 );
 
 /**
@@ -220,10 +313,10 @@ CanCommReturnCode can_comm_send_immediate(
  */
 CanCommReturnCode can_comm_tx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size
 );
 
 /**
@@ -245,10 +338,10 @@ CanCommReturnCode can_comm_tx_add(
  */
 CanCommReturnCode can_comm_rx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size
 );
 
 /**

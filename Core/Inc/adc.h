@@ -44,26 +44,10 @@ extern ADC_HandleTypeDef hadc2;
 /** @brief Total number of ADC channels used */
 #define ADC_DMA_CHANNEL_COUNT (3U)
 
-/** @brief ADC reference voltage in mV */
-#define ADC_VREF ((millivolt_t)3300.0f)
+/** @brief ADC reference voltage in V */
+#define ADC_VREF (3.3f)
 /** @brief ADC resolution in bits */
 #define ADC_RESOLUTION (12U)
-
-/**
- * @brief Voltage range that correspond to a certian cellboard index in mV
- *
- * @details The +1 at the end is added to avoid overflow with the last value
- */
-#define ADC_INDEX_VOLTAGE_RANGE ((millivolt_t)((ADC_VREF / CELLBOARD_COUNT) + 1.0f))
-
-/**
- * @brief Convert a 12-bit ADC value to a voltage in mV
- *
- * @param value The value to convert
- *
- * @return millivolt_t The converted voltage value
- */
-#define ADC_VALUE_TO_VOLTAGE(value) ((millivolt_t)((value) / ((1U << ADC_RESOLUTION) - 1.0f) * ADC_VREF))
 
 /**
  * @brief Return code for the ADC module functions

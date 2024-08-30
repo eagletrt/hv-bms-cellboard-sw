@@ -17,107 +17,17 @@
 #include "bal.h"
 #include "error.h"
 
-#include "ring-buffer.h"
 #include "canlib_device.h"
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 
-/** @brief Mask for the bits that defines if the CAN module is enabled or not */
-#define CAN_COMM_ENABLED_ALL_MASK \
-    ( \
-        (1U << CAN_COMM_RX_ENABLE_BIT) | \
-        (1U << CAN_COMM_TX_ENABLE_BIT) \
-    )
+_STATIC _CanCommHandler hcan_comm;
 
-/**
- * @brief Enable a single bit of the internal flag
- *
- * @param FLAG The internal flag
- * @param BIT The bit of the flag to set
- */
-#define CAN_COMM_ENABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_SET(FLAG, BIT))
-/**
- * @brief Disable a single bit of the internal flag
- *
- * @param FLAG The internal flag
- * @param BIT The bit of the flag to reset
- */
-#define CAN_COMM_DISABLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_RESET(FLAG, BIT))
-/**
- * @brief Toggle a single bit of the internal flag
- *
- * @param FLAG The internal flag
- * @param BIT The bit of the flag to flip
- */
-#define CAN_COMM_TOGGLE(FLAG, BIT) ((FLAG) = CELLBOARD_BIT_TOGGLE(FLAG, BIT))
-/**
- * @brief Check if a specific bit of the internal flag is set
- *
- * @param FLAG The internal flag
- * @param BIT The bit of the flag to check
- *
- * @return bool True if the bit is set, false otherwise
- */
-#define CAN_COMM_IS_ENABLED(FLAG, BIT) CELLBOARD_BIT_GET(FLAG, BIT)
+void _can_comm_canlib_payload_handle_dummy(const void * const _) {
+    CELLBOARD_UNUSED(_);
+}
 
-/**
- * @brief Enable all the bits of the internal flag
- *
- * @param FLAG The internal flag
- */
-#define CAN_COMM_ENABLE_ALL(FLAG) ((FLAG) |= CAN_COMM_ENABLED_ALL_MASK)
-/**
- * @brief Disable all the bits of the internal flag
- *
- * @param FLAG The internal flag
- */
-#define CAN_COMM_DISABLE_ALL(FLAG) ((FLAG) &= ~CAN_COMM_ENABLED_ALL_MASK)
-/**
- * @brief Toggle all the bits of the internal flag
- *
- * @param FLAG The internal flag
- */
-#define CAN_COMM_TOGGLE_ALL(FLAG) ((FLAG) ^= CAN_COMM_ENABLED_ALL_MASK)
-/**
- * @brief Check if all the bits of the internal flag are set
- *
- * @param FLAG The internal flag
- *
- * @return bool True if all the bits are set, false otherwise
- */
-#define CAN_COMM_IS_ENABLED_ALL(FLAG) (((FLAG) & CAN_COMM_ENABLED_ALL_MASK) == CAN_COMM_ENABLED_ALL_MASK)
-
-
-/**
- * @brief CAN manager handler structure
- *
- * @details The enabled bit flag 
- *
- * @param enabled Flag used to enable or disable the CAN communication
- * @param tx_buf Transmission messages circular buffer
- * @param rx_buf Reception messages circular buffer
- * @param send A pointer to the callback used to send the data via CAN
- * @param rx_device The reception canlib message handler
- * @param rx_raw The reception raw data of the message
- * @param rx_conv The reception converted data of the message
- */
-_STATIC struct CanCommHandler  {
-    bit_flag8_t enabled;
-    RingBuffer(CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE) tx_buf;
-    RingBuffer(CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE) rx_buf;
-
-    can_comm_transmit_callback_t send;
-
-    // Canlib devices
-    device_t rx_device;
-    uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
-    uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
-} hcan_comm;
-
-
-void _can_comm_canlib_payload_handle_dummy(void * _) { }
-
-can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index_t index) {
+can_comm_canlib_payload_handle_callback _can_comm_payload_handle(const can_index_t index) {
     switch (index) {
         case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
             return (can_comm_canlib_payload_handle_callback)programmer_flash_request_handle;
@@ -130,7 +40,7 @@ can_comm_canlib_payload_handle_callback _can_comm_payload_handle(can_index_t ind
     }
 }
 
-CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send) {
+CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send) {
     if (send == NULL)
         return CAN_COMM_NULL_POINTER;
 
@@ -151,7 +61,6 @@ CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send) {
         &hcan_comm.rx_conv,
         bms_MAX_STRUCT_SIZE_CONVERSION
     );
-
     return CAN_COMM_OK;
 }
 
@@ -167,29 +76,29 @@ bool can_comm_is_enabled_all(void) {
     return CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled);
 }
 
-void can_comm_enable(CanCommEnableBit bit) {
+void can_comm_enable(const CanCommEnableBit bit) {
     if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
         return;
     CAN_COMM_ENABLE(hcan_comm.enabled, bit);
 }
 
-void can_comm_disable(CanCommEnableBit bit) {
+void can_comm_disable(const CanCommEnableBit bit) {
     if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
         return;
     CAN_COMM_DISABLE(hcan_comm.enabled, bit);
 }
 
-bool can_comm_is_enabled(CanCommEnableBit bit) {
+bool can_comm_is_enabled(const CanCommEnableBit bit) {
     if (bit >= CAN_COMM_ENABLE_BIT_COUNT)
         return false;
     return CAN_COMM_IS_ENABLED(hcan_comm.enabled, bit);
 }
 
 CanCommReturnCode can_comm_send_immediate(
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size)
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size)
 {
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
@@ -225,10 +134,10 @@ CanCommReturnCode can_comm_send_immediate(
 }
 
 CanCommReturnCode can_comm_tx_add(
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size)
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size)
 {
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
@@ -259,10 +168,10 @@ CanCommReturnCode can_comm_tx_add(
 }
 
 CanCommReturnCode can_comm_rx_add(
-    can_index_t index,
-    CanFrameType frame_type,
-    uint8_t * data,
-    size_t size)
+    const can_index_t index,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size)
 {    
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT))
         return CAN_COMM_DISABLED;

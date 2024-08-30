@@ -10,47 +10,14 @@
 #include <string.h>
 
 #include "cellboard-def.h"
-#include "fsm.h"
 #include "post.h"
 #include "timebase.h"
-#include "watchdog.h"
 #include "volt.h"
 #include "identity.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
-/**
- * @brief Definition of the balancing parameters
- *
- * @param target The minimum target voltage raw value that can be reached while discharging
- * @param threshold The minimum difference between the maxiumum and minimum
- * cell voltages that can be reached
- */
-typedef struct {
-    raw_volt_t target;
-    raw_volt_t threshold;
-} BalParams;
-
-/**
- * @brief Balancing handler structure
- *
- * @details The requested parameters are expected to be equals to the actual parameters
- *
- * @param event The FSM event data
- * @param can_payload The canlib payload of the balancing module
- * @param watchdog The watchdog that stops the balancing procedure when timed out
- * @param active True if the balancing is active, false otherwise
- * @param paused True if the balancing is paused, false otherwise
- * @param params The balancing parameters
- */
-_STATIC struct {
-    fsm_event_data_t event;
-    bms_cellboard_balancing_status_converted_t can_payload;
-    Watchdog watchdog;
-
-    bool active, paused;
-    BalParams params;
-} hbal;
+_STATIC _BalHandler hbal;
 
 void _bal_timeout(void) {
     // Stop balancing
@@ -64,23 +31,23 @@ BalReturnCode bal_init(void) {
     // Set default event and canlib payload
     hbal.event.type = FSM_EVENT_TYPE_IGNORED;
 
-    hbal.can_payload.cellboard_id = identity_get_cellboard_id();
+    hbal.status_can_payload.cellboard_id = (bms_cellboard_balancing_status_cellboard_id)identity_get_cellboard_id();
 
     // Set default balancing parameters
-    hbal.params.target = BAL_TARGET_MAX;
-    hbal.params.threshold = BAL_THRESHOLD_MAX;
+    hbal.params.target = BAL_TARGET_MAX_V;
+    hbal.params.threshold = BAL_THRESHOLD_MAX_V;
 
     // Initialize main balancing watchdog
     (void)watchdog_init(
         &hbal.watchdog,
-        TIMEBASE_TIME_TO_TICKS(BAL_TIMEOUT, timebase_get_resolution()),
+        TIMEBASE_MS_TO_TICKS(BAL_TIMEOUT_MS, timebase_get_resolution()),
         _bal_timeout
     );
     return BAL_OK;
 }
 
 // TODO: Handle unavailable watchdog
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload) {
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * const payload) {
     if (payload == NULL)
         return;
     // Ignore stop command if not balancing
@@ -88,13 +55,13 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
         return;
  
     // Update data
-    raw_volt_t target = VOLT_VOLT_TO_VALUE(payload->target);
-    raw_volt_t threshold = VOLT_VOLT_TO_VALUE(payload->threshold);
-    hbal.params.target = CELLBOARD_CLAMP(target, BAL_TARGET_MIN, BAL_TARGET_MAX);
-    hbal.params.threshold = CELLBOARD_CLAMP(threshold, BAL_THRESHOLD_MIN, BAL_THRESHOLD_MAX);
+    const volt_t target = payload->target;
+    const volt_t threshold = payload->threshold;
+    hbal.params.target = CELLBOARD_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);
+    hbal.params.threshold = CELLBOARD_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V);
 
     // Reset watchdog for each new message
-    WatchdogReturnCode code = watchdog_reset(&hbal.watchdog);
+    const WatchdogReturnCode code = watchdog_reset(&hbal.watchdog);
     if (code == WATCHDOG_UNAVAILABLE)
         return;
 
@@ -121,13 +88,13 @@ BalReturnCode bal_start(void) {
         return BAL_OK;
 
     // Start watchdog
-    WatchdogReturnCode code = watchdog_restart(&hbal.watchdog);
+    const WatchdogReturnCode code = watchdog_restart(&hbal.watchdog);
     if (code == WATCHDOG_UNAVAILABLE)
         return BAL_WATCHDOG_ERROR;
 
     // Set discharge configuration
-    raw_volt_t target = hbal.params.target + hbal.params.threshold;
-    bit_flag32_t cells_to_discharge = volt_select_values(target);
+    const volt_t target = hbal.params.target + hbal.params.threshold;
+    const bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
 
     hbal.active = true;
@@ -163,52 +130,52 @@ BalReturnCode bal_resume(void) {
         return BAL_OK;
 
     // Set discharge configuration
-    raw_volt_t target = hbal.params.target + hbal.params.threshold;
-    bit_flag32_t cells_to_discharge = volt_select_values(target);
+    const volt_t target = hbal.params.target + hbal.params.threshold;
+    const bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
     hbal.paused = false;
     return BAL_OK;
 }
 
-bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(hbal.can_payload);
+        *byte_size = sizeof(hbal.status_can_payload);
 
     // Update balancing status
-    hbal.can_payload.status = bms_cellboard_balancing_status_status_stopped;
+    hbal.status_can_payload.status = bms_cellboard_balancing_status_status_stopped;
     if (bal_is_active()) {
-        hbal.can_payload.status = bal_is_paused() ?
+        hbal.status_can_payload.status = bal_is_paused() ?
             bms_cellboard_balancing_status_status_paused :
             bms_cellboard_balancing_status_status_running;
     }
 
     // Update discharging cells
-    uint32_t cells = bms_manager_get_discharge_cells();
-    hbal.can_payload.discharging_cell_0 = CELLBOARD_BIT_GET(cells, 0U);
-    hbal.can_payload.discharging_cell_1 = CELLBOARD_BIT_GET(cells, 1U);
-    hbal.can_payload.discharging_cell_2 = CELLBOARD_BIT_GET(cells, 2U);
-    hbal.can_payload.discharging_cell_3 = CELLBOARD_BIT_GET(cells, 3U);
-    hbal.can_payload.discharging_cell_4 = CELLBOARD_BIT_GET(cells, 4U);
-    hbal.can_payload.discharging_cell_5 = CELLBOARD_BIT_GET(cells, 5U);
-    hbal.can_payload.discharging_cell_6 = CELLBOARD_BIT_GET(cells, 6U);
-    hbal.can_payload.discharging_cell_7 = CELLBOARD_BIT_GET(cells, 7U);
-    hbal.can_payload.discharging_cell_8 = CELLBOARD_BIT_GET(cells, 8U);
-    hbal.can_payload.discharging_cell_9 = CELLBOARD_BIT_GET(cells, 9U);
-    hbal.can_payload.discharging_cell_10 = CELLBOARD_BIT_GET(cells, 10U);
-    hbal.can_payload.discharging_cell_11 = CELLBOARD_BIT_GET(cells, 11U);
-    hbal.can_payload.discharging_cell_12 = CELLBOARD_BIT_GET(cells, 12U);
-    hbal.can_payload.discharging_cell_13 = CELLBOARD_BIT_GET(cells, 13U);
-    hbal.can_payload.discharging_cell_14 = CELLBOARD_BIT_GET(cells, 14U);
-    hbal.can_payload.discharging_cell_15 = CELLBOARD_BIT_GET(cells, 15U);
-    hbal.can_payload.discharging_cell_16 = CELLBOARD_BIT_GET(cells, 16U);
-    hbal.can_payload.discharging_cell_17 = CELLBOARD_BIT_GET(cells, 17U);
-    hbal.can_payload.discharging_cell_18 = CELLBOARD_BIT_GET(cells, 18U);
-    hbal.can_payload.discharging_cell_19 = CELLBOARD_BIT_GET(cells, 19U);
-    hbal.can_payload.discharging_cell_20 = CELLBOARD_BIT_GET(cells, 20U);
-    hbal.can_payload.discharging_cell_21 = CELLBOARD_BIT_GET(cells, 21U);
-    hbal.can_payload.discharging_cell_22 = CELLBOARD_BIT_GET(cells, 22U);
-    hbal.can_payload.discharging_cell_23 = CELLBOARD_BIT_GET(cells, 23U);
-    return &hbal.can_payload;
+    const uint32_t cells = bms_manager_get_discharge_cells();
+    hbal.status_can_payload.discharging_cell_0 = CELLBOARD_BIT_GET(cells, 0U);
+    hbal.status_can_payload.discharging_cell_1 = CELLBOARD_BIT_GET(cells, 1U);
+    hbal.status_can_payload.discharging_cell_2 = CELLBOARD_BIT_GET(cells, 2U);
+    hbal.status_can_payload.discharging_cell_3 = CELLBOARD_BIT_GET(cells, 3U);
+    hbal.status_can_payload.discharging_cell_4 = CELLBOARD_BIT_GET(cells, 4U);
+    hbal.status_can_payload.discharging_cell_5 = CELLBOARD_BIT_GET(cells, 5U);
+    hbal.status_can_payload.discharging_cell_6 = CELLBOARD_BIT_GET(cells, 6U);
+    hbal.status_can_payload.discharging_cell_7 = CELLBOARD_BIT_GET(cells, 7U);
+    hbal.status_can_payload.discharging_cell_8 = CELLBOARD_BIT_GET(cells, 8U);
+    hbal.status_can_payload.discharging_cell_9 = CELLBOARD_BIT_GET(cells, 9U);
+    hbal.status_can_payload.discharging_cell_10 = CELLBOARD_BIT_GET(cells, 10U);
+    hbal.status_can_payload.discharging_cell_11 = CELLBOARD_BIT_GET(cells, 11U);
+    hbal.status_can_payload.discharging_cell_12 = CELLBOARD_BIT_GET(cells, 12U);
+    hbal.status_can_payload.discharging_cell_13 = CELLBOARD_BIT_GET(cells, 13U);
+    hbal.status_can_payload.discharging_cell_14 = CELLBOARD_BIT_GET(cells, 14U);
+    hbal.status_can_payload.discharging_cell_15 = CELLBOARD_BIT_GET(cells, 15U);
+    hbal.status_can_payload.discharging_cell_16 = CELLBOARD_BIT_GET(cells, 16U);
+    hbal.status_can_payload.discharging_cell_17 = CELLBOARD_BIT_GET(cells, 17U);
+    hbal.status_can_payload.discharging_cell_18 = CELLBOARD_BIT_GET(cells, 18U);
+    hbal.status_can_payload.discharging_cell_19 = CELLBOARD_BIT_GET(cells, 19U);
+    hbal.status_can_payload.discharging_cell_20 = CELLBOARD_BIT_GET(cells, 20U);
+    hbal.status_can_payload.discharging_cell_21 = CELLBOARD_BIT_GET(cells, 21U);
+    hbal.status_can_payload.discharging_cell_22 = CELLBOARD_BIT_GET(cells, 22U);
+    hbal.status_can_payload.discharging_cell_23 = CELLBOARD_BIT_GET(cells, 23U);
+    return &hbal.status_can_payload;
 }
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE

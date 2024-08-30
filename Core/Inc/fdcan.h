@@ -66,10 +66,10 @@ void MX_FDCAN1_Init(void);
  *     CAN_COMM_OK otherwise
  */
 CanCommReturnCode can_send(
-    can_id_t id,
-    CanFrameType frame_type,
-    const uint8_t * data,
-    size_t size
+    const can_id_t id,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size
 );
 
 /* USER CODE END Prototypes */

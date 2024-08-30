@@ -8,40 +8,13 @@
 
 #include "led.h"
 
-#include "blinky.h"
-#include "cellboard-def.h"
 #include "identity.h"
 
 #ifdef CONF_LED_MODULE_ENABLE
 
-/** @brief Maximum size of the pattern */
-#define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
+_STATIC _LedHandler hled;
 
-/** @brief Timings for the led status in ms */
-#define LED_SHORT_ON (250U)
-#define LED_SHORT_OFF (250U)
-#define LED_LONG_OFF (1000U)
-
-/**
- * @brief LED handler structure
- *
- * @param set A pointer to the function callback used to set the led state
- * @param toggle A pointer to the function callback used to toggle the led state
- * @param blinker The structure handler used to blink the LED
- * @param pattern The main blinking pattern
- * @param pattern_size The size of the pattern
- */
-_STATIC struct LedHandler {
-    led_set_state_callback_t set;
-    led_toggle_state_callback_t toggle;
-
-    Blinky blinker;
-    uint16_t pattern[LED_PATTERN_MAX_SIZE];
-    size_t pattern_size;
-} hled;
-
-
-LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t toggle) {
+LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_state_callback_t toggle) {
     if (set == NULL || toggle == NULL)
         return LED_NULL_POINTER;
 
@@ -51,10 +24,10 @@ LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t
 
     // Set pattern
     for (size_t i = 0U; i <= identity_get_cellboard_id(); ++i) {
-        hled.pattern[hled.pattern_size++] = LED_SHORT_OFF;
-        hled.pattern[hled.pattern_size++] = LED_SHORT_ON;
+        hled.pattern[hled.pattern_size++] = LED_SHORT_OFF_MS;
+        hled.pattern[hled.pattern_size++] = LED_SHORT_ON_MS;
     }
-    hled.pattern[hled.pattern_size++] = LED_LONG_OFF;
+    hled.pattern[hled.pattern_size++] = LED_LONG_OFF_MS;
     
     // Initialize the blinker structure
     blinky_init(&hled.blinker, hled.pattern, hled.pattern_size, true, BLINKY_LOW);
@@ -63,12 +36,12 @@ LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t
     return LED_OK;
 }
 
-void led_set_enable(bool enabled) {
+void led_set_enable(const bool enabled) {
     blinky_enable(&hled.blinker, enabled);
 }
 
-LedReturnCode led_routine(milliseconds_t t) {
-    LedStatus state = (LedStatus)blinky_routine(&hled.blinker, t);
+LedReturnCode led_routine(const milliseconds_t t) {
+    const LedStatus state = (LedStatus)blinky_routine(&hled.blinker, t);
     hled.set(state);
     return LED_OK;
 }

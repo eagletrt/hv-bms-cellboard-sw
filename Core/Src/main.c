@@ -36,10 +36,6 @@
 #include "post.h"
 
 #include "stm32g4xx_it.h"
-
-
-
-#include "bms-monitor-fsm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,32 +72,32 @@ void system_reset(void);
 
 #ifdef CONF_DEMO_ENABLE
 
-void demo() {
-    uart_log("\033[H");
+_STATIC void demo() {
+    usart_log("\033[H");
 
-    const raw_volt_t (* volt_values)[CELLBOARD_SEGMENT_SERIES_COUNT] = volt_get_values();
+    const cells_volt_t * const volt_values = volt_get_values();
 
-    uart_log("=== VOLT VALUES ===\r\n");
+    usart_log("=== VOLT VALUES ===\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
-        uart_log("%f\r\n", VOLT_VALUE_TO_VOLT((*volt_values)[i]));
+        usart_log("%f\r\n", (*volt_values)[i]);
     }
-    uart_log("\r\n\r\n");
+    usart_log("\r\n\r\n");
 
-    const raw_temp_t * temp_values = temp_get_values();
+    const cells_temp_t * const temp_values = temp_get_values();
 
-    uart_log("=== TEMPERATURE VALUES ===\r\n");
+    usart_log("=== TEMPERATURE VALUES ===\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
-        uart_log("%d\r\n", temp_values[i]);
+        usart_log("%f\r\n", (*temp_values)[i]);
     }
-    uart_log("\r\n\r\n");
+    usart_log("\r\n\r\n");
 
     // const raw_temp_t * discharge_temp_values = temp_get_values();
     //
-    // uart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
+    // usart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
     // for(size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
-    //     uart_log("%d\n", discharge_temp_values[i]);
+    //     usart_log("%d\n", discharge_temp_values[i]);
     // }
-    // uart_log("\n\n");
+    // usart_log("\n\n");
 
     static bit_flag32_t cells = 1U;
     static uint32_t t = 0U;
@@ -259,9 +255,24 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-inline void system_reset(void) {
+void system_reset(void) {
     HAL_NVIC_SystemReset();
 }
+
+#ifdef CONF_FULL_ASSERT_ENABLE
+
+/**
+ * @brief Debug function called when an assertion fails
+ *
+ * @param file The file where the assert failed
+ * @param line The line where the assert failed
+ */
+void cellboard_assert_failed(const char * file, const int line) {
+    CELLBOARD_UNUSED(file);
+    CELLBOARD_UNUSED(line);
+}
+
+#endif // CONF_FULL_ASSERT_ENABLE
 
 /* USER CODE END 4 */
 

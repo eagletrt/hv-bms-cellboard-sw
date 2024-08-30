@@ -31,11 +31,27 @@
 #define IDENTITY_BUILD_TIME_STR (__DATE__" "__TIME__)
 
 /**
+ * @brief Identity module handler structure
+ *
+ * @attention This structure should not be used outside of this function
+ *
+ * @param cellboard_id The identifier of the current cellboard
+ * @param build_time The unix timestamp of the latest build time
+ * @param version_can_payload The payload for the canlib message containing the version info
+ */
+typedef struct {
+    CellboardId cellboard_id;
+    seconds_t build_time;
+
+    bms_cellboard_version_converted_t version_can_payload;
+} _IdentityHandler;
+
+/**
  * @brief Initialize all the info about the cellboard identity
  *
  * @param id The cellboard id
  */
-void identity_init(CellboardId id);
+void identity_init(const CellboardId id);
 
 /**
  * @brief Get the cellboard idenfitier
@@ -58,6 +74,6 @@ seconds_t identity_get_build_time(void);
  *
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t * identity_get_canlib_payload(size_t * byte_size);
+bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size);
 
 #endif  // IDENTITY_H

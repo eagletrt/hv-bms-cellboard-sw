@@ -136,6 +136,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data_t *da
   
   
   /*** USER CODE BEGIN DO_INIT ***/
+  CELLBOARD_UNUSED(data);
+
   memset(&hfsm, 0U, sizeof(hfsm));
   /*** USER CODE END DO_INIT ***/
   
@@ -157,6 +159,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_volt_conversion(bms_monitor_fsm
   
   
   /*** USER CODE BEGIN DO_START_VOLT_CONVERSION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_volt_conversion();
   /*** USER CODE END DO_START_VOLT_CONVERSION ***/
   
@@ -178,6 +182,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_write_configuration(bms_monitor_
   
   
   /*** USER CODE BEGIN DO_VOLT_WRITE_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_write_configuration();
   /*** USER CODE END DO_VOLT_WRITE_CONFIGURATION ***/
   
@@ -199,6 +205,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_read_configuration(bms_monitor_f
   
   
   /*** USER CODE BEGIN DO_VOLT_READ_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_configuration();
   /*** USER CODE END DO_VOLT_READ_CONFIGURATION ***/
   
@@ -220,6 +228,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_a(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_VOLT_A ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A);
   /*** USER CODE END DO_READ_VOLT_A ***/
   
@@ -241,6 +251,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_b(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_VOLT_B ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B);
   /*** USER CODE END DO_READ_VOLT_B ***/
   
@@ -262,6 +274,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_c(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_VOLT_C ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C);
   /*** USER CODE END DO_READ_VOLT_C ***/
   
@@ -283,6 +297,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_d(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_VOLT_D ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D);
   /*** USER CODE END DO_READ_VOLT_D ***/
   
@@ -304,6 +320,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_temp_conversion(bms_monitor_fsm
   
   
   /*** USER CODE BEGIN DO_START_TEMP_CONVERSION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_temp_conversion();
   /*** USER CODE END DO_START_TEMP_CONVERSION ***/
   
@@ -325,6 +343,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_write_configuration(bms_monitor_
   
   
   /*** USER CODE BEGIN DO_TEMP_WRITE_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_write_configuration();
   /*** USER CODE END DO_TEMP_WRITE_CONFIGURATION ***/
   
@@ -346,6 +366,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_read_configuration(bms_monitor_f
   
   
   /*** USER CODE BEGIN DO_TEMP_READ_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_configuration();
   /*** USER CODE END DO_TEMP_READ_CONFIGURATION ***/
   
@@ -367,6 +389,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_a(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_TEMP_A ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_A);
   /*** USER CODE END DO_READ_TEMP_A ***/
   
@@ -388,6 +412,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_b(bms_monitor_fsm_state_dat
   
   
   /*** USER CODE BEGIN DO_READ_TEMP_B ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_B);
   /*** USER CODE END DO_READ_TEMP_B ***/
   
@@ -409,6 +435,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(
   
   
   /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
   /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
   
@@ -430,6 +458,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_write_configuration(bms
   
   
   /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_write_configuration();
   /*** USER CODE END DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
   
@@ -451,6 +481,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second
   
   
   /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
   /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
   
@@ -472,6 +504,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_read_configuration(bms_
   
   
   /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_configuration();
   /*** USER CODE END DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
   
@@ -493,6 +527,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_a(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_A ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUP_A ***/
   
@@ -514,6 +550,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_b(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_B ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUP_B ***/
   
@@ -535,6 +573,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_c(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_C ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUP_C ***/
   
@@ -556,6 +596,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_d(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_D ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUP_D ***/
   
@@ -577,6 +619,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(
   
   
   /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
   /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
   
@@ -598,6 +642,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_write_configuration(bms
   
   
   /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_write_configuration();
   /*** USER CODE END DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
   
@@ -619,6 +665,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second
   
   
   /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
   /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
   
@@ -640,6 +688,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_read_configuration(bms_
   
   
   /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_configuration();
   /*** USER CODE END DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
   
@@ -661,6 +711,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_a(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_A ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUD_A ***/
   
@@ -682,6 +734,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_b(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_B ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUD_B ***/
   
@@ -703,6 +757,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_c(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_C ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUD_C ***/
   
@@ -724,6 +780,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_
   
   
   /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_D ***/
+  CELLBOARD_UNUSED(data);
+
   (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
   /*** USER CODE END DO_READ_OPEN_WIRE_PUD_D ***/
   
@@ -756,6 +814,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_
 void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
+  CELLBOARD_UNUSED(data);
+
   BmsManagerReturnCode code = bms_manager_check_open_wire(); 
   switch (code) {
       case BMS_MANAGER_OK:

@@ -16,49 +16,18 @@
 
 #include "bms_network.h"
 
-/** @brief Minimum and maximum allowed cell voltage in millivolt */
-#define VOLT_MIN_MILLIVOLT (2800.f)
-#define VOLT_MAX_MILLIVOLT (4200.f)
-
-/** @brief Minimum and maximum allowed cell voltage raw values */
-#define VOLT_MIN_VALUE (VOLT_MILLIVOLT_TO_VALUE(VOLT_MIN_MILLIVOLT))
-#define VOLT_MAX_VALUE (VOLT_MILLIVOLT_TO_VALUE(VOLT_MAX_MILLIVOLT))
+/** @brief Minimum and maximum allowed cell voltage in V */
+#define VOLT_MIN_V (2.8f)
+#define VOLT_MAX_V (4.2f)
 
 /**
- * @brief Convert a raw voltage value to millivolt
+ * @brief Type definition for the array of cells voltages
  *
- * @param value The value to convert
- *
- * @return millivolt_t The converted voltage in millivolt
+ * @details This is a type definition for an array of CELLBOARD_SEGMENT_SERIES_COUNT
+ * voltages, it is mainly used to force pointers to keep the information about
+ * the array length
  */
-#define VOLT_VALUE_TO_MILLIVOLT(value) ((millivolt_t)(value * 0.1f))
-
-/**
- * @brief Convert a raw voltage value to volt
- *
- * @param value The value to convert
- *
- * @return volt_t The converted voltage in volt
- */
-#define VOLT_VALUE_TO_VOLT(value) ((volt_t)(value * 0.0001f))
-
-/**
- * @brief Convert a voltage in millivolt to the raw voltage value
- *
- * @param value The value to convert in millivolt
- *
- * @return raw_volt_t The raw voltage value
- */
-#define VOLT_MILLIVOLT_TO_VALUE(value) ((raw_volt_t)(value * 10.f))
-
-/**
- * @brief Convert a voltage in volt to the raw voltage value
- *
- * @param value The value in volt to convert
- *
- * @return raw_volt_t The raw voltage value
- */
-#define VOLT_VOLT_TO_VALUE(value) ((raw_volt_t)(value * 10000.f))
+typedef volt_t cells_volt_t[CELLBOARD_SEGMENT_SERIES_COUNT];
 
 /**
  * @brief Return code for the voltage module functions
@@ -74,6 +43,19 @@ typedef enum {
     VOLT_OUT_OF_BOUNDS
 } VoltReturnCode;
 
+/**
+ * @brief Type definition for the voltages handler structure
+ *
+ * @param voltages The array of cells voltages in V
+ * @param voltages_can_payload The canlib payload of the cells voltages
+ */
+typedef struct {
+    cells_volt_t voltages;
+
+    bms_cellboard_cells_voltage_converted_t voltages_can_payload;
+} _VoltHandler;
+
+
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
 /**
@@ -88,18 +70,18 @@ VoltReturnCode volt_init(void);
  * @brief Update a single voltage value
  *
  * @param index The index of the value to update
- * @param value The new value
+ * @param value The new value in V
  *
  * @return VoltReturnCode
  *     - VOLT_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - VOLT_OK otherwise
  */
-VoltReturnCode volt_update_value(size_t index, raw_volt_t value);
+VoltReturnCode volt_update_value(const size_t index, const volt_t value);
 
 /**
  * @brief Update multiple voltage values
  *
- * @attention The array of values should be a countigous memory area
+ * @attention The array of values have to be a countigous memory area
  *
  * @param index The start index of the values to update
  * @param values A pointer to the array of values to copy
@@ -109,14 +91,18 @@ VoltReturnCode volt_update_value(size_t index, raw_volt_t value);
  *     - VOLT_OUT_OF_BOUNDS if the index plus the size exceed the maximum number of values
  *     - VOLT_OK otherwise
  */
-VoltReturnCode volt_update_values(size_t index, raw_volt_t * values, size_t size);
+VoltReturnCode volt_update_values(
+    const size_t index,
+    const volt_t * const values,
+    const size_t size
+);
 
 /**
  * @brief Get a pointer to the array where the voltage values are stored
  *
- * @return raw_volt_t*[CELLBOARD_SEGMENT_SERIES_COUNT] The pointer to the array
+ * @return cells_volt_t* The pointer to the array
  */
-const raw_volt_t (*volt_get_values(void))[CELLBOARD_SEGMENT_SERIES_COUNT];
+const cells_volt_t * volt_get_values(void);
 
 /**
  * @brief Get a bitmask of cells which voltage is STRICTLY greater than
@@ -129,18 +115,18 @@ const raw_volt_t (*volt_get_values(void))[CELLBOARD_SEGMENT_SERIES_COUNT];
  * if the bit value is 1 the cell voltage is greater than the target, less or
  * equal otherwise
  *
- * @param target The target voltage raw value
+ * @param target The target voltage in V
  *
  * @return bit_flag32_t The bitmask of cells
  */
-bit_flag32_t volt_select_values(raw_volt_t target);
+bit_flag32_t volt_select_values(const volt_t target);
 
 /**
  * @brief Copy a list of adjacent voltages
  *
  * @attention The out array should be large enough to store the required data
  *
- * @param out The array where the values are copied into
+ * @param out[out] The array where the values are copied into
  * @param start The index of the first element to copy
  * @param size The number of element that should be copied
  *
@@ -149,7 +135,11 @@ bit_flag32_t volt_select_values(raw_volt_t target);
  *     - VOLT_OUT_OF_BOUNDS if the required range exceeds the maximum number of voltages
  *     - VOLT_OK otherwise
  */
-VoltReturnCode volt_dump_values(raw_volt_t * out, size_t start, size_t size);
+VoltReturnCode volt_dump_values(
+    volt_t * const out,
+    const size_t start,
+    const size_t size
+);
 
 /**
  * @brief Get a pointer to the CAN payload of the cells voltages
@@ -164,7 +154,7 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
 
 #define volt_init() (VOLT_OK)
 #define volt_update_value(index, value) (VOLT_OK)
-#define volt_update_values(index, value) (VOLT_OK)
+#define volt_update_values(index, value, size) (VOLT_OK)
 #define volt_get_values() (NULL)
 #define volt_select_values(target) (0U)
 #define volt_dump_values(out, start, size) (VOLT_OK)

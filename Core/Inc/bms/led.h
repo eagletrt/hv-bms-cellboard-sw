@@ -14,6 +14,29 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
+#include "blinky.h"
+
+/** @brief Maximum size of the pattern */
+#define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
+
+/** @brief Timings for the led status in ms */
+#define LED_SHORT_ON_MS (250U)
+#define LED_SHORT_OFF_MS (250U)
+#define LED_LONG_OFF_MS (1000U)
+
+/**
+ * @brief Return code for the LED module functions
+ *
+ * @details
+ *     - LED_OK the function executed succesfully
+ *     - LED_NULL_POINTER a NULL pointer was given to a function
+ *     - LED_INVALID_CELLBOARD_ID invalid cellboard identifier
+ */
+typedef enum {
+    LED_OK,
+    LED_NULL_POINTER,
+    LED_INVALID_CELLBOARD_ID
+} LedReturnCode;
 
 /**
  * @brief Status of a single LED
@@ -32,7 +55,7 @@ typedef enum {
  *
  * @param state The state to set the LED to
  */
-typedef void (* led_set_state_callback_t)(LedStatus state);
+typedef void (* led_set_state_callback_t)(const LedStatus state);
 
 /**
  * @brief Callback used to toggle the state of the LED
@@ -40,18 +63,24 @@ typedef void (* led_set_state_callback_t)(LedStatus state);
 typedef void (* led_toggle_state_callback_t)(void);
 
 /**
- * @brief Return code for the LED module functions
+ * @brief LED handler structure
  *
- * @details
- *     - LED_OK the function executed succesfully
- *     - LED_NULL_POINTER a NULL pointer was given to a function
- *     - LED_INVALID_CELLBOARD_ID invalid cellboard identifier
+ * @attention This structure should not be used outside of this module
+ *
+ * @param set A pointer to the function callback used to set the led state
+ * @param toggle A pointer to the function callback used to toggle the led state
+ * @param blinker The structure handler used to blink the LED
+ * @param pattern The main blinking pattern
+ * @param pattern_size The size of the pattern
  */
-typedef enum {
-    LED_OK,
-    LED_NULL_POINTER,
-    LED_INVALID_CELLBOARD_ID
-} LedReturnCode;
+typedef struct {
+    led_set_state_callback_t set;
+    led_toggle_state_callback_t toggle;
+
+    Blinky blinker;
+    uint16_t pattern[LED_PATTERN_MAX_SIZE];
+    size_t pattern_size;
+} _LedHandler;
 
 #ifdef CONF_LED_MODULE_ENABLE 
 
@@ -67,14 +96,14 @@ typedef enum {
  *     - LED_NULL_POINTER if the set or toggle callbacks are NULL
  *     - LED_OK otherwise
  */
-LedReturnCode led_init(led_set_state_callback_t set, led_toggle_state_callback_t toggle);
+LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_state_callback_t toggle);
 
 /**
  * @param Enable or disable the LED handler
  *
  * @param enabled True to enable the handler, false otherwise
  */
-void led_set_enable(bool enabled);
+void led_set_enable(const bool enabled);
 
 /**
  * @brief Routine used to set the LED state
@@ -84,7 +113,7 @@ void led_set_enable(bool enabled);
  * @return LedReturnCode
  *     - LED_OK
  */
-LedReturnCode led_routine(milliseconds_t t);
+LedReturnCode led_routine(const milliseconds_t t);
 
 
 #else  // CONF_LED_MODULE_ENABLE 

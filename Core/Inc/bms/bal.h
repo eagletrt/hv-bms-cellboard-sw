@@ -16,26 +16,19 @@
 
 #include "bms_network.h"
 
-#include "volt.h"
+#include "fsm.h"
+#include "watchdog.h"
 
-/** @brief Balancing threshold range in mV */
-#define BAL_THRESHOLD_MIN_MILLIVOLT ((millivolt_t)5.f)
-#define BAL_THRESHOLD_MAX_MILLIVOLT ((millivolt_t)200.f)
-
-/** @brief Balancing threshold range raw values */
-#define BAL_THRESHOLD_MIN (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MIN_MILLIVOLT))
-#define BAL_THRESHOLD_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_THRESHOLD_MAX_MILLIVOLT))
+/** @brief Balancing threshold range in V */
+#define BAL_THRESHOLD_MIN_V (0.005f)
+#define BAL_THRESHOLD_MAX_V (0.200f)
 
 /** @brief Balancing target range in mV */
-#define BAL_TARGET_MIN_MILLIVOLT ((millivolt_t)2800.f)
-#define BAL_TARGET_MAX_MILLIVOLT ((millivolt_t)4200.f)
-
-/** @brief Balancing threshold range raw values */
-#define BAL_TARGET_MIN (VOLT_MILLIVOLT_TO_VALUE(BAL_TARGET_MIN_MILLIVOLT))
-#define BAL_TARGET_MAX (VOLT_MILLIVOLT_TO_VALUE(BAL_TARGET_MAX_MILLIVOLT))
+#define BAL_TARGET_MIN_V (2.8f)
+#define BAL_TARGET_MAX_V (4.2f)
 
 /** @brief Balancing timeouts in ms */
-#define BAL_TIMEOUT ((milliseconds_t)(3000U))
+#define BAL_TIMEOUT_MS (3000U)
 
 /**
  * @brief Return code for the balancing module functions
@@ -53,6 +46,41 @@ typedef enum {
     BAL_WATCHDOG_ERROR
 } BalReturnCode;
 
+/**
+ * @brief Definition of the balancing parameters
+ *
+ * @param target The minimum target voltage that can be reached while discharging in V
+ * @param threshold The minimum difference between the maximum and minimum cell voltage
+ * value that can be reached in V
+ */
+typedef struct {
+    volt_t target;
+    volt_t threshold;
+} BalParams;
+
+/**
+ * @brief Type definition for the balancing handler structure
+ *
+ * @attention This structure should not be used outside of this module
+ *
+ * @details The requested parameters are expected to be equals to the actual parameters
+ *
+ * @param event The FSM event data
+ * @param status_can_payload The canlib payload of the balancing module
+ * @param watchdog The watchdog that stops the balancing procedure when timed out
+ * @param active True if the balancing is active, false otherwise
+ * @param paused True if the balancing is paused, false otherwise
+ * @param params The balancing parameters
+ */
+typedef struct {
+    fsm_event_data_t event;
+    bms_cellboard_balancing_status_converted_t status_can_payload;
+    Watchdog watchdog;
+
+    bool active, paused;
+    BalParams params;
+} _BalHandler;
+
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
 /**
@@ -68,7 +96,7 @@ BalReturnCode bal_init(void);
  *
  * @param payload A pointer to the CAN paylaod data
  */
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * payload);
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * const payload);
 
 /**
  * @brief Check if the balancing is active
@@ -129,7 +157,7 @@ BalReturnCode bal_resume(void);
  *
  * @return bms_cellboard_balancing_status_converted_t* A pointer to the payload
  */
-bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byte_size);
+bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_BALANCING_MODULE_ENABLE
 
@@ -141,7 +169,7 @@ bms_cellboard_balancing_status_converted_t * bal_get_canlib_payload(size_t * byt
 #define bal_stop() (BAL_OK)
 #define bal_pause() (BAL_OK)
 #define bal_resume() (BAL_OK)
-#define bal_get_can_payload(byte_size) (NULL)
+#define bal_get_status_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 

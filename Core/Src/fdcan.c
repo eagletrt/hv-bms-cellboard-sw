@@ -161,7 +161,7 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
  * 
  * @return int32_t The DLC or negative error code
  */
-int32_t _can_get_dlc_from_size(size_t size) {
+int32_t _can_get_dlc_from_size(const size_t size) {
     switch(size) {
         case 0U:
             return FDCAN_DLC_BYTES_0;
@@ -193,7 +193,7 @@ int32_t _can_get_dlc_from_size(size_t size) {
  * 
  * @return int32_t The frame type or negative error code
  */
-int32_t _can_get_frame_typename_from_frame_type(CanFrameType type) {
+int32_t _can_get_frame_typename_from_frame_type(const CanFrameType type) {
     switch (type) {
         case CAN_FRAME_TYPE_DATA:
             return FDCAN_DATA_FRAME;
@@ -218,27 +218,27 @@ CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {
         case FDCAN_REMOTE_FRAME:
             return CAN_FRAME_TYPE_REMOTE;
         default:
-            return -1;
+            return CAN_FRAME_TYPE_INVALID;
     }
 }
 
 // TODO: Return and check errors
 CanCommReturnCode can_send(
-    can_id_t id,
-    CanFrameType frame_type,
-    const uint8_t * data,
-    size_t size)
+    const can_id_t id,
+    const CanFrameType frame_type,
+    const uint8_t * const data,
+    const size_t size)
 {
     if (id > CAN_COMM_ID_MASK)
         return CAN_COMM_INVALID_INDEX;
 
     // Get and check for data length
-    int32_t dlc = _can_get_dlc_from_size(size);
+    const int32_t dlc = _can_get_dlc_from_size(size);
     if (dlc < 0)
         return CAN_COMM_INVALID_PAYLOAD_SIZE;
 
     // Get and check the frame type
-    int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
+    const int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
     if (type < 0)
         return CAN_COMM_INVALID_FRAME_TYPE;
  
@@ -273,7 +273,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
         Error_Handler();
     
-    CanFrameType frame_type = _can_get_frame_type_from_fram_typename(header.RxFrameType);
+    const CanFrameType frame_type = _can_get_frame_type_from_fram_typename(header.RxFrameType);
     if (frame_type < 0)
         return;
 

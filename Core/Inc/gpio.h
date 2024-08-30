@@ -50,7 +50,7 @@ void MX_GPIO_Init(void);
  *
  * @param state The state to set
  */
-void gpio_led_set_state(LedStatus state);
+void gpio_led_set_state(const LedStatus state);
 
 /**
  * @brief Toggle the current state of the LED
@@ -67,7 +67,7 @@ CellboardId gpio_get_cellboard_id(void);
 /**
  * @brief Set the address of the multiplexer used to get the cells temperature measurements
  */
-void gpio_set_mux_address(uint8_t address);
+void gpio_set_mux_address(const uint8_t address);
 
 /* USER CODE END Prototypes */
 

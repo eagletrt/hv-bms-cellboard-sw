@@ -19,9 +19,9 @@
 void _watchdog_timeout_dummy(void) { }
 
 WatchdogReturnCode watchdog_init(
-    Watchdog * watchdog,
-    ticks_t timeout,
-    watchdog_timeout_callback expire)
+    Watchdog * const watchdog,
+    const ticks_t timeout,
+    const watchdog_timeout_callback expire)
 {
     if (watchdog == NULL || expire == NULL)
         return WATCHDOG_NULL_POINTER;
@@ -36,7 +36,7 @@ WatchdogReturnCode watchdog_init(
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_deinit(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_deinit(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
 
@@ -50,7 +50,7 @@ WatchdogReturnCode watchdog_deinit(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_start(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_start(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->running)
@@ -65,7 +65,7 @@ WatchdogReturnCode watchdog_start(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_stop(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_stop(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (!watchdog->running)
@@ -79,7 +79,7 @@ WatchdogReturnCode watchdog_stop(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_restart(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_restart(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     // Stop watchdog if its running
@@ -96,7 +96,7 @@ WatchdogReturnCode watchdog_restart(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_reset(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_reset(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->timed_out)
@@ -110,7 +110,7 @@ WatchdogReturnCode watchdog_reset(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_timeout(Watchdog * watchdog) {
+WatchdogReturnCode watchdog_timeout(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (!watchdog->running)
@@ -124,7 +124,7 @@ WatchdogReturnCode watchdog_timeout(Watchdog * watchdog) {
     return WATCHDOG_OK;
 }
 
-bool watchdog_is_timed_out(Watchdog * watchdog) {
+bool watchdog_is_timed_out(Watchdog * const watchdog) {
     if (watchdog == NULL)
         return false;
     return watchdog->timed_out;

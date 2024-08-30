@@ -29,7 +29,7 @@
  * @return PostReturnCode
  *     - POST_OK
  */
-PostReturnCode _post_modules_init(PostInitData * data) {
+PostReturnCode _post_modules_init(const PostInitData * const data) {
     /*
      * The error initialization function has to be the executed before every other
      * init function to ensure the correctness of the program
@@ -58,7 +58,7 @@ PostReturnCode _post_modules_init(PostInitData * data) {
     return POST_OK;
 }
 
-PostReturnCode post_run(PostInitData data) {
+PostReturnCode post_run(const PostInitData data) {
     if (data.id >= CELLBOARD_ID_COUNT)
         return POST_INVALID_CELLBOARD_ID;
     if (data.system_reset == NULL ||

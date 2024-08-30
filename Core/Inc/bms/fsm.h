@@ -23,9 +23,11 @@ Functions and types have been generated with prefix "fsm_"
 
 #include "bms_network.h"
 
+#include "watchdog.h"
+
 /** @brief Timeouts for the discharge and cooldown watchdogs in ms */
-#define FSM_DISCHARGE_TIMEOUT ((milliseconds_t)(2000U))
-#define FSM_COOLDOWN_TIMEOUT ((milliseconds_t)(18000U))
+#define FSM_DISCHARGE_TIMEOUT_MS (2000U)
+#define FSM_COOLDOWN_TIMEOUT_MS (18000U)
 
 /**
  * @brief Definition of the possible events types
@@ -91,6 +93,26 @@ typedef fsm_state_t fsm_state_func_t(fsm_state_data_t *data);
 typedef void transition_func_t(fsm_state_data_t *data);
 
 /*** USER CODE BEGIN TYPES ***/
+/**
+ * @brief Type definiion for the FSM handler structure
+ *
+ * @attention This structure should not be used outside of this module
+ *
+ * @param fsm_state The current state of the FSM
+ * @param status_can_paylod The canlib payload for the FSM status
+ * @param flash_can_paylod The canlib payload for the flash response
+ * @param discharge_wdg Watchdog used for the discharge procedure
+ * @param cooldown_wdg Watchdog used for the cooldown procedure
+ */
+typedef struct {
+    fsm_state_t fsm_state;
+    bms_cellboard_status_converted_t status_can_payload;
+    bms_cellboard_flash_response_converted_t flash_can_payload;
+
+    fsm_event_data_t event;
+    Watchdog discharge_wdg;
+    Watchdog cooldown_wdg;
+} _FsmHandler;
 
 /*** USER CODE END TYPES ***/
 
@@ -161,7 +183,7 @@ fsm_state_t fsm_get_status(void);
  *
  * @return bms_cellboard_status_converted_t* A pointer to the payload
  */
-bms_cellboard_status_converted_t * fsm_get_canlib_payload(size_t * byte_size);
+bms_cellboard_status_converted_t * fsm_get_status_canlib_payload(size_t * const byte_size);
 /*** USER CODE END FUNCTIONS ***/
 
 #endif

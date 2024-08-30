@@ -28,6 +28,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "cellboard-conf.h"
+#include "cellboard-def.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

@@ -188,15 +188,19 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
-_STATIC raw_temp_t dma_data[ADC_DMA_CHANNEL_COUNT];
+_STATIC _VOLATILE raw_temp_t dma_data[ADC_DMA_CHANNEL_COUNT];
 
 void adc_temperature_start_conversion(void) {
-    HAL_ADC_Start_DMA(&HADC_TEMPS, (uint32_t *)dma_data, ADC_DMA_CHANNEL_COUNT);
+    (void)HAL_ADC_Start_DMA(&HADC_TEMPS, (uint32_t *)dma_data, ADC_DMA_CHANNEL_COUNT);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
     if (hadc->Instance == HADC_TEMPS.Instance) {
-        temp_notify_conversion_complete(dma_data, ADC_DMA_CHANNEL_COUNT);
+        volt_t data[ADC_DMA_CHANNEL_COUNT];
+        for (size_t i = 0U; i < ADC_DMA_CHANNEL_COUNT; ++i) {
+            data[i] = CELLBOARD_ADC_RAW_VALUE_TO_VOLT(dma_data[i], ADC_VREF, ADC_RESOLUTION);
+        }
+        (void)temp_notify_conversion_complete(data, ADC_DMA_CHANNEL_COUNT);
     }
 }
 

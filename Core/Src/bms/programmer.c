@@ -12,38 +12,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "fsm.h"
 #include "identity.h"
 #include "timebase.h"
-#include "watchdog.h"
 
-/** @brief The programmer flash timeout in ms */
-#define PROGRAMMER_FLASH_TIMEOUT ((milliseconds_t)(1000U))
-
-/**
- * @brief Programmer handler structure
- *
- * @param reset A pointer to a function that resets the microcontroller
- * @param flash_event The FSM event data
- * @param can_payload The flash response canlib data
- * @param target The identifier of the cellboard(or mainboard) to flash
- * @param flash_request True if a flash request is received, false otherwise
- * @param flashing True if the cellboard is flashing, false otherwise
- * @param watchog The watchdog used for the flash procedure
- * @param timeout True if the watchdog has timed-out, false otherwise
- */
-_STATIC struct {
-    system_reset_callback_t reset;
-    fsm_event_data_t flash_event;
-    bms_cellboard_flash_response_converted_t can_payload;
-
-    CellboardId target;
-    bool flash_request;
-    bool flashing;
-    bool flash_stop;
-
-    Watchdog watchdog;
-} hprogrammer;
+_STATIC _ProgrammerHandler hprogrammer;
 
 /** @brief Function called when the watchdog times-out */
 void _programmer_flash_timeout(void) {
@@ -66,12 +38,12 @@ void _programmer_flash_reset_flags(void) {
     hprogrammer.flash_stop = false;
 }
 
-ProgrammerReturnCode programmer_init(system_reset_callback_t reset) {
+ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
     memset(&hprogrammer, 0U, sizeof(hprogrammer));
 
     hprogrammer.reset = reset;
     hprogrammer.flash_event.type = FSM_EVENT_TYPE_FLASH_REQUEST;
-    hprogrammer.can_payload.cellboard_id = identity_get_cellboard_id();    
+    hprogrammer.can_payload.cellboard_id = (bms_cellboard_flash_response_cellboard_id)identity_get_cellboard_id();
     hprogrammer.can_payload.ready = true;
 
     // Reset flash procedure data
@@ -82,25 +54,27 @@ ProgrammerReturnCode programmer_init(system_reset_callback_t reset) {
     // Initialize watchdogs
     (void)watchdog_init(
         &hprogrammer.watchdog,
-        TIMEBASE_TIME_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT, timebase_get_resolution()),
+        TIMEBASE_MS_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT_MS, timebase_get_resolution()),
         _programmer_flash_timeout
     );
 
     return PROGRAMMER_OK;
 }
 
-void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * payload) {
+void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t * const payload) {
     if (payload == NULL)
         return;
     if (hprogrammer.flash_request)
         return;
-    fsm_state_t status = fsm_get_status();
+    const fsm_state_t status = fsm_get_status();
     if (status != FSM_STATE_IDLE && status != FSM_STATE_FATAL)
         return;
 
     // TODO: Check the payload content
 
-    hprogrammer.target = payload->mainboard ? MAINBOARD_ID : payload->cellboard_id;
+    hprogrammer.target = payload->mainboard ?
+        MAINBOARD_ID :
+        (CellboardId)payload->cellboard_id;
     hprogrammer.flash_request = true;
     hprogrammer.flash_stop = false;
     hprogrammer.flashing = false;
@@ -111,7 +85,7 @@ void programmer_flash_request_handle(bms_cellboard_flash_request_converted_t * p
     fsm_event_trigger(&hprogrammer.flash_event);
 }
 
-void programmer_flash_handle(bms_cellboard_flash_converted_t * payload) {
+void programmer_flash_handle(const bms_cellboard_flash_converted_t * const payload) {
     if (payload == NULL)
         return;
     if (payload->start == hprogrammer.flashing)

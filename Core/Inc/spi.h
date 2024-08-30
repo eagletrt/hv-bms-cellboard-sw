@@ -70,7 +70,7 @@ void MX_SPI3_Init(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode spi_send(uint8_t * data, size_t size);
+BmsManagerReturnCode spi_send(uint8_t * const data, const size_t size);
 
 /**
  * @brief Send and receive data via SPI
@@ -87,10 +87,10 @@ BmsManagerReturnCode spi_send(uint8_t * data, size_t size);
  *     - BMS_MANAGER_OK otherwise
  */
 BmsManagerReturnCode spi_send_and_receive(
-    uint8_t * data,
-    uint8_t * out,
-    size_t size,
-    size_t out_size
+    uint8_t * const data,
+    uint8_t * const out,
+    const size_t size,
+    const size_t out_size
 );
 
 /* USER CODE END Prototypes */

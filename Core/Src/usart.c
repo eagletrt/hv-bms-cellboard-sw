@@ -137,24 +137,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 
-void uart_log_ms(uint32_t ms, const char* fmt, ...) {
-
-    static uint32_t t = 0U;
-
-    if(HAL_GetTick() - t >= ms) {
-
-        va_list args;
-        va_start(args, fmt);
-        uart_log(fmt, args);
-        va_end(args);
-
-        t = HAL_GetTick();
-    }
-}
-
-void uart_log(const char *fmt, ...) {
-
-    char buffer[10000];
+void usart_log(const char * const fmt, ...) {
+    char buffer[USART_MAX_BUF_SIZE];
 
     va_list args;
     va_start(args, fmt);
@@ -162,6 +146,18 @@ void uart_log(const char *fmt, ...) {
     va_end(args);
 
     HAL_UART_Transmit(&huart2, (uint8_t *)buffer, size, HAL_MAX_DELAY);
+}
+
+void usart_log_ms(const milliseconds_t interval, const char * const fmt, ...) {
+    _STATIC uint32_t t = 0U;
+    if (HAL_GetTick() - t >= interval) {
+        va_list args;
+        va_start(args, fmt);
+        usart_log(fmt, args);
+        va_end(args);
+
+        t = HAL_GetTick();
+    }
 }
 
 /* USER CODE END 1 */

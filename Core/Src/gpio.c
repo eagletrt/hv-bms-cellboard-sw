@@ -102,8 +102,8 @@ void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 2 */
 
-void gpio_led_set_state(LedStatus state) {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (GPIO_PinState)state);
+void gpio_led_set_state(const LedStatus state) {
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (const GPIO_PinState)state);
 }
 
 void gpio_led_toggle_state(void) {
@@ -116,9 +116,9 @@ CellboardId gpio_get_cellboard_id(void) {
      * Get the individual bits of the cellboard identifier
      * The bits are inverted because it is Aris fault
      */
-    bool bit_0 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_0_GPIO_Port, ID_SELECTOR_0_Pin);
-    bool bit_1 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
-    bool bit_2 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
+    const bool bit_0 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_0_GPIO_Port, ID_SELECTOR_0_Pin);
+    const bool bit_1 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
+    const bool bit_2 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
 
     /*
      * The cellboard identifier is saved as an enum where the first cellboard is
@@ -135,20 +135,20 @@ CellboardId gpio_get_cellboard_id(void) {
     return id;
 }
 
-void gpio_set_mux_address(uint8_t address) {
+void gpio_set_mux_address(const uint8_t address) {
     if (address >= CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT)
         return;
     
     // Get the address bits
-    bool b0 = CELLBOARD_BIT_GET(address, 0U);
-    bool b1 = CELLBOARD_BIT_GET(address, 1U);
-    bool b2 = CELLBOARD_BIT_GET(address, 2U);
-    bool b3 = CELLBOARD_BIT_GET(address, 3U);
+    const bool b0 = CELLBOARD_BIT_GET(address, 0U);
+    const bool b1 = CELLBOARD_BIT_GET(address, 1U);
+    const bool b2 = CELLBOARD_BIT_GET(address, 2U);
+    const bool b3 = CELLBOARD_BIT_GET(address, 3U);
 
-    HAL_GPIO_WritePin(MUX_A0_GPIO_Port, MUX_A0_Pin, (GPIO_PinState)b0);
-    HAL_GPIO_WritePin(MUX_A1_GPIO_Port, MUX_A1_Pin, (GPIO_PinState)b1);
-    HAL_GPIO_WritePin(MUX_A2_GPIO_Port, MUX_A2_Pin, (GPIO_PinState)b2);
-    HAL_GPIO_WritePin(MUX_A3_GPIO_Port, MUX_A3_Pin, (GPIO_PinState)b3);
+    HAL_GPIO_WritePin(MUX_A0_GPIO_Port, MUX_A0_Pin, (const GPIO_PinState)b0);
+    HAL_GPIO_WritePin(MUX_A1_GPIO_Port, MUX_A1_Pin, (const GPIO_PinState)b1);
+    HAL_GPIO_WritePin(MUX_A2_GPIO_Port, MUX_A2_Pin, (const GPIO_PinState)b2);
+    HAL_GPIO_WritePin(MUX_A3_GPIO_Port, MUX_A3_Pin, (const GPIO_PinState)b3);
 }
 
 /* USER CODE END 2 */

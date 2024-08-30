@@ -71,9 +71,9 @@ typedef struct {
  *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_init(
-    Watchdog * watchdog,
-    ticks_t timeout,
-    watchdog_timeout_callback expire
+    Watchdog * const watchdog,
+    const ticks_t timeout,
+    const watchdog_timeout_callback expire
 );
 
 /**
@@ -85,7 +85,7 @@ WatchdogReturnCode watchdog_init(
  *     - WATCHDOG_NULL_POINTER if the watchdog or the internal expire pointers are NULL
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_deinit(Watchdog * watchdog);
+WatchdogReturnCode watchdog_deinit(Watchdog * const watchdog);
 
 /**
  * @brief Start a watchdog
@@ -101,7 +101,7 @@ WatchdogReturnCode watchdog_deinit(Watchdog * watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_start(Watchdog * watchdog);
+WatchdogReturnCode watchdog_start(Watchdog * const watchdog);
 
 /**
  * @brief Stop a watchdog
@@ -116,7 +116,7 @@ WatchdogReturnCode watchdog_start(Watchdog * watchdog);
  *     - WATCHDOG_TIMED_OUT if the watchdog has already timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_stop(Watchdog * watchdog);
+WatchdogReturnCode watchdog_stop(Watchdog * const watchdog);
 
 /**
  * @brief Start a watchdog even if it has timed out
@@ -131,7 +131,7 @@ WatchdogReturnCode watchdog_stop(Watchdog * watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_restart(Watchdog * watchdog);
+WatchdogReturnCode watchdog_restart(Watchdog * const watchdog);
 
 /**
  * @brief Reset the watchdog internal time to 0
@@ -147,7 +147,7 @@ WatchdogReturnCode watchdog_restart(Watchdog * watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered inside the timebase
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_reset(Watchdog * watchdog);
+WatchdogReturnCode watchdog_reset(Watchdog * const watchdog);
 
 /**
  * @brief Set the watchdog status as timed out
@@ -160,7 +160,7 @@ WatchdogReturnCode watchdog_reset(Watchdog * watchdog);
  *     - WATCHDOG_TIMED_OUT if the watchdog has already timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_timeout(Watchdog * watchdog);
+WatchdogReturnCode watchdog_timeout(Watchdog * const watchdog);
 
 /**
  * @param Check if the watchdog has timed out
@@ -169,7 +169,7 @@ WatchdogReturnCode watchdog_timeout(Watchdog * watchdog);
  *
  * @return bool True if the watchdog has timed out, false otherwise
  */
-bool watchdog_is_timed_out(Watchdog * watchdog);
+bool watchdog_is_timed_out(Watchdog * const watchdog);
 
 #else  // CONF_WATCHDOG_MODULE_ENABLE
 
