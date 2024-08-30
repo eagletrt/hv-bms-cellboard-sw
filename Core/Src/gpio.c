@@ -120,10 +120,15 @@ CellboardId gpio_get_cellboard_id(void) {
     bool bit_1 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
     bool bit_2 = !(bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
 
-    // Set the identifier using the bits
+    /*
+     * The cellboard identifier is saved as an enum where the first cellboard is
+     * encoded as 0 but in the hardware it is encoded starting from 1 so the read
+     * value has to be decremented by one
+     */
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_0, 0U);
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_1, 1U);
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_2, 2U);
+    --id;
 
     if (id >= CELLBOARD_ID_COUNT)
         id = CELLBOARD_ID_5;
