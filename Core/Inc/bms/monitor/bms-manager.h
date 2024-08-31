@@ -22,6 +22,12 @@
 #define BMS_MANAGER_OPEN_WIRE_THRESHOLD_V (-0.400f)
 #define BMS_MANAGER_OPEN_WIRE_ZERO_V (0.000005f)
 
+/** @brief Voltage reference of the LTCs ADC in V */
+#define BMS_MANAGER_ADC_VREF (5.1f)
+
+/** @brief Resolution of the LTCs ADC in number of bits */
+#define BMS_MANAGER_ADC_RESOLUTION (16)
+
 /**
  * @brief Convert the raw value read from the LTC to a voltage value in V
  *
@@ -31,6 +37,16 @@
  */
 // TODO: Move macro into the bms monitor library
 #define BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(value) ((value) * 0.0001f)
+
+/**
+ * @brief Convert the raw value read from the GPIO of the LTCs to a voltage value in V
+ *
+ * @param value The raw value
+ *
+ * @return volt_t The converted voltage value in V
+ */
+// TODO: Move macro into the bms monitor library
+#define BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(value) CELLBOARD_ADC_RAW_VALUE_TO_VOLT(value, BMS_MANAGER_ADC_VREF, BMS_MANAGER_ADC_RESOLUTION)
 
 /**
  * @brief Return code for the BMS manager module functions

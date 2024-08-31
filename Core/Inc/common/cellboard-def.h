@@ -228,7 +228,7 @@
  * @param VREF The voltage reference in V
  * @param RES The resolution of the ADC in bits
  */
-#define CELLBOARD_ADC_RAW_VALUE_TO_VOLT(VALUE, VREF, RES) ((float)(VALUE) / ((1U << RES) - 1U) * (VREF))
+#define CELLBOARD_ADC_RAW_VALUE_TO_VOLT(VALUE, VREF, RES) ((float)(VALUE) / ((1U << (RES)) - 1U) * (VREF))
 
 /**
  * @brief Compile time assertion

@@ -23,7 +23,7 @@ _STATIC _TempHandler htemp;
 /**
  * @brief Convert a voltage into a temperature using a polynomial conversion
  *
- * @param value The raw temperature value
+ * @param value The voltage value in V
  *
  * @return celsius_t The converted value in °C
  */
@@ -46,6 +46,32 @@ celsius_t _temp_volt_to_celsius(volt_t value) {
 }
 
 /**
+ * @brief Convert the discharge temp voltage value into a temperature in °C using
+ * a polynomial conversion
+ *
+ * @param value The voltage value in V
+ *
+ * @return celsius_t The converted value in °C
+ */
+celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
+    // Value is converted in V and limited to fit the polynomial range
+    value = CELLBOARD_CLAMP(value, TEMP_DISCHARGE_MIN_LIMIT_V, TEMP_DISCHARGE_MAX_LIMIT_V);
+    const double v = value;
+    const double v2 = v * v;
+    const double v3 = v2 * v;
+    const double v4 = v2 * v2;
+    const double v5 = v4 * v;
+    // const double v6 = v3 * v3;
+    return TEMP_DISCHARGE_COEFF_0 + 
+        TEMP_DISCHARGE_COEFF_1 * v + 
+        TEMP_DISCHARGE_COEFF_2 * v2 + 
+        TEMP_DISCHARGE_COEFF_3 * v3 + 
+        TEMP_DISCHARGE_COEFF_4 * v4 + 
+        TEMP_DISCHARGE_COEFF_5 * v5;
+        // TEMP_DISCHARGE_COEFF_6 * v6;
+}
+
+/**
  * @brief Check if the cells temperature values are in range otherwise set an error
  *
  * @param value The temperature value to check in °C
@@ -63,28 +89,6 @@ _STATIC_INLINE void _temp_check_cells_value(celsius_t value) {
     //     value >= TEMP_MAX_VALUE, 
     //     ERROR_GROUP_OVER_TEMPERATURE,
     //     ERROR_OVER_TEMPERATURE_INSTANCE_CELLS, 
-    //     timebase_get_time()
-    // );
-}
-
-/**
- * @brief Check if the discharge temperature values are in range otherwise set an error
- *
- * @param value The discharge temperature value to check in °C
- */
-_STATIC_INLINE void _temp_check_discharge_value(celsius_t value) {
-    CELLBOARD_UNUSED(value);
-    // TODO: Set temp errors
-    // ERROR_TOGGLE_IF(
-    //     value <= TEMP_MIN_VALUE,
-    //     ERROR_GROUP_UNDER_TEMPERATURE,
-    //     ERROR_UNDER_TEMPERATURE_INSTANCE_DISCHARGE,
-    //     timebase_get_time()
-    // );
-    // ERROR_TOGGLE_IF(
-    //     value >= TEMP_MAX_VALUE,
-    //     ERROR_GROUP_OVER_TEMPERATURE,
-    //     ERROR_OVER_TEMPERATURE_INSTANCE_DISCHARGE,
     //     timebase_get_time()
     // );
 }
@@ -149,25 +153,22 @@ TempReturnCode temp_update_values(
     return TEMP_OK;
 }
 
-TempReturnCode temp_update_discharge_value(const size_t index, const celsius_t value) {
+TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value) {
     if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    htemp.discharge_temperatures[index] = value;
-    _temp_check_discharge_value(value);
+    htemp.discharge_temperatures[index] = _temp_discharge_volt_to_celsius(value);
     return TEMP_OK;
 }
 
 TempReturnCode temp_update_discharge_values(
     const size_t index,
-    const celsius_t * const values,
+    const volt_t * const values,
     const size_t size)
 {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    for (size_t i = 0U; i < size; ++i) {
-        htemp.discharge_temperatures[index + i] = values[i];
-        _temp_check_discharge_value(htemp.discharge_temperatures[index + i]);
-    }
+    for (size_t i = 0U; i < size; ++i)
+        htemp.discharge_temperatures[index + i] = _temp_discharge_volt_to_celsius(values[i]);
     return TEMP_OK;
 }
 
