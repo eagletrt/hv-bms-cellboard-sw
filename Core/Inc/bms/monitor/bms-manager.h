@@ -119,7 +119,6 @@ typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
  * @param actual_config The actual configuration register read from the LTC
  * @param requested_config The requested configuration register of the LTC
  * @param pup An array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_PUP)
- * @param communication_error_count A counter of the communication errors
  */
 typedef struct {
     bms_manager_send_callback_t send;
@@ -130,7 +129,6 @@ typedef struct {
     Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
     cells_volt_t pup[2U];
 
-    size_t communication_error_count;
 } _BmsManagerHandler;
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
