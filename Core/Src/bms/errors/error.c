@@ -26,9 +26,9 @@ const size_t instances[] = {
     [ERROR_GROUP_OVER_VOLTAGE] = ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT,
     [ERROR_GROUP_UNDER_TEMPERATURE] = ERROR_GROUP_UNDER_TEMPERATURE_INSTANCE_COUNT,
     [ERROR_GROUP_OVER_TEMPERATURE] = ERROR_GROUP_OVER_TEMPERATURE_INSTANCE_COUNT,
-    [ERROR_GROUP_CAN] = ERROR_GROUP_CAN_INSTANCE_COUNT,
+    [ERROR_GROUP_CAN_COMMUNICATION] = ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT,
     [ERROR_GROUP_FLASH] = ERROR_GROUP_FLASH_INSTANCE_COUNT,
-    [ERROR_GROUP_BMS_MONITOR_COMM] = ERROR_GROUP_BMS_MONITOR_COMM_INSTANCE_COUNT,
+    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT,
     [ERROR_GROUP_OPEN_WIRE] = ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT
 };
 /**
@@ -38,13 +38,13 @@ const size_t instances[] = {
  */
 const size_t thresholds[] = {
     [ERROR_GROUP_POST] = 1U,
-    [ERROR_GROUP_UNDER_VOLTAGE] = 5U,
-    [ERROR_GROUP_OVER_VOLTAGE] = 5U,
-    [ERROR_GROUP_UNDER_TEMPERATURE] = 10U,
-    [ERROR_GROUP_OVER_TEMPERATURE] = 10U,
-    [ERROR_GROUP_CAN] = 5U,
+    [ERROR_GROUP_UNDER_VOLTAGE] = 3U,
+    [ERROR_GROUP_OVER_VOLTAGE] = 3U,
+    [ERROR_GROUP_UNDER_TEMPERATURE] = 5U,
+    [ERROR_GROUP_OVER_TEMPERATURE] = 5U,
+    [ERROR_GROUP_CAN_COMMUNICATION] = 5U,
     [ERROR_GROUP_FLASH] = 3U,
-    [ERROR_GROUP_BMS_MONITOR_COMM] = 5U,
+    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 5U,
     [ERROR_GROUP_OPEN_WIRE] = 3U
 };
 
@@ -54,9 +54,9 @@ int32_t error_under_voltage_instances[ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT];
 int32_t error_over_voltage_instances[ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT];
 int32_t error_under_temperature_instances[ERROR_GROUP_UNDER_TEMPERATURE_INSTANCE_COUNT];
 int32_t error_over_temperature_instances[ERROR_GROUP_OVER_TEMPERATURE_INSTANCE_COUNT];
-int32_t error_can_instances[ERROR_GROUP_CAN_INSTANCE_COUNT];
+int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT];
 int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
-int32_t error_bms_monitor_instances[ERROR_GROUP_BMS_MONITOR_COMM_INSTANCE_COUNT];
+int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
 int32_t error_open_wire_instances[ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT];
 int32_t * errors[] = {
     [ERROR_GROUP_POST] = error_post_instances,
@@ -64,9 +64,9 @@ int32_t * errors[] = {
     [ERROR_GROUP_OVER_VOLTAGE] = error_over_voltage_instances,
     [ERROR_GROUP_UNDER_TEMPERATURE] = error_under_temperature_instances,
     [ERROR_GROUP_OVER_TEMPERATURE] = error_over_temperature_instances,
-    [ERROR_GROUP_CAN] = error_can_instances,
+    [ERROR_GROUP_CAN_COMMUNICATION] = error_can_communication_instances,
     [ERROR_GROUP_FLASH] = error_flash_instances,
-    [ERROR_GROUP_BMS_MONITOR_COMM] = error_bms_monitor_instances,
+    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = error_bms_monitor_communication_instances,
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
@@ -96,6 +96,10 @@ ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t insta
 
 size_t error_get_expired(void) {
     return errorlib_get_expired(&herror);
+}
+
+ErrorInfo error_get_expired_info(void) {
+    return errorlib_get_expired_info(&herror);
 }
 
 bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size) {

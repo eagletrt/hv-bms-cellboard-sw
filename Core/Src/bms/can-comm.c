@@ -23,20 +23,24 @@
 
 _STATIC _CanCommHandler hcan_comm;
 
-void _can_comm_canlib_payload_handle_dummy(const void * const _) {
-    CELLBOARD_UNUSED(_);
-}
-
-can_comm_canlib_payload_handle_callback _can_comm_payload_handle(const can_index_t index) {
+/**
+ * @brief Get a pointer to the canlib payload handler callback function based on the message index
+ *
+ * @param index The message index
+ *
+ * @return can_comm_canlib_payload_handle_callback_t A pointer to the callback function
+ * or NULL if the index is not valid
+ */
+can_comm_canlib_payload_handle_callback_t _can_comm_payload_handle(const can_index_t index) {
     switch (index) {
         case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
-            return (can_comm_canlib_payload_handle_callback)programmer_flash_request_handle;
+            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_request_handle;
         case BMS_CELLBOARD_FLASH_INDEX:
-            return (can_comm_canlib_payload_handle_callback)programmer_flash_handle;
+            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_handle;
         case BMS_CELLBOARD_SET_BALANCING_STATUS_INDEX:
-            return (can_comm_canlib_payload_handle_callback)bal_set_balancing_status_handle;
+            return (can_comm_canlib_payload_handle_callback_t)bal_set_balancing_status_handle;
         default:
-            return _can_comm_canlib_payload_handle_dummy;
+            return NULL;
     }
 }
 
@@ -114,7 +118,6 @@ CanCommReturnCode can_comm_send_immediate(
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
 
-
     // Prepare and push message to the buffer
     CanMessage msg = {
         .index = index,
@@ -152,7 +155,6 @@ CanCommReturnCode can_comm_tx_add(
     //     return CAN_COMM_INVALID_PAYLOAD_SIZE;
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
-
 
     // Prepare and push message to the buffer
     CanMessage msg = {
@@ -199,7 +201,6 @@ CanCommReturnCode can_comm_rx_add(
     return CAN_COMM_OK;
 }
 
-// TODO: Set error if CAN communication is not working
 CanCommReturnCode can_comm_routine(void) {
     if (!CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled))
         return CAN_COMM_DISABLED;
@@ -228,8 +229,6 @@ CanCommReturnCode can_comm_routine(void) {
             data,
             size
         );
-
-        // TODO: Wait a certain amount before set the error?
         switch (ret) {
             case CAN_COMM_INVALID_INDEX:
             case CAN_COMM_INVALID_PAYLOAD_SIZE:
@@ -237,10 +236,10 @@ CanCommReturnCode can_comm_routine(void) {
                 // Do nothing
                 break;
             case CAN_COMM_OK:
-                error_reset(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
+                error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
                 break;
             default:
-                error_set(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
+                error_set(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
                 break;
         }
     }
@@ -250,14 +249,20 @@ CanCommReturnCode can_comm_routine(void) {
         const can_id_t can_id = bms_id_from_index(rx_msg.index);
 
         // Reset CAN error
-        error_reset(ERROR_GROUP_CAN, ERROR_CAN_INSTANCE_BMS);
+        error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message
             bms_devices_deserialize_from_id(&hcan_comm.rx_device, can_id, rx_msg.payload.rx);
 
-            // TODO: Handle errors?
-            _can_comm_payload_handle(rx_msg.index)(hcan_comm.rx_device.message);
+            can_comm_canlib_payload_handle_callback_t handle_payload = _can_comm_payload_handle(rx_msg.index);
+            if (handle_payload == NULL) {
+                error_set(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+            }
+            else {
+                error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+                handle_payload(hcan_comm.rx_device.message);
+            }
         }
         else {
             // TODO: Handler remote requests

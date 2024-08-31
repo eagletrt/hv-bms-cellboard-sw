@@ -22,9 +22,9 @@
 #define ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT (CELLBOARD_SEGMENT_CELLS_COUNT)
 #define ERROR_GROUP_UNDER_TEMPERATURE_INSTANCE_COUNT (CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
 #define ERROR_GROUP_OVER_TEMPERATURE_INSTANCE_COUNT (CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
-#define ERROR_GROUP_CAN_INSTANCE_COUNT (1U)
+#define ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT (1U)
 #define ERROR_GROUP_FLASH_INSTANCE_COUNT (1U)
-#define ERROR_GROUP_BMS_MONITOR_COMM_INSTANCE_COUNT (5U)
+#define ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT (5U)
 #define ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT (1U)
 
 /** @brief Type redefinition for an error instance */
@@ -64,9 +64,9 @@ typedef enum {
     ERROR_GROUP_OVER_VOLTAGE,
     ERROR_GROUP_UNDER_TEMPERATURE,
     ERROR_GROUP_OVER_TEMPERATURE,
-    ERROR_GROUP_CAN,
+    ERROR_GROUP_CAN_COMMUNICATION,
     ERROR_GROUP_FLASH,
-    ERROR_GROUP_BMS_MONITOR_COMM,
+    ERROR_GROUP_BMS_MONITOR_COMMUNICATION,
     ERROR_GROUP_OPEN_WIRE,
     ERROR_GROUP_COUNT
 } ErrorGroup;
@@ -76,12 +76,12 @@ typedef enum {
 } ErrorCanInstance;
 
 typedef enum {
-    ERROR_BMS_MONITOR_COMM_CONF,
-    ERROR_BMS_MONITOR_COMM_VOLT,
-    ERROR_BMS_MONITOR_COMM_TEMP,
-    ERROR_BMS_MONITOR_COMM_OPEN_WIRE,
-    ERROR_BMS_MONITOR_COMM_POLL_CONV
-} ErrorBmsMonitorCommInstance;
+    ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION,
+    ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE,
+    ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE,
+    ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE,
+    ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL
+} ErrorBmsMonitorCommunicationInstance;
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
@@ -92,6 +92,7 @@ ErrorReturnCode error_init(void);
 ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance);
 ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance);
 size_t error_get_expired(void);
+ErrorInfo error_get_expired_info(void);
 
 /**
  * @brief Get a pointer to the CAN payload of the cells voltages
@@ -109,6 +110,7 @@ bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * cons
 #define error_reset(group, instance) (ERROR_OK)
 #define error_get_expired() (0U)
 #define error_get_errors_canlib_payload(byte_size) (NULL)
+#define error_get_expired_info() ((ErrorInfo){ 0U })
 
 #endif // CONF_ERROR_MODULE_ENABLE
 

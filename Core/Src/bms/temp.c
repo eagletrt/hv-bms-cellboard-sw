@@ -76,21 +76,17 @@ celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
  *
  * @param value The temperature value to check in °C
  */
-_STATIC_INLINE void _temp_check_cells_value(celsius_t value) {
+_STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius_t value) {
     CELLBOARD_UNUSED(value);
-    // TODO: Set temp errors
-    // ERROR_TOGGLE_IF(
-    //     value <= TEMP_MIN_VALUE,
-    //     ERROR_GROUP_UNDER_TEMPERATURE,
-    //     ERROR_UNDER_TEMPERATURE_INSTANCE_CELLS,
-    //     timebase_get_time()
-    // );
-    // ERROR_TOGGLE_IF(
-    //     value >= TEMP_MAX_VALUE, 
-    //     ERROR_GROUP_OVER_TEMPERATURE,
-    //     ERROR_OVER_TEMPERATURE_INSTANCE_CELLS, 
-    //     timebase_get_time()
-    // );
+
+    if (value <= TEMP_MIN_C)
+        error_set(ERROR_GROUP_UNDER_TEMPERATURE, index);
+    else
+        error_reset(ERROR_GROUP_UNDER_TEMPERATURE, index);
+    if (value >= TEMP_MAX_C)
+        error_set(ERROR_GROUP_OVER_TEMPERATURE, index);
+    else
+        error_reset(ERROR_GROUP_OVER_TEMPERATURE, index);
 }
 
 TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, const temp_start_conversion_callback_t start_conversion)
@@ -135,7 +131,7 @@ TempReturnCode temp_update_value(const size_t index, const celsius_t value) {
     if (index > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.temperatures[index] = value;
-    _temp_check_cells_value(value);
+    _temp_check_cells_value(index, value);
     return TEMP_OK;
 }
 
@@ -148,7 +144,7 @@ TempReturnCode temp_update_values(
         return TEMP_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i) {
         htemp.temperatures[index + i] = values[i];
-        _temp_check_cells_value(htemp.temperatures[index + i]);
+        _temp_check_cells_value(index + i, values[index + i]);
     }
     return TEMP_OK;
 }

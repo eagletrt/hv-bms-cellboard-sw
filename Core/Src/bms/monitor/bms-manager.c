@@ -69,15 +69,17 @@ BmsManagerReturnCode bms_manager_write_configuration(void) {
         hmanager.requested_config,
         cmd
     );
-    if (byte_size != LTC6811_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
     if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
-        error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_CONF);
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
     else
-        error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_CONF);
+        error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
     return code;
 }
 
@@ -85,8 +87,10 @@ BmsManagerReturnCode bms_manager_read_configuration(void) {
     // Encode the command
     uint8_t cmd[LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     size_t byte_size = ltc6811_rdcfg_encode_broadcast(&hmanager.chain, cmd);
-    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)] = { 0 };
 
@@ -94,14 +98,16 @@ BmsManagerReturnCode bms_manager_read_configuration(void) {
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
     if (code != BMS_MANAGER_OK) {
         if (code != BMS_MANAGER_BUSY)
-            error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_CONF);
+            error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return code;
     } 
-    error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_CONF);
 
     byte_size = ltc6811_rdcfg_decode_broadcast(&hmanager.chain, data, hmanager.actual_config);
-    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return BMS_MANAGER_DECODE_ERROR;
+    }
+    error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
     return code;
 };
 
@@ -115,15 +121,17 @@ BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
         LTC6811_CH_ALL,
         cmd
     );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
     if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
-        error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_VOLT);
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
     else
-        error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_VOLT);
+        error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
     return code;
 }
 
@@ -136,15 +144,17 @@ BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
         LTC6811_CHG_GPIO_ALL,
         cmd
     );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     // Send command bytes
     BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
     if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
-        error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_TEMP);
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
     else
-        error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_TEMP);
+        error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
     return code;
 }
 
@@ -159,15 +169,17 @@ BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pul
         LTC6811_CH_ALL,
         cmd
     );
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send(cmd, byte_size);
     if (code != BMS_MANAGER_BUSY && code != BMS_MANAGER_OK)
-        error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_OPEN_WIRE);
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
     else
-        error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_OPEN_WIRE);
+        error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
     return code;
 }
 
@@ -175,19 +187,20 @@ BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
     // Encode command
     uint8_t cmd[LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     const size_t byte_size = ltc6811_pladc_encode_broadcast(&hmanager.chain, cmd);
-    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     // Send command bytes
     uint8_t poll_status = 0;
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, &poll_status, byte_size, LTC6811_POLL_BYTE_COUNT);
     if (code != BMS_MANAGER_OK) {
         if (code != BMS_MANAGER_BUSY)
-            error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_POLL_CONV);
+            error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL);
         return code;
     }
-    error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_POLL_CONV);
-
+    error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL);
     return ltc6811_pladc_check(poll_status) ? BMS_MANAGER_OK : BMS_MANAGER_BUSY;
 }
 
@@ -199,8 +212,10 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
         (Ltc6811Cvxr)reg,
         cmd
     );
-    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
@@ -209,14 +224,16 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
     if (code != BMS_MANAGER_OK) {
         if (code != BMS_MANAGER_BUSY)
-            error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_VOLT);
+            error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return code;
     }
-    error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_VOLT);
 
     byte_size = ltc6811_rdcv_decode_broadcast(&hmanager.chain, data, volts);
-    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return BMS_MANAGER_DECODE_ERROR;
+    }
+    error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
 
     // Save voltages
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
@@ -247,8 +264,10 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
         (Ltc6811Avxr)reg,
         cmd
     );
-    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     raw_temp_t temp[LTC6811_REG_AUX_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
@@ -257,14 +276,16 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
     if (code != BMS_MANAGER_OK) {
         if (code != BMS_MANAGER_BUSY)
-            error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_TEMP);
+            error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
         return code;
     }
-    error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_TEMP);
 
     byte_size = ltc6811_rdaux_decode_broadcast(&hmanager.chain, data, temp);
-    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
         return BMS_MANAGER_DECODE_ERROR;
+    }
+    error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE);
 
     // Save temperatures
     // Only the last LTC has the temperature sensors attached
@@ -299,8 +320,10 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
         (Ltc6811Cvxr)reg,
         cmd
     );
-    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_ENCODE_ERROR;
+    }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
@@ -309,14 +332,16 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
     if (code != BMS_MANAGER_OK) {
         if (code != BMS_MANAGER_BUSY)
-            error_set(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_OPEN_WIRE);
+            error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return code;
     }
-    error_reset(ERROR_GROUP_BMS_MONITOR_COMM, ERROR_BMS_MONITOR_COMM_OPEN_WIRE);
 
     byte_size = ltc6811_rdcv_decode_broadcast(&hmanager.chain, data, volts);
-    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT))
+    if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_DECODE_ERROR;
+    }
+    error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
 
     // Save voltages
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
@@ -342,19 +367,26 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
 BmsManagerReturnCode bms_manager_check_open_wire(void) {
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // Check first and last voltages
-        if (hmanager.pup[LTC6811_PUP_ACTIVE][0U] == BMS_MANAGER_OPEN_WIRE_ZERO_V)
+        if (hmanager.pup[LTC6811_PUP_ACTIVE][0U] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+            error_set(ERROR_GROUP_OPEN_WIRE, 0U);
             return BMS_MANAGER_OPEN_WIRE;
-        if (hmanager.pup[LTC6811_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] == BMS_MANAGER_OPEN_WIRE_ZERO_V)
+        }
+        if (hmanager.pup[LTC6811_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+            error_set(ERROR_GROUP_OPEN_WIRE, 0U);
             return BMS_MANAGER_OPEN_WIRE;
+        }
 
         // Check other voltages
         for (size_t i = 1U; i <= CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
             const int16_t dv = (int16_t)hmanager.pup[LTC6811_PUP_ACTIVE][i] - (int16_t)hmanager.pup[LTC6811_PUP_INACTIVE][i];
-            if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V)
+            if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V) {
+                error_set(ERROR_GROUP_OPEN_WIRE, 0U);
                 return BMS_MANAGER_OPEN_WIRE;
+            }
         }
     }
+    error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
     return BMS_MANAGER_OK;
 }
 
