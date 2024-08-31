@@ -37,6 +37,8 @@
 #include "post.h"
 
 #include "stm32g4xx_it.h"
+
+#include "error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,6 +76,7 @@ void system_reset(void);
 #ifdef CONF_DEMO_ENABLE
 
 _STATIC void demo() {
+    // Put the cursor the start of the terminal
     usart_log("\033[H");
 
     // Display cells voltages
@@ -208,6 +211,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 #ifdef CONF_DEMO_ENABLE
+    // Clear the screen
     usart_log("\033[2J");
 #endif // CONF_DEMO_ENABLE
 

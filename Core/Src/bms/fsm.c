@@ -24,6 +24,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "identity.h"
 #include "programmer.h"
 #include "bal.h"
+#include "error.h"
 /*** USER CODE END MACROS ***/
 
 
@@ -139,6 +140,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
           next_state = FSM_STATE_IDLE;
           break;
       default:
+          error_set(ERROR_GROUP_POST, 0U);
           next_state = FSM_STATE_FATAL;
           break;
   }
@@ -170,9 +172,9 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
 
-  // if (error_get_expired() > 0U)
-  //       next_state = FSM_STATE_FATAL;
-  if (fsm_is_event_triggered()) {
+  if (error_get_expired() > 0U)
+        next_state = FSM_STATE_FATAL;
+  else if (fsm_is_event_triggered()) {
       // Check for flash request
       if (fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
           next_state = FSM_STATE_FLASH;
@@ -242,7 +244,9 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
   (void)can_comm_routine();
 
   const ProgrammerReturnCode code = programmer_routine();
-  if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
+  if (error_get_expired() > 0U)
+      next_state = FSM_STATE_FATAL;
+  else if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
       next_state = FSM_STATE_IDLE;
   /*** USER CODE END DO_FLASH ***/
   
@@ -273,8 +277,10 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
 
+  if (error_get_expired() > 0U)
+      next_state = FSM_STATE_FATAL;
   // Check for balancing request
-  if (fsm_is_event_triggered()) {
+  else if (fsm_is_event_triggered()) {
       if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
           next_state = FSM_STATE_IDLE;
       // Check for cooldown request
@@ -311,8 +317,10 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
   (void)can_comm_routine();
   (void)led_routine(timebase_get_time());
 
+  if (error_get_expired() > 0U)
+      next_state = FSM_STATE_FATAL;
   // Check for balancing request
-  if (fsm_is_event_triggered()) {
+  else if (fsm_is_event_triggered()) {
       if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
           next_state = FSM_STATE_IDLE;
       // Check for discharge request

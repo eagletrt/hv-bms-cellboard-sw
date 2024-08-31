@@ -188,7 +188,7 @@ typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
  *
  * @param payload A pointer to the converted canlib structure data
  */
-typedef void (* can_comm_canlib_payload_handle_callback)(const void * const payload);
+typedef void (* can_comm_canlib_payload_handle_callback_t)(const void * const payload);
 
 /**
  * @brief CAN manager handler structure
