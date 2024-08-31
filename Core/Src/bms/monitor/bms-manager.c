@@ -49,8 +49,9 @@ BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, co
     ltc6811_chain_init(&hmanager.chain, CELLBOARD_SEGMENT_LTC_COUNT);
 
     // Initialize the LTCs configurations
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i)
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         hmanager.requested_config[i].REFON = 1U;
+    }
     return BMS_MANAGER_OK;
 }
 
@@ -282,13 +283,10 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
         LTC6811_REG_AUX_COUNT - 1U :
         LTC6811_REG_AUX_COUNT;
     const size_t index = reg * LTC6811_REG_AUX_COUNT;
-    const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_AUX_COUNT;
+    const size_t off = ltc * LTC6811_REG_AUX_COUNT;
     for (size_t i = 0U; i < temp_size; ++i) {
-        // TODO: Add temperature conversion with right coefficients
-        CELLBOARD_UNUSED(off);
-        CELLBOARD_UNUSED(index);
-        // const celsius_t value = 0U; // _bms_manager_raw_temp_to_celsius(temp[off + i]);
-        // temp_update_value(index + i, value);
+        volt_t value = BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(temp[off + i]);
+        temp_update_discharge_value(index + i, value);
     }
     return BMS_MANAGER_OK;
 }

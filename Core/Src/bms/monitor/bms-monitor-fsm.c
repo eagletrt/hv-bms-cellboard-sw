@@ -345,7 +345,8 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_write_configuration(bms_monitor_
   /*** USER CODE BEGIN DO_TEMP_WRITE_CONFIGURATION ***/
   CELLBOARD_UNUSED(data);
 
-  (void)bms_manager_write_configuration();
+  // TODO: Writing configuration during gpio ADC conversion causes problems
+  // (void)bms_manager_write_configuration();
   /*** USER CODE END DO_TEMP_WRITE_CONFIGURATION ***/
   
   switch (next_state) {
@@ -368,7 +369,11 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_read_configuration(bms_monitor_f
   /*** USER CODE BEGIN DO_TEMP_READ_CONFIGURATION ***/
   CELLBOARD_UNUSED(data);
 
-  (void)bms_manager_read_configuration();
+  // TODO: Reading configuration during gpio ADC conversion causes problems
+  // (void)bms_manager_read_configuration();
+    
+  // Poll is needed otherwise the SPI peripheral turns off
+  (void)bms_manager_poll_conversion_status();
   /*** USER CODE END DO_TEMP_READ_CONFIGURATION ***/
   
   switch (next_state) {

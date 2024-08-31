@@ -28,6 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <math.h>
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
@@ -75,52 +76,56 @@ void system_reset(void);
 _STATIC void demo() {
     usart_log("\033[H");
 
+    // Display cells voltages
     const cells_volt_t * const volt_values = volt_get_values();
+    const size_t volt_cols = 6U;
 
-    usart_log("=== VOLT VALUES ===\r\n");
-
+    usart_log("                  --- VOLT VALUES ---\r\n");
     usart_log("   ");
-    for (size_t i = 0U; i < 6U; ++i) 
-        usart_log("%5d", i);
-
+    for (size_t i = 0U; i < volt_cols; ++i) 
+        usart_log("%5d  ", i + 1);
     usart_log("\r\n");
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT / 6U; ++i) {
-        usart_log("%d  ", i);
-        for (size_t j = 0U; j < 6U; ++j) { 
-            usart_log("%5.02f V ", (*volt_values)[i * 6U + j]);
+
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT / volt_cols; ++i) {
+        usart_log("%3d", i * volt_cols);
+        for (size_t j = 0U; j < volt_cols; ++j) { 
+            usart_log("%5.02f V", (*volt_values)[i * volt_cols + j]);
         }
         usart_log("\r\n");
     }
     usart_log("\r\n\r\n");
 
+
+    // Display cells temperatures
     const cells_temp_t * const temp_values = temp_get_values();
+    const size_t temp_cols = 6U;
 
-    usart_log("=== TEMPERATURE VALUES ===\r\n");
-
-    for (size_t i = 0U; i < 8U; ++i) 
-        usart_log("  %7d", i);
-
+    usart_log("                  --- TEMPERATURE VALUES ---\r\n");
+    usart_log("   ");
+    for (size_t i = 0U; i < temp_cols; ++i) 
+        usart_log("%6d   ", i + 1);
     usart_log("\r\n");
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / 8U; ++i) {
-        usart_log("%d  ", i);
-        for (size_t j = 0U; j < 8U; ++j) {
-            usart_log("%9.02f C", (*temp_values)[i * 8U + j]);
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / temp_cols; ++i) {
+        usart_log("%3d", i * temp_cols);
+        for (size_t j = 0U; j < temp_cols; ++j) {
+            usart_log("%6.02f °C", (*temp_values)[i * temp_cols + j]);
         }
         usart_log("\r\n");
     }
     usart_log("\r\n\r\n");
 
-    // const raw_temp_t * discharge_temp_values = temp_get_values();
-    //
-    // usart_log("=== DISCHARGE TEMPERATURE VALUES ===\n");
-    // for(size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
-    //     usart_log("%d\n", discharge_temp_values[i]);
-    // }
-    // usart_log("\n\n");
+    // Display discharge temperatures
+    const discharge_temp_t * discharge_temp_values = temp_get_discharge_values();
 
+    usart_log("                  --- DISCHARGE TEMP VALUES ---\r\n");
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
+        usart_log("%7.02f °C", (*discharge_temp_values)[i]);
+    }
+    usart_log("\r\n\r\n");
+
+    // Test discharge circuitry
     static bit_flag32_t cells = 1U;
     static uint32_t t = 0U;
-
     if (HAL_GetTick() - t >= 250U) {
         bms_manager_set_discharge_cells(cells);
         cells = (cells << 1U) & 0xFFFFFF;
@@ -202,6 +207,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+#ifdef CONF_DEMO_ENABLE
+    usart_log("\033[2J");
+#endif // CONF_DEMO_ENABLE
+
   while (1)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
