@@ -99,7 +99,7 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
     hvolt.voltages_can_payload.voltage_1 = hvolt.voltages[offset + 1U];
     hvolt.voltages_can_payload.voltage_2 = hvolt.voltages[offset + 2U];
 
-    offset += 4U;
+    offset += 3U;
     if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
         offset = 0U;
     return &hvolt.voltages_can_payload;
