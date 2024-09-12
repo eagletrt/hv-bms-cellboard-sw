@@ -57,6 +57,33 @@
 
 /* USER CODE BEGIN PV */
 
+void log_cellboard_params() {
+    const cells_volt_t * volt_values = volt_get_values();
+    const cells_temp_t * temp_values = temp_get_values();
+
+    static uint32_t last_log_time = 0;
+
+    if(HAL_GetTick() - last_log_time >= 1000) {
+        usart_log("%d,", HAL_GetTick());
+
+        for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; i++) {
+            usart_log("%.03f,", (*volt_values)[i]); 
+        }
+
+        for (size_t i = 0; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; i++) {
+            usart_log("%.02f", (*temp_values)[i]); 
+            if(i != CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT - 1) {
+                usart_log(",");
+            }
+        }
+
+        usart_log("\n");
+
+        last_log_time = HAL_GetTick();
+    }
+
+}
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
