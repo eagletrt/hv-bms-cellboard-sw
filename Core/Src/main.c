@@ -62,8 +62,9 @@ void log_cellboard_params() {
     const cells_temp_t * temp_values = temp_get_values();
 
     static uint32_t last_log_time = 0;
+    uint32_t current_log_time = HAL_GetTick();
 
-    if(HAL_GetTick() - last_log_time >= 1000) {
+    if(current_log_time - last_log_time >= 100) {
         usart_log("%d,", HAL_GetTick());
 
         for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; i++) {
@@ -77,9 +78,9 @@ void log_cellboard_params() {
             }
         }
 
-        usart_log("\n");
+        usart_log("\r\n");
 
-        last_log_time = HAL_GetTick();
+        last_log_time = current_log_time;
     }
 
 }
@@ -232,6 +233,7 @@ int main(void)
   while (1)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
+    log_cellboard_params();
 
 #ifdef CONF_DEMO_ENABLE
     _STATIC uint32_t t = 0U;
