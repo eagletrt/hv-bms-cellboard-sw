@@ -77,8 +77,6 @@ celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
  * @param value The temperature value to check in °C
  */
 _STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius_t value) {
-    CELLBOARD_UNUSED(value);
-
     if (value <= TEMP_MIN_C)
         error_set(ERROR_GROUP_UNDER_TEMPERATURE, index);
     else
@@ -89,8 +87,7 @@ _STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius_t 
         error_reset(ERROR_GROUP_OVER_TEMPERATURE, index);
 }
 
-TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, const temp_start_conversion_callback_t start_conversion)
-{
+TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, const temp_start_conversion_callback_t start_conversion) {
     if (set_address == NULL || start_conversion == NULL)
         return TEMP_NULL_POINTER;
     memset(&htemp, 0U, sizeof(htemp));

@@ -11,6 +11,8 @@
 #include <time.h>
 #include <string.h>
 
+#ifdef CONF_IDENTITY_MODULE_ENABLE
+
 _STATIC _IdentityHandler hidentity;
 
 void identity_init(const CellboardId id) {
@@ -44,3 +46,11 @@ bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t *
         *byte_size = sizeof(hidentity.version_can_payload);
     return &hidentity.version_can_payload;
 }
+
+#ifdef CONF_IDENTITY_STRINGS_ENABLE
+
+_STATIC char * identity_module_name = "identity";
+
+#endif // CONF_IDENTITY_STRINGS_ENABLE
+
+#endif // CONF_IDENTITY_MODULE_ENABLE

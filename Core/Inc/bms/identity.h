@@ -18,6 +18,7 @@
 
 #include <stddef.h>
 
+#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
 #include "bms_network.h"
@@ -45,6 +46,8 @@ typedef struct {
 
     bms_cellboard_version_converted_t version_can_payload;
 } _IdentityHandler;
+
+#ifdef CONF_IDENTITY_MODULE_ENABLE
 
 /**
  * @brief Initialize all the info about the cellboard identity
@@ -75,5 +78,14 @@ seconds_t identity_get_build_time(void);
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
 bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size);
+
+#else  // CONF_IDENTITY_MODULE_ENABLE
+
+#define identity_init(id) CELLBOARD_NOPE()
+#define identity_get_cellboard_id() (CELLBOARD_ID_0)
+#define identity_get_build_time() (0U)
+#define identity_get_version_canlib_payload(byte_size) (NULL)
+
+#endif // CONF_IDENTITY_MODULE_ENABLE
 
 #endif  // IDENTITY_H
