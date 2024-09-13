@@ -31,15 +31,11 @@
  */
 PostReturnCode _post_modules_init(const PostInitData * const data) {
     /*
-     * The error initialization function has to be the executed before every other
-     * init function to ensure the correctness of the program
+     * The error and identity initialization functions have to be executed
+     * before every other function to ensure the proper functionality
      */
-    error_init();
-    /**
-     * The identity module has to be initialized before every other module
-     * (with the exception of the error module) because most of the functionality
-     * of the BMS strictly depends on the cellboard identifier contiained inside it
-     */
+    if (error_init() != ERROR_OK)
+        return POST_UNINITIALIZED;
     identity_init(data->id);
 
     /**
@@ -58,6 +54,13 @@ PostReturnCode _post_modules_init(const PostInitData * const data) {
     return POST_OK;
 }
 
+PostReturnCode _post_module_setup(void) {
+    timebase_set_enable(true);
+    can_comm_enable_all();
+    led_set_enable(true);
+    return POST_OK;
+}
+
 PostReturnCode post_run(const PostInitData data) {
     if (data.id >= CELLBOARD_ID_COUNT)
         return POST_INVALID_CELLBOARD_ID;
@@ -69,13 +72,16 @@ PostReturnCode post_run(const PostInitData data) {
         data.led_toggle == NULL)
         return POST_NULL_POINTER;
 
+    // Module initialization
     PostReturnCode post_code = _post_modules_init(&data);
+    if (post_code != POST_OK)
+        return post_code;
+
+    // Module confiuration
+    post_code = _post_module_setup();
 
     // TODO: Test that every peripheral is working
 
-    // Set error
-    if (post_code != POST_OK)
-        error_set(ERROR_GROUP_POST, 0U);
     return post_code;
 }
 
@@ -85,16 +91,16 @@ _STATIC char * post_module_name = "post";
 
 _STATIC char * post_return_code_name[] = {
     [POST_OK] = "ok",
+    [POST_UNINITIALIZED] = "uninitialized",
     [POST_INVALID_CELLBOARD_ID] = "invalid cellboard id",
-    [POST_NULL_POINTER] = "null pointer",
-    [POST_WATCHDOG_INVALID_MESSAGE] = "invalid watchdog message"
+    [POST_NULL_POINTER] = "null pointer"
 };
 
 _STATIC char * post_return_code_description[] = {
     [POST_OK] = "executed successfully",
+    [POST_UNINITIALIZED] = "a module has not been initialized correctly",
     [POST_INVALID_CELLBOARD_ID] = "the given id does not correspond to any valid cellboard identifier",
-    [POST_NULL_POINTER] = "attempt to dereference a null pointer",
-    [POST_WATCHDOG_INVALID_MESSAGE] = "the watchdogs are using a non valid can message"
+    [POST_NULL_POINTER] = "attempt to dereference a null pointer"
 };
 
 #endif // CONF_POST_STRINGS_ENABLE

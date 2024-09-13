@@ -144,7 +144,6 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
           next_state = FSM_STATE_FATAL;
           break;
   }
-  // TODO: Enable timebase and can_comm in transition from init to fatal?
   /*** USER CODE END DO_INIT ***/
   
   switch (next_state) {
@@ -363,11 +362,6 @@ void fsm_start(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN START ***/
   CELLBOARD_UNUSED(data);
-
-  // Enable modules
-  can_comm_enable_all(); 
-  timebase_set_enable(true);
-  led_set_enable(true);
   /*** USER CODE END START ***/
 }
 
@@ -377,11 +371,6 @@ void fsm_handle_init_error(fsm_state_data_t *data) {
   
   /*** USER CODE BEGIN HANDLE_INIT_ERROR ***/
   CELLBOARD_UNUSED(data);
-
-  // Enable modules
-  can_comm_enable_all(); 
-  timebase_set_enable(true);
-  led_set_enable(true); 
   /*** USER CODE END HANDLE_INIT_ERROR ***/
 }
 
