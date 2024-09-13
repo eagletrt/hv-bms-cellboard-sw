@@ -183,6 +183,7 @@ C_INCLUDES = \
 
 # WFLAGS = -Wextra -Wall
 WFLAGS = -Werror -Wall
+# WFLAGS = -Werror -Wall -Wextra
 # WFLAGS = -Wfatal-errors -Werror -Wall -Wextra
 
 # compile gcc flags

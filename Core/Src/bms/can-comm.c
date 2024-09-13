@@ -166,6 +166,7 @@ CanCommReturnCode can_comm_tx_add(
 
     if (ring_buffer_push_back(&hcan_comm.tx_buf, &msg) == RING_BUFFER_FULL)
         return CAN_COMM_OVERRUN;
+    hcan_comm.tx_busy[index] = true;
     return CAN_COMM_OK;
 }
 
@@ -198,6 +199,7 @@ CanCommReturnCode can_comm_rx_add(
 
     if (ring_buffer_push_back(&hcan_comm.rx_buf, &msg) == RING_BUFFER_FULL)
         return CAN_COMM_OVERRUN;
+    hcan_comm.rx_busy[index] = true;
     return CAN_COMM_OK;
 }
 
@@ -211,6 +213,9 @@ CanCommReturnCode can_comm_routine(void) {
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT) &&
         ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK)
     {
+        // Reset the busy flag to notify that the message is not inside the buffer anymore
+        hcan_comm.tx_busy[tx_msg.index] = false;
+
         uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
         int size = 0;
         const can_id_t can_id = bms_id_from_index(tx_msg.index);
@@ -229,6 +234,12 @@ CanCommReturnCode can_comm_routine(void) {
             data,
             size
         );
+
+        /*
+         * Set an error in case of problems with CAN communication
+         * In case of any invalid data the error is not set because the communication
+         * is partially working but the data is not valid
+         */
         switch (ret) {
             case CAN_COMM_INVALID_INDEX:
             case CAN_COMM_INVALID_PAYLOAD_SIZE:
@@ -246,6 +257,9 @@ CanCommReturnCode can_comm_routine(void) {
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
         ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK)
     {
+        // Reset the busy flag to notify that the message is not inside the buffer anymore
+        hcan_comm.rx_busy[rx_msg.index] = false;
+
         const can_id_t can_id = bms_id_from_index(rx_msg.index);
 
         // Reset CAN error

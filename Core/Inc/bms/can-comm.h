@@ -27,8 +27,9 @@
 #define CAN_COMM_EXT_ID_MASK (0x1FFFFFFFU)
 
 /** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
-#define CAN_COMM_TX_BUFFER_BYTE_SIZE (16U)
-#define CAN_COMM_RX_BUFFER_BYTE_SIZE (16U)
+#define CAN_COMM_MESSAGE_COUNT (bms_MESSAGE_COUNT)
+#define CAN_COMM_TX_BUFFER_BYTE_SIZE (CAN_COMM_MESSAGE_COUNT)
+#define CAN_COMM_RX_BUFFER_BYTE_SIZE (CAN_COMM_MESSAGE_COUNT)
 
 /** @brief Mask for the bits that defines if the CAN module is enabled or not */
 #define CAN_COMM_ENABLED_ALL_MASK \
@@ -196,6 +197,8 @@ typedef void (* can_comm_canlib_payload_handle_callback_t)(const void * const pa
  * @details The enabled bit flag 
  *
  * @param enabled Flag used to enable or disable the CAN communication
+ * @param tx_busy Transmission messages flags to check if the message has not already been sent
+ * @param rx_busy Reception messages flags to check if the message has not already been handled
  * @param tx_buf Transmission messages circular buffer
  * @param rx_buf Reception messages circular buffer
  * @param send A pointer to the callback used to send the data via CAN
@@ -205,6 +208,8 @@ typedef void (* can_comm_canlib_payload_handle_callback_t)(const void * const pa
  */
 typedef struct  {
     bit_flag8_t enabled;
+    bool tx_busy[CAN_COMM_MESSAGE_COUNT];
+    bool rx_busy[CAN_COMM_MESSAGE_COUNT];
     RingBuffer(CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE) tx_buf;
     RingBuffer(CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE) rx_buf;
 
