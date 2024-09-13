@@ -60,14 +60,14 @@
 
 /* USER CODE BEGIN PV */
 
-void log_cellboard_params() {
+void log_cellboard_params(void) {
     const cells_volt_t * volt_values = volt_get_values();
     const cells_temp_t * temp_values = temp_get_values();
 
     static uint32_t last_log_time = 0;
     uint32_t current_log_time = HAL_GetTick();
 
-    if(current_log_time - last_log_time >= 100) {
+    if (current_log_time - last_log_time >= 100) {
         usart_log("%d,", HAL_GetTick());
 
         for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; i++) {
