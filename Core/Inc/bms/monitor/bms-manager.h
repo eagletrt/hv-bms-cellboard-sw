@@ -116,7 +116,7 @@ typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * const dat
  */
 typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
     uint8_t * const data,
-    uint8_t * const out,
+    uint8_t * out,
     const size_t size,
     const size_t out_size
 );
