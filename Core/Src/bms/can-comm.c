@@ -270,11 +270,7 @@ CanCommReturnCode can_comm_routine(void) {
             bms_devices_deserialize_from_id(&hcan_comm.rx_device, can_id, rx_msg.payload.rx);
 
             can_comm_canlib_payload_handle_callback_t handle_payload = _can_comm_payload_handle(rx_msg.index);
-            if (handle_payload == NULL) {
-                error_set(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
-            }
-            else {
-                error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+            if (handle_payload != NULL) {
                 handle_payload(hcan_comm.rx_device.message);
             }
         }

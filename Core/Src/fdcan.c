@@ -64,16 +64,28 @@ void MX_FDCAN1_Init(void)
   /* USER CODE BEGIN FDCAN1_Init 2 */
 
   // TODO: Config filters
-  FDCAN_FilterTypeDef filter = {
+  FDCAN_FilterTypeDef f1 = {
       .IdType = FDCAN_STANDARD_ID,
       .FilterIndex = 0,
       .FilterType = FDCAN_FILTER_RANGE,
       .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
       .FilterID1 = 0,
-      .FilterID2 = ((1U << 11U) - 1U) << 8U
+      .FilterID2 = 0x500,
   };
-  HAL_FDCAN_ConfigFilter(&HCAN_BMS, &filter);
+  HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f1);
   HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
+
+  FDCAN_FilterTypeDef f2 = {
+      .IdType = FDCAN_STANDARD_ID,
+      .FilterIndex = 1,
+      .FilterType = FDCAN_FILTER_RANGE,
+      .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
+      .FilterID1 = 0x550,
+      .FilterID2 = 0x7FF
+  };
+  HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f2);
+  HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
+
   HAL_FDCAN_Start(&HCAN_BMS);
 
   /* USER CODE END FDCAN1_Init 2 */

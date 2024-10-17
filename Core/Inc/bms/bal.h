@@ -162,7 +162,8 @@ bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_
 #else  // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
-#define bal_set_balancing_status_handle(payload) CELLBOARD_NOPE()
+#define bal_set_balancing_status_handle(payload) (NULL)
+#define bal_set_balancing_status_handle (NULL)
 #define bal_is_active() (false)
 #define bal_is_paused() (false)
 #define bal_start() (BAL_OK)
