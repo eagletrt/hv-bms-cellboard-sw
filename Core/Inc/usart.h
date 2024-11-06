@@ -34,6 +34,7 @@ extern "C" {
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "cellboard-def.h"
 
@@ -68,6 +69,8 @@ void usart_log(const char * const fmt, ...);
  * @param ... values to put inside the formatted string (optional)
  */
 void usart_log_ms(const milliseconds_t interval, const char * const fmt, ...);
+
+char usart_read(bool echo);
 
 /* USER CODE END Prototypes */
 

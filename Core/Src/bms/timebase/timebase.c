@@ -190,7 +190,7 @@ TimebaseReturnCode timebase_routine(void) {
             (void)min_heap_insert(&htimebase.scheduled_tasks, &task);
 
         task_p = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled_tasks);
-    }
+    } 
 
     // Check if the watchdogs has already timed-out
     TimebaseScheduledWatchdog * wdg_p = (TimebaseScheduledWatchdog *)min_heap_peek(&htimebase.scheduled_watchdogs);

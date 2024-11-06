@@ -160,4 +160,15 @@ void usart_log_ms(const milliseconds_t interval, const char * const fmt, ...) {
     }
 }
 
+char usart_read(bool echo) {
+    char c = '\0';
+    HAL_UART_Receive(&huart2, (uint8_t *)&c, 1, 3);
+    if (echo) {
+        HAL_UART_Transmit(&huart2, (uint8_t *)&c, 1, 3);
+        if (c == '\r')
+            HAL_UART_Transmit(&huart2, (uint8_t *)"\n", 1, 3);
+    }
+    return c;
+}
+
 /* USER CODE END 1 */

@@ -79,6 +79,9 @@
 // Enable custom asserts
 #define CONF_FULL_ASSERT_ENABLE
 
+// Enable manual discharge
+// #define CONF_MANUAL_DISCHARGE_ENABLE
+
 /** @} */
 
 #endif  // CELLBOARD_CONF_H

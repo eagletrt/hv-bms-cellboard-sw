@@ -138,7 +138,33 @@ _STATIC void demo() {
     }
 }
 
-#endif
+#endif // CONF_DEMO_ENABLE
+
+#ifdef CONF_MANUAL_DISCHARGE_ENABLE
+
+void cli_discharge(bool echo) {
+    static char str[64];
+    static uint8_t str_i = 0U;
+    
+    char c = usart_read(echo);
+    if (c != '\0')
+        str[str_i++] = c;
+
+    if (c == '\r') {
+        bit_flag32_t bits = 0U;
+        // parse bitmap of cells
+        for (size_t i = 0; str[i] != '\r'; i++) {
+            if (str[i] == '0' || str[i] == '1')
+                bits = CELLBOARD_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
+        }
+        bms_manager_set_discharge_cells(bits);
+        memset(str, 0, sizeof(str));
+        str_i = 0U;
+    }
+}
+
+#endif // CONF_MANUAL_DISCHARGE_ENABLE
+
 
 /* USER CODE END 0 */
 
@@ -178,6 +204,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   /**
@@ -205,7 +232,6 @@ int main(void)
   init_data.id = gpio_get_cellboard_id();
 
   fsm_state = fsm_run_state(fsm_state, &init_data);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -214,10 +240,27 @@ int main(void)
     // Clear the screen
     usart_log("\033[2J");
 #endif // CONF_DEMO_ENABLE
-
+  // uint32_t t = 0;
   while (1)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
+
+    // if (HAL_GetTick() - t >= 500) {
+    //     char msg[1024] = { 0 };
+    //     const cells_volt_t * v = volt_get_values();
+    //     sprintf(msg, "%lu,", HAL_GetTick());
+    //     for (size_t i = 0; i < 23; ++i) {
+    //         sprintf(msg + strlen(msg), "%.3f,", (*v)[i]);
+    //     }
+    //     sprintf(msg + strlen(msg), "%.3f", (*v)[23]);
+    //     sprintf(msg + strlen(msg), "\r\n");
+    //     HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen(msg), 30U);
+    //     t = HAL_GetTick();
+    // }
+
+#ifdef CONF_MANUAL_DISCHARGE_ENABLE
+    cli_discharge(false);
+#endif // CONF_MANUAL_DISCHARGE_ENABLE
 
 #ifdef CONF_DEMO_ENABLE
     _STATIC uint32_t t = 0U;
@@ -225,7 +268,8 @@ int main(void)
         demo();
         t = HAL_GetTick();
     }
-#endif
+#endif // CONF_DEMO_ENABLE
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
