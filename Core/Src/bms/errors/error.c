@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "bms_network.h"
+#include "identity.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
@@ -24,8 +25,10 @@ const size_t instances[] = {
     [ERROR_GROUP_POST] = ERROR_GROUP_POST_INSTANCE_COUNT,
     [ERROR_GROUP_UNDER_VOLTAGE] = ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT,
     [ERROR_GROUP_OVER_VOLTAGE] = ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT,
-    [ERROR_GROUP_UNDER_TEMPERATURE] = ERROR_GROUP_UNDER_TEMPERATURE_INSTANCE_COUNT,
-    [ERROR_GROUP_OVER_TEMPERATURE] = ERROR_GROUP_OVER_TEMPERATURE_INSTANCE_COUNT,
+    [ERROR_GROUP_UNDER_TEMPERATURE_CELLS] = ERROR_GROUP_UNDER_TEMPERATURE_CELLS_INSTANCE_COUNT,
+    [ERROR_GROUP_OVER_TEMPERATURE_CELLS] = ERROR_GROUP_OVER_TEMPERATURE_CELLS_INSTANCE_COUNT,
+    [ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE] = ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT,
+    [ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE] = ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT,
     [ERROR_GROUP_CAN_COMMUNICATION] = ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT,
     [ERROR_GROUP_FLASH] = ERROR_GROUP_FLASH_INSTANCE_COUNT,
     [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT,
@@ -40,8 +43,10 @@ const size_t thresholds[] = {
     [ERROR_GROUP_POST] = 1U,
     [ERROR_GROUP_UNDER_VOLTAGE] = 3U,
     [ERROR_GROUP_OVER_VOLTAGE] = 3U,
-    [ERROR_GROUP_UNDER_TEMPERATURE] = 5U,
-    [ERROR_GROUP_OVER_TEMPERATURE] = 5U,
+    [ERROR_GROUP_UNDER_TEMPERATURE_CELLS] = 5U,
+    [ERROR_GROUP_OVER_TEMPERATURE_CELLS] = 5U,
+    [ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE] = 5U,
+    [ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE] = 5U,
     [ERROR_GROUP_CAN_COMMUNICATION] = 5U,
     [ERROR_GROUP_FLASH] = 3U,
     [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 5U,
@@ -52,8 +57,10 @@ const size_t thresholds[] = {
 int32_t error_post_instances[ERROR_GROUP_POST_INSTANCE_COUNT];
 int32_t error_under_voltage_instances[ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT];
 int32_t error_over_voltage_instances[ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT];
-int32_t error_under_temperature_instances[ERROR_GROUP_UNDER_TEMPERATURE_INSTANCE_COUNT];
-int32_t error_over_temperature_instances[ERROR_GROUP_OVER_TEMPERATURE_INSTANCE_COUNT];
+int32_t error_under_temperature_cells_instances[ERROR_GROUP_UNDER_TEMPERATURE_CELLS_INSTANCE_COUNT];
+int32_t error_over_temperature_cells_instances[ERROR_GROUP_OVER_TEMPERATURE_CELLS_INSTANCE_COUNT];
+int32_t error_under_temperature_discharge_instances[ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
+int32_t error_over_temperature_discharge_instances[ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
 int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT];
 int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
 int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
@@ -62,8 +69,10 @@ int32_t * errors[] = {
     [ERROR_GROUP_POST] = error_post_instances,
     [ERROR_GROUP_UNDER_VOLTAGE] = error_under_voltage_instances,
     [ERROR_GROUP_OVER_VOLTAGE] = error_over_voltage_instances,
-    [ERROR_GROUP_UNDER_TEMPERATURE] = error_under_temperature_instances,
-    [ERROR_GROUP_OVER_TEMPERATURE] = error_over_temperature_instances,
+    [ERROR_GROUP_UNDER_TEMPERATURE_CELLS] = error_under_temperature_cells_instances,
+    [ERROR_GROUP_OVER_TEMPERATURE_CELLS] = error_over_temperature_cells_instances,
+    [ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE] = error_under_temperature_discharge_instances,
+    [ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE] = error_over_temperature_discharge_instances,
     [ERROR_GROUP_CAN_COMMUNICATION] = error_can_communication_instances,
     [ERROR_GROUP_FLASH] = error_flash_instances,
     [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = error_bms_monitor_communication_instances,
@@ -83,9 +92,16 @@ ErrorReturnCode error_init(void) {
 }
 
 ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance) {
-    if (errorlib_error_set(&herror, (errorlib_error_group_t)group, instance) != ERRORLIB_OK)
-        return ERROR_UNKNOWN;
-    return ERROR_OK;
+    ErrorLibReturnCode rt = errorlib_error_set(&herror, (errorlib_error_group_t)group, instance);
+
+    if (errorlib_get_expired(&herror) > 0U) {
+        ErrorInfo error = errorlib_get_expired_info(&herror);
+        errors_can_payload.cellboard_id = identity_get_cellboard_id();
+        errors_can_payload.group = error.group;
+        errors_can_payload.instance = error.instance;
+    }
+
+    return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;
 }
 
 ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance) {
@@ -105,8 +121,6 @@ ErrorInfo error_get_expired_info(void) {
 bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(errors_can_payload);
-    // TODO: Set canlib payload data
-    // can_payload.can = errorlib_error_get_status(&herror, ERROR_GROUP_CAN);
     return &errors_can_payload;
 }
 

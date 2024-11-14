@@ -78,13 +78,13 @@ celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
  */
 _STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius_t value) {
     if (value <= TEMP_MIN_C)
-        error_set(ERROR_GROUP_UNDER_TEMPERATURE, index);
+        error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
     else
-        error_reset(ERROR_GROUP_UNDER_TEMPERATURE, index);
+        error_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
     if (value >= TEMP_MAX_C)
-        error_set(ERROR_GROUP_OVER_TEMPERATURE, index);
+        error_set(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
     else
-        error_reset(ERROR_GROUP_OVER_TEMPERATURE, index);
+        error_reset(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
 }
 
 TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, const temp_start_conversion_callback_t start_conversion) {
