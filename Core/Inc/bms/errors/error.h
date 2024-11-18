@@ -102,11 +102,11 @@ size_t error_get_expired(void);
 ErrorInfo error_get_expired_info(void);
 
 /**
- * @brief Get a pointer to the CAN payload of the cells voltages
+ * @brief Get a pointer to the CAN payload of cellboard error
  *
  * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * @return bms_cellboard_cells_voltage_converted_t* A pointer to the payload
+ * @return bms_cellboard_errors_converted_t*  A pointer to the payload
  */
 bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size);
 

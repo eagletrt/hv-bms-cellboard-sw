@@ -39,16 +39,17 @@
  * @param start The first moment when the task is executed (in ticks)
  * @param interval How often the task should run
  * @param exec A pointer to the task function callback
+ * @param enabled A boolean indicating if the task is enabled or not
  */
 #define TASKS_X_LIST \
-    TASKS_X(SEND_STATUS, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
-    TASKS_X(SEND_VERSION, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
-    TASKS_X(SEND_ERRORS, 0U, BMS_CELLBOARD_ERRORS_CYCLE_TIME_MS, _tasks_send_errors) \
-    TASKS_X(SEND_VOLTAGES, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
-    TASKS_X(SEND_TEMPERATURES, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
-    TASKS_X(SEND_BALANCING_STATUS, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
-    TASKS_X(READ_TEMPERATURES, 0U, 10U, _tasks_read_temperatures) \
-    TASKS_X(RUN_BMS_MANAGER, 0U, 2U, _tasks_run_bms_manager)
+    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
+    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
+    TASKS_X(SEND_ERRORS, false, 0U, BMS_CELLBOARD_ERRORS_CYCLE_TIME_MS, _tasks_send_errors) \
+    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
+    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
+    TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures) \
+    TASKS_X(RUN_BMS_MANAGER, true, 0U, 2U, _tasks_run_bms_manager)
 
 /** @brief Convert a task name to the corresponding TasksId name */
 #define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
@@ -63,6 +64,7 @@ typedef void (* tasks_callback)(void);
  *     - TASKS_OK the function executed succesfully
  */
 typedef enum {
+    TASKS_INVALID_ID,
     TASKS_OK
 } TasksReturnCode;
 
@@ -72,7 +74,7 @@ typedef enum {
  * @details This enum is mainly used to get the total number of tasks at compile time
  * but can also be used to get a specific tasks given a name in the format TASKS_ID_[NAME]
  */
-#define TASKS_X(NAME, START, INTERVAL, EXEC) TASKS_ID_##NAME,
+#define TASKS_X(NAME, ENABLED, START, INTERVAL, EXEC) TASKS_ID_##NAME,
 typedef enum {
     TASKS_X_LIST
     TASKS_ID_COUNT
@@ -89,12 +91,14 @@ typedef enum {
  * @param start The time when the tasks is executed first
  * @param interval The amount of time that must elapsed before the tasks is re-executed
  * @param exec A pointer to the task callback
+ * @param enabled A boolean indicating if the task is enabled
  */
 typedef struct {
     TasksId id;
     ticks_t start;
     ticks_t interval;
     tasks_callback exec;
+    bool enabled;
 } Task;
 
 /**
@@ -158,6 +162,27 @@ ticks_t tasks_get_interval(const TasksId id);
  * @return tasks_callback The task callback or NULL if the id is not valid
  */
 tasks_callback tasks_get_callback(const TasksId id);
+
+/**
+ * @brief Enable or disable a single task
+ *
+ * @param id The task identifier
+ * @param enabled True to enable the tasks, false to disable
+ *
+ * @return TasksReturnCode
+ *     - TASKS_INVALID_ID the given identifier does not exists
+ *     - TASKS_OK otherwise
+ */
+TasksReturnCode tasks_set_enable(const TasksId id, const bool enabled);
+
+/**
+ * @brief Check if a task is enabled or not
+ *
+ * @param id The task identifier
+ *
+ * @return True if the task is enabled, false otherwise
+ */
+bool tasks_is_enabled(const TasksId id);
 
 #else  // CONF_TASKS_MODULE_ENABLE
 

@@ -12,6 +12,7 @@
 
 #include "bms_network.h"
 #include "identity.h"
+#include "tasks.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
@@ -49,7 +50,7 @@ const size_t thresholds[] = {
     [ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE] = 5U,
     [ERROR_GROUP_CAN_COMMUNICATION] = 5U,
     [ERROR_GROUP_FLASH] = 3U,
-    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 5U,
+    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 0U,
     [ERROR_GROUP_OPEN_WIRE] = 3U
 };
 
@@ -99,6 +100,8 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
         errors_can_payload.cellboard_id = identity_get_cellboard_id();
         errors_can_payload.group = error.group;
         errors_can_payload.instance = error.instance;
+
+        tasks_set_enable(TASKS_ID_SEND_ERRORS, true);
     }
 
     return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;

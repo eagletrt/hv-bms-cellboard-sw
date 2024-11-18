@@ -69,10 +69,10 @@ BmsManagerReturnCode bms_manager_write_configuration(void) {
         hmanager.requested_config,
         cmd
     );
-    if (byte_size != LTC6811_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
+    //if (byte_size != LTC6811_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return BMS_MANAGER_ENCODE_ERROR;
-    }
+    //}
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send(cmd, byte_size);

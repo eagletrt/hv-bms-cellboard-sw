@@ -50,8 +50,9 @@ void _tasks_send_version(void) {
     );
 }
 
-/** @brief Send the errors status via CAN */
+/** @brief Send the errors status via CAN if an error occoured*/
 void _tasks_send_errors(void) {
+
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)error_get_errors_canlib_payload(&byte_size);
     can_comm_tx_add(
@@ -114,12 +115,13 @@ TasksReturnCode tasks_init(milliseconds_t resolution) {
     memset(&htasks, 0U, sizeof(htasks));
 
     // Initialize the tasks with the X macro
-#define TASKS_X(NAME, START, INTERVAL, EXEC) \
+#define TASKS_X(NAME, ENABLED, START, INTERVAL, EXEC) \
     do { \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].id = TASKS_NAME_TO_ID(NAME); \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].start = (START); \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].interval = TIMEBASE_MS_TO_TICKS(INTERVAL, resolution); \
         htasks.tasks[TASKS_NAME_TO_ID(NAME)].exec = (EXEC); \
+        htasks.tasks[TASKS_NAME_TO_ID(NAME)].enabled = (ENABLED); \
     } while(0U);
 
     TASKS_X_LIST
@@ -150,6 +152,19 @@ tasks_callback tasks_get_callback(const TasksId id) {
     if (id >= TASKS_ID_COUNT)
         return 0U;
     return htasks.tasks[id].exec;
+}
+
+TasksReturnCode tasks_set_enable(const TasksId id, const bool enabled) {
+    if (id >= TASKS_ID_COUNT)
+        return TASKS_INVALID_ID;
+    htasks.tasks[id].enabled = enabled;
+    return TASKS_OK; 
+}
+
+bool tasks_is_enabled(const TasksId id) {
+    if (id >= TASKS_ID_COUNT)
+        return false;
+    return htasks.tasks[id].enabled;
 }
 
 #ifdef CONF_TASKS_STRINGS_ENABLE
