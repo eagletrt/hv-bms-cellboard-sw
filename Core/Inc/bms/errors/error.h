@@ -106,9 +106,9 @@ ErrorInfo error_get_expired_info(void);
  *
  * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * @return bms_cellboard_errors_converted_t*  A pointer to the payload
+ * @return bms_cellboard_error_converted_t*  A pointer to the payload
  */
-bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size);
+bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_ERROR_MODULE_ENABLE
 
@@ -116,7 +116,7 @@ bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * cons
 #define error_set(group, instance) (ERROR_OK)
 #define error_reset(group, instance) (ERROR_OK)
 #define error_get_expired() (0U)
-#define error_get_errors_canlib_payload(byte_size) (NULL)
+#define error_get_error_canlib_payload(byte_size) (NULL)
 #define error_get_expired_info() ((ErrorInfo){ 0U })
 
 #endif // CONF_ERROR_MODULE_ENABLE

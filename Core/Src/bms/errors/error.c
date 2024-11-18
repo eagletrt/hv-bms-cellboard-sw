@@ -18,8 +18,8 @@
 
 _STATIC ErrorLibHandler herror;
 
-// Canlib payload containing the errors
-_STATIC bms_cellboard_errors_converted_t errors_can_payload;
+// Canlib payload containing the error
+_STATIC bms_cellboard_error_converted_t error_can_payload;
 
 /** @brief Total number of instances for each group */
 const size_t instances[] = {
@@ -50,7 +50,7 @@ const size_t thresholds[] = {
     [ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE] = 5U,
     [ERROR_GROUP_CAN_COMMUNICATION] = 5U,
     [ERROR_GROUP_FLASH] = 3U,
-    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 0U,
+    [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = 5U,
     [ERROR_GROUP_OPEN_WIRE] = 3U
 };
 
@@ -66,7 +66,7 @@ int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE
 int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
 int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
 int32_t error_open_wire_instances[ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT];
-int32_t * errors[] = {
+int32_t * error[] = {
     [ERROR_GROUP_POST] = error_post_instances,
     [ERROR_GROUP_UNDER_VOLTAGE] = error_under_voltage_instances,
     [ERROR_GROUP_OVER_VOLTAGE] = error_over_voltage_instances,
@@ -82,13 +82,13 @@ int32_t * errors[] = {
 
 ErrorReturnCode error_init(void) {
     if (errorlib_init(&herror,
-        errors,
+        error,
         instances,
         thresholds,
         ERROR_GROUP_COUNT
     ) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
-    memset(&errors_can_payload, 0U, sizeof(errors_can_payload));
+    memset(&error_can_payload, 0U, sizeof(error_can_payload));
     return ERROR_OK;
 }
 
@@ -97,11 +97,11 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
 
     if (errorlib_get_expired(&herror) > 0U) {
         ErrorInfo error = errorlib_get_expired_info(&herror);
-        errors_can_payload.cellboard_id = identity_get_cellboard_id();
-        errors_can_payload.group = error.group;
-        errors_can_payload.instance = error.instance;
+        error_can_payload.cellboard_id = identity_get_cellboard_id();
+        error_can_payload.group = error.group;
+        error_can_payload.instance = error.instance;
 
-        tasks_set_enable(TASKS_ID_SEND_ERRORS, true);
+        tasks_set_enable(TASKS_ID_SEND_ERROR, true);
     }
 
     return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;
@@ -121,10 +121,10 @@ ErrorInfo error_get_expired_info(void) {
     return errorlib_get_expired_info(&herror);
 }
 
-bms_cellboard_errors_converted_t * error_get_errors_canlib_payload(size_t * const byte_size) {
+bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(errors_can_payload);
-    return &errors_can_payload;
+        *byte_size = sizeof(error_can_payload);
+    return &error_can_payload;
 }
 
 #ifdef CONF_ERROR_STRINGS_ENABLE
