@@ -21,6 +21,9 @@ _STATIC ErrorLibHandler herror;
 // Canlib payload containing the error
 _STATIC bms_cellboard_error_converted_t error_can_payload;
 
+// A callback to resets the mainboard
+_STATIC system_reset_callback_t system_reset;
+
 /** @brief Total number of instances for each group */
 const size_t instances[] = {
     [ERROR_GROUP_POST] = ERROR_GROUP_POST_INSTANCE_COUNT,
@@ -80,7 +83,7 @@ int32_t * error[] = {
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
-ErrorReturnCode error_init(void) {
+ErrorReturnCode error_init(const system_reset_callback_t reset) {
     if (errorlib_init(&herror,
         error,
         instances,
@@ -88,7 +91,14 @@ ErrorReturnCode error_init(void) {
         ERROR_GROUP_COUNT
     ) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
+    
     memset(&error_can_payload, 0U, sizeof(error_can_payload));
+
+    if (reset == NULL)
+        return ERROR_NULL_POINTER;
+
+    system_reset = reset;
+
     return ERROR_OK;
 }
 
@@ -97,11 +107,19 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
 
     if (errorlib_get_expired(&herror) > 0U) {
         ErrorInfo error = errorlib_get_expired_info(&herror);
-        error_can_payload.cellboard_id = identity_get_cellboard_id();
-        error_can_payload.group = error.group;
-        error_can_payload.instance = error.instance;
 
-        tasks_set_enable(TASKS_ID_SEND_ERROR, true);
+        if(error.group == ERROR_GROUP_CAN_COMMUNICATION) {
+            // Check if the error is from can and in that case reset the cellboard
+            system_reset();
+        } else {
+            // Otherwise init the error payload and start sending it to the mainboard
+
+            error_can_payload.cellboard_id = identity_get_cellboard_id();
+            error_can_payload.group = error.group;
+            error_can_payload.instance = error.instance;
+
+            tasks_set_enable(TASKS_ID_SEND_ERROR, true);
+        }
     }
 
     return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;

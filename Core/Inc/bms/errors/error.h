@@ -95,7 +95,7 @@ typedef enum {
 /**
  * @brief Initialization of the internal error handler structure
  */
-ErrorReturnCode error_init(void);
+ErrorReturnCode error_init(const system_reset_callback_t reset);
 ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance);
 ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance);
 size_t error_get_expired(void);
