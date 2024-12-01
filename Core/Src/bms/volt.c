@@ -25,17 +25,16 @@ _STATIC _VoltHandler hvolt;
  * @param value The cell voltage value in V
  */
 _STATIC_INLINE void _volt_check_value(const size_t index, const volt_t value) {
+    // BUG: Ignore broken voltage readings (only for third cellboard)
+    // if (index == 19 || index == 20)
+    //     return;
 
-    // BUG: Ignore under and over voltages for cells 19 and 20 for the moment
-    if (index == 20 || index == 19)
-        return;
-
-    if (value <= VOLT_MIN_V)
+    if (value < VOLT_MIN_V)
         error_set(ERROR_GROUP_UNDER_VOLTAGE, index);
     else
         error_reset(ERROR_GROUP_UNDER_VOLTAGE, index);
 
-    if (value >= VOLT_MAX_V)
+    if (value > VOLT_MAX_V)
         error_set(ERROR_GROUP_OVER_VOLTAGE, index);
     else
         error_reset(ERROR_GROUP_OVER_VOLTAGE, index);

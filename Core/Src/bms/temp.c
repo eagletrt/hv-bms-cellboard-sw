@@ -77,11 +77,12 @@ celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
  * @param value The temperature value to check in °C
  */
 _STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius_t value) {
-    /*if (value <= TEMP_MIN_C)*/
-    /*    error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);*/
-    /*else*/
-    /*    error_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);*/
-    if (value >= TEMP_MAX_C)
+    // BUG: Ignore under temp caused by broken NTCs
+    // if (value < TEMP_MIN_C)
+    //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    // else
+    //     error_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    if (value > TEMP_MAX_C)
         error_set(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
     else
         error_reset(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
