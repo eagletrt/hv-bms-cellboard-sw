@@ -402,8 +402,9 @@ void fsm_start_discharge(fsm_state_data_t *data) {
   /*** USER CODE BEGIN START_DISCHARGE ***/
   CELLBOARD_UNUSED(data);
 
-  // TODO: Handle watchdog unavailabe
+  // TODO: Handle watchdog unavailable
   (void)bal_start();
+
   (void)watchdog_restart(&hfsm.discharge_wdg);
   /*** USER CODE END START_DISCHARGE ***/
 }

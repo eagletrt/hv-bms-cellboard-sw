@@ -51,7 +51,7 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
     if (payload == NULL)
         return;
     // Ignore stop command if not balancing
-    if (!hbal.active && !payload->start)
+    if (!bal_is_active() && !payload->start)
         return;
  
     // Update data
@@ -66,7 +66,7 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
         return;
 
     // Send event to the FSM
-    if (hbal.active != payload->start) {
+    if (bal_is_active() == !payload->start) {
         hbal.event.type = payload->start ?
             FSM_EVENT_TYPE_BALANCING_START :
             FSM_EVENT_TYPE_BALANCING_STOP;
@@ -75,16 +75,16 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
 }
 
 bool bal_is_active(void) {
-    return hbal.active;
+    return hbal.status != BAL_STATUS_STOPPED;
 }
 
 bool bal_is_paused(void) {
-    return hbal.paused;
+    return hbal.status == BAL_STATUS_PAUSED;
 }
 
 BalReturnCode bal_start(void) {
     // Check actual balancing state
-    if (hbal.active)
+    if (bal_is_active())
         return BAL_OK;
 
     // Start watchdog
@@ -97,13 +97,13 @@ BalReturnCode bal_start(void) {
     const bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
 
-    hbal.active = true;
+    hbal.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;
 }
 
 BalReturnCode bal_stop(void) {
     // Check actual balancing status
-    if (!hbal.active)
+    if (!bal_is_active())
         return BAL_OK;
  
     // Set discharge configuration
@@ -111,29 +111,29 @@ BalReturnCode bal_stop(void) {
 
     // Stop watchdog
     (void)watchdog_stop(&hbal.watchdog);
-    hbal.active = false;
+    hbal.status = BAL_STATUS_STOPPED;
     return BAL_OK;
 }
 
 BalReturnCode bal_pause(void) {
-    if (!hbal.active || hbal.paused)
+    if (!bal_is_active() || bal_is_paused())
         return BAL_OK;
 
     // Set discharge configuration
     (void)bms_manager_set_discharge_cells(0U);
-    hbal.paused = true;
+    hbal.status = BAL_STATUS_PAUSED;
     return BAL_OK;
 }
 
 BalReturnCode bal_resume(void) {
-    if (!hbal.active || !hbal.paused)
+    if (bal_is_active() && !bal_is_paused())
         return BAL_OK;
 
     // Set discharge configuration
     const volt_t target = hbal.params.target + hbal.params.threshold;
     const bit_flag32_t cells_to_discharge = volt_select_values(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
-    hbal.paused = false;
+    hbal.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;
 }
 

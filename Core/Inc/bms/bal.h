@@ -47,6 +47,20 @@ typedef enum {
 } BalReturnCode;
 
 /**
+ * @brief Balancing status
+ *
+ * @details
+ *     - BAL_STATUS_STOPPED balancing is not active
+ *     - BAL_STATUS_PAUSED balancing is active but the cells are not discharging
+ *     - BAL_STATUS_DISCHARGING balancing is active and the cells are discharging
+ */
+typedef enum {
+    BAL_STATUS_STOPPED = 0U,
+    BAL_STATUS_PAUSED,
+    BAL_STATUS_DISCHARCING 
+} BalStatus;
+
+/**
  * @brief Definition of the balancing parameters
  *
  * @param target The minimum target voltage that can be reached while discharging in V
@@ -77,7 +91,7 @@ typedef struct {
     bms_cellboard_balancing_status_converted_t status_can_payload;
     Watchdog watchdog;
 
-    bool active, paused;
+    BalStatus status;
     BalParams params;
 } _BalHandler;
 
@@ -100,6 +114,8 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
 
 /**
  * @brief Check if the balancing is active
+ *
+ * @details The balancing is considered active even if it is not discharging
  *
  * @return bool True if the balancing procedure is running, false otherwise
  */
