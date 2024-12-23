@@ -83,7 +83,7 @@ _STATIC void demo() {
     const cells_volt_t * const volt_values = volt_get_values();
     const size_t volt_cols = 6U;
 
-    usart_log("                  --- VOLT VALUES ---\r\n");
+    usart_log("                  --- VOLTAGE VALUES ---\r\n");
     usart_log("   ");
     for (size_t i = 0U; i < volt_cols; ++i) 
         usart_log("%5d  ", i + 1);
@@ -124,6 +124,23 @@ _STATIC void demo() {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
         usart_log("%7.02f °C", (*discharge_temp_values)[i]);
     }
+    usart_log("\r\n\r\n");
+
+    // Min Max voltage
+    const volt_t v_min = volt_get_min();
+    const volt_t v_max = volt_get_max();
+    usart_log("                  --- VOLTAGE INFO ---\r\n");
+    usart_log("Min: %.3f V\r\n", v_min);
+    usart_log("Max: %.3f V\r\n", v_max);
+    usart_log("Delta: %.3f V\r\n", v_max - v_min);
+    usart_log("\r\n\r\n");
+
+    // Min Max temperature
+    const celsius_t t_min = temp_get_min();
+    const celsius_t t_max = temp_get_max();
+    usart_log("                  --- TEMPERATURE INFO ---\r\n");
+    usart_log("Min: %.3f °C\r\n", t_min);
+    usart_log("Max: %.3f °C\r\n", t_max);
     usart_log("\r\n\r\n");
 
     // Test discharge circuitry
@@ -245,26 +262,24 @@ int main(void)
   {
     fsm_state = fsm_run_state(fsm_state, NULL);
 
-    // if (HAL_GetTick() - t >= 500) {
-    //     char msg[1024] = { 0 };
-    //     const cells_volt_t * v = volt_get_values();
-    //     sprintf(msg, "%lu,", HAL_GetTick());
-    //     for (size_t i = 0; i < 23; ++i) {
-    //         sprintf(msg + strlen(msg), "%.3f,", (*v)[i]);
-    //     }
-    //     sprintf(msg + strlen(msg), "%.3f", (*v)[23]);
-    //     sprintf(msg + strlen(msg), "\r\n");
-    //     HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen(msg), 30U);
-    //     t = HAL_GetTick();
-    // }
-
 #ifdef CONF_MANUAL_DISCHARGE_ENABLE
     cli_discharge(false);
 #endif // CONF_MANUAL_DISCHARGE_ENABLE
 
 #ifdef CONF_DEMO_ENABLE
+
+    // Enable or disable demo
+    _STATIC bool run_demo = false;
+    if (usart_read(false) == 'd') {
+        // Prevent a cell from continuous discharge after the demo is stopped
+        if (run_demo)
+            bms_manager_set_discharge_cells(0U);
+        run_demo = !run_demo;
+    }
+
+    // Run the demo
     _STATIC uint32_t t = 0U;
-    if (HAL_GetTick() - t >= 250U) {
+    if (run_demo && HAL_GetTick() - t >= 250U) {
         demo();
         t = HAL_GetTick();
     }

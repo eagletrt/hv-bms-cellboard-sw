@@ -212,6 +212,34 @@ TempReturnCode temp_update_discharge_values(
 const cells_temp_t * temp_get_values(void);
 
 /**
+ * @brief Get the minimum cell temperature in the pack
+ *
+ * @return celsius_t The minimum temperature value in °C
+ */
+celsius_t temp_get_min(void);
+
+/**
+ * @brief Get the maximum cell temperature in the pack
+ *
+ * @return celsius_t The maximum temperature value in °C
+ */
+celsius_t temp_get_max(void);
+
+/**
+ * @brief Get the sum of the cells temperatures of the pack
+ *
+ * @return celsius_t The sum of the temperatures in °C
+ */
+celsius_t temp_get_sum(void);
+
+/**
+ * @brief Get the average cell temperature of the pack
+ *
+ * @return celsius_t The average temperature in °C
+ */
+celsius_t temp_get_avg(void);
+
+/**
  * @brief Get a pointer to the array where the discharge temperature values are stored
  *
  * @return raw_temp_t* The pointer to the array

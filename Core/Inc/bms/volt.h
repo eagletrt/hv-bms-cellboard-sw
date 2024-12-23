@@ -105,6 +105,34 @@ VoltReturnCode volt_update_values(
 const cells_volt_t * volt_get_values(void);
 
 /**
+ * @brief Get the minimum cell voltage
+ *
+ * @return volt_t The minimum voltage in V
+ */
+volt_t volt_get_min(void);
+
+/**
+ * @brief Get the maximum cell voltage
+ *
+ * @return volt_t The maximum voltage in V
+ */
+volt_t volt_get_max(void);
+
+/**
+ * @brief Get the average cell voltage
+ *
+ * @return volt_t The average voltage in V
+ */
+volt_t volt_get_avg(void);
+
+/**
+ * @brief Get the sum of the cells voltages
+ *
+ * @return volt_t The cells voltages sum
+ */
+volt_t volt_get_sum(void);
+
+/**
  * @brief Get a bitmask of cells which voltage is STRICTLY greater than
  * the given target value
  *

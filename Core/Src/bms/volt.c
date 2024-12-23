@@ -68,6 +68,34 @@ const cells_volt_t * volt_get_values(void) {
     return (const cells_volt_t *)&hvolt.voltages;
 }
 
+volt_t volt_get_min(void) {
+    volt_t min = VOLT_MAX_V;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
+        min = CELLBOARD_MIN(min, hvolt.voltages[i]);
+    }
+    return min;
+}
+
+volt_t volt_get_max(void) {
+    volt_t max = 0U;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
+        max = CELLBOARD_MAX(max, hvolt.voltages[i]);
+    }
+    return max;
+}
+
+volt_t volt_get_avg(void) {
+    return volt_get_sum() / CELLBOARD_SEGMENT_SERIES_COUNT;
+}
+
+volt_t volt_get_sum(void) {
+    volt_t sum = 0U;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
+        sum += hvolt.voltages[i];
+    }
+    return sum;
+}
+
 bit_flag32_t volt_select_values(const volt_t target) {
     bit_flag32_t bits = 0U;
     CELLBOARD_ASSERT(CELLBOARD_SEGMENT_SERIES_COUNT > sizeof(bits) * 8U);

@@ -170,6 +170,34 @@ const cells_temp_t * temp_get_values(void) {
     return &htemp.temperatures;
 }
 
+celsius_t temp_get_min(void) {
+    celsius_t min = TEMP_MAX_C;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        min = CELLBOARD_MIN(min, htemp.temperatures[i]);
+    }
+    return min;
+}
+
+celsius_t temp_get_max(void) {
+    celsius_t max = 0U;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        max = CELLBOARD_MAX(max, htemp.temperatures[i]);
+    }
+    return max;
+}
+
+celsius_t temp_get_avg(void) {
+    return temp_get_sum() / CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT;
+}
+
+celsius_t temp_get_sum(void) {
+    celsius_t sum = 0U;
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        sum += htemp.temperatures[i];
+    }
+    return sum;
+}
+
 const discharge_temp_t * temp_get_discharge_values(void) {
     return &htemp.discharge_temperatures;
 }
