@@ -204,9 +204,6 @@ CanCommReturnCode can_comm_rx_add(
 }
 
 CanCommReturnCode can_comm_routine(void) {
-    if (!CAN_COMM_IS_ENABLED_ALL(hcan_comm.enabled))
-        return CAN_COMM_DISABLED;
-
     // Handler transmit and receive data
     CanCommReturnCode ret = CAN_COMM_OK;
     CanMessage tx_msg, rx_msg;

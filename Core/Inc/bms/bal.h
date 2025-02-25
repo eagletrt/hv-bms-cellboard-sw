@@ -28,7 +28,7 @@
 #define BAL_TARGET_MAX_V (4.2f)
 
 /** @brief Balancing timeouts in ms */
-#define BAL_TIMEOUT_MS (3000U)
+#define BAL_TIMEOUT_MS (5000U)
 
 /**
  * @brief Return code for the balancing module functions

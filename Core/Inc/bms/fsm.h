@@ -27,7 +27,7 @@ Functions and types have been generated with prefix "fsm_"
 
 /** @brief Timeouts for the discharge and cooldown watchdogs in ms */
 #define FSM_DISCHARGE_TIMEOUT_MS (2000U)
-#define FSM_COOLDOWN_TIMEOUT_MS (9000U) // (18000U)
+#define FSM_COOLDOWN_TIMEOUT_MS (2000U) // (18000U)
 
 /**
  * @brief Definition of the possible events types
