@@ -46,7 +46,7 @@
  * @return volt_t The converted voltage value in V
  */
 // TODO: Move macro into the bms monitor library
-#define BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(value) CELLBOARD_ADC_RAW_VALUE_TO_VOLT(value, BMS_MANAGER_ADC_VREF, BMS_MANAGER_ADC_RESOLUTION)
+#define BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(value) ((value) * 0.0001f)
 
 /**
  * @brief Return code for the BMS manager module functions

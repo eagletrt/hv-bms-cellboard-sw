@@ -50,6 +50,7 @@ BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, co
 
     // Initialize the LTCs configurations
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
+        hmanager.requested_config[i].GPIO = 0b11111;
         hmanager.requested_config[i].REFON = 1U;
     }
     return BMS_MANAGER_OK;
