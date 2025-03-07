@@ -87,6 +87,18 @@ void _tasks_send_temperatures(void) {
     );
 }
 
+/** @brief Send the discharge resistors temperature via CAN */
+void _tasks_send_discharge_temperatures(void) {
+    size_t byte_size = 0U;
+    const uint8_t * const payload = (const uint8_t * const)temp_get_discharge_temp_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        BMS_CELLBOARD_DISCHARGE_TEMPERATURE_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
+}
+
 /** @brief Send the current balancing status info via CAN */
 void _tasks_send_balancing_status(void) {
     size_t byte_size = 0U;

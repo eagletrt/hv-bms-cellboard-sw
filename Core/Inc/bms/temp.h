@@ -112,6 +112,7 @@ typedef struct {
     discharge_temp_t discharge_temperatures;
 
     bms_cellboard_cells_temperature_converted_t temp_can_payload;
+    bms_cellboard_discharge_temperature_converted_t discharge_temp_can_payload;
     size_t offset;
 } _TempHandler;
 
@@ -274,6 +275,15 @@ TempReturnCode temp_dump_values(
  * @return bms_cellboard_cells_temperature_converted_t* A pointer to the payload
  */
 bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size);
+
+/**
+ * @brief Get a pointer to the CAN payload of the discharge resistors temperature
+ *
+ * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ *
+ * @return bms_cellboard_discharge_temperature_converted_t* A pointer to the payload
+ */
+bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_TEMPERATURE_MODULE_ENABLE
 

@@ -233,6 +233,18 @@ bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload
     return &htemp.temp_can_payload;
 }
 
+bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size) {
+    if (byte_size != NULL)
+        *byte_size = sizeof(htemp.temp_can_payload);
+
+    htemp.temp_can_payload.temperature_0 = htemp.discharge_temperatures[0U];
+    htemp.temp_can_payload.temperature_1 = htemp.discharge_temperatures[1U];
+    htemp.temp_can_payload.temperature_2 = htemp.discharge_temperatures[2U];
+    htemp.temp_can_payload.temperature_3 = htemp.discharge_temperatures[3U];
+    htemp.temp_can_payload.temperature_4 = htemp.discharge_temperatures[4U];
+    return &htemp.temp_can_payload;
+}
+
 #ifdef CONF_TEMPEATURE_STRINGS_ENABLE
 
 _STATIC char * temp_module_name = "temperature";
