@@ -100,6 +100,7 @@ typedef enum {
  * @param temperature The cells temperature values in °C
  * @param discharge_temperature The discharge resistors temperature values in °C
  * @param temp_can_payload The canlib payload used to send the cells temperatures data via CAN
+ * @param discharge_temp_can_payload The canlib payload used to send the discharge resistors temperature data via CAN
  * @param offset An offset used when the canlib payload is sent
  */
 typedef struct {
@@ -295,6 +296,7 @@ bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib
 #define temp_get_values() (NULL)
 #define temp_dump_values(out, start, size) (TEMP_OK)
 #define temp_get_cells_temp_canlib_payload(byte_size) (NULL)
+#define temp_get_discharge_temp_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_TEMPERATURE_MODULE_ENABLE
 
