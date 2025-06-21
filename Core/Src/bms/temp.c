@@ -96,7 +96,8 @@ TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, cons
     // Copy callback pointers
     htemp.set_address = set_address;
     htemp.start_conversion = start_conversion;
-    htemp.temp_can_payload.cellboard_id = (bms_cellboard_cells_temperature_cellboard_id)identity_get_cellboard_id();
+    htemp.temp_can_payload.cellboard_id = (primary_hv_cells_temperature_cellboard_id)identity_get_cellboard_id();
+    htemp.discharge_temp_can_payload.cellboard_id = (primary_hv_discharge_temperature_cellboard_id)identity_get_cellboard_id();
     return TEMP_OK;
 }
 
@@ -216,11 +217,14 @@ TempReturnCode temp_dump_values(
     return TEMP_OK;
 }
 
-bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size) {
+primary_hv_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(htemp.temp_can_payload);
 
-    htemp.temp_can_payload.offset = htemp.offset;
+    htemp.temp_can_payload.temperature_id_0 = htemp.offset;
+    htemp.temp_can_payload.temperature_id_1 = htemp.offset + 1U;
+    htemp.temp_can_payload.temperature_id_2 = htemp.offset + 2U;
+    htemp.temp_can_payload.temperature_id_3 = htemp.offset + 3U;
     htemp.temp_can_payload.temperature_0 = htemp.temperatures[htemp.offset];
     htemp.temp_can_payload.temperature_1 = htemp.temperatures[htemp.offset + 1U];
     htemp.temp_can_payload.temperature_2 = htemp.temperatures[htemp.offset + 2U];
@@ -233,7 +237,7 @@ bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload
     return &htemp.temp_can_payload;
 }
 
-bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size) {
+primary_hv_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(htemp.discharge_temp_can_payload);
 

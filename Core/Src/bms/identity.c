@@ -28,7 +28,7 @@ void identity_init(const CellboardId id) {
         hidentity.build_time = mktime(&tm);
 
     // Update canlib payload info
-    hidentity.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)id;
+    hidentity.version_can_payload.cellboard_id = (primary_hv_cellboard_version_cellboard_id)id;
     hidentity.version_can_payload.component_build_time = hidentity.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
     hidentity.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
 }
@@ -41,7 +41,7 @@ seconds_t identity_get_build_time(void) {
     return hidentity.build_time;
 }
 
-bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size) {
+primary_hv_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hidentity.version_can_payload);
     return &hidentity.version_can_payload;

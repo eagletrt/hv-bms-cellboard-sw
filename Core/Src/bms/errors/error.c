@@ -118,7 +118,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
             error_can_payload.group = error.group;
             error_can_payload.instance = error.instance;
 
-            tasks_set_enable(TASKS_ID_SEND_ERROR, true);
+            // tasks_set_enable(TASKS_ID_SEND_ERROR, true);
         }
     }
 

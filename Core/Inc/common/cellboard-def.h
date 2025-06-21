@@ -316,6 +316,20 @@ typedef uint16_t raw_volt_t;
 typedef float volt_t;
 typedef float millivolt_t;
 
+/**
+ * @brief Raw current value
+ * @details This type depends on the mechanism of acquisition of the current
+ */
+typedef int32_t raw_current_t;
+
+/** @brief Actual current */
+typedef float ampere_t;
+typedef float milliampere_t;
+
+/** @brief Actual power */
+typedef float watt_t;
+typedef float kilowatt_t;
+
 /** @brief Function callback that resets the microcontroller */
 typedef void (* system_reset_callback_t)(void);
 

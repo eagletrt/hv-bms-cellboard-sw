@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "bms_network.h"
+#include "primary_network.h"
 #include "can-comm.h"
 #include "fsm.h"
 #include "identity.h"
@@ -43,7 +44,7 @@ void _tasks_send_version(void) {
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)identity_get_version_canlib_payload(&byte_size);
     can_comm_tx_add(
-        BMS_CELLBOARD_VERSION_INDEX,
+        PRIMARY_HV_CELLBOARD_VERSION_INDEX,
         CAN_FRAME_TYPE_DATA,
         payload,
         byte_size
@@ -52,11 +53,21 @@ void _tasks_send_version(void) {
 
 /** @brief Send the errors status via CAN if an error occoured*/
 void _tasks_send_errors(void) {
-
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)error_get_error_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_ERROR_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
+}
+
+void _tasks_send_current(void) {
+    size_t byte_size = 0U;
+    const uint8_t * const payload = (const uint8_t * const)current_get_current_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        PRIMARY_HV_CURRENT_INDEX,
         CAN_FRAME_TYPE_DATA,
         payload,
         byte_size
@@ -68,7 +79,7 @@ void _tasks_send_voltages(void) {
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)volt_get_canlib_payload(&byte_size);
     can_comm_tx_add(
-        BMS_CELLBOARD_CELLS_VOLTAGE_INDEX,
+        PRIMARY_HV_CELLS_VOLTAGE_INDEX,
         CAN_FRAME_TYPE_DATA,
         payload,
         byte_size
@@ -80,7 +91,7 @@ void _tasks_send_temperatures(void) {
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)temp_get_cells_temp_canlib_payload(&byte_size);
     can_comm_tx_add(
-        BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX,
+        PRIMARY_HV_CELLS_TEMPERATURE_INDEX,
         CAN_FRAME_TYPE_DATA,
         payload,
         byte_size
@@ -92,7 +103,7 @@ void _tasks_send_discharge_temperatures(void) {
     size_t byte_size = 0U;
     const uint8_t * const payload = (const uint8_t * const)temp_get_discharge_temp_canlib_payload(&byte_size);
     can_comm_tx_add(
-        BMS_CELLBOARD_DISCHARGE_TEMPERATURE_INDEX,
+        PRIMARY_HV_DISCHARGE_TEMPERATURE_INDEX,
         CAN_FRAME_TYPE_DATA,
         payload,
         byte_size

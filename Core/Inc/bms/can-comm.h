@@ -16,7 +16,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "primary_network.h"
 #include "ring-buffer.h"
 
 /** @brief Maximum number of bytes of the payload in a CAN message */
@@ -27,7 +27,7 @@
 #define CAN_COMM_EXT_ID_MASK (0x1FFFFFFFU)
 
 /** @brief Maximum number of CAN messages that can be saved inside the transmission and reception buffers */
-#define CAN_COMM_MESSAGE_COUNT (bms_MESSAGE_COUNT)
+#define CAN_COMM_MESSAGE_COUNT (primary_MESSAGE_COUNT)
 #define CAN_COMM_TX_BUFFER_BYTE_SIZE (CAN_COMM_MESSAGE_COUNT)
 #define CAN_COMM_RX_BUFFER_BYTE_SIZE (CAN_COMM_MESSAGE_COUNT)
 
@@ -145,8 +145,8 @@ typedef enum {
  * @param rx The received CAN payload
  */
 typedef union {
-    uint8_t tx[bms_MAX_STRUCT_SIZE_CONVERSION];
-    uint8_t rx[bms_MAX_STRUCT_SIZE_RAW];
+    uint8_t tx[primary_MAX_STRUCT_SIZE_CONVERSION];
+    uint8_t rx[primary_MAX_STRUCT_SIZE_RAW];
 } CanPayload;
 
 /**
@@ -217,12 +217,14 @@ typedef struct  {
 
     // Canlib devices
     device_t rx_device;
-    uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
-    uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
+    uint8_t rx_raw[primary_MAX_STRUCT_SIZE_RAW];
+    uint8_t rx_conv[primary_MAX_STRUCT_SIZE_CONVERSION];
 } _CanCommHandler;
 
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
+
+primary_hv_current_converted_t * current_get_current_canlib_payload(size_t * const byte_size);
 
 /**
  * @brief Initialize the CAN communication handler structure

@@ -14,7 +14,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "primary_network.h"
 
 /** @brief Minimum and maximum allowed cell voltage in V */
 #define VOLT_MIN_V (2.8f)
@@ -52,7 +52,7 @@ typedef enum {
 typedef struct {
     cells_volt_t voltages;
 
-    bms_cellboard_cells_voltage_converted_t voltages_can_payload;
+    primary_hv_cells_voltage_converted_t voltages_can_payload;
 } _VoltHandler;
 
 
@@ -176,7 +176,7 @@ VoltReturnCode volt_dump_values(
  *
  * @return bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size);
+primary_hv_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size);
 
 #else  // CONF_VOLTAGE_MODULE_ENABLE
 

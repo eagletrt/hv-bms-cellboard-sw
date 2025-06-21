@@ -42,13 +42,14 @@
  * @param enabled A boolean indicating if the task is enabled or not
  */
 #define TASKS_X_LIST \
-    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
-    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
+    TASKS_X(SEND_STATUS, false, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
+    TASKS_X(SEND_VERSION, true, 0U, PRIMARY_HV_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
     TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors) \
-    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
-    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
-    TASKS_X(SEND_DISCHARGE_TEMPERATURES, true, 50U, BMS_CELLBOARD_DISCHARGE_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_discharge_temperatures) \
-    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
+    TASKS_X(SEND_CURRENT, true, 50U, PRIMARY_HV_CURRENT_CYCLE_TIME_MS, _tasks_send_current) \
+    TASKS_X(SEND_VOLTAGES, true, 50U, PRIMARY_HV_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
+    TASKS_X(SEND_TEMPERATURES, true, 50U, PRIMARY_HV_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+    TASKS_X(SEND_DISCHARGE_TEMPERATURES, true, 50U, PRIMARY_HV_DISCHARGE_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_discharge_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, false, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
     TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures) \
     TASKS_X(RUN_BMS_MANAGER, true, 0U, 2U, _tasks_run_bms_manager)
 

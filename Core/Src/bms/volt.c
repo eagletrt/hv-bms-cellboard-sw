@@ -42,7 +42,7 @@ _STATIC_INLINE void _volt_check_value(const size_t index, const volt_t value) {
 
 VoltReturnCode volt_init(void) {
     memset(&hvolt, 0U, sizeof(hvolt));
-    hvolt.voltages_can_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)identity_get_cellboard_id();
+    hvolt.voltages_can_payload.cellboard_id = (primary_hv_cells_voltage_cellboard_id)identity_get_cellboard_id();
     return VOLT_OK;
 }
 
@@ -121,7 +121,7 @@ VoltReturnCode volt_dump_values(
     return VOLT_OK;
 }
 
-bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size) {
+primary_hv_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hvolt.voltages_can_payload);
 

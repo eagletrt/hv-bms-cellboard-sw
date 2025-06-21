@@ -10,7 +10,10 @@
 
 #include <string.h>
 
+#include "cellboard-def.h"
 #include "fsm.h"
+#include "identity.h"
+#include "primary_network.h"
 #include "programmer.h"
 #include "watchdog.h"
 #include "timebase.h"
@@ -23,6 +26,22 @@
 
 _STATIC _CanCommHandler hcan_comm;
 
+_STATIC primary_hv_current_converted_t current_can_payload;
+_STATIC ampere_t current;
+
+void current_handle(primary_ivt_msg_result_i_t * const payload) {
+    if (payload == NULL)
+        return;
+    current = payload->ivt_result_i * 0.001f;
+}
+
+primary_hv_current_converted_t * current_get_current_canlib_payload(size_t * const byte_size) {
+    if (byte_size != NULL)
+        *byte_size = sizeof(current_can_payload);
+    current_can_payload.current = current;
+    return &current_can_payload;
+}
+
 /**
  * @brief Get a pointer to the canlib payload handler callback function based on the message index
  *
@@ -33,12 +52,16 @@ _STATIC _CanCommHandler hcan_comm;
  */
 can_comm_canlib_payload_handle_callback_t _can_comm_payload_handle(const can_index_t index) {
     switch (index) {
-        case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_request_handle;
-        case BMS_CELLBOARD_FLASH_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_handle;
-        case BMS_CELLBOARD_SET_BALANCING_STATUS_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)bal_set_balancing_status_handle;
+        case PRIMARY_IVT_MSG_RESULT_I_INDEX:
+            if (identity_get_cellboard_id() != CELLBOARD_ID_0)
+                return NULL;
+            return (can_comm_canlib_payload_handle_callback_t)current_handle;
+        // case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
+        //     return (can_comm_canlib_payload_handle_callback_t)programmer_flash_request_handle;
+        // case BMS_CELLBOARD_FLASH_INDEX:
+        //     return (can_comm_canlib_payload_handle_callback_t)programmer_flash_handle;
+        // case BMS_CELLBOARD_SET_BALANCING_STATUS_INDEX:
+        //     return (can_comm_canlib_payload_handle_callback_t)bal_set_balancing_status_handle;
         default:
             return NULL;
     }
@@ -61,9 +84,9 @@ CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send) {
     device_set_address(
         &hcan_comm.rx_device,
         &hcan_comm.rx_raw,
-        bms_MAX_STRUCT_SIZE_RAW,
+        primary_MAX_STRUCT_SIZE_RAW,
         &hcan_comm.rx_conv,
-        bms_MAX_STRUCT_SIZE_CONVERSION
+        primary_MAX_STRUCT_SIZE_CONVERSION
     );
     return CAN_COMM_OK;
 }
@@ -108,7 +131,7 @@ CanCommReturnCode can_comm_send_immediate(
         return CAN_COMM_DISABLED;
 
     // Check parameters validity
-    if (index >= bms_MESSAGE_COUNT)
+    if (index >= primary_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
@@ -146,7 +169,7 @@ CanCommReturnCode can_comm_tx_add(
         return CAN_COMM_DISABLED;
 
     // Check parameters validity
-    if (index >= bms_MESSAGE_COUNT)
+    if (index >= primary_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
@@ -180,7 +203,7 @@ CanCommReturnCode can_comm_rx_add(
         return CAN_COMM_DISABLED;
 
     // Check parameters validity
-    if (index >= bms_MESSAGE_COUNT)
+    if (index >= primary_MESSAGE_COUNT)
         return CAN_COMM_INVALID_INDEX;
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
@@ -215,11 +238,11 @@ CanCommReturnCode can_comm_routine(void) {
 
         uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
         int size = 0;
-        const can_id_t can_id = bms_id_from_index(tx_msg.index);
+        const can_id_t can_id = primary_id_from_index(tx_msg.index);
 
         if (tx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Serialize message
-            size = bms_serialize_from_id(tx_msg.payload.tx, can_id, data);
+            size = primary_serialize_from_id(tx_msg.payload.tx, can_id, data);
             if (size < 0)
                 return CAN_COMM_CONVERSION_ERROR;
         }
@@ -257,14 +280,14 @@ CanCommReturnCode can_comm_routine(void) {
         // Reset the busy flag to notify that the message is not inside the buffer anymore
         hcan_comm.rx_busy[rx_msg.index] = false;
 
-        const can_id_t can_id = bms_id_from_index(rx_msg.index);
+        const can_id_t can_id = primary_id_from_index(rx_msg.index);
 
         // Reset CAN error
         error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message
-            bms_devices_deserialize_from_id(&hcan_comm.rx_device, can_id, rx_msg.payload.rx);
+            primary_devices_deserialize_from_id(&hcan_comm.rx_device, can_id, rx_msg.payload.rx);
 
             can_comm_canlib_payload_handle_callback_t handle_payload = _can_comm_payload_handle(rx_msg.index);
             if (handle_payload != NULL) {

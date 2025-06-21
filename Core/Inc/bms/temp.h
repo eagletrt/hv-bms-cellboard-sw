@@ -14,7 +14,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "primary_network.h"
 
 // TODO: Refactor, change comments with a better explanation
 
@@ -112,8 +112,8 @@ typedef struct {
     cells_temp_t temperatures;
     discharge_temp_t discharge_temperatures;
 
-    bms_cellboard_cells_temperature_converted_t temp_can_payload;
-    bms_cellboard_discharge_temperature_converted_t discharge_temp_can_payload;
+    primary_hv_cells_temperature_converted_t temp_can_payload;
+    primary_hv_discharge_temperature_converted_t discharge_temp_can_payload;
     size_t offset;
 } _TempHandler;
 
@@ -275,7 +275,7 @@ TempReturnCode temp_dump_values(
  *
  * @return bms_cellboard_cells_temperature_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size);
+primary_hv_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size);
 
 /**
  * @brief Get a pointer to the CAN payload of the discharge resistors temperature
@@ -284,7 +284,7 @@ bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload
  *
  * @return bms_cellboard_discharge_temperature_converted_t* A pointer to the payload
  */
-bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size);
+primary_hv_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_TEMPERATURE_MODULE_ENABLE
 

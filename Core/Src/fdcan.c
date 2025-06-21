@@ -22,7 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 
-#include "bms_network.h"
+#include "primary_network.h"
 
 /* USER CODE END 0 */
 
@@ -291,7 +291,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
 
     // Update rx data
     can_comm_rx_add(
-        bms_index_from_id(header.Identifier),
+        primary_index_from_id(header.Identifier),
         frame_type,
         data,
         header.DataLength

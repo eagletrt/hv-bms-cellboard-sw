@@ -21,7 +21,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "primary_network.h"
 
 /**
  * @brief Definition of the string containing the latest build time
@@ -44,7 +44,7 @@ typedef struct {
     CellboardId cellboard_id;
     seconds_t build_time;
 
-    bms_cellboard_version_converted_t version_can_payload;
+    primary_hv_cellboard_version_converted_t version_can_payload;
 } _IdentityHandler;
 
 #ifdef CONF_IDENTITY_MODULE_ENABLE
@@ -77,7 +77,7 @@ seconds_t identity_get_build_time(void);
  *
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size);
+primary_hv_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size);
 
 #else  // CONF_IDENTITY_MODULE_ENABLE
 
