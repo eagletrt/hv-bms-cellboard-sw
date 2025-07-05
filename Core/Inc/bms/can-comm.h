@@ -225,6 +225,7 @@ typedef struct  {
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 
 primary_hv_current_converted_t * current_get_current_canlib_payload(size_t * const byte_size);
+primary_hv_total_voltage_converted_t * volt_get_total_voltage_canlib_payload(size_t * const byte_size);
 
 /**
  * @brief Initialize the CAN communication handler structure

@@ -12,6 +12,7 @@
 
 #include "cellboard-def.h"
 #include "identity.h"
+#include "primary_network.h"
 #include "timebase.h"
 #include "error.h"
 

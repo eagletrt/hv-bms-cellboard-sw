@@ -27,7 +27,9 @@
 _STATIC _CanCommHandler hcan_comm;
 
 _STATIC primary_hv_current_converted_t current_can_payload;
+_STATIC primary_hv_total_voltage_converted_t volt_can_payload;
 _STATIC ampere_t current;
+_STATIC volt_t volt;
 
 void current_handle(primary_ivt_msg_result_i_t * const payload) {
     if (payload == NULL)
@@ -35,11 +37,24 @@ void current_handle(primary_ivt_msg_result_i_t * const payload) {
     current = payload->ivt_result_i * 0.001f;
 }
 
+void volt_handle(primary_ivt_msg_result_u1_t * const payload) {
+    if (payload == NULL)
+        return;
+    volt = -payload->ivt_result_u1 * 0.001f;
+}
+
 primary_hv_current_converted_t * current_get_current_canlib_payload(size_t * const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(current_can_payload);
     current_can_payload.current = current;
     return &current_can_payload;
+}
+
+primary_hv_total_voltage_converted_t * volt_get_total_voltage_canlib_payload(size_t * const byte_size) {
+    if (byte_size != NULL)
+        *byte_size = sizeof(volt_can_payload);
+    volt_can_payload.pack = volt;
+    return &volt_can_payload;
 }
 
 /**
@@ -56,6 +71,10 @@ can_comm_canlib_payload_handle_callback_t _can_comm_payload_handle(const can_ind
             if (identity_get_cellboard_id() != CELLBOARD_ID_0)
                 return NULL;
             return (can_comm_canlib_payload_handle_callback_t)current_handle;
+        case PRIMARY_IVT_MSG_RESULT_U1_INDEX: 
+            if (identity_get_cellboard_id() != CELLBOARD_ID_0)
+                return NULL;
+            return (can_comm_canlib_payload_handle_callback_t)volt_handle;
         // case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
         //     return (can_comm_canlib_payload_handle_callback_t)programmer_flash_request_handle;
         // case BMS_CELLBOARD_FLASH_INDEX:

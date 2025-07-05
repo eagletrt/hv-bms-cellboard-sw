@@ -74,6 +74,17 @@ void _tasks_send_current(void) {
     );
 }
 
+void _tasks_send_total_voltage(void) {
+    size_t byte_size = 0U;
+    const uint8_t * const payload = (const uint8_t * const)volt_get_total_voltage_canlib_payload(&byte_size);
+    can_comm_tx_add(
+        PRIMARY_HV_TOTAL_VOLTAGE_INDEX,
+        CAN_FRAME_TYPE_DATA,
+        payload,
+        byte_size
+    );
+}
+
 /** @brief Send the cells voltages via CAN */
 void _tasks_send_voltages(void) {
     size_t byte_size = 0U;

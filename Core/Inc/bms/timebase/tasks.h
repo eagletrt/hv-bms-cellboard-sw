@@ -46,6 +46,7 @@
     TASKS_X(SEND_VERSION, true, 0U, PRIMARY_HV_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
     TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors) \
     TASKS_X(SEND_CURRENT, identity_get_cellboard_id() == CELLBOARD_ID_0, 50U, PRIMARY_HV_CURRENT_CYCLE_TIME_MS, _tasks_send_current) \
+    TASKS_X(SEND_TOTAL_VOLTAGE, identity_get_cellboard_id() == CELLBOARD_ID_0, 50U, PRIMARY_HV_TOTAL_VOLTAGE_CYCLE_TIME_MS, _tasks_send_total_voltage) \
     TASKS_X(SEND_VOLTAGES, true, 50U, PRIMARY_HV_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
     TASKS_X(SEND_TEMPERATURES, true, 50U, PRIMARY_HV_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
     TASKS_X(SEND_DISCHARGE_TEMPERATURES, true, 50U, PRIMARY_HV_DISCHARGE_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_discharge_temperatures) \
