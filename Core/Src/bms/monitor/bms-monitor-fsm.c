@@ -98,7 +98,7 @@ transition_func_t *const bms_monitor_fsm_transition_table[BMS_MONITOR_FSM_NUM_ST
 bms_monitor_fsm_event_data_t *bms_monitor_fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-_STATIC _BmsMonitorFsmHandler hfsm;
+_STATIC _BmsMonitorFsmHandler hfsm_mon;
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired
@@ -134,7 +134,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data_t *da
     /*** USER CODE BEGIN DO_INIT ***/
     CELLBOARD_UNUSED(data);
 
-    memset(&hfsm, 0U, sizeof(hfsm));
+    memset(&hfsm_mon, 0U, sizeof(hfsm_mon));
     /*** USER CODE END DO_INIT ***/
 
     switch (next_state) {
@@ -792,7 +792,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
 bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_state, bms_monitor_fsm_state_data_t *data) {
 
     /*** USER CODE BEGIN RUN_STATE ***/
-    hfsm.fsm_state = cur_state;
+    hfsm_mon.fsm_state = cur_state;
     /*** USER CODE END RUN_STATE ***/
 
     bms_monitor_fsm_event_data_t *prev_ev = bms_monitor_fsm_fired_event;
@@ -810,7 +810,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_st
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 bms_monitor_fsm_state_t bms_monitor_fsm_get_state(void) {
-    return hfsm.fsm_state;
+    return hfsm_mon.fsm_state;
 }
 /*** USER CODE END FUNCTIONS ***/
 

@@ -69,6 +69,22 @@ void _fsm_cooldown_timeout(void) {
     hfsm.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
     fsm_event_trigger(&hfsm.event);
 }
+
+#ifdef CONF_FULL_ASSERT_ENABLE
+
+/**
+ * @brief Debug function called when an assertion fails
+ *
+ * @param file The file where the assert failed
+ * @param line The line where the assert failed
+ */
+void cellboard_assert_failed(const char *file, const int line) {
+    CELLBOARD_UNUSED(file);
+    CELLBOARD_UNUSED(line);
+}
+
+#endif // CONF_FULL_ASSERT_ENABLE
+
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired

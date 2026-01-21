@@ -342,21 +342,6 @@ void system_reset(void) {
     HAL_NVIC_SystemReset();
 }
 
-#ifdef CONF_FULL_ASSERT_ENABLE
-
-/**
- * @brief Debug function called when an assertion fails
- *
- * @param file The file where the assert failed
- * @param line The line where the assert failed
- */
-void cellboard_assert_failed(const char *file, const int line) {
-    CELLBOARD_UNUSED(file);
-    CELLBOARD_UNUSED(line);
-}
-
-#endif // CONF_FULL_ASSERT_ENABLE
-
 /* USER CODE END 4 */
 
 /**
