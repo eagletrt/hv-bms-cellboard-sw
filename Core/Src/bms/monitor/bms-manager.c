@@ -31,7 +31,7 @@ _STATIC _BmsManagerHandler hmanager;
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode _bms_manager_send(uint8_t * const data, const size_t size) {
+BmsManagerReturnCode _bms_manager_send(uint8_t *const data, const size_t size) {
     _STATIC uint8_t aux;
     return hmanager.send_receive(data, &aux, size, 0U);
 }
@@ -68,8 +68,7 @@ BmsManagerReturnCode bms_manager_write_configuration(void) {
     const size_t byte_size = ltc6811_wrcfg_encode_broadcast(
         &hmanager.chain,
         hmanager.requested_config,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -101,7 +100,7 @@ BmsManagerReturnCode bms_manager_read_configuration(void) {
         if (code != BMS_MANAGER_BUSY)
             error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
         return code;
-    } 
+    }
 
     byte_size = ltc6811_rdcfg_decode_broadcast(&hmanager.chain, data, hmanager.actual_config);
     if (byte_size != LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
@@ -120,8 +119,7 @@ BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
         LTC6811_MD_27KHZ_14KHZ,
         LTC6811_DCP_DISABLED,
         LTC6811_CH_ALL,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -143,8 +141,7 @@ BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
         &hmanager.chain,
         LTC6811_MD_27KHZ_14KHZ,
         LTC6811_CHG_GPIO_ALL,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE_DISCHARGE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -168,8 +165,7 @@ BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pul
         pull_up,
         LTC6811_DCP_DISABLED,
         LTC6811_CH_ALL,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_POLL_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -211,8 +207,7 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
     size_t byte_size = ltc6811_rdcv_encode_broadcast(
         &hmanager.chain,
         (Ltc6811Cvxr)reg,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -263,8 +258,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
     size_t byte_size = ltc6811_rdaux_encode_broadcast(
         &hmanager.chain,
         (Ltc6811Avxr)reg,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE_DISCHARGE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -301,9 +295,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
      * The FIRST sensor is connected to the LAST LTC, so the order of the temperatures
      * has to be swapped (temperature 0 to 4 goes to 5 and temperature 5 to 9 goes to 0)
      */
-    const size_t temp_size = reg >= BMS_MANAGER_TEMPERATURE_REGISTER_B ?
-        LTC6811_REG_AUX_COUNT - 1U :
-        LTC6811_REG_AUX_COUNT;
+    const size_t temp_size = reg >= BMS_MANAGER_TEMPERATURE_REGISTER_B ? LTC6811_REG_AUX_COUNT - 1U : LTC6811_REG_AUX_COUNT;
     const size_t index = reg * LTC6811_REG_AUX_COUNT;
     const size_t off = ltc * LTC6811_REG_AUX_COUNT;
     for (size_t i = 0U; i < temp_size; ++i) {
@@ -319,8 +311,7 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
     size_t byte_size = ltc6811_rdcv_encode_broadcast(
         &hmanager.chain,
         (Ltc6811Cvxr)reg,
-        cmd
-    );
+        cmd);
     if (byte_size != LTC6811_READ_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_ENCODE_ERROR;
@@ -398,7 +389,7 @@ BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
 
         // Select the correct cells for each LTC
         const bit_flag16_t dcc = (cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
-            ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+                                 ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
 
         // Set configuration
         hmanager.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_DCTO_OFF : LTC6811_DCTO_30S;
@@ -418,9 +409,9 @@ bit_flag32_t bms_manager_get_discharge_cells(void) {
 
 #ifdef CONF_BMS_STRINGS_MODULE_ENABLE
 
-_STATIC char * bms_manager_module_name = "bms manager";
+_STATIC char *bms_manager_module_name = "bms manager";
 
-_STATIC char * bms_manager_return_code_name[] = {
+_STATIC char *bms_manager_return_code_name[] = {
     [BMS_MANAGER_OK] = "ok",
     [BMS_MANAGER_NULL_POINTER] = "null pointer",
     [BMS_MANAGER_ENCODE_ERROR] = "encode error",
@@ -431,7 +422,7 @@ _STATIC char * bms_manager_return_code_name[] = {
     [BMS_MANAGER_ERROR] = "error"
 };
 
-_STATIC char * bms_manager_return_code_description[] = {
+_STATIC char *bms_manager_return_code_description[] = {
     [BMS_MANAGER_OK] = "executed succesfully",
     [BMS_MANAGER_NULL_POINTER] = "attempt to dereference a null pointer",
     [BMS_MANAGER_ENCODE_ERROR] = "error while encoding of data",
@@ -444,10 +435,9 @@ _STATIC char * bms_manager_return_code_description[] = {
 
 int bms_manager_get_config_string(
     const Ltc6811Cfgr config,
-    char * const out,
-    const size_t size)
-{
-    const char * const fmt =
+    char *const out,
+    const size_t size) {
+    const char *const fmt =
         "adcopt: %3hu\r\n"
         "dten:   %3hu\r\n"
         "refon:  %3hu\r\n"
@@ -457,23 +447,13 @@ int bms_manager_get_config_string(
         "dcc:  0x%03hx\r\n"
         "dcto:   %3hu\r\n";
     return snprintf(
-        out, size, fmt,
-        config.ADCOPT,
-        config.DTEN,
-        config.REFON,
-        config.GPIO,
-        config.VUV,
-        config.VOV,
-        config.DCC,
-        config.DCTO
-    );
+        out, size, fmt, config.ADCOPT, config.DTEN, config.REFON, config.GPIO, config.VUV, config.VOV, config.DCC, config.DCTO);
 }
 
 int bms_manager_get_requested_config_string(
     const size_t ltc,
-    char * const out,
-    size_t size)
-{
+    char *const out,
+    size_t size) {
     if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
         return 0;
     return bms_manager_get_config_string(hmanager.requested_config[ltc], out, size);
@@ -481,9 +461,8 @@ int bms_manager_get_requested_config_string(
 
 int bms_manager_get_actual_config_string(
     const size_t ltc,
-    char * const out,
-    const size_t size)
-{
+    char *const out,
+    const size_t size) {
     if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
         return 0;
     return bms_manager_get_config_string(hmanager.actual_config[ltc], out, size);

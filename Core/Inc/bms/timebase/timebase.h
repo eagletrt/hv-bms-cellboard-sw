@@ -72,7 +72,7 @@ typedef enum {
  */
 typedef struct {
     ticks_t t;
-    Task * task;
+    Task *task;
 } TimebaseScheduledTask;
 
 /**
@@ -83,7 +83,7 @@ typedef struct {
  */
 typedef struct {
     ticks_t t;
-    Watchdog * watchdog;
+    Watchdog *watchdog;
 } TimebaseScheduledWatchdog;
 
 /**
@@ -169,7 +169,7 @@ milliseconds_t timebase_get_resolution(void);
  *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the timebase can't handle the watchdog
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_register_watchdog(Watchdog * const watchdog);
+TimebaseReturnCode timebase_register_watchdog(Watchdog *const watchdog);
 
 /**
  * @brief Unregister a watchdog from the timebase
@@ -183,7 +183,7 @@ TimebaseReturnCode timebase_register_watchdog(Watchdog * const watchdog);
  *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_unregister_watchdog(Watchdog * const handler);
+TimebaseReturnCode timebase_unregister_watchdog(Watchdog *const handler);
 
 /**
  * @brief Check if the watchdog is registered into the timebase
@@ -194,7 +194,7 @@ TimebaseReturnCode timebase_unregister_watchdog(Watchdog * const handler);
  *
  * @return bool True if the watchdog is registered, false otherwise
  */
-bool timebase_is_registered_watchdog(Watchdog * const watchdog);
+bool timebase_is_registered_watchdog(Watchdog *const watchdog);
 
 /**
  * @brief Update the registered watchdog
@@ -211,7 +211,7 @@ bool timebase_is_registered_watchdog(Watchdog * const watchdog);
  *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the watchdog can't be registered again
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_update_watchdog(Watchdog * const watchdog);
+TimebaseReturnCode timebase_update_watchdog(Watchdog *const watchdog);
 
 /**
  * @brief Routine that checks which functions shuold run during this
@@ -222,7 +222,7 @@ TimebaseReturnCode timebase_update_watchdog(Watchdog * const watchdog);
  */
 TimebaseReturnCode timebase_routine(void);
 
-#else  // CONF_TIMEBASE_MODULE_ENABLE
+#else // CONF_TIMEBASE_MODULE_ENABLE
 
 #define timebase_init(resolution) (TIMEBASE_OK)
 #define timebase_set_enable() CELLBOARD_NOPE()
@@ -237,4 +237,4 @@ TimebaseReturnCode timebase_routine(void);
 
 #endif // CONF_TIMEBASE_MODULE_ENABLE
 
-#endif  // TIMEBASE_H
+#endif // TIMEBASE_H

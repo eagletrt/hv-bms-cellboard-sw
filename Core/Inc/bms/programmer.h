@@ -76,14 +76,14 @@ ProgrammerReturnCode programmer_init(const system_reset_callback_t reset);
  *
  * @param payload A pointer to the canlib payload of the request
  */
-void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t * const payload);
+void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload);
 
 /**
  * @brief Handle the received actual flash command
  *
  * @param payload A pointer to the canlib payload of the command
  */
-void programmer_flash_handle(const bms_cellboard_flash_converted_t * const payload);
+void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload);
 
 /**
  * @brief Routine that should be called during the flash procedure
@@ -97,4 +97,4 @@ void programmer_flash_handle(const bms_cellboard_flash_converted_t * const paylo
  */
 ProgrammerReturnCode programmer_routine(void);
 
-#endif  // PROGRAMMER_H
+#endif // PROGRAMMER_H

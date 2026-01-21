@@ -15,7 +15,7 @@
 #include "bms_network.h"
 
 #include "errorlib.h"
- 
+
 /** @brief Error instances count for each group */
 #define ERROR_GROUP_POST_INSTANCE_COUNT (1U)
 #define ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT (CELLBOARD_SEGMENT_CELLS_COUNT)
@@ -108,9 +108,9 @@ ErrorInfo error_get_expired_info(void);
  *
  * @return bms_cellboard_error_converted_t*  A pointer to the payload
  */
-bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const byte_size);
+bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const byte_size);
 
-#else  // CONF_ERROR_MODULE_ENABLE
+#else // CONF_ERROR_MODULE_ENABLE
 
 #define error_init() (ERROR_OK)
 #define error_set(group, instance) (ERROR_OK)
@@ -121,5 +121,4 @@ bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const 
 
 #endif // CONF_ERROR_MODULE_ENABLE
 
-#endif  // ERROR_H
-
+#endif // ERROR_H

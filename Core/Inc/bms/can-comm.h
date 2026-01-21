@@ -32,11 +32,10 @@
 #define CAN_COMM_RX_BUFFER_BYTE_SIZE (CAN_COMM_MESSAGE_COUNT)
 
 /** @brief Mask for the bits that defines if the CAN module is enabled or not */
-#define CAN_COMM_ENABLED_ALL_MASK \
-    ( \
+#define CAN_COMM_ENABLED_ALL_MASK        \
+    (                                    \
         (1U << CAN_COMM_RX_ENABLE_BIT) | \
-        (1U << CAN_COMM_TX_ENABLE_BIT) \
-    )
+        (1U << CAN_COMM_TX_ENABLE_BIT))
 
 /**
  * @brief Enable a single bit of the internal flag
@@ -163,7 +162,6 @@ typedef struct {
     CanPayload payload;
 } CanMessage;
 
-
 /**
  * @brief Function used to send CAN message via a network
  *
@@ -174,13 +172,12 @@ typedef struct {
  *
  * @return CanCommReturnCode The return code value
  */
-typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
+typedef CanCommReturnCode (*can_comm_transmit_callback_t)(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
     const can_id_t id,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size
-);
+    const uint8_t *const data,
+    const size_t size);
 
 /**
  * @brief Handle the received CAN payload data
@@ -189,7 +186,7 @@ typedef CanCommReturnCode (* can_comm_transmit_callback_t)(
  *
  * @param payload A pointer to the converted canlib structure data
  */
-typedef void (* can_comm_canlib_payload_handle_callback_t)(const void * const payload);
+typedef void (*can_comm_canlib_payload_handle_callback_t)(const void *const payload);
 
 /**
  * @brief CAN manager handler structure
@@ -206,7 +203,7 @@ typedef void (* can_comm_canlib_payload_handle_callback_t)(const void * const pa
  * @param rx_raw The reception raw data of the message
  * @param rx_conv The reception converted data of the message
  */
-typedef struct  {
+typedef struct {
     bit_flag8_t enabled;
     bool tx_busy[CAN_COMM_MESSAGE_COUNT];
     bool rx_busy[CAN_COMM_MESSAGE_COUNT];
@@ -220,7 +217,6 @@ typedef struct  {
     uint8_t rx_raw[bms_MAX_STRUCT_SIZE_RAW];
     uint8_t rx_conv[bms_MAX_STRUCT_SIZE_CONVERSION];
 } _CanCommHandler;
-
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 
@@ -294,9 +290,8 @@ bool can_comm_is_enabled(const CanCommEnableBit bit);
 CanCommReturnCode can_comm_send_immediate(
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size
-);
+    const uint8_t *const data,
+    const size_t size);
 
 /**
  * @brief Add a message to the transmission buffer
@@ -320,9 +315,8 @@ CanCommReturnCode can_comm_tx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size
-);
+    const uint8_t *const data,
+    const size_t size);
 
 /**
  * @brief Add a message to the reception buffer
@@ -345,9 +339,8 @@ CanCommReturnCode can_comm_rx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size
-);
+    const uint8_t *const data,
+    const size_t size);
 
 /**
  * @brief Routine used to manage the sent or received can data
@@ -359,7 +352,7 @@ CanCommReturnCode can_comm_rx_add(
  */
 CanCommReturnCode can_comm_routine(void);
 
-#else  // CONF_CAN_COMM_MODULE_ENABLE
+#else // CONF_CAN_COMM_MODULE_ENABLE
 
 #define can_comm_init(send) (CAN_COMM_OK)
 #define can_comm_enable_all() CELLBOARD_NOPE()
@@ -375,4 +368,4 @@ CanCommReturnCode can_comm_routine(void);
 
 #endif // CONF_CAN_COMM_MODULE_ENABLE
 
-#endif  // CAN_COMM_H
+#endif // CAN_COMM_H

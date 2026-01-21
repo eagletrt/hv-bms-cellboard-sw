@@ -16,13 +16,13 @@
 #ifdef CONF_WATCHDOG_MODULE_ENABLE
 
 /** @brief Dummy function to avoid NULL dereferencing */
-void _watchdog_timeout_dummy(void) { }
+void _watchdog_timeout_dummy(void) {
+}
 
 WatchdogReturnCode watchdog_init(
-    Watchdog * const watchdog,
+    Watchdog *const watchdog,
     const ticks_t timeout,
-    const watchdog_timeout_callback expire)
-{
+    const watchdog_timeout_callback expire) {
     if (watchdog == NULL || expire == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->running)
@@ -36,13 +36,13 @@ WatchdogReturnCode watchdog_init(
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_deinit(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
 
     // Unregister before deinit
     (void)timebase_unregister_watchdog(watchdog);
-    
+
     memset(watchdog, 0U, sizeof(Watchdog));
 
     // Deinit watchdog
@@ -50,14 +50,14 @@ WatchdogReturnCode watchdog_deinit(Watchdog * const watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_start(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_start(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->running)
-        return WATCHDOG_BUSY; 
+        return WATCHDOG_BUSY;
     if (watchdog->timed_out)
         return WATCHDOG_TIMED_OUT;
-    
+
     // Start and register the watchdog to the timebase
     if (timebase_register_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
         return WATCHDOG_UNAVAILABLE;
@@ -65,21 +65,21 @@ WatchdogReturnCode watchdog_start(Watchdog * const watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_stop(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_stop(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (!watchdog->running)
         return WATCHDOG_NOT_RUNNING;
     if (watchdog->timed_out)
         return WATCHDOG_TIMED_OUT;
-    
+
     // Stop and unregister the watchdog to the timebase
     (void)timebase_unregister_watchdog(watchdog);
     watchdog->running = false;
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_restart(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_restart(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     // Stop watchdog if its running
@@ -87,7 +87,7 @@ WatchdogReturnCode watchdog_restart(Watchdog * const watchdog) {
         (void)timebase_unregister_watchdog(watchdog);
         watchdog->running = false;
     }
-    
+
     // Start the watchdog
     if (timebase_register_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
         return WATCHDOG_UNAVAILABLE;
@@ -96,21 +96,21 @@ WatchdogReturnCode watchdog_restart(Watchdog * const watchdog) {
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_reset(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_reset(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (watchdog->timed_out)
         return WATCHDOG_TIMED_OUT;
     if (!watchdog->running)
         return WATCHDOG_NOT_RUNNING;
-    
+
     // Update the watchdog registered in the timebase
     if (timebase_update_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
         return WATCHDOG_UNAVAILABLE;
     return WATCHDOG_OK;
 }
 
-WatchdogReturnCode watchdog_timeout(Watchdog * const watchdog) {
+WatchdogReturnCode watchdog_timeout(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
     if (!watchdog->running)
@@ -124,19 +124,19 @@ WatchdogReturnCode watchdog_timeout(Watchdog * const watchdog) {
     return WATCHDOG_OK;
 }
 
-bool watchdog_is_timed_out(Watchdog * const watchdog) {
+bool watchdog_is_timed_out(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return false;
     return watchdog->timed_out;
 }
 
-#else  // CONF_WATCHDOG_MODULE_ENABLE
+#else // CONF_WATCHDOG_MODULE_ENABLE
 
 #ifdef CONF_WATCHDOG_STRINGS_ENABLE
 
-_STATIC char * watchdog_module_name = "watchdog";
+_STATIC char *watchdog_module_name = "watchdog";
 
-_STATIC char * watchdog_return_code_name[] = {
+_STATIC char *watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "ok",
     [WATCHDOG_NULL_POINTER] = "null pointer",
     [WATCHDOG_BUSY] = "busy",
@@ -145,10 +145,10 @@ _STATIC char * watchdog_return_code_name[] = {
     [WATCHDOG_UNAVAILABLE] = "unavailable"
 };
 
-_STATIC char * watchdog_return_code_name[] = {
+_STATIC char *watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "executed sucessfully",
     [WATCHDOG_NULL_POINTER] = "attempt to dereference a null pointer"
-    [WATCHDOG_BUSY] = "the watchdog is already running",
+        [WATCHDOG_BUSY] = "the watchdog is already running",
     [WATCHDOG_TIMED_OUT] = "the watchdog has timed-out",
     [WATCHDOG_NOT_RUNNING] = "the watchdog is not running",
     [WATCHDOG_UNAVAILABLE] = "the watchdog can't be registered"

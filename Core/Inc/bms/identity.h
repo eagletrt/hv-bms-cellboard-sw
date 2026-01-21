@@ -29,7 +29,7 @@
  * @details The build time string is in the following format %b %d %Y %H:%M:%S
  * -> month day year hours:minutes:seconds (e.g. Apr 28 2024 11:45:15)
  */
-#define IDENTITY_BUILD_TIME_STR (__DATE__" "__TIME__)
+#define IDENTITY_BUILD_TIME_STR (__DATE__ " "__TIME__)
 
 /**
  * @brief Identity module handler structure
@@ -77,9 +77,9 @@ seconds_t identity_get_build_time(void);
  *
  * @return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size);
+bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size);
 
-#else  // CONF_IDENTITY_MODULE_ENABLE
+#else // CONF_IDENTITY_MODULE_ENABLE
 
 #define identity_init(id) CELLBOARD_NOPE()
 #define identity_get_cellboard_id() (CELLBOARD_ID_0)
@@ -88,4 +88,4 @@ bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t *
 
 #endif // CONF_IDENTITY_MODULE_ENABLE
 
-#endif  // IDENTITY_H
+#endif // IDENTITY_H

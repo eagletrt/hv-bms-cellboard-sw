@@ -64,10 +64,10 @@ typedef void fsm_state_data_t;
 // By default the struct is empty; put the data of the event inside
 // the structure if you need or leave it empty
 typedef struct {
-  
-  /*** USER CODE BEGIN EVENT_DATA ***/
-  FsmEventType type;
-  /*** USER CODE END EVENT_DATA ***/
+
+    /*** USER CODE BEGIN EVENT_DATA ***/
+    FsmEventType type;
+    /*** USER CODE END EVENT_DATA ***/
 
 } fsm_event_data_t;
 
@@ -75,14 +75,14 @@ typedef struct {
 
 // List of states
 typedef enum {
-  FSM_STATE_INIT = 0,  
-  FSM_STATE_IDLE,  
-  FSM_STATE_FATAL,  
-  FSM_STATE_FLASH,  
-  FSM_STATE_DISCHARGE,  
-  FSM_STATE_COOLDOWN,  
-  FSM_NUM_STATES,
-  FSM_NO_CHANGE
+    FSM_STATE_INIT = 0,
+    FSM_STATE_IDLE,
+    FSM_STATE_FATAL,
+    FSM_STATE_FLASH,
+    FSM_STATE_DISCHARGE,
+    FSM_STATE_COOLDOWN,
+    FSM_NUM_STATES,
+    FSM_NO_CHANGE
 } fsm_state_t;
 
 // State human-readable names
@@ -146,10 +146,8 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data);
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_DISCHARGE, FSM_STATE_COOLDOWN, FSM_STATE_FATAL
 fsm_state_t fsm_do_cooldown(fsm_state_data_t *data);
 
-
 // List of state functions
 extern fsm_state_func_t *const fsm_state_table[FSM_NUM_STATES];
-
 
 // Transition functions
 void fsm_start(fsm_state_data_t *data);
@@ -183,7 +181,7 @@ fsm_state_t fsm_get_status(void);
  *
  * @return bms_cellboard_status_converted_t* A pointer to the payload
  */
-bms_cellboard_status_converted_t * fsm_get_status_canlib_payload(size_t * const byte_size);
+bms_cellboard_status_converted_t *fsm_get_status_canlib_payload(size_t *const byte_size);
 /*** USER CODE END FUNCTIONS ***/
 
 #endif

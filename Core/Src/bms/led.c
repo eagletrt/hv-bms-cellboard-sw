@@ -28,7 +28,7 @@ LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_stat
         hled.pattern[hled.pattern_size++] = LED_SHORT_ON_MS;
     }
     hled.pattern[hled.pattern_size++] = LED_LONG_OFF_MS;
-    
+
     // Initialize the blinker structure
     blinky_init(&hled.blinker, hled.pattern, hled.pattern_size, true, BLINKY_LOW);
     blinky_enable(&hled.blinker, false);
@@ -48,14 +48,14 @@ LedReturnCode led_routine(const milliseconds_t t) {
 
 #ifdef CONF_LED_STRINGS_ENABLE
 
-_STATIC char * led_module_name = "led";
+_STATIC char *led_module_name = "led";
 
-_STATIC char * led_return_code_name[] = {
+_STATIC char *led_return_code_name[] = {
     [LED_OK] = "ok",
     [LED_NULL_POINTER] = "null pointer"
 };
 
-_STATIC char * led_return_code_description[] = {
+_STATIC char *led_return_code_description[] = {
     [LED_OK] = "executed succesfully",
     [LED_NULL_POINTER] = "attempt to dereference a NULL pointer"
 };

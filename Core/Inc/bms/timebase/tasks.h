@@ -41,22 +41,22 @@
  * @param exec A pointer to the task function callback
  * @param enabled A boolean indicating if the task is enabled or not
  */
-#define TASKS_X_LIST \
-    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
-    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
-    TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors) \
-    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
-    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+#define TASKS_X_LIST                                                                                                                       \
+    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status)                                                 \
+    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version)                                              \
+    TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors)                                                  \
+    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages)                                     \
+    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures)                         \
     TASKS_X(SEND_DISCHARGE_TEMPERATURES, true, 50U, BMS_CELLBOARD_DISCHARGE_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_discharge_temperatures) \
-    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
-    TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status)                  \
+    TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures)                                                                    \
     TASKS_X(RUN_BMS_MANAGER, true, 0U, 2U, _tasks_run_bms_manager)
 
 /** @brief Convert a task name to the corresponding TasksId name */
 #define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
 
 /** @brief Type definition for a function that excecutes a single task */
-typedef void (* tasks_callback)(void);
+typedef void (*tasks_callback)(void);
 
 /**
  * @brief Return code for the tasks module functions
@@ -78,10 +78,9 @@ typedef enum {
 #define TASKS_X(NAME, ENABLED, START, INTERVAL, EXEC) TASKS_ID_##NAME,
 typedef enum {
     TASKS_X_LIST
-    TASKS_ID_COUNT
+        TASKS_ID_COUNT
 } TasksId;
 #undef TASKS_X
-
 
 /**
  * @brief Definition of a single task
@@ -135,7 +134,7 @@ TasksReturnCode tasks_init(milliseconds_t resolution);
  *
  * @return Task* The pointer to the tasks or NULL if the id is not valid
  */
-Task * tasks_get_task(const TasksId id);
+Task *tasks_get_task(const TasksId id);
 
 /**
  * @brief Get the start time of the task
@@ -185,7 +184,7 @@ TasksReturnCode tasks_set_enable(const TasksId id, const bool enabled);
  */
 bool tasks_is_enabled(const TasksId id);
 
-#else  // CONF_TASKS_MODULE_ENABLE
+#else // CONF_TASKS_MODULE_ENABLE
 
 #define tasks_init(resolution) (TASKS_OK)
 #define tasks_get_task(id) (NULL)

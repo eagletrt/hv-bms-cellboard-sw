@@ -41,19 +41,18 @@ BalReturnCode bal_init(void) {
     (void)watchdog_init(
         &hbal.watchdog,
         TIMEBASE_MS_TO_TICKS(BAL_TIMEOUT_MS, timebase_get_resolution()),
-        _bal_timeout
-    );
+        _bal_timeout);
     return BAL_OK;
 }
 
 // TODO: Handle unavailable watchdog
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * const payload) {
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload) {
     if (payload == NULL)
         return;
     // Ignore stop command if not balancing
     if (!bal_is_active() && !payload->start)
         return;
- 
+
     // Update data
     const volt_t target = payload->target;
     const volt_t threshold = payload->threshold;
@@ -67,9 +66,7 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
 
     // Send event to the FSM
     if (bal_is_active() == !payload->start) {
-        hbal.event.type = payload->start ?
-            FSM_EVENT_TYPE_BALANCING_START :
-            FSM_EVENT_TYPE_BALANCING_STOP;
+        hbal.event.type = payload->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
         fsm_event_trigger(&hbal.event);
     }
 }
@@ -105,7 +102,7 @@ BalReturnCode bal_stop(void) {
     // Check actual balancing status
     if (!bal_is_active())
         return BAL_OK;
- 
+
     // Set discharge configuration
     (void)bms_manager_set_discharge_cells(0U);
 
@@ -137,16 +134,14 @@ BalReturnCode bal_resume(void) {
     return BAL_OK;
 }
 
-bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_t * const byte_size) {
+bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hbal.status_can_payload);
 
     // Update balancing status
     hbal.status_can_payload.status = bms_cellboard_balancing_status_status_stopped;
     if (bal_is_active()) {
-        hbal.status_can_payload.status = bal_is_paused() ?
-            bms_cellboard_balancing_status_status_paused :
-            bms_cellboard_balancing_status_status_running;
+        hbal.status_can_payload.status = bal_is_paused() ? bms_cellboard_balancing_status_status_paused : bms_cellboard_balancing_status_status_running;
     }
 
     // Update discharging cells
@@ -180,16 +175,16 @@ bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE
 
-_STATIC char * bal_module_name = "balancing";
+_STATIC char *bal_module_name = "balancing";
 
-_STATIC char * bal_return_code_name[] = {
+_STATIC char *bal_return_code_name[] = {
     [BAL_OK] = "ok",
     [BAL_NULL_POINTER] = "null pointer",
     [BAL_BUSY] = "busy",
     [BAL_WATCHDOG_ERROR] = "watchdog error"
 };
 
-_STATIC char * bal_return_code_description[] = {
+_STATIC char *bal_return_code_description[] = {
     [BAL_OK] = "executed succesfully",
     [BAL_NULL_POINTER] = "attempt to dereference a null pointer",
     [BAL_BUSY] = "the target is busy",

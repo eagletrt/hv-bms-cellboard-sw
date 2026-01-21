@@ -57,7 +57,7 @@ typedef enum {
 typedef enum {
     BAL_STATUS_STOPPED = 0U,
     BAL_STATUS_PAUSED,
-    BAL_STATUS_DISCHARCING 
+    BAL_STATUS_DISCHARCING
 } BalStatus;
 
 /**
@@ -110,7 +110,7 @@ BalReturnCode bal_init(void);
  *
  * @param payload A pointer to the CAN paylaod data
  */
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * const payload);
+void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload);
 
 /**
  * @brief Check if the balancing is active
@@ -173,9 +173,9 @@ BalReturnCode bal_resume(void);
  *
  * @return bms_cellboard_balancing_status_converted_t* A pointer to the payload
  */
-bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_t * const byte_size);
+bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t *const byte_size);
 
-#else  // CONF_BALANCING_MODULE_ENABLE
+#else // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
 #define bal_set_balancing_status_handle(payload) (NULL)
@@ -190,4 +190,4 @@ bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 
-#endif  // BAL_H
+#endif // BAL_H

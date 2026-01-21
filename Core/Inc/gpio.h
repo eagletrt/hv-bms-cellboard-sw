@@ -75,4 +75,3 @@ void gpio_set_mux_address(const uint8_t address);
 }
 #endif
 #endif /*__ GPIO_H__ */
-

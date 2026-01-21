@@ -37,7 +37,7 @@
  */
 #ifndef _STATIC
 #define _STATIC static
-#endif  // _STATIC
+#endif // _STATIC
 
 /**
  * @brief Type definition for the inline attribute 
@@ -46,7 +46,7 @@
  */
 #ifndef _STATIC_INLINE
 #define _STATIC_INLINE static inline
-#endif  // _STATIC_INLINE
+#endif // _STATIC_INLINE
 
 /**
  * @brief Type definition for the volatile attribute 
@@ -55,8 +55,7 @@
  */
 #ifndef _VOLATILE
 #define _VOLATILE volatile
-#endif  // _VOLATILE
-
+#endif // _VOLATILE
 
 /*** ######################### CONSTANTS ################################# ***/
 
@@ -90,7 +89,6 @@
 #define CELLBOARD_SEGMENT_CELLS_COUNT ((CELLBOARD_SEGMENT_SERIES_COUNT) * (CELLBOARD_SEGMENT_PARALLELS_COUNT))
 /** @brief Total number of cells series */
 #define CELLBOARD_CELLS_COUNT ((CELLBOARD_COUNT) * (CELLBOARD_SEGMENT_CELLS_COUNT))
-
 
 /** @brief Number of temperatures that can be read at the same time from a single segment */
 #define CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT (3U)
@@ -216,10 +214,7 @@
  * @return The value of the modified variable
  */
 #define CELLBOARD_BIT_TOGGLE_IF(VAR, CONDITION, BIT) ( \
-        (CONDITION) ? \
-        CELLBOARD_BIT_SET(VAR, BIT) : \
-        CELLBOARD_BIT_RESET(VAR, BIT) \
-    )
+    (CONDITION) ? CELLBOARD_BIT_SET(VAR, BIT) : CELLBOARD_BIT_RESET(VAR, BIT))
 
 /**
  * @brief Convert a value gathered from an ADC to a voltage in V
@@ -243,9 +238,7 @@
  * @details If the assertion fails a the cellboard_assert_failed function is
  * called giving the file, line, date and time parameters to get better debug info
  */
-#define CELLBOARD_ASSERT(expression) ((expression) ? \
-    CELLBOARD_NOPE() : \
-    cellboard_assert_failed(__FILE__, __LINE__))
+#define CELLBOARD_ASSERT(expression) ((expression) ? CELLBOARD_NOPE() : cellboard_assert_failed(__FILE__, __LINE__))
 
 /**
  * @brief Debug function called when an assertion fails
@@ -253,13 +246,13 @@
  * @param file The file where the assert failed
  * @param line The line where the assert failed
  */
-void cellboard_assert_failed(const char * file, const int line);
+void cellboard_assert_failed(const char *file, const int line);
 
-#else  // CONF_FULL_ASSERT_ENABLE
+#else // CONF_FULL_ASSERT_ENABLE
 
 #define CELLBOARD_ASSERT(expression) CELLBOARD_NOPE()
 
-#endif  // CONF_FULL_ASSERT_ENABLE
+#endif // CONF_FULL_ASSERT_ENABLE
 
 /** @} */
 
@@ -317,13 +310,13 @@ typedef float volt_t;
 typedef float millivolt_t;
 
 /** @brief Function callback that resets the microcontroller */
-typedef void (* system_reset_callback_t)(void);
+typedef void (*system_reset_callback_t)(void);
 
 /** @brief Function callback used to enter a critical section */
-typedef void (* interrupt_critical_section_enter_t)(void);
+typedef void (*interrupt_critical_section_enter_t)(void);
 
 /** @brief Function callback used to exit a critical section */
-typedef void (* interrupt_critical_section_exit_t)(void);
+typedef void (*interrupt_critical_section_exit_t)(void);
 
 /** @} */
 
@@ -387,4 +380,4 @@ typedef enum {
 
 /** @} */
 
-#endif  // CELLBOARD_DEF_H
+#endif // CELLBOARD_DEF_H
