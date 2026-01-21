@@ -32,7 +32,13 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build
-        run: pio run
+        run: pio run -e base
+      
+      - name: Run balancing Unit Tests
+        run: pio test -e balancing_tests
+
+      - name: Run temperature Unit Tests
+        run: pio test -e temperature_tests
 
       - name: Static Code Analysis
         if: github.ref == 'refs/heads/dev'
