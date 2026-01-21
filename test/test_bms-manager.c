@@ -14,22 +14,17 @@
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-void send(uint8_t *data, size_t size) {
+BmsManagerReturnCode send(uint8_t *data, size_t size) {
     // Do nothing
+    return BMS_MANAGER_OK;
 }
 
-void send_receive(uint8_t *data, uint8_t *out, size_t size, size_t size_out) {
+BmsManagerReturnCode send_receive(uint8_t *data, uint8_t *out, size_t size, size_t size_out) {
     // Do nothing
+    return BMS_MANAGER_OK;
 }
 
 extern _BmsManagerHandler hmanager;
-
-void setUp() {
-    identity_init(CELLBOARD_ID);
-    bms_manager_init(send, send_receive);
-}
-
-void tearDown() {}
 
 void test_bms_manager_init_null() {
     TEST_ASSERT_EQUAL(BMS_MANAGER_NULL_POINTER, bms_manager_init(NULL, NULL));
@@ -62,11 +57,20 @@ void test_bms_manager_set_discharge_cells_config() {
     TEST_ASSERT_EQUAL(0xAAA, hmanager.requested_config[1].DCC);
 }
 
-
 void test_bms_manager_get_discharge_cells() {
     hmanager.actual_config[0].DCC = 0x123;
     hmanager.actual_config[1].DCC = 0x456;
     TEST_ASSERT_EQUAL(0x456123, bms_manager_get_discharge_cells());
+}
+
+#ifdef BMS_MANAGER_TESTS
+
+void setUp() {
+    identity_init(CELLBOARD_ID);
+    bms_manager_init(send, send_receive);
+}
+
+void tearDown() {
 }
 
 int main() {
@@ -76,9 +80,10 @@ int main() {
     RUN_TEST(test_bms_manager_init_send);
     RUN_TEST(test_bms_manager_init_send_receive);
     RUN_TEST(test_bms_manager_init_config);
-    RUN_TEST(test_bms_manager_set_discharge_cells_ok); 
-    RUN_TEST(test_bms_manager_set_discharge_cells_config); 
+    RUN_TEST(test_bms_manager_set_discharge_cells_ok);
+    RUN_TEST(test_bms_manager_set_discharge_cells_config);
     RUN_TEST(test_bms_manager_get_discharge_cells);
     return UNITY_END();
 }
 
+#endif // BMS_MANAGER_TESTS
