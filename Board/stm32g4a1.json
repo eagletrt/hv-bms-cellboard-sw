@@ -1,0 +1,46 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32G4 -DSTM32G4xx -DSTM32G4A1xx",
+    "f_cpu": "170000000L",
+    "mcu": "stm32g4a1keu6",
+    "product_line": "STM32G4A1xx",
+    "variant": "STM32G4xx/G4A1(K)EUx"
+  },
+  "connectivity": [
+    "can"
+  ],
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32G4A1KEU",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_target": "stm32g4x",
+    "svd_path": "STM32G4A1xx.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "cmsis",
+    "libopencm3",
+    "stm32cube"
+  ],
+  "name": "Custom STM32G4A1KEU Board",
+  "upload": {
+    "maximum_ram_size": 112000,
+    "maximum_size": 512000,
+    "protocol": "stlink",
+    "protocols": [
+      "stlink",
+      "jlink",
+      "cmsis-dap",
+      "blackmagic",
+      "mbed"
+    ]
+  },
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32g4a1keu6.html",
+  "vendor": "ST"
+}

@@ -1,0 +1,1 @@
+This file must be moved to the platformio core directory inside the boards folder in order for platformio to recognize it
