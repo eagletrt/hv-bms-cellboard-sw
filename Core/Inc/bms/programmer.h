@@ -4,7 +4,7 @@
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
  * @brief Functions used during the flash procedure where the microcontroller
- * is reset and openblt load the new code inside the flash memory
+ * is reset and openblt loads the new code inside the flash memory
  */
 
 #ifndef PROGRAMMER_H

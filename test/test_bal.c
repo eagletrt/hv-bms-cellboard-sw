@@ -187,17 +187,10 @@ void test_bal_set_balancing_status_handle_event() {
 #ifdef BALANCING_TESTS
 
 void setUp() {
-    printf("Starting setUp...\n");
-    fflush(stdout);
+
     identity_init(CELLBOARD_ID);
-    printf("Identity init done. Calling timebase_init...\n");
-    fflush(stdout);
-    timebase_init(500U); // 500ms resolution
-    printf("Timebase init done. Calling bal_init...\n");
-    fflush(stdout);
+    timebase_init(500U);
     bal_init();
-    printf("bal_init done.\n");
-    fflush(stdout);
 }
 
 void tearDown() {

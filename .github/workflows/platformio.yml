@@ -49,6 +49,15 @@ jobs:
       - name: Run identity Unit Tests
         run: pio test -e identity_tests
 
+      - name: Run led Unit Tests
+        run: pio test -e led_tests
+
+      - name: Run programmer Unit Tests
+        run: pio test -e programmer_tests
+
+      - name: Run volt Unit Tests
+        run: pio test -e volt_tests
+
       - name: Static Code Analysis
         if: github.ref == 'refs/heads/dev'
         run: pio check --src-filters="+<Core/Src/*>" --src-filters="+<Core/Inc/*>" --src-filters="-<Drivers/*>" || true

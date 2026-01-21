@@ -24,16 +24,6 @@ static void led_toggle() {
     // Do nothing
 }
 
-void setUp() {
-    identity_init(CELLBOARD_ID);
-    led_set_called = false;
-}
-
-void tearDown() {}
-
-
-
-
 void test_led_init_return_null() {
     TEST_ASSERT_EQUAL(LED_NULL_POINTER, led_init(NULL, NULL));
 }
@@ -44,7 +34,7 @@ void test_led_init_return_ok() {
 
 void test_led_init_return_pattern_size() {
     led_init(led_set, led_toggle);
-    TEST_ASSERT_EQUAL((CELLBOARD_ID+1)*2+1, hled.pattern_size);
+    TEST_ASSERT_EQUAL((CELLBOARD_ID + 1) * 2 + 1, hled.pattern_size);
 }
 
 void test_led_routine_ok() {
@@ -56,6 +46,16 @@ void test_led_routine_set_called() {
     TEST_ASSERT_TRUE(led_set_called);
 }
 
+#ifdef LED_TESTS
+
+void setUp() {
+    identity_init(CELLBOARD_ID);
+    led_set_called = false;
+}
+
+void tearDown() {
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_led_init_return_null);
@@ -65,3 +65,5 @@ int main() {
     RUN_TEST(test_led_routine_set_called);
     return UNITY_END();
 }
+
+#endif // LED_TESTS

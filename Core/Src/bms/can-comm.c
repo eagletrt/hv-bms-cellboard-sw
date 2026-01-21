@@ -110,9 +110,11 @@ CanCommReturnCode can_comm_send_immediate(
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
+
     // TODO: Change the max payload with the maximum size of the converted struct
     // if (size > CAN_COMM_MAX_PAYLOAD_BYTE_SIZE)
     //     return CAN_COMM_INVALID_PAYLOAD_SIZE;
+
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
 
