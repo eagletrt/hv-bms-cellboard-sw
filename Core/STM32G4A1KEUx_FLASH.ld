@@ -62,7 +62,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 112K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 512K
+/*FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 512K*/
+FLASH (rx)      : ORIGIN = 0x8003000, LENGTH = 500K /* WHEN CHANGING THIS ALWAYS DO A pio run --target clean to reset cache*/
 }
 
 /* Define output sections */
