@@ -148,14 +148,19 @@ bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const by
 
 _STATIC char *error_module_name = "error";
 
+// clang-format off
 _STATIC char *error_return_code_name[] = {
     [ERROR_OK] = "ok",
-    [ERROR_NULL_POINTER] = "null pointer"
-        [ERROR_UNKNOWN] = "unknown"
+    [ERROR_NULL_POINTER] = "null pointer",
+    [ERROR_UNKNOWN] = "unknown"
 }
 
-                                         _STATIC char *
-                                         error_return_code_description[] = { [ERROR_OK] = "executed succesfully", [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", [ERROR_UNKNOWN] = "unknown error" }
+_STATIC char* error_return_code_description[] = {
+    [ERROR_OK] = "executed succesfully", 
+    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", 
+    [ERROR_UNKNOWN] = "unknown error" 
+}
+// clang-format on
 
 #endif // CONF_ERROR_STRINGS_ENABLE
 

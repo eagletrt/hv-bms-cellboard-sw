@@ -291,12 +291,12 @@ _STATIC char *can_comm_return_code_name[] = {
 
 _STATIC char *can_comm_return_code_description[] = {
     [CAN_COMM_OK] = "executed succesfully",
-    [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer"
-        [CAN_COMM_DISABLED] = "the can manager is not enabled"
-            [CAN_COMM_OVERRUN] = "the transmission buffer is full"
-                [CAN_COMM_INVALID_INDEX] = "the given index does not correspond to any valid message",
-    [CAN_COMM_INVALID_PAYLOAD_SIZE] = "the payload size is greater than the maximum allowed length"
-        [CAN_COMM_INVALID_FRAME_TYPE] = "the given frame type does not correspond to any existing can frame type",
+    [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer",
+    [CAN_COMM_DISABLED] = "the can manager is not enabled",
+    [CAN_COMM_OVERRUN] = "the transmission buffer is full",
+    [CAN_COMM_INVALID_INDEX] = "the given index does not correspond to any valid message",
+    [CAN_COMM_INVALID_PAYLOAD_SIZE] = "the payload size is greater than the maximum allowed length",
+    [CAN_COMM_INVALID_FRAME_TYPE] = "the given frame type does not correspond to any existing can frame type",
     [CAN_COMM_CONVERSION_ERROR] = "can't convert the message correctly",
     [CAN_COMM_TRANSMISSION_ERROR] = "error during message transmission"
 };

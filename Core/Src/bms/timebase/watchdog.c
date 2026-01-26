@@ -147,8 +147,8 @@ _STATIC char *watchdog_return_code_name[] = {
 
 _STATIC char *watchdog_return_code_name[] = {
     [WATCHDOG_OK] = "executed sucessfully",
-    [WATCHDOG_NULL_POINTER] = "attempt to dereference a null pointer"
-        [WATCHDOG_BUSY] = "the watchdog is already running",
+    [WATCHDOG_NULL_POINTER] = "attempt to dereference a null pointer",
+    [WATCHDOG_BUSY] = "the watchdog is already running",
     [WATCHDOG_TIMED_OUT] = "the watchdog has timed-out",
     [WATCHDOG_NOT_RUNNING] = "the watchdog is not running",
     [WATCHDOG_UNAVAILABLE] = "the watchdog can't be registered"

@@ -256,8 +256,8 @@ _STATIC char *temp_return_code_name[] = {
 _STATIC char *temp_return_code_description[] = {
     [TEMP_OK] = "executed successfully",
     [TEMP_NULL_POINTER] = "attempt to dereference a null pointer",
-    [TEMP_BUSY] = "the temperature module is busy"
-        [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
+    [TEMP_BUSY] = "the temperature module is busy",
+    [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 
 #endif // CONF_TEMPEATURE_STRINGS_ENABLE

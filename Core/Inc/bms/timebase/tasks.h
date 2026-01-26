@@ -6,10 +6,11 @@
  * @brief Implementations of the tasks that have to be executed by the timebase
  *
  * @attention This file should only be included inside the timebase source
- * The code is separated only for clarity and to avoid having all the code inside a single
- * file
+ * The code is separated only for clarity and to avoid having all the code
+ * inside a single file
  *
- * @details To use the functions inside this file define the TASKS_IMPLEMENTATION macro
+ * @details To use the functions inside this file define the
+ * TASKS_IMPLEMENTATION macro
  */
 #ifndef TASKS_H
 #define TASKS_H
@@ -32,8 +33,8 @@
  * @attention This file uses X macros (https://en.wikipedia.org/wiki/X_macro)
  * to make it easier to add more tasks without to much changes to the code
  *
- * @details To add a new task add a field to this list and give it the right parameters
- * then go to the source file and implement the callback function
+ * @details To add a new task add a field to this list and give it the right
+ * parameters then go to the source file and implement the callback function
  *
  * @param name The name associated with the task (have to be unique)
  * @param start The first moment when the task is executed (in ticks)
@@ -64,23 +65,25 @@ typedef void (*tasks_callback)(void);
  * @details
  *     - TASKS_OK the function executed succesfully
  */
-typedef enum {
-    TASKS_INVALID_ID,
-    TASKS_OK
-} TasksReturnCode;
+typedef enum { TASKS_INVALID_ID,
+               TASKS_OK } TasksReturnCode;
 
 /**
  * @brief Enumeration of tasks
  *
- * @details This enum is mainly used to get the total number of tasks at compile time
- * but can also be used to get a specific tasks given a name in the format TASKS_ID_[NAME]
+ * @details This enum is mainly used to get the total number of tasks at compile
+ * time but can also be used to get a specific tasks given a name in the format
+ * TASKS_ID_[NAME]
  */
+
+// clang-format off
 #define TASKS_X(NAME, ENABLED, START, INTERVAL, EXEC) TASKS_ID_##NAME,
 typedef enum {
     TASKS_X_LIST
-        TASKS_ID_COUNT
+    TASKS_ID_COUNT
 } TasksId;
 #undef TASKS_X
+// clang-format on
 
 /**
  * @brief Definition of a single task
@@ -89,7 +92,8 @@ typedef enum {
  *
  * @param id The task identifier
  * @param start The time when the tasks is executed first
- * @param interval The amount of time that must elapsed before the tasks is re-executed
+ * @param interval The amount of time that must elapsed before the tasks is
+ * re-executed
  * @param exec A pointer to the task callback
  * @param enabled A boolean indicating if the task is enabled
  */

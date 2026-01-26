@@ -148,8 +148,8 @@ sttic char *volt_return_code_name[] = {
 
 _STATIC char *volt_return_code_description[] = {
     [VOLT_OK] = "executed successfully",
-    [VOLT_NULL_POINTER] = "attempt to dereference a null pointer"
-        [VOLT_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
+    [VOLT_NULL_POINTER] = "attempt to dereference a null pointer",
+    [VOLT_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 
 #endif // CONF_VOLTAGE_STRINGS_ENABLE
