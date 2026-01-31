@@ -65,9 +65,12 @@ typedef void (*tasks_callback)(void);
  * @details
  *     - TASKS_OK the function executed succesfully
  */
-typedef enum { TASKS_INVALID_ID,
-               TASKS_OK } TasksReturnCode;
-
+// clang-format off
+typedef enum { 
+    TASKS_INVALID_ID,
+    TASKS_OK 
+} TasksReturnCode;
+// clang-format on
 /**
  * @brief Enumeration of tasks
  *

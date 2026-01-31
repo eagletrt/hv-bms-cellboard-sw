@@ -209,7 +209,7 @@ TempReturnCode temp_dump_values(
     if (start >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT ||
         start + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    memcpy(out, htemp.temperatures + start, size * sizeof(celsius_t));
+    memcpy(out, htemp.temperatures + start, size * sizeof(*out));
     return TEMP_OK;
 }
 
