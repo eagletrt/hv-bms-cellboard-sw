@@ -3,4 +3,11 @@
 pio run -t clean
 pio run -e base
 
-./build_tools/bin2srec -a 0x8003000 -i ./.pio/build/base/firmware.bin -o binaries/cellboard.srec
+
+srec_cat ./.pio/build/base/firmware.bin \
+  -binary \
+  -offset 0x08003000 \
+  -o ./binaries/cellboard.srec \
+  -Motorola \
+  -address-length=4
+
