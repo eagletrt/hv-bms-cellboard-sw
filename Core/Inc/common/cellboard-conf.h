@@ -84,4 +84,4 @@
 
 /** @} */
 
-#endif  // CELLBOARD_CONF_H
+#endif // CELLBOARD_CONF_H

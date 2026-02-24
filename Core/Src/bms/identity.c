@@ -41,7 +41,7 @@ seconds_t identity_get_build_time(void) {
     return hidentity.build_time;
 }
 
-bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t * const byte_size) {
+bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hidentity.version_can_payload);
     return &hidentity.version_can_payload;
@@ -49,7 +49,7 @@ bms_cellboard_version_converted_t * identity_get_version_canlib_payload(size_t *
 
 #ifdef CONF_IDENTITY_STRINGS_ENABLE
 
-_STATIC char * identity_module_name = "identity";
+_STATIC char *identity_module_name = "identity";
 
 #endif // CONF_IDENTITY_STRINGS_ENABLE
 

@@ -59,7 +59,7 @@ void MX_USART2_UART_Init(void);
  * @param fmt The string format
  * @param ... values to put inside the formatted string (optional)
  */
-void usart_log(const char * const fmt, ...);
+void usart_log(const char *const fmt, ...);
 
 /**
  * @brief Print a formatted string with a certain interval via the UART
@@ -68,7 +68,7 @@ void usart_log(const char * const fmt, ...);
  * @param fmt The string format
  * @param ... values to put inside the formatted string (optional)
  */
-void usart_log_ms(const milliseconds_t interval, const char * const fmt, ...);
+void usart_log_ms(const milliseconds_t interval, const char *const fmt, ...);
 
 char usart_read(bool echo);
 
@@ -79,4 +79,3 @@ char usart_read(bool echo);
 #endif
 
 #endif /* __USART_H__ */
-

@@ -77,7 +77,7 @@ typedef struct {
  */
 PostReturnCode post_run(const PostInitData data);
 
-#else  // CONF_POST_MODULE_ENABLE
+#else // CONF_POST_MODULE_ENABLE
 
 #define post_run(data) (POST_OK)
 

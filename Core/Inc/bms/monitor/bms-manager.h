@@ -102,7 +102,7 @@ typedef enum {
  *
  * @return BmsManagerReturnCode The result of the data transmission
  */
-typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * const data, const size_t size);
+typedef BmsManagerReturnCode (*bms_manager_send_callback_t)(uint8_t *const data, const size_t size);
 
 /**
  * @brief Callback used to send and receive data via SPI
@@ -114,12 +114,11 @@ typedef BmsManagerReturnCode (* bms_manager_send_callback_t)(uint8_t * const dat
  *
  * @return BmsManagerReturnCode The result of the data transmission and reception
  */
-typedef BmsManagerReturnCode (* bms_manager_send_receive_callback_t)(
-    uint8_t * const data,
-    uint8_t * out,
+typedef BmsManagerReturnCode (*bms_manager_send_receive_callback_t)(
+    uint8_t *const data,
+    uint8_t *out,
     const size_t size,
-    const size_t out_size
-);
+    const size_t out_size);
 
 /**
  * @brief Type definition for the BMS manager handler structure
@@ -341,9 +340,8 @@ bit_flag32_t bms_manager_get_discharge_cells(void);
  */
 int bms_manager_get_config_string(
     const Ltc6811Cfgr config,
-    char * const out,
-    const size_t size
-);
+    char *const out,
+    const size_t size);
 
 /**
  * @brief Get a formtted string representation of the requested config for a single LTC
@@ -356,9 +354,8 @@ int bms_manager_get_config_string(
  */
 int bms_manager_get_requested_config_string(
     const size_t ltc,
-    char * const out,
-    const size_t size
-);
+    char *const out,
+    const size_t size);
 
 /**
  * @brief Get a formtted string representation of the actual config for a single LTC
@@ -371,11 +368,10 @@ int bms_manager_get_requested_config_string(
  */
 int bms_manager_get_actual_config_string(
     const size_t ltc,
-    char * const out,
-    const size_t size
-);
+    char *const out,
+    const size_t size);
 
-#else  // CONF_BMS_MANAGER_STRINGS_ENABLE
+#else // CONF_BMS_MANAGER_STRINGS_ENABLE
 
 #define bms_manager_get_config_string(config, out, size) (0)
 #define bms_manager_get_requested_config_string(config, out, size) (0)
@@ -383,7 +379,7 @@ int bms_manager_get_actual_config_string(
 
 #endif // CONF_BMS_MANAGER_STRINGS_ENABLE
 
-#else  // CONF_BMS_MANAGER_MODULE_ENABLE
+#else // CONF_BMS_MANAGER_MODULE_ENABLE
 
 #define bms_manager_init(send, send_receive) (BMS_MANAGER_OK)
 #define bms_manager_routine() (BMS_MANAGER_OK)

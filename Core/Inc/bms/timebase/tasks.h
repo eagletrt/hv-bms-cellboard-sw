@@ -6,10 +6,11 @@
  * @brief Implementations of the tasks that have to be executed by the timebase
  *
  * @attention This file should only be included inside the timebase source
- * The code is separated only for clarity and to avoid having all the code inside a single
- * file
+ * The code is separated only for clarity and to avoid having all the code
+ * inside a single file
  *
- * @details To use the functions inside this file define the TASKS_IMPLEMENTATION macro
+ * @details To use the functions inside this file define the
+ * TASKS_IMPLEMENTATION macro
  */
 #ifndef TASKS_H
 #define TASKS_H
@@ -32,8 +33,8 @@
  * @attention This file uses X macros (https://en.wikipedia.org/wiki/X_macro)
  * to make it easier to add more tasks without to much changes to the code
  *
- * @details To add a new task add a field to this list and give it the right parameters
- * then go to the source file and implement the callback function
+ * @details To add a new task add a field to this list and give it the right
+ * parameters then go to the source file and implement the callback function
  *
  * @param name The name associated with the task (have to be unique)
  * @param start The first moment when the task is executed (in ticks)
@@ -41,22 +42,22 @@
  * @param exec A pointer to the task function callback
  * @param enabled A boolean indicating if the task is enabled or not
  */
-#define TASKS_X_LIST \
-    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status) \
-    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version) \
-    TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors) \
-    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages) \
-    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures) \
+#define TASKS_X_LIST                                                                                                                       \
+    TASKS_X(SEND_STATUS, true, 0U, BMS_CELLBOARD_STATUS_CYCLE_TIME_MS, _tasks_send_status)                                                 \
+    TASKS_X(SEND_VERSION, true, 0U, BMS_CELLBOARD_VERSION_CYCLE_TIME_MS, _tasks_send_version)                                              \
+    TASKS_X(SEND_ERROR, false, 0U, BMS_CELLBOARD_ERROR_CYCLE_TIME_MS, _tasks_send_errors)                                                  \
+    TASKS_X(SEND_VOLTAGES, true, 50U, BMS_CELLBOARD_CELLS_VOLTAGE_CYCLE_TIME_MS, _tasks_send_voltages)                                     \
+    TASKS_X(SEND_TEMPERATURES, true, 50U, BMS_CELLBOARD_CELLS_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_temperatures)                         \
     TASKS_X(SEND_DISCHARGE_TEMPERATURES, true, 50U, BMS_CELLBOARD_DISCHARGE_TEMPERATURE_CYCLE_TIME_MS, _tasks_send_discharge_temperatures) \
-    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status) \
-    TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures) \
+    TASKS_X(SEND_BALANCING_STATUS, true, 50U, BMS_CELLBOARD_BALANCING_STATUS_CYCLE_TIME_MS, _tasks_send_balancing_status)                  \
+    TASKS_X(READ_TEMPERATURES, true, 0U, 10U, _tasks_read_temperatures)                                                                    \
     TASKS_X(RUN_BMS_MANAGER, true, 0U, 2U, _tasks_run_bms_manager)
 
 /** @brief Convert a task name to the corresponding TasksId name */
 #define TASKS_NAME_TO_ID(NAME) (TASKS_ID_##NAME)
 
 /** @brief Type definition for a function that excecutes a single task */
-typedef void (* tasks_callback)(void);
+typedef void (*tasks_callback)(void);
 
 /**
  * @brief Return code for the tasks module functions
@@ -64,24 +65,28 @@ typedef void (* tasks_callback)(void);
  * @details
  *     - TASKS_OK the function executed succesfully
  */
-typedef enum {
+// clang-format off
+typedef enum { 
     TASKS_INVALID_ID,
-    TASKS_OK
+    TASKS_OK 
 } TasksReturnCode;
-
+// clang-format on
 /**
  * @brief Enumeration of tasks
  *
- * @details This enum is mainly used to get the total number of tasks at compile time
- * but can also be used to get a specific tasks given a name in the format TASKS_ID_[NAME]
+ * @details This enum is mainly used to get the total number of tasks at compile
+ * time but can also be used to get a specific tasks given a name in the format
+ * TASKS_ID_[NAME]
  */
+
+// clang-format off
 #define TASKS_X(NAME, ENABLED, START, INTERVAL, EXEC) TASKS_ID_##NAME,
 typedef enum {
     TASKS_X_LIST
     TASKS_ID_COUNT
 } TasksId;
 #undef TASKS_X
-
+// clang-format on
 
 /**
  * @brief Definition of a single task
@@ -90,7 +95,8 @@ typedef enum {
  *
  * @param id The task identifier
  * @param start The time when the tasks is executed first
- * @param interval The amount of time that must elapsed before the tasks is re-executed
+ * @param interval The amount of time that must elapsed before the tasks is
+ * re-executed
  * @param exec A pointer to the task callback
  * @param enabled A boolean indicating if the task is enabled
  */
@@ -135,7 +141,7 @@ TasksReturnCode tasks_init(milliseconds_t resolution);
  *
  * @return Task* The pointer to the tasks or NULL if the id is not valid
  */
-Task * tasks_get_task(const TasksId id);
+Task *tasks_get_task(const TasksId id);
 
 /**
  * @brief Get the start time of the task
@@ -185,7 +191,7 @@ TasksReturnCode tasks_set_enable(const TasksId id, const bool enabled);
  */
 bool tasks_is_enabled(const TasksId id);
 
-#else  // CONF_TASKS_MODULE_ENABLE
+#else // CONF_TASKS_MODULE_ENABLE
 
 #define tasks_init(resolution) (TASKS_OK)
 #define tasks_get_task(id) (NULL)

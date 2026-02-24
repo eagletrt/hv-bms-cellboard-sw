@@ -37,7 +37,8 @@
  *     - BAL_OK the function executed succesfully
  *     - BAL_NULL_POINTER a NULL pointer was given to a function
  *     - BAL_BUSY the function cannot be executed because the LTCs are busy
- *     - BAL_WATCHDOG_ERROR there was an error during a balancing watchdog operation
+ *     - BAL_WATCHDOG_ERROR there was an error during a balancing watchdog
+ * operation
  */
 typedef enum {
     BAL_OK,
@@ -52,20 +53,22 @@ typedef enum {
  * @details
  *     - BAL_STATUS_STOPPED balancing is not active
  *     - BAL_STATUS_PAUSED balancing is active but the cells are not discharging
- *     - BAL_STATUS_DISCHARGING balancing is active and the cells are discharging
+ *     - BAL_STATUS_DISCHARGING balancing is active and the cells are
+ * discharging
  */
 typedef enum {
     BAL_STATUS_STOPPED = 0U,
     BAL_STATUS_PAUSED,
-    BAL_STATUS_DISCHARCING 
+    BAL_STATUS_DISCHARCING
 } BalStatus;
 
 /**
  * @brief Definition of the balancing parameters
  *
- * @param target The minimum target voltage that can be reached while discharging in V
- * @param threshold The minimum difference between the maximum and minimum cell voltage
- * value that can be reached in V
+ * @param target The minimum target voltage that can be reached while
+ * discharging in V
+ * @param threshold The minimum difference between the maximum and minimum cell
+ * voltage value that can be reached in V
  */
 typedef struct {
     volt_t target;
@@ -77,11 +80,13 @@ typedef struct {
  *
  * @attention This structure should not be used outside of this module
  *
- * @details The requested parameters are expected to be equals to the actual parameters
+ * @details The requested parameters are expected to be equals to the actual
+ * parameters
  *
  * @param event The FSM event data
  * @param status_can_payload The canlib payload of the balancing module
- * @param watchdog The watchdog that stops the balancing procedure when timed out
+ * @param watchdog The watchdog that stops the balancing procedure when timed
+ * out
  * @param active True if the balancing is active, false otherwise
  * @param paused True if the balancing is paused, false otherwise
  * @param params The balancing parameters
@@ -110,7 +115,8 @@ BalReturnCode bal_init(void);
  *
  * @param payload A pointer to the CAN paylaod data
  */
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t * const payload);
+void bal_set_balancing_status_handle(
+    bms_cellboard_set_balancing_status_converted_t *const payload);
 
 /**
  * @brief Check if the balancing is active
@@ -169,13 +175,15 @@ BalReturnCode bal_resume(void);
 /**
  * @brief Get a pointer to the CAN payload of the balancing info
  *
- * @param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ * @param byte_size[out] A pointer where the size of the payload in bytes is
+ * stored (can be NULL)
  *
  * @return bms_cellboard_balancing_status_converted_t* A pointer to the payload
  */
-bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_t * const byte_size);
+bms_cellboard_balancing_status_converted_t *
+bal_get_status_canlib_payload(size_t *const byte_size);
 
-#else  // CONF_BALANCING_MODULE_ENABLE
+#else // CONF_BALANCING_MODULE_ENABLE
 
 #define bal_init() (BAL_OK)
 #define bal_set_balancing_status_handle(payload) (NULL)
@@ -190,4 +198,4 @@ bms_cellboard_balancing_status_converted_t * bal_get_status_canlib_payload(size_
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 
-#endif  // BAL_H
+#endif // BAL_H

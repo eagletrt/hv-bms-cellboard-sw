@@ -36,13 +36,13 @@ celsius_t _temp_volt_to_celsius(volt_t value) {
     const double v4 = v2 * v2;
     const double v5 = v4 * v;
     const double v6 = v3 * v3;
-    return TEMP_COEFF_0 + 
-        TEMP_COEFF_1 * v + 
-        TEMP_COEFF_2 * v2 + 
-        TEMP_COEFF_3 * v3 + 
-        TEMP_COEFF_4 * v4 + 
-        TEMP_COEFF_5 * v5 +
-        TEMP_COEFF_6 * v6;
+    return TEMP_COEFF_0 +
+           TEMP_COEFF_1 * v +
+           TEMP_COEFF_2 * v2 +
+           TEMP_COEFF_3 * v3 +
+           TEMP_COEFF_4 * v4 +
+           TEMP_COEFF_5 * v5 +
+           TEMP_COEFF_6 * v6;
 }
 
 /**
@@ -62,13 +62,13 @@ celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
     const double v4 = v2 * v2;
     const double v5 = v4 * v;
     // const double v6 = v3 * v3;
-    return TEMP_DISCHARGE_COEFF_0 + 
-        TEMP_DISCHARGE_COEFF_1 * v + 
-        TEMP_DISCHARGE_COEFF_2 * v2 + 
-        TEMP_DISCHARGE_COEFF_3 * v3 + 
-        TEMP_DISCHARGE_COEFF_4 * v4 + 
-        TEMP_DISCHARGE_COEFF_5 * v5;
-        // TEMP_DISCHARGE_COEFF_6 * v6;
+    return TEMP_DISCHARGE_COEFF_0 +
+           TEMP_DISCHARGE_COEFF_1 * v +
+           TEMP_DISCHARGE_COEFF_2 * v2 +
+           TEMP_DISCHARGE_COEFF_3 * v3 +
+           TEMP_DISCHARGE_COEFF_4 * v4 +
+           TEMP_DISCHARGE_COEFF_5 * v5;
+    // TEMP_DISCHARGE_COEFF_6 * v6;
 }
 
 /**
@@ -114,7 +114,7 @@ TempReturnCode temp_start_conversion(void) {
     return TEMP_OK;
 }
 
-TempReturnCode temp_notify_conversion_complete(const volt_t * const values, size_t size) {
+TempReturnCode temp_notify_conversion_complete(const volt_t *const values, size_t size) {
     const size_t index = htemp.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
@@ -135,9 +135,8 @@ TempReturnCode temp_update_value(const size_t index, const celsius_t value) {
 
 TempReturnCode temp_update_values(
     const size_t index,
-    const celsius_t * const values,
-    const size_t size)
-{
+    const celsius_t *const values,
+    const size_t size) {
     if (index + size > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i) {
@@ -156,9 +155,8 @@ TempReturnCode temp_update_discharge_value(const size_t index, const volt_t valu
 
 TempReturnCode temp_update_discharge_values(
     const size_t index,
-    const volt_t * const values,
-    const size_t size)
-{
+    const volt_t *const values,
+    const size_t size) {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i)
@@ -166,7 +164,7 @@ TempReturnCode temp_update_discharge_values(
     return TEMP_OK;
 }
 
-const cells_temp_t * temp_get_values(void) {
+const cells_temp_t *temp_get_values(void) {
     return &htemp.temperatures;
 }
 
@@ -198,25 +196,24 @@ celsius_t temp_get_sum(void) {
     return sum;
 }
 
-const discharge_temp_t * temp_get_discharge_values(void) {
+const discharge_temp_t *temp_get_discharge_values(void) {
     return &htemp.discharge_temperatures;
 }
 
 TempReturnCode temp_dump_values(
-    celsius_t * const out,
+    celsius_t *const out,
     const size_t start,
-    const size_t size)
-{
+    const size_t size) {
     if (out == NULL)
         return TEMP_NULL_POINTER;
     if (start >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT ||
         start + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
         return TEMP_OUT_OF_BOUNDS;
-    memcpy(out, htemp.temperatures + start, size * sizeof(raw_temp_t));
+    memcpy(out, htemp.temperatures + start, size * sizeof(*out));
     return TEMP_OK;
 }
 
-bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload(size_t * const byte_size) {
+bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(htemp.temp_can_payload);
 
@@ -233,7 +230,7 @@ bms_cellboard_cells_temperature_converted_t * temp_get_cells_temp_canlib_payload
     return &htemp.temp_can_payload;
 }
 
-bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib_payload(size_t * const byte_size) {
+bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(htemp.discharge_temp_can_payload);
 
@@ -247,19 +244,19 @@ bms_cellboard_discharge_temperature_converted_t * temp_get_discharge_temp_canlib
 
 #ifdef CONF_TEMPEATURE_STRINGS_ENABLE
 
-_STATIC char * temp_module_name = "temperature";
+_STATIC char *temp_module_name = "temperature";
 
-_STATIC char * temp_return_code_name[] = {
+_STATIC char *temp_return_code_name[] = {
     [TEMP_OK] = "ok",
     [TEMP_NULL_POINTER] = "null pointer",
     [TEMP_BUSY] = "busy",
     [TEMP_OUT_OF_BOUNDS] = "out of bounds"
 };
 
-_STATIC char * temp_return_code_description[] = {
+_STATIC char *temp_return_code_description[] = {
     [TEMP_OK] = "executed successfully",
     [TEMP_NULL_POINTER] = "attempt to dereference a null pointer",
-    [TEMP_BUSY] = "the temperature module is busy"
+    [TEMP_BUSY] = "the temperature module is busy",
     [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 

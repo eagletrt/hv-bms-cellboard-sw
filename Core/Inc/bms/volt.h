@@ -55,7 +55,6 @@ typedef struct {
     bms_cellboard_cells_voltage_converted_t voltages_can_payload;
 } _VoltHandler;
 
-
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
 
 /**
@@ -93,16 +92,15 @@ VoltReturnCode volt_update_value(const size_t index, const volt_t value);
  */
 VoltReturnCode volt_update_values(
     const size_t index,
-    const volt_t * const values,
-    const size_t size
-);
+    const volt_t *const values,
+    const size_t size);
 
 /**
  * @brief Get a pointer to the array where the voltage values are stored
  *
  * @return cells_volt_t* The pointer to the array
  */
-const cells_volt_t * volt_get_values(void);
+const cells_volt_t *volt_get_values(void);
 
 /**
  * @brief Get the minimum cell voltage
@@ -164,10 +162,9 @@ bit_flag32_t volt_select_values(const volt_t target);
  *     - VOLT_OK otherwise
  */
 VoltReturnCode volt_dump_values(
-    volt_t * const out,
+    volt_t *const out,
     const size_t start,
-    const size_t size
-);
+    const size_t size);
 
 /**
  * @brief Get a pointer to the CAN payload of the cells voltages
@@ -176,9 +173,9 @@ VoltReturnCode volt_dump_values(
  *
  * @return bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size);
+bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size);
 
-#else  // CONF_VOLTAGE_MODULE_ENABLE
+#else // CONF_VOLTAGE_MODULE_ENABLE
 
 #define volt_init() (VOLT_OK)
 #define volt_update_value(index, value) (VOLT_OK)
@@ -188,6 +185,6 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
 #define volt_dump_values(out, start, size) (VOLT_OK)
 #define volt_get_canlib_payload(byte_size) (NULL)
 
-#endif  // CONF_VOLTAGE_MODULE_ENABLE
+#endif // CONF_VOLTAGE_MODULE_ENABLE
 
-#endif  // VOLT_H
+#endif // VOLT_H

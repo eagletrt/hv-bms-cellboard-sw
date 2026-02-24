@@ -54,7 +54,7 @@ VoltReturnCode volt_update_value(const size_t index, const volt_t value) {
     return VOLT_OK;
 }
 
-VoltReturnCode volt_update_values(const size_t index, const volt_t * const values, const size_t size) {
+VoltReturnCode volt_update_values(const size_t index, const volt_t *const values, const size_t size) {
     if (index + size > CELLBOARD_SEGMENT_SERIES_COUNT)
         return VOLT_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i) {
@@ -64,7 +64,7 @@ VoltReturnCode volt_update_values(const size_t index, const volt_t * const value
     return VOLT_OK;
 }
 
-const cells_volt_t * volt_get_values(void) {
+const cells_volt_t *volt_get_values(void) {
     return (const cells_volt_t *)&hvolt.voltages;
 }
 
@@ -109,10 +109,9 @@ bit_flag32_t volt_select_values(const volt_t target) {
 }
 
 VoltReturnCode volt_dump_values(
-    volt_t * const out,
+    volt_t *const out,
     const size_t start,
-    const size_t size)
-{
+    const size_t size) {
     if (out == NULL)
         return VOLT_NULL_POINTER;
     if (start >= CELLBOARD_SEGMENT_SERIES_COUNT || start + size >= CELLBOARD_SEGMENT_SERIES_COUNT)
@@ -121,7 +120,7 @@ VoltReturnCode volt_dump_values(
     return VOLT_OK;
 }
 
-bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_size) {
+bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(hvolt.voltages_can_payload);
 
@@ -139,17 +138,17 @@ bms_cellboard_cells_voltage_converted_t * volt_get_canlib_payload(size_t * byte_
 
 #ifdef CONF_VOLTAGE_STRINGS_ENABLE
 
-_STATIC char * volt_module_name = "voltage";
+_STATIC char *volt_module_name = "voltage";
 
-sttic char * volt_return_code_name[] = {
+sttic char *volt_return_code_name[] = {
     [VOLT_OK] = "ok",
     [VOLT_NULL_POINTER] = "null pointer",
     [VOLT_OUT_OF_BOUNDS] = "out of bounds"
 };
 
-_STATIC char * volt_return_code_description[] = {
+_STATIC char *volt_return_code_description[] = {
     [VOLT_OK] = "executed successfully",
-    [VOLT_NULL_POINTER] = "attempt to dereference a null pointer"
+    [VOLT_NULL_POINTER] = "attempt to dereference a null pointer",
     [VOLT_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 

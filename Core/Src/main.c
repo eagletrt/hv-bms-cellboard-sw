@@ -80,32 +80,31 @@ _STATIC void demo() {
     usart_log("\033[H");
 
     // Display cells voltages
-    const cells_volt_t * const volt_values = volt_get_values();
+    const cells_volt_t *const volt_values = volt_get_values();
     const size_t volt_cols = 6U;
 
     usart_log("                  --- VOLTAGE VALUES ---\r\n");
     usart_log("   ");
-    for (size_t i = 0U; i < volt_cols; ++i) 
+    for (size_t i = 0U; i < volt_cols; ++i)
         usart_log("%5d  ", i + 1);
     usart_log("\r\n");
 
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT / volt_cols; ++i) {
         usart_log("%3d", i * volt_cols);
-        for (size_t j = 0U; j < volt_cols; ++j) { 
+        for (size_t j = 0U; j < volt_cols; ++j) {
             usart_log("%5.02f V", (*volt_values)[i * volt_cols + j]);
         }
         usart_log("\r\n");
     }
     usart_log("\r\n\r\n");
 
-
     // Display cells temperatures
-    const cells_temp_t * const temp_values = temp_get_values();
+    const cells_temp_t *const temp_values = temp_get_values();
     const size_t temp_cols = 6U;
 
     usart_log("                  --- TEMPERATURE VALUES ---\r\n");
     usart_log("   ");
-    for (size_t i = 0U; i < temp_cols; ++i) 
+    for (size_t i = 0U; i < temp_cols; ++i)
         usart_log("%6d   ", i + 1);
     usart_log("\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / temp_cols; ++i) {
@@ -118,7 +117,7 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Display discharge temperatures
-    const discharge_temp_t * discharge_temp_values = temp_get_discharge_values();
+    const discharge_temp_t *discharge_temp_values = temp_get_discharge_values();
 
     usart_log("                  --- DISCHARGE TEMP VALUES ---\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
@@ -162,7 +161,7 @@ _STATIC void demo() {
 void cli_discharge(bool echo) {
     static char str[64];
     static uint8_t str_i = 0U;
-    
+
     char c = usart_read(echo);
     if (c != '\0')
         str[str_i++] = c;
@@ -182,113 +181,110 @@ void cli_discharge(bool echo) {
 
 #endif // CONF_MANUAL_DISCHARGE_ENABLE
 
-
 /* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
 
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC2_Init();
-  MX_FDCAN1_Init();
-  MX_SPI3_Init();
-  MX_USART2_UART_Init();
-  MX_TIM6_Init();
-  MX_TIM7_Init();
-  MX_TIM2_Init();
-  /* USER CODE BEGIN 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_ADC2_Init();
+    MX_FDCAN1_Init();
+    MX_SPI3_Init();
+    MX_USART2_UART_Init();
+    MX_TIM6_Init();
+    MX_TIM7_Init();
+    MX_TIM2_Init();
+    /* USER CODE BEGIN 2 */
 
-  /**
+    /**
    * Start the timer used to increment the timebase internal counter
    */
-  HAL_TIM_Base_Start_IT(&HTIM_TIMEBASE);
+    HAL_TIM_Base_Start_IT(&HTIM_TIMEBASE);
 
-  fsm_state_t fsm_state = FSM_STATE_INIT;
+    fsm_state_t fsm_state = FSM_STATE_INIT;
 
-  // Prepare data for the POST procedure
-  PostInitData init_data = {
-      .system_reset = system_reset,
-      .cs_enter = it_cs_enter,
-      .cs_exit = it_cs_exit,
-      .can_send = can_send,
-      .spi_send = spi_send,
-      .spi_send_receive = spi_send_and_receive,
-      .led_set = gpio_led_set_state,
-      .led_toggle = gpio_led_toggle_state,
-      .gpio_set_address = gpio_set_mux_address,
-      .adc_start = adc_temperature_start_conversion
-  };
-  
-  // Read the cellboard ID from the ADC
-  init_data.id = gpio_get_cellboard_id();
+    // Prepare data for the POST procedure
+    PostInitData init_data = {
+        .system_reset = system_reset,
+        .cs_enter = it_cs_enter,
+        .cs_exit = it_cs_exit,
+        .can_send = can_send,
+        .spi_send = spi_send,
+        .spi_send_receive = spi_send_and_receive,
+        .led_set = gpio_led_set_state,
+        .led_toggle = gpio_led_toggle_state,
+        .gpio_set_address = gpio_set_mux_address,
+        .adc_start = adc_temperature_start_conversion
+    };
 
-  fsm_state = fsm_run_state(fsm_state, &init_data);
-  /* USER CODE END 2 */
+    // Read the cellboard ID from the ADC
+    init_data.id = gpio_get_cellboard_id();
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+    fsm_state = fsm_run_state(fsm_state, &init_data);
+    /* USER CODE END 2 */
+
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
 #ifdef CONF_DEMO_ENABLE
     // Clear the screen
     usart_log("\033[2J");
 #endif // CONF_DEMO_ENABLE
-  // uint32_t t = 0;
-  while (1)
-  {
-    fsm_state = fsm_run_state(fsm_state, NULL);
+    // uint32_t t = 0;
+    while (1) {
+        fsm_state = fsm_run_state(fsm_state, NULL);
 
 #ifdef CONF_MANUAL_DISCHARGE_ENABLE
-    cli_discharge(false);
+        cli_discharge(false);
 #endif // CONF_MANUAL_DISCHARGE_ENABLE
 
 #ifdef CONF_DEMO_ENABLE
 
-    // Enable or disable demo
-    _STATIC bool run_demo = false;
-    if (usart_read(false) == 'd') {
-        // Prevent a cell from continuous discharge after the demo is stopped
-        if (run_demo)
-            bms_manager_set_discharge_cells(0U);
-        run_demo = !run_demo;
-    }
+        // Enable or disable demo
+        _STATIC bool run_demo = false;
+        if (usart_read(false) == 'd') {
+            // Prevent a cell from continuous discharge after the demo is stopped
+            if (run_demo)
+                bms_manager_set_discharge_cells(0U);
+            run_demo = !run_demo;
+        }
 
-    // Run the demo
-    _STATIC uint32_t t = 0U;
-    if (run_demo && HAL_GetTick() - t >= 250U) {
-        demo();
-        t = HAL_GetTick();
-    }
+        // Run the demo
+        _STATIC uint32_t t = 0U;
+        if (run_demo && HAL_GetTick() - t >= 250U) {
+            demo();
+            t = HAL_GetTick();
+        }
 #endif // CONF_DEMO_ENABLE
 
-    /* USER CODE END WHILE */
+        /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-    /*
+        /* USER CODE BEGIN 3 */
+        /*
      * while(1) {
      *     fetenderi = HIGH;
      *     bccanti = HIGH;
@@ -296,52 +292,48 @@ int main(void)
      *
      * */
     }
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+void SystemClock_Config(void) {
+    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
-  /** Configure the main internal regulator output voltage
+    /** Configure the main internal regulator output voltage
   */
-  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+    HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
-  /** Initializes the RCC Oscillators according to the specified parameters
+    /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV4;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+    RCC_OscInitStruct.PLL.PLLN = 85;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV4;
+    RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        Error_Handler();
+    }
 
-  /** Initializes the CPU, AHB and APB buses clocks
+    /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+        Error_Handler();
+    }
 }
 
 /* USER CODE BEGIN 4 */
@@ -350,39 +342,24 @@ void system_reset(void) {
     HAL_NVIC_SystemReset();
 }
 
-#ifdef CONF_FULL_ASSERT_ENABLE
-
-/**
- * @brief Debug function called when an assertion fails
- *
- * @param file The file where the assert failed
- * @param line The line where the assert failed
- */
-void cellboard_assert_failed(const char * file, const int line) {
-    CELLBOARD_UNUSED(file);
-    CELLBOARD_UNUSED(line);
-}
-
-#endif // CONF_FULL_ASSERT_ENABLE
-
 /* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
+void Error_Handler(void) {
+    /* USER CODE BEGIN Error_Handler_Debug */
 
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1) { }
+    /* User can add his own implementation to report the HAL error return state */
+    __disable_irq();
+    while (1) {
+    }
 
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -390,10 +367,9 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
-{
-  /* USER CODE BEGIN 6 */
+void assert_failed(uint8_t *file, uint32_t line) {
+    /* USER CODE BEGIN 6 */
 
-  /* USER CODE END 6 */
+    /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

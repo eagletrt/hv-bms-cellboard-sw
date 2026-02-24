@@ -32,7 +32,7 @@ void _programmer_flash_stop(void) {
 }
 
 /** @brief Resets all the flash flags */
-void _programmer_flash_reset_flags(void) { 
+void _programmer_flash_reset_flags(void) {
     hprogrammer.flash_request = false;
     hprogrammer.flashing = false;
     hprogrammer.flash_stop = false;
@@ -55,13 +55,12 @@ ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
     (void)watchdog_init(
         &hprogrammer.watchdog,
         TIMEBASE_MS_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT_MS, timebase_get_resolution()),
-        _programmer_flash_timeout
-    );
+        _programmer_flash_timeout);
 
     return PROGRAMMER_OK;
 }
 
-void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t * const payload) {
+void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
     if (payload == NULL)
         return;
     if (hprogrammer.flash_request)
@@ -72,9 +71,7 @@ void programmer_flash_request_handle(const bms_cellboard_flash_request_converted
 
     // TODO: Check the payload content
 
-    hprogrammer.target = payload->mainboard ?
-        MAINBOARD_ID :
-        (CellboardId)payload->cellboard_id;
+    hprogrammer.target = payload->mainboard ? MAINBOARD_ID : (CellboardId)payload->cellboard_id;
     hprogrammer.flash_request = true;
     hprogrammer.flash_stop = false;
     hprogrammer.flashing = false;
@@ -85,7 +82,7 @@ void programmer_flash_request_handle(const bms_cellboard_flash_request_converted
     fsm_event_trigger(&hprogrammer.flash_event);
 }
 
-void programmer_flash_handle(const bms_cellboard_flash_converted_t * const payload) {
+void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload) {
     if (payload == NULL)
         return;
     if (payload->start == hprogrammer.flashing)
@@ -96,8 +93,7 @@ void programmer_flash_handle(const bms_cellboard_flash_converted_t * const paylo
     if (payload->start) {
         watchdog_reset(&hprogrammer.watchdog);
         hprogrammer.flashing = true;
-    }
-    else {
+    } else {
         watchdog_stop(&hprogrammer.watchdog);
         _programmer_flash_stop();
     }
@@ -115,4 +111,3 @@ ProgrammerReturnCode programmer_routine(void) {
 
     return PROGRAMMER_BUSY;
 }
-

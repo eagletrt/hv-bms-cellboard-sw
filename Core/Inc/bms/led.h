@@ -55,12 +55,12 @@ typedef enum {
  *
  * @param state The state to set the LED to
  */
-typedef void (* led_set_state_callback_t)(const LedStatus state);
+typedef void (*led_set_state_callback_t)(const LedStatus state);
 
 /**
  * @brief Callback used to toggle the state of the LED
  */
-typedef void (* led_toggle_state_callback_t)(void);
+typedef void (*led_toggle_state_callback_t)(void);
 
 /**
  * @brief LED handler structure
@@ -82,7 +82,7 @@ typedef struct {
     size_t pattern_size;
 } _LedHandler;
 
-#ifdef CONF_LED_MODULE_ENABLE 
+#ifdef CONF_LED_MODULE_ENABLE
 
 /**
  * @brief Initialize the internal LED handler
@@ -115,13 +115,12 @@ void led_set_enable(const bool enabled);
  */
 LedReturnCode led_routine(const milliseconds_t t);
 
-
-#else  // CONF_LED_MODULE_ENABLE 
+#else // CONF_LED_MODULE_ENABLE
 
 #define led_init(set, toggle) (LED_OK)
 #define led_set_enable(enabled) CELLBOARD_NOPE()
 #define led_routine(t) (LED_OK)
 
-#endif // CONF_LED_MODULE_ENABLE 
- 
+#endif // CONF_LED_MODULE_ENABLE
+
 #endif // LED_H

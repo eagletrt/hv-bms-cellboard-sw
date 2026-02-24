@@ -69,7 +69,7 @@ int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE
 int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
 int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
 int32_t error_open_wire_instances[ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT];
-int32_t * error[] = {
+int32_t *error[] = {
     [ERROR_GROUP_POST] = error_post_instances,
     [ERROR_GROUP_UNDER_VOLTAGE] = error_under_voltage_instances,
     [ERROR_GROUP_OVER_VOLTAGE] = error_over_voltage_instances,
@@ -85,13 +85,12 @@ int32_t * error[] = {
 
 ErrorReturnCode error_init(const system_reset_callback_t reset) {
     if (errorlib_init(&herror,
-        error,
-        instances,
-        thresholds,
-        ERROR_GROUP_COUNT
-    ) != ERRORLIB_OK)
+                      error,
+                      instances,
+                      thresholds,
+                      ERROR_GROUP_COUNT) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
-    
+
     memset(&error_can_payload, 0U, sizeof(error_can_payload));
 
     if (reset == NULL)
@@ -108,7 +107,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
     if (errorlib_get_expired(&herror) > 0U) {
         ErrorInfo error = errorlib_get_expired_info(&herror);
 
-        if(error.group == ERROR_GROUP_CAN_COMMUNICATION) {
+        if (error.group == ERROR_GROUP_CAN_COMMUNICATION) {
             // Check if the error is from can and in that case reset the cellboard
             system_reset();
         } else {
@@ -139,7 +138,7 @@ ErrorInfo error_get_expired_info(void) {
     return errorlib_get_expired_info(&herror);
 }
 
-bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const byte_size) {
+bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(error_can_payload);
     return &error_can_payload;
@@ -147,19 +146,21 @@ bms_cellboard_error_converted_t * error_get_error_canlib_payload(size_t * const 
 
 #ifdef CONF_ERROR_STRINGS_ENABLE
 
-_STATIC char * error_module_name = "error";
+_STATIC char *error_module_name = "error";
 
-_STATIC char * error_return_code_name[] = {
+// clang-format off
+_STATIC char *error_return_code_name[] = {
     [ERROR_OK] = "ok",
-    [ERROR_NULL_POINTER] = "null pointer"
+    [ERROR_NULL_POINTER] = "null pointer",
     [ERROR_UNKNOWN] = "unknown"
 }
 
-_STATIC char * error_return_code_description[] = {
-    [ERROR_OK] = "executed succesfully",
-    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer",
-    [ERROR_UNKNOWN] = "unknown error"
+_STATIC char* error_return_code_description[] = {
+    [ERROR_OK] = "executed succesfully", 
+    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", 
+    [ERROR_UNKNOWN] = "unknown error" 
 }
+// clang-format on
 
 #endif // CONF_ERROR_STRINGS_ENABLE
 

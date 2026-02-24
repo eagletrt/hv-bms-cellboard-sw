@@ -23,85 +23,83 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include "error.h"
 /*** USER CODE END MACROS ***/
 
-
 // GLOBALS
 // State human-readable names
-const char *bms_monitor_fsm_state_names[] = {"init", "start_volt_conversion", "volt_write_configuration", "volt_read_configuration", "read_volt_a", "read_volt_b", "read_volt_c", "read_volt_d", "start_temp_conversion", "temp_write_configuration", "temp_read_configuration", "read_temp_a", "read_temp_b", "start_open_wire_pup_conversion_first", "open_wire_pup_write_configuration", "start_open_wire_pup_conversion_second", "open_wire_pup_read_configuration", "read_open_wire_pup_a", "read_open_wire_pup_b", "read_open_wire_pup_c", "read_open_wire_pup_d", "start_open_wire_pud_conversion_first", "open_wire_pud_write_configuration", "start_open_wire_pud_conversion_second", "open_wire_pud_read_configuration", "read_open_wire_pud_a", "read_open_wire_pud_b", "read_open_wire_pud_c", "read_open_wire_pud_d"};
+const char *bms_monitor_fsm_state_names[] = { "init", "start_volt_conversion", "volt_write_configuration", "volt_read_configuration", "read_volt_a", "read_volt_b", "read_volt_c", "read_volt_d", "start_temp_conversion", "temp_write_configuration", "temp_read_configuration", "read_temp_a", "read_temp_b", "start_open_wire_pup_conversion_first", "open_wire_pup_write_configuration", "start_open_wire_pup_conversion_second", "open_wire_pup_read_configuration", "read_open_wire_pup_a", "read_open_wire_pup_b", "read_open_wire_pup_c", "read_open_wire_pup_d", "start_open_wire_pud_conversion_first", "open_wire_pud_write_configuration", "start_open_wire_pud_conversion_second", "open_wire_pud_read_configuration", "read_open_wire_pud_a", "read_open_wire_pud_b", "read_open_wire_pud_c", "read_open_wire_pud_d" };
 
 // List of state functions
 bms_monitor_fsm_state_func_t *const bms_monitor_fsm_state_table[BMS_MONITOR_FSM_NUM_STATES] = {
-  bms_monitor_fsm_do_init,                                  // in state init
-  bms_monitor_fsm_do_start_volt_conversion,                 // in state start_volt_conversion
-  bms_monitor_fsm_do_volt_write_configuration,              // in state volt_write_configuration
-  bms_monitor_fsm_do_volt_read_configuration,               // in state volt_read_configuration
-  bms_monitor_fsm_do_read_volt_a,                           // in state read_volt_a
-  bms_monitor_fsm_do_read_volt_b,                           // in state read_volt_b
-  bms_monitor_fsm_do_read_volt_c,                           // in state read_volt_c
-  bms_monitor_fsm_do_read_volt_d,                           // in state read_volt_d
-  bms_monitor_fsm_do_start_temp_conversion,                 // in state start_temp_conversion
-  bms_monitor_fsm_do_temp_write_configuration,              // in state temp_write_configuration
-  bms_monitor_fsm_do_temp_read_configuration,               // in state temp_read_configuration
-  bms_monitor_fsm_do_read_temp_a,                           // in state read_temp_a
-  bms_monitor_fsm_do_read_temp_b,                           // in state read_temp_b
-  bms_monitor_fsm_do_start_open_wire_pup_conversion_first,  // in state start_open_wire_pup_conversion_first
-  bms_monitor_fsm_do_open_wire_pup_write_configuration,     // in state open_wire_pup_write_configuration
-  bms_monitor_fsm_do_start_open_wire_pup_conversion_second, // in state start_open_wire_pup_conversion_second
-  bms_monitor_fsm_do_open_wire_pup_read_configuration,      // in state open_wire_pup_read_configuration
-  bms_monitor_fsm_do_read_open_wire_pup_a,                  // in state read_open_wire_pup_a
-  bms_monitor_fsm_do_read_open_wire_pup_b,                  // in state read_open_wire_pup_b
-  bms_monitor_fsm_do_read_open_wire_pup_c,                  // in state read_open_wire_pup_c
-  bms_monitor_fsm_do_read_open_wire_pup_d,                  // in state read_open_wire_pup_d
-  bms_monitor_fsm_do_start_open_wire_pud_conversion_first,  // in state start_open_wire_pud_conversion_first
-  bms_monitor_fsm_do_open_wire_pud_write_configuration,     // in state open_wire_pud_write_configuration
-  bms_monitor_fsm_do_start_open_wire_pud_conversion_second, // in state start_open_wire_pud_conversion_second
-  bms_monitor_fsm_do_open_wire_pud_read_configuration,      // in state open_wire_pud_read_configuration
-  bms_monitor_fsm_do_read_open_wire_pud_a,                  // in state read_open_wire_pud_a
-  bms_monitor_fsm_do_read_open_wire_pud_b,                  // in state read_open_wire_pud_b
-  bms_monitor_fsm_do_read_open_wire_pud_c,                  // in state read_open_wire_pud_c
-  bms_monitor_fsm_do_read_open_wire_pud_d,                  // in state read_open_wire_pud_d
+    bms_monitor_fsm_do_init,                                  // in state init
+    bms_monitor_fsm_do_start_volt_conversion,                 // in state start_volt_conversion
+    bms_monitor_fsm_do_volt_write_configuration,              // in state volt_write_configuration
+    bms_monitor_fsm_do_volt_read_configuration,               // in state volt_read_configuration
+    bms_monitor_fsm_do_read_volt_a,                           // in state read_volt_a
+    bms_monitor_fsm_do_read_volt_b,                           // in state read_volt_b
+    bms_monitor_fsm_do_read_volt_c,                           // in state read_volt_c
+    bms_monitor_fsm_do_read_volt_d,                           // in state read_volt_d
+    bms_monitor_fsm_do_start_temp_conversion,                 // in state start_temp_conversion
+    bms_monitor_fsm_do_temp_write_configuration,              // in state temp_write_configuration
+    bms_monitor_fsm_do_temp_read_configuration,               // in state temp_read_configuration
+    bms_monitor_fsm_do_read_temp_a,                           // in state read_temp_a
+    bms_monitor_fsm_do_read_temp_b,                           // in state read_temp_b
+    bms_monitor_fsm_do_start_open_wire_pup_conversion_first,  // in state start_open_wire_pup_conversion_first
+    bms_monitor_fsm_do_open_wire_pup_write_configuration,     // in state open_wire_pup_write_configuration
+    bms_monitor_fsm_do_start_open_wire_pup_conversion_second, // in state start_open_wire_pup_conversion_second
+    bms_monitor_fsm_do_open_wire_pup_read_configuration,      // in state open_wire_pup_read_configuration
+    bms_monitor_fsm_do_read_open_wire_pup_a,                  // in state read_open_wire_pup_a
+    bms_monitor_fsm_do_read_open_wire_pup_b,                  // in state read_open_wire_pup_b
+    bms_monitor_fsm_do_read_open_wire_pup_c,                  // in state read_open_wire_pup_c
+    bms_monitor_fsm_do_read_open_wire_pup_d,                  // in state read_open_wire_pup_d
+    bms_monitor_fsm_do_start_open_wire_pud_conversion_first,  // in state start_open_wire_pud_conversion_first
+    bms_monitor_fsm_do_open_wire_pud_write_configuration,     // in state open_wire_pud_write_configuration
+    bms_monitor_fsm_do_start_open_wire_pud_conversion_second, // in state start_open_wire_pud_conversion_second
+    bms_monitor_fsm_do_open_wire_pud_read_configuration,      // in state open_wire_pud_read_configuration
+    bms_monitor_fsm_do_read_open_wire_pud_a,                  // in state read_open_wire_pud_a
+    bms_monitor_fsm_do_read_open_wire_pud_b,                  // in state read_open_wire_pud_b
+    bms_monitor_fsm_do_read_open_wire_pud_c,                  // in state read_open_wire_pud_c
+    bms_monitor_fsm_do_read_open_wire_pud_d,                  // in state read_open_wire_pud_d
 };
 
 // Table of transition functions
 transition_func_t *const bms_monitor_fsm_transition_table[BMS_MONITOR_FSM_NUM_STATES][BMS_MONITOR_FSM_NUM_STATES] = {
-  /* states:                                   init                           , start_volt_conversion          , volt_write_configuration       , volt_read_configuration        , read_volt_a                    , read_volt_b                    , read_volt_c                    , read_volt_d                    , start_temp_conversion          , temp_write_configuration       , temp_read_configuration        , read_temp_a                    , read_temp_b                    , start_open_wire_pup_conversion_first, open_wire_pup_write_configuration, start_open_wire_pup_conversion_second, open_wire_pup_read_configuration, read_open_wire_pup_a           , read_open_wire_pup_b           , read_open_wire_pup_c           , read_open_wire_pup_d           , start_open_wire_pud_conversion_first, open_wire_pud_write_configuration, start_open_wire_pud_conversion_second, open_wire_pud_read_configuration, read_open_wire_pud_a           , read_open_wire_pud_b           , read_open_wire_pud_c           , read_open_wire_pud_d            */
-  /* init                                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_volt_conversion                 */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* volt_write_configuration              */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* volt_read_configuration               */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_volt_a                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_volt_b                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_volt_c                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_volt_d                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_temp_conversion                 */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* temp_write_configuration              */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* temp_read_configuration               */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_temp_a                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_temp_b                           */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_open_wire_pup_conversion_first  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* open_wire_pup_write_configuration     */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_open_wire_pup_conversion_second */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* open_wire_pup_read_configuration      */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pup_a                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pup_b                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pup_c                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pup_d                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_open_wire_pud_conversion_first  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* open_wire_pud_write_configuration     */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* start_open_wire_pud_conversion_second */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* open_wire_pud_read_configuration      */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pud_a                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pud_b                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pud_c                  */ {NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
-  /* read_open_wire_pud_d                  */ {NULL                           , bms_monitor_fsm_check_open_wire, NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           , NULL                           }, 
+    /* states:                                   init                           , start_volt_conversion          , volt_write_configuration       , volt_read_configuration        , read_volt_a                    , read_volt_b                    , read_volt_c                    , read_volt_d                    , start_temp_conversion          , temp_write_configuration       , temp_read_configuration        , read_temp_a                    , read_temp_b                    , start_open_wire_pup_conversion_first, open_wire_pup_write_configuration, start_open_wire_pup_conversion_second, open_wire_pup_read_configuration, read_open_wire_pup_a           , read_open_wire_pup_b           , read_open_wire_pup_c           , read_open_wire_pup_d           , start_open_wire_pud_conversion_first, open_wire_pud_write_configuration, start_open_wire_pud_conversion_second, open_wire_pud_read_configuration, read_open_wire_pud_a           , read_open_wire_pud_b           , read_open_wire_pud_c           , read_open_wire_pud_d            */
+    /* init                                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_volt_conversion                 */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* volt_write_configuration              */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* volt_read_configuration               */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_volt_a                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_volt_b                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_volt_c                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_volt_d                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_temp_conversion                 */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* temp_write_configuration              */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* temp_read_configuration               */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_temp_a                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_temp_b                           */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_open_wire_pup_conversion_first  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* open_wire_pup_write_configuration     */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_open_wire_pup_conversion_second */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* open_wire_pup_read_configuration      */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pup_a                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pup_b                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pup_c                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pup_d                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_open_wire_pud_conversion_first  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* open_wire_pud_write_configuration     */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* start_open_wire_pud_conversion_second */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* open_wire_pud_read_configuration      */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pud_a                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pud_b                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pud_c                  */ { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    /* read_open_wire_pud_d                  */ { NULL, bms_monitor_fsm_check_open_wire, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 };
 
 // Triggered event
-bms_monitor_fsm_event_data_t * bms_monitor_fsm_fired_event = NULL;
+bms_monitor_fsm_event_data_t *bms_monitor_fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-_STATIC _BmsMonitorFsmHandler hfsm;
+_STATIC _BmsMonitorFsmHandler hfsm_mon;
 /*** USER CODE END GLOBALS ***/
-
 
 // Function to check if an event has fired
 bool bms_monitor_fsm_is_event_triggered() {
@@ -115,7 +113,6 @@ void bms_monitor_fsm_event_trigger(bms_monitor_fsm_event_data_t *event) {
     bms_monitor_fsm_fired_event = event ? event : &(bms_monitor_fsm_event_data_t){};
 }
 
-
 /*  ____  _        _       
  * / ___|| |_ __ _| |_ ___ 
  * \___ \| __/ _` | __/ _ \
@@ -127,679 +124,621 @@ void bms_monitor_fsm_event_trigger(bms_monitor_fsm_event_data_t *event) {
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
- */                                             
+ */
 
 // Function to be executed in state init
 // valid return states: BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION;
-  
-  
-  /*** USER CODE BEGIN DO_INIT ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION;
 
-  memset(&hfsm, 0U, sizeof(hfsm));
-  /*** USER CODE END DO_INIT ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_INIT ***/
+    CELLBOARD_UNUSED(data);
+
+    memset(&hfsm_mon, 0U, sizeof(hfsm_mon));
+    /*** USER CODE END DO_INIT ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_volt_conversion
 // valid return states: BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_volt_conversion(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_VOLT_CONVERSION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION;
 
-  (void)bms_manager_start_volt_conversion();
-  /*** USER CODE END DO_START_VOLT_CONVERSION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_VOLT_CONVERSION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_volt_conversion();
+    /*** USER CODE END DO_START_VOLT_CONVERSION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state volt_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_write_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_VOLT_WRITE_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION;
 
-  (void)bms_manager_write_configuration();
-  /*** USER CODE END DO_VOLT_WRITE_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_VOLT_WRITE_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_write_configuration();
+    /*** USER CODE END DO_VOLT_WRITE_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state volt_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_A
 bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_read_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_A;
-  
-  
-  /*** USER CODE BEGIN DO_VOLT_READ_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_A;
 
-  (void)bms_manager_read_configuration();
-  /*** USER CODE END DO_VOLT_READ_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_VOLT_A:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_VOLT_READ_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_configuration();
+    /*** USER CODE END DO_VOLT_READ_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_VOLT_A:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_volt_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_B
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_a(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_B;
-  
-  
-  /*** USER CODE BEGIN DO_READ_VOLT_A ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_B;
 
-  (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A);
-  /*** USER CODE END DO_READ_VOLT_A ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_VOLT_B:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_VOLT_A ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A);
+    /*** USER CODE END DO_READ_VOLT_A ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_VOLT_B:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_volt_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_C
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_b(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_C;
-  
-  
-  /*** USER CODE BEGIN DO_READ_VOLT_B ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_C;
 
-  (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B);
-  /*** USER CODE END DO_READ_VOLT_B ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_VOLT_C:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_VOLT_B ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B);
+    /*** USER CODE END DO_READ_VOLT_B ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_VOLT_C:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_volt_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_D
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_c(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_D;
-  
-  
-  /*** USER CODE BEGIN DO_READ_VOLT_C ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_VOLT_D;
 
-  (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C);
-  /*** USER CODE END DO_READ_VOLT_C ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_VOLT_D:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_VOLT_C ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C);
+    /*** USER CODE END DO_READ_VOLT_C ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_VOLT_D:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_volt_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_d(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION;
-  
-  
-  /*** USER CODE BEGIN DO_READ_VOLT_D ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION;
 
-  (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D);
-  /*** USER CODE END DO_READ_VOLT_D ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_VOLT_D ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D);
+    /*** USER CODE END DO_READ_VOLT_D ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_temp_conversion
 // valid return states: BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_temp_conversion(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_TEMP_CONVERSION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION;
 
-  (void)bms_manager_start_temp_conversion();
-  /*** USER CODE END DO_START_TEMP_CONVERSION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_TEMP_CONVERSION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_temp_conversion();
+    /*** USER CODE END DO_START_TEMP_CONVERSION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state temp_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_write_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_TEMP_WRITE_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION;
 
-  // TODO: Writing configuration during gpio ADC conversion causes problems
-  // (void)bms_manager_write_configuration();
-  /*** USER CODE END DO_TEMP_WRITE_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_TEMP_WRITE_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    // TODO: Writing configuration during gpio ADC conversion causes problems
+    // (void)bms_manager_write_configuration();
+    /*** USER CODE END DO_TEMP_WRITE_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state temp_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_TEMP_A
 bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_read_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_TEMP_A;
-  
-  
-  /*** USER CODE BEGIN DO_TEMP_READ_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_TEMP_A;
 
-  // TODO: Reading configuration during gpio ADC conversion causes problems
-  // (void)bms_manager_read_configuration();
-    
-  // Poll is needed otherwise the SPI peripheral turns off
-  (void)bms_manager_poll_conversion_status();
-  /*** USER CODE END DO_TEMP_READ_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_TEMP_A:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_TEMP_READ_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    // TODO: Reading configuration during gpio ADC conversion causes problems
+    // (void)bms_manager_read_configuration();
+
+    // Poll is needed otherwise the SPI peripheral turns off
+    (void)bms_manager_poll_conversion_status();
+    /*** USER CODE END DO_TEMP_READ_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_TEMP_A:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_temp_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_TEMP_B
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_a(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_TEMP_B;
-  
-  
-  /*** USER CODE BEGIN DO_READ_TEMP_A ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_TEMP_B;
 
-  (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_A);
-  /*** USER CODE END DO_READ_TEMP_A ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_TEMP_B:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_TEMP_A ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_A);
+    /*** USER CODE END DO_READ_TEMP_A ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_TEMP_B:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_temp_b
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_b(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST;
-  
-  
-  /*** USER CODE BEGIN DO_READ_TEMP_B ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST;
 
-  (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_B);
-  /*** USER CODE END DO_READ_TEMP_B ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_TEMP_B ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_temperatures(BMS_MANAGER_TEMPERATURE_REGISTER_B);
+    /*** USER CODE END DO_READ_TEMP_B ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_open_wire_pup_conversion_first
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION;
 
-  (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
-  /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
+    /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state open_wire_pup_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND
 bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_write_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND;
-  
-  
-  /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND;
 
-  (void)bms_manager_write_configuration();
-  /*** USER CODE END DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_write_configuration();
+    /*** USER CODE END DO_OPEN_WIRE_PUP_WRITE_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_open_wire_pup_conversion_second
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION;
 
-  (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
-  /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
+    /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state open_wire_pup_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A
 bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_read_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A;
-  
-  
-  /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A;
 
-  (void)bms_manager_read_configuration();
-  /*** USER CODE END DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_configuration();
+    /*** USER CODE END DO_OPEN_WIRE_PUP_READ_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pup_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_a(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_A ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUP_A ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_A ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUP_A ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pup_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_b(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_B ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUP_B ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_B ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUP_B ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pup_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_c(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_C ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUP_C ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_C ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUP_C ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pup_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_d(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_D ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUP_D ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUP_D ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUP_D ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_open_wire_pud_conversion_first
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION;
 
-  (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
-  /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
+    /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state open_wire_pud_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND
 bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_write_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND;
-  
-  
-  /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND;
 
-  (void)bms_manager_write_configuration();
-  /*** USER CODE END DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_write_configuration();
+    /*** USER CODE END DO_OPEN_WIRE_PUD_WRITE_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state start_open_wire_pud_conversion_second
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION;
-  
-  
-  /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION;
 
-  (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
-  /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
+    /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state open_wire_pud_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A
 bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_read_configuration(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A;
-  
-  
-  /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A;
 
-  (void)bms_manager_read_configuration();
-  /*** USER CODE END DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_configuration();
+    /*** USER CODE END DO_OPEN_WIRE_PUD_READ_CONFIGURATION ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pud_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_a(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_A ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUD_A ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_A ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_A, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUD_A ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pud_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_b(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_B ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUD_B ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_B ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_B, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUD_B ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pud_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_c(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_C ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUD_C ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_C ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_C, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUD_C ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 // Function to be executed in state read_open_wire_pud_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION
 bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_state_data_t *data) {
-  bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION;
-  
-  
-  /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_D ***/
-  CELLBOARD_UNUSED(data);
+    bms_monitor_fsm_state_t next_state = BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION;
 
-  (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
-  /*** USER CODE END DO_READ_OPEN_WIRE_PUD_D ***/
-  
-  switch (next_state) {
-    case BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION:
-      break;
-    default:
-      next_state = BMS_MONITOR_FSM_NO_CHANGE;
-  }
-  
-  return next_state;
+    /*** USER CODE BEGIN DO_READ_OPEN_WIRE_PUD_D ***/
+    CELLBOARD_UNUSED(data);
+
+    (void)bms_manager_read_open_wire_voltages(BMS_MANAGER_VOLTAGE_REGISTER_D, BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
+    /*** USER CODE END DO_READ_OPEN_WIRE_PUD_D ***/
+
+    switch (next_state) {
+        case BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION:
+            break;
+        default:
+            next_state = BMS_MONITOR_FSM_NO_CHANGE;
+    }
+
+    return next_state;
 }
-
 
 /*  _____                    _ _   _              
  * |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __   
@@ -812,30 +751,29 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
- */    
-                                         
+ */
+
 // This function is called in 1 transition:
 // 1. from read_open_wire_pud_d to start_volt_conversion
 void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
-  
-  /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
-  CELLBOARD_UNUSED(data);
 
-  BmsManagerReturnCode code = bms_manager_check_open_wire(); 
-  switch (code) {
-      case BMS_MANAGER_OK:
-          error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
-          break;
-      case BMS_MANAGER_OPEN_WIRE:
-          error_set(ERROR_GROUP_OPEN_WIRE, 0U);
-          break;
-      default:
-          // Do nothing
-          break;
-  }
-  /*** USER CODE END CHECK_OPEN_WIRE ***/
+    /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
+    CELLBOARD_UNUSED(data);
+
+    BmsManagerReturnCode code = bms_manager_check_open_wire();
+    switch (code) {
+        case BMS_MANAGER_OK:
+            error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
+            break;
+        case BMS_MANAGER_OPEN_WIRE:
+            error_set(ERROR_GROUP_OPEN_WIRE, 0U);
+            break;
+        default:
+            // Do nothing
+            break;
+    }
+    /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
-
 
 /*  ____  _        _        
  * / ___|| |_ __ _| |_ ___  
@@ -852,37 +790,38 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
  */
 
 bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_state, bms_monitor_fsm_state_data_t *data) {
-  
-  /*** USER CODE BEGIN RUN_STATE ***/
-  hfsm.fsm_state = cur_state;
-  /*** USER CODE END RUN_STATE ***/
 
-  bms_monitor_fsm_event_data_t *prev_ev = bms_monitor_fsm_fired_event;
-  bms_monitor_fsm_state_t new_state = bms_monitor_fsm_state_table[cur_state](data);
-  // Reset event status
-  if (prev_ev != NULL)
-    bms_monitor_fsm_fired_event = NULL;
-  if (new_state == BMS_MONITOR_FSM_NO_CHANGE) new_state = cur_state;
-  transition_func_t *transition = bms_monitor_fsm_transition_table[cur_state][new_state];
-  if (transition)
-    transition(data);
-  return new_state;
+    /*** USER CODE BEGIN RUN_STATE ***/
+    hfsm_mon.fsm_state = cur_state;
+    /*** USER CODE END RUN_STATE ***/
+
+    bms_monitor_fsm_event_data_t *prev_ev = bms_monitor_fsm_fired_event;
+    bms_monitor_fsm_state_t new_state = bms_monitor_fsm_state_table[cur_state](data);
+    // Reset event status
+    if (prev_ev != NULL)
+        bms_monitor_fsm_fired_event = NULL;
+    if (new_state == BMS_MONITOR_FSM_NO_CHANGE)
+        new_state = cur_state;
+    transition_func_t *transition = bms_monitor_fsm_transition_table[cur_state][new_state];
+    if (transition)
+        transition(data);
+    return new_state;
 };
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 bms_monitor_fsm_state_t bms_monitor_fsm_get_state(void) {
-    return hfsm.fsm_state;
+    return hfsm_mon.fsm_state;
 }
 /*** USER CODE END FUNCTIONS ***/
 
 #ifdef TEST_MAIN
 #include <unistd.h>
 int main() {
-  bms_monitor_fsm_state_t cur_state = BMS_MONITOR_FSM_STATE_INIT;
-  do {
-    cur_state = bms_monitor_fsm_run_state(cur_state, NULL);
-    sleep(1);
-  } while (1);
-  return 0;
+    bms_monitor_fsm_state_t cur_state = BMS_MONITOR_FSM_STATE_INIT;
+    do {
+        cur_state = bms_monitor_fsm_run_state(cur_state, NULL);
+        sleep(1);
+    } while (1);
+    return 0;
 }
 #endif

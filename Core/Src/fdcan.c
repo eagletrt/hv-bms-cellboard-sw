@@ -29,139 +29,131 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* FDCAN1 init function */
-void MX_FDCAN1_Init(void)
-{
+void MX_FDCAN1_Init(void) {
 
-  /* USER CODE BEGIN FDCAN1_Init 0 */
+    /* USER CODE BEGIN FDCAN1_Init 0 */
 
-  /* USER CODE END FDCAN1_Init 0 */
+    /* USER CODE END FDCAN1_Init 0 */
 
-  /* USER CODE BEGIN FDCAN1_Init 1 */
+    /* USER CODE BEGIN FDCAN1_Init 1 */
 
-  /* USER CODE END FDCAN1_Init 1 */
-  hfdcan1.Instance = FDCAN1;
-  hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-  hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
-  hfdcan1.Init.AutoRetransmission = DISABLE;
-  hfdcan1.Init.TransmitPause = DISABLE;
-  hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 5;
-  hfdcan1.Init.NominalSyncJumpWidth = 1;
-  hfdcan1.Init.NominalTimeSeg1 = 14;
-  hfdcan1.Init.NominalTimeSeg2 = 2;
-  hfdcan1.Init.DataPrescaler = 5;
-  hfdcan1.Init.DataSyncJumpWidth = 1;
-  hfdcan1.Init.DataTimeSeg1 = 14;
-  hfdcan1.Init.DataTimeSeg2 = 2;
-  hfdcan1.Init.StdFiltersNbr = 1;
-  hfdcan1.Init.ExtFiltersNbr = 0;
-  hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
-  if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN FDCAN1_Init 2 */
-
-  // TODO: Config filters
-  FDCAN_FilterTypeDef f1 = {
-      .IdType = FDCAN_STANDARD_ID,
-      .FilterIndex = 0,
-      .FilterType = FDCAN_FILTER_RANGE,
-      .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
-      .FilterID1 = 0,
-      .FilterID2 = 0x500,
-  };
-  HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f1);
-  HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
-
-  FDCAN_FilterTypeDef f2 = {
-      .IdType = FDCAN_STANDARD_ID,
-      .FilterIndex = 1,
-      .FilterType = FDCAN_FILTER_RANGE,
-      .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
-      .FilterID1 = 0x550,
-      .FilterID2 = 0x7FF
-  };
-  HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f2);
-  HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
-
-  HAL_FDCAN_Start(&HCAN_BMS);
-
-  /* USER CODE END FDCAN1_Init 2 */
-
-}
-
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-  if(fdcanHandle->Instance==FDCAN1)
-  {
-  /* USER CODE BEGIN FDCAN1_MspInit 0 */
-
-  /* USER CODE END FDCAN1_MspInit 0 */
-
-  /** Initializes the peripherals clocks
-  */
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-    PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-    {
-      Error_Handler();
+    /* USER CODE END FDCAN1_Init 1 */
+    hfdcan1.Instance = FDCAN1;
+    hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV1;
+    hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
+    hfdcan1.Init.AutoRetransmission = DISABLE;
+    hfdcan1.Init.TransmitPause = DISABLE;
+    hfdcan1.Init.ProtocolException = DISABLE;
+    hfdcan1.Init.NominalPrescaler = 5;
+    hfdcan1.Init.NominalSyncJumpWidth = 1;
+    hfdcan1.Init.NominalTimeSeg1 = 14;
+    hfdcan1.Init.NominalTimeSeg2 = 2;
+    hfdcan1.Init.DataPrescaler = 5;
+    hfdcan1.Init.DataSyncJumpWidth = 1;
+    hfdcan1.Init.DataTimeSeg1 = 14;
+    hfdcan1.Init.DataTimeSeg2 = 2;
+    hfdcan1.Init.StdFiltersNbr = 1;
+    hfdcan1.Init.ExtFiltersNbr = 0;
+    hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
+    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) {
+        Error_Handler();
     }
+    /* USER CODE BEGIN FDCAN1_Init 2 */
 
-    /* FDCAN1 clock enable */
-    __HAL_RCC_FDCAN_CLK_ENABLE();
+    // TODO: Config filters
+    FDCAN_FilterTypeDef f1 = {
+        .IdType = FDCAN_STANDARD_ID,
+        .FilterIndex = 0,
+        .FilterType = FDCAN_FILTER_RANGE,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
+        .FilterID1 = 0,
+        .FilterID2 = 0x500,
+    };
+    HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f1);
+    HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
 
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**FDCAN1 GPIO Configuration
-    PA11     ------> FDCAN1_RX
-    PA12     ------> FDCAN1_TX
-    */
-    GPIO_InitStruct.Pin = CAN_RX_Pin|CAN_TX_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    FDCAN_FilterTypeDef f2 = {
+        .IdType = FDCAN_STANDARD_ID,
+        .FilterIndex = 1,
+        .FilterType = FDCAN_FILTER_RANGE,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
+        .FilterID1 = 0x550,
+        .FilterID2 = 0x7FF
+    };
+    HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f2);
+    HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
 
-    /* FDCAN1 interrupt Init */
-    HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-    HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
-  /* USER CODE BEGIN FDCAN1_MspInit 1 */
+    HAL_FDCAN_Start(&HCAN_BMS);
 
-  /* USER CODE END FDCAN1_MspInit 1 */
-  }
+    /* USER CODE END FDCAN1_Init 2 */
 }
 
-void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
-{
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *fdcanHandle) {
 
-  if(fdcanHandle->Instance==FDCAN1)
-  {
-  /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInit = { 0 };
+    if (fdcanHandle->Instance == FDCAN1) {
+        /* USER CODE BEGIN FDCAN1_MspInit 0 */
 
-  /* USER CODE END FDCAN1_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_FDCAN_CLK_DISABLE();
+        /* USER CODE END FDCAN1_MspInit 0 */
 
-    /**FDCAN1 GPIO Configuration
+        /** Initializes the peripherals clocks
+  */
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+        PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
+            Error_Handler();
+        }
+
+        /* FDCAN1 clock enable */
+        __HAL_RCC_FDCAN_CLK_ENABLE();
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**FDCAN1 GPIO Configuration
     PA11     ------> FDCAN1_RX
     PA12     ------> FDCAN1_TX
     */
-    HAL_GPIO_DeInit(GPIOA, CAN_RX_Pin|CAN_TX_Pin);
+        GPIO_InitStruct.Pin = CAN_RX_Pin | CAN_TX_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* FDCAN1 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
-    HAL_NVIC_DisableIRQ(FDCAN1_IT1_IRQn);
-  /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+        /* FDCAN1 interrupt Init */
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
+        /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
-  /* USER CODE END FDCAN1_MspDeInit 1 */
-  }
+        /* USER CODE END FDCAN1_MspInit 1 */
+    }
+}
+
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *fdcanHandle) {
+
+    if (fdcanHandle->Instance == FDCAN1) {
+        /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+
+        /* USER CODE END FDCAN1_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_FDCAN_CLK_DISABLE();
+
+        /**FDCAN1 GPIO Configuration
+    PA11     ------> FDCAN1_RX
+    PA12     ------> FDCAN1_TX
+    */
+        HAL_GPIO_DeInit(GPIOA, CAN_RX_Pin | CAN_TX_Pin);
+
+        /* FDCAN1 interrupt Deinit */
+        HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_DisableIRQ(FDCAN1_IT1_IRQn);
+        /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+
+        /* USER CODE END FDCAN1_MspDeInit 1 */
+    }
 }
 
 /* USER CODE BEGIN 1 */
@@ -174,7 +166,7 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
  * @return int32_t The DLC or negative error code
  */
 int32_t _can_get_dlc_from_size(const size_t size) {
-    switch(size) {
+    switch (size) {
         case 0U:
             return FDCAN_DLC_BYTES_0;
         case 1U:
@@ -238,9 +230,8 @@ CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {
 CanCommReturnCode can_send(
     const can_id_t id,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size)
-{
+    const uint8_t *const data,
+    const size_t size) {
     if (id > CAN_COMM_ID_MASK)
         return CAN_COMM_INVALID_INDEX;
 
@@ -253,7 +244,7 @@ CanCommReturnCode can_send(
     const int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
     if (type < 0)
         return CAN_COMM_INVALID_FRAME_TYPE;
- 
+
     // Setup transmission header
     const FDCAN_TxHeaderTypeDef header = {
         .Identifier = id,
@@ -274,7 +265,7 @@ CanCommReturnCode can_send(
 }
 
 // TODO: Return and check errors
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs) {
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
     if (hfdcan->Instance != HCAN_BMS.Instance)
         return;
     if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) == RESET)
@@ -284,7 +275,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
     uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
         Error_Handler();
-    
+
     const CanFrameType frame_type = _can_get_frame_type_from_fram_typename(header.RxFrameType);
     if (frame_type < 0)
         return;
@@ -294,12 +285,11 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs
         bms_index_from_id(header.Identifier),
         frame_type,
         data,
-        header.DataLength
-    );
+        header.DataLength);
 }
 
 // TODO: Return and check errors
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo1ITs) {
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs) {
     UNUSED(hfdcan);
     UNUSED(RxFifo1ITs);
 }

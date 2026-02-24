@@ -63,8 +63,7 @@ CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send) {
         &hcan_comm.rx_raw,
         bms_MAX_STRUCT_SIZE_RAW,
         &hcan_comm.rx_conv,
-        bms_MAX_STRUCT_SIZE_CONVERSION
-    );
+        bms_MAX_STRUCT_SIZE_CONVERSION);
     return CAN_COMM_OK;
 }
 
@@ -101,9 +100,8 @@ bool can_comm_is_enabled(const CanCommEnableBit bit) {
 CanCommReturnCode can_comm_send_immediate(
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size)
-{
+    const uint8_t *const data,
+    const size_t size) {
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
 
@@ -112,9 +110,11 @@ CanCommReturnCode can_comm_send_immediate(
         return CAN_COMM_INVALID_INDEX;
     if (frame_type >= CAN_FRAME_TYPE_COUNT)
         return CAN_COMM_INVALID_FRAME_TYPE;
+
     // TODO: Change the max payload with the maximum size of the converted struct
     // if (size > CAN_COMM_MAX_PAYLOAD_BYTE_SIZE)
     //     return CAN_COMM_INVALID_PAYLOAD_SIZE;
+
     if (data == NULL && frame_type != CAN_FRAME_TYPE_REMOTE)
         return CAN_COMM_NULL_POINTER;
 
@@ -139,9 +139,8 @@ CanCommReturnCode can_comm_send_immediate(
 CanCommReturnCode can_comm_tx_add(
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size)
-{
+    const uint8_t *const data,
+    const size_t size) {
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
 
@@ -173,9 +172,8 @@ CanCommReturnCode can_comm_tx_add(
 CanCommReturnCode can_comm_rx_add(
     const can_index_t index,
     const CanFrameType frame_type,
-    const uint8_t * const data,
-    const size_t size)
-{    
+    const uint8_t *const data,
+    const size_t size) {
     if (!CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT))
         return CAN_COMM_DISABLED;
 
@@ -208,8 +206,7 @@ CanCommReturnCode can_comm_routine(void) {
     CanCommReturnCode ret = CAN_COMM_OK;
     CanMessage tx_msg, rx_msg;
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT) &&
-        ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK)
-    {
+        ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK) {
         // Reset the busy flag to notify that the message is not inside the buffer anymore
         hcan_comm.tx_busy[tx_msg.index] = false;
 
@@ -229,8 +226,7 @@ CanCommReturnCode can_comm_routine(void) {
             can_id,
             tx_msg.frame_type,
             data,
-            size
-        );
+            size);
 
         /*
          * Set an error in case of problems with CAN communication
@@ -252,8 +248,7 @@ CanCommReturnCode can_comm_routine(void) {
         }
     }
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
-        ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK)
-    {
+        ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK) {
         // Reset the busy flag to notify that the message is not inside the buffer anymore
         hcan_comm.rx_busy[rx_msg.index] = false;
 
@@ -270,8 +265,7 @@ CanCommReturnCode can_comm_routine(void) {
             if (handle_payload != NULL) {
                 handle_payload(hcan_comm.rx_device.message);
             }
-        }
-        else {
+        } else {
             // TODO: Handler remote requests
         }
     }
@@ -281,9 +275,9 @@ CanCommReturnCode can_comm_routine(void) {
 
 #ifdef CONF_CAN_COMM_STRINGS_ENABLE
 
-_STATIC char * can_comm_module_name = "can communication";
+_STATIC char *can_comm_module_name = "can communication";
 
-_STATIC char * can_comm_return_code_name[] = {
+_STATIC char *can_comm_return_code_name[] = {
     [CAN_COMM_OK] = "ok",
     [CAN_COMM_NULL_POINTER] = "null pointer",
     [CAN_COMM_DISABLED] = "disabled",
@@ -295,13 +289,13 @@ _STATIC char * can_comm_return_code_name[] = {
     [CAN_COMM_TRANSMISSION_ERROR] = "transmission error"
 };
 
-_STATIC char * can_comm_return_code_description[] = {
+_STATIC char *can_comm_return_code_description[] = {
     [CAN_COMM_OK] = "executed succesfully",
-    [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer"
-    [CAN_COMM_DISABLED] = "the can manager is not enabled"
-    [CAN_COMM_OVERRUN] = "the transmission buffer is full"
+    [CAN_COMM_NULL_POINTER] = "attempt to dereference a null pointer",
+    [CAN_COMM_DISABLED] = "the can manager is not enabled",
+    [CAN_COMM_OVERRUN] = "the transmission buffer is full",
     [CAN_COMM_INVALID_INDEX] = "the given index does not correspond to any valid message",
-    [CAN_COMM_INVALID_PAYLOAD_SIZE] = "the payload size is greater than the maximum allowed length"
+    [CAN_COMM_INVALID_PAYLOAD_SIZE] = "the payload size is greater than the maximum allowed length",
     [CAN_COMM_INVALID_FRAME_TYPE] = "the given frame type does not correspond to any existing can frame type",
     [CAN_COMM_CONVERSION_ERROR] = "can't convert the message correctly",
     [CAN_COMM_TRANSMISSION_ERROR] = "error during message transmission"

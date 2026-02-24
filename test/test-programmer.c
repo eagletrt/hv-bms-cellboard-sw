@@ -11,6 +11,7 @@
 #include "identity.h"
 #include "cellboard-def.h"
 #include "fsm.h"
+#include "timebase.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
@@ -20,15 +21,6 @@ bool reset_called = false;
 void reset() {
     reset_called = true;
 }
-
-void setUp() {
-    programmer_init(reset);
-    identity_init(CELLBOARD_ID);
-
-    reset_called = false;
-}
-
-void tearDown() {}
 
 void test_programmer_init_ok() {
     TEST_ASSERT_EQUAL(PROGRAMMER_OK, programmer_init(NULL));
@@ -61,6 +53,20 @@ void test_programmer_routine_called() {
     TEST_ASSERT_TRUE(reset_called);
 }
 
+#ifdef PROGRAMMER_TESTS
+
+void setUp() {
+
+    timebase_init(500U);
+    programmer_init(reset);
+    identity_init(CELLBOARD_ID);
+
+    reset_called = false;
+}
+
+void tearDown() {
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_programmer_init_ok);
@@ -72,3 +78,5 @@ int main() {
     RUN_TEST(test_programmer_routine_called);
     return UNITY_END();
 }
+
+#endif // PROGRAMMER_TESTS
