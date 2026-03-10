@@ -24,7 +24,7 @@
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
-_STATIC _TasksHandler htasks;
+_STATIC _TaskHandler htasks;
 
 /** @brief Send the current FSM status via CAN */
 void _tasks_send_status(void) {

@@ -160,8 +160,6 @@ void test_temp_get_discharge_temp_canlib_payload() {
     TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 50.0f, payload->temperature_0, "Payload discharge temp 0 mismatch");
 }
 
-#ifdef TEMP_TESTS
-
 void setUp() {
     identity_init(CELLBOARD_ID);
     temp_init(mock_set_address, mock_start_conversion);
@@ -194,5 +192,3 @@ int main() {
     RUN_TEST(test_temp_get_discharge_temp_canlib_payload);
     return UNITY_END();
 }
-
-#endif // TEMP_TESTS

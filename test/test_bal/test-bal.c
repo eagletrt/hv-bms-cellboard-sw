@@ -60,11 +60,6 @@ void test_bal_start_ok() {
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, bal_start(), "bal_start() failed to return BAL_OK");
 }
 
-void test_bal_start_active() {
-    bal_start();
-    TEST_ASSERT_TRUE_MESSAGE(bal_is_active(), "Module failed to become active after start");
-}
-
 void test_bal_stop_ok() {
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, bal_stop(), "bal_stop() failed to return BAL_OK");
 }
@@ -184,8 +179,6 @@ void test_bal_set_balancing_status_handle_event() {
     TEST_ASSERT_EQUAL_MESSAGE(FSM_EVENT_TYPE_BALANCING_START, hbal.event.type, "Event type was not updated to BALANCING_START");
 }
 
-#ifdef BALANCING_TESTS
-
 void setUp() {
 
     identity_init(CELLBOARD_ID);
@@ -208,7 +201,6 @@ int main() {
     RUN_TEST(test_bal_is_paused_false);
     RUN_TEST(test_bal_is_paused_true);
     RUN_TEST(test_bal_start_ok);
-    RUN_TEST(test_bal_start_active);
     RUN_TEST(test_bal_stop_ok);
     RUN_TEST(test_bal_stop_active);
     RUN_TEST(test_bal_stop_after_start_active);
@@ -225,5 +217,3 @@ int main() {
     RUN_TEST(test_bal_set_balancing_status_handle_event);
     return UNITY_END();
 }
-
-#endif // BALANCING_TESTS

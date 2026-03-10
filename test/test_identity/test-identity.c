@@ -34,8 +34,6 @@ void test_identity_get_can_payload_build_time() {
     TEST_ASSERT_EQUAL_MESSAGE(CANLIB_BUILD_TIME, hidentity.version_can_payload.canlib_build_time, "CAN payload build_time mismatch");
 }
 
-#ifdef IDENTITY_TESTS
-
 void setUp() {
     identity_init(CELLBOARD_ID);
 }
@@ -52,5 +50,3 @@ int main() {
     RUN_TEST(test_identity_get_can_payload_build_time);
     return UNITY_END();
 }
-
-#endif // IDENTITY_TESTS

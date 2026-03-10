@@ -221,8 +221,6 @@ void test_can_comm_tx_add_added_payload() {
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, 4, "TX message payload content in buffer should match added data");
 }
 
-#ifdef CAN_COMM_TESTS
-
 void setUp() {
     identity_init(CELLBOARD_ID);
     can_comm_init(can_comm_send);
@@ -267,5 +265,3 @@ int main() {
     RUN_TEST(test_can_comm_tx_add_added_payload);
     return UNITY_END();
 }
-
-#endif // CAN_COMM_TESTS

@@ -114,7 +114,7 @@ TimebaseReturnCode timebase_register_watchdog(Watchdog *const watchdog) {
     if (min_heap_find(&htimebase.scheduled_watchdogs, &aux) >= 0)
         return TIMEBASE_BUSY;
 
-    aux.t = htimebase.t + watchdog->timeout;
+    aux.t = htimebase.t + TIMEBASE_MS_TO_TICKS(watchdog->timeout, htimebase.resolution);
     if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL)
         return TIMEBASE_WATCHDOG_UNAVAILABLE;
     return TIMEBASE_OK;
@@ -164,7 +164,7 @@ TimebaseReturnCode timebase_update_watchdog(Watchdog *const watchdog) {
 
     (void)min_heap_remove(&htimebase.scheduled_watchdogs, i, NULL);
 
-    aux.t = htimebase.t + watchdog->timeout;
+    aux.t = htimebase.t + TIMEBASE_MS_TO_TICKS(watchdog->timeout, htimebase.resolution);
     if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL)
         return TIMEBASE_WATCHDOG_UNAVAILABLE;
     return TIMEBASE_OK;

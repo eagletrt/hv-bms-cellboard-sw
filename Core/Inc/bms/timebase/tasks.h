@@ -120,7 +120,7 @@ typedef struct {
     bms_monitor_fsm_event_data_t fsm_event;
 
     Task tasks[TASKS_COUNT];
-} _TasksHandler;
+} _TaskHandler;
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 

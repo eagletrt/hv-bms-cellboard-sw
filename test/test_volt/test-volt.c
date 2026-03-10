@@ -108,8 +108,6 @@ void test_volt_get_canlib_payload_voltage() {
     TEST_ASSERT_EQUAL_MEMORY(&expected_payload, payload, sizeof(expected_payload));
 }
 
-#ifdef VOLT_TESTS
-
 void setUp() {
     identity_init(CELLBOARD_ID);
     volt_init();
@@ -132,5 +130,3 @@ int main() {
     RUN_TEST(test_volt_get_canlib_payload_voltage);
     return UNITY_END();
 }
-
-#endif // VOLT_TESTS

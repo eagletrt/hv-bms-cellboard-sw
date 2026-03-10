@@ -68,10 +68,10 @@ WatchdogReturnCode watchdog_start(Watchdog *const watchdog) {
 WatchdogReturnCode watchdog_stop(Watchdog *const watchdog) {
     if (watchdog == NULL)
         return WATCHDOG_NULL_POINTER;
-    if (!watchdog->running)
-        return WATCHDOG_NOT_RUNNING;
     if (watchdog->timed_out)
         return WATCHDOG_TIMED_OUT;
+    if (!watchdog->running)
+        return WATCHDOG_NOT_RUNNING;
 
     // Stop and unregister the watchdog to the timebase
     (void)timebase_unregister_watchdog(watchdog);

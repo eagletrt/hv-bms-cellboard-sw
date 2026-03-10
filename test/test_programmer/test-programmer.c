@@ -53,8 +53,6 @@ void test_programmer_routine_called() {
     TEST_ASSERT_TRUE(reset_called);
 }
 
-#ifdef PROGRAMMER_TESTS
-
 void setUp() {
 
     timebase_init(500U);
@@ -78,5 +76,3 @@ int main() {
     RUN_TEST(test_programmer_routine_called);
     return UNITY_END();
 }
-
-#endif // PROGRAMMER_TESTS

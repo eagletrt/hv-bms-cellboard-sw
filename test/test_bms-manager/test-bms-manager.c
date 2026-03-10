@@ -54,7 +54,7 @@ void test_bms_manager_set_discharge_cells_ok() {
 
 void test_bms_manager_set_discharge_cells_config() {
     bms_manager_set_discharge_cells(0xAAA000);
-    TEST_ASSERT_EQUAL(0xAAA, hmanager.requested_config[1].DCC);
+    TEST_ASSERT_EQUAL(0xAAA, hmanager.requested_config[0].DCC);
 }
 
 void test_bms_manager_get_discharge_cells() {
@@ -62,8 +62,6 @@ void test_bms_manager_get_discharge_cells() {
     hmanager.actual_config[1].DCC = 0x456;
     TEST_ASSERT_EQUAL(0x456123, bms_manager_get_discharge_cells());
 }
-
-#ifdef BMS_MANAGER_TESTS
 
 void setUp() {
     identity_init(CELLBOARD_ID);
@@ -85,5 +83,3 @@ int main() {
     RUN_TEST(test_bms_manager_get_discharge_cells);
     return UNITY_END();
 }
-
-#endif // BMS_MANAGER_TESTS

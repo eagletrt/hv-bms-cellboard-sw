@@ -46,8 +46,6 @@ void test_led_routine_set_called() {
     TEST_ASSERT_TRUE(led_set_called);
 }
 
-#ifdef LED_TESTS
-
 void setUp() {
     identity_init(CELLBOARD_ID);
     led_set_called = false;
@@ -65,5 +63,3 @@ int main() {
     RUN_TEST(test_led_routine_set_called);
     return UNITY_END();
 }
-
-#endif // LED_TESTS
