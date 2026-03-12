@@ -61,7 +61,7 @@
  *     - BMS_MANAGER_COMMUNICATION_ERROR communiction error with the LTCs
  *     - BMS_MANAGER_ERROR generic error with unkown cause
  */
-typedef enum {
+enum BmsManagerReturnCode {
     BMS_MANAGER_OK,
     BMS_MANAGER_NULL_POINTER,
     BMS_MANAGER_ENCODE_ERROR,
@@ -70,29 +70,29 @@ typedef enum {
     BMS_MANAGER_BUSY,
     BMS_MANAGER_COMMUNICATION_ERROR,
     BMS_MANAGER_ERROR
-} BmsManagerReturnCode;
+};
 
 /** @brief List of voltage registers */
-typedef enum {
+enum BmsManagerVoltageRegister {
     BMS_MANAGER_VOLTAGE_REGISTER_A = LTC6811_CVAR,
     BMS_MANAGER_VOLTAGE_REGISTER_B = LTC6811_CVBR,
     BMS_MANAGER_VOLTAGE_REGISTER_C = LTC6811_CVCR,
     BMS_MANAGER_VOLTAGE_REGISTER_D = LTC6811_CVDR,
     BMS_MANAGER_VOLTAGE_REGISTER_COUNT = LTC6811_CVXR_COUNT
-} BmsManagerVoltageRegister;
+};
 
 /** @brief List of temperatures registers */
-typedef enum {
+enum BmsManagerTemperatureRegister {
     BMS_MANAGER_TEMPERATURE_REGISTER_A = LTC6811_AVAR,
     BMS_MANAGER_TEMPERATURE_REGISTER_B = LTC6811_AVBR,
     BMS_MANAGER_TEMPERATURE_REGISTER_COUNT = LTC6811_AVXR_COUNT
-} BmsManagerTemperatureRegister;
+};
 
 /** @brief List of open wire procedure operations */
-typedef enum {
+enum BmsManagerOpenWireOperation {
     BMS_MANAGER_OPEN_WIRE_OPERATION_PUD = LTC6811_PUP_INACTIVE,
     BMS_MANAGER_OPEN_WIRE_OPERATION_PUP = LTC6811_PUP_ACTIVE,
-} BmsManagerOpenWireOperation;
+};
 
 /**
  * @brief Callback used to send data via SPI
@@ -100,9 +100,9 @@ typedef enum {
  * @param data A pointer to the data to send
  * @param size The length of the data in bytes
  *
- * @return BmsManagerReturnCode The result of the data transmission
+ * @return enum BmsManagerReturnCode The result of the data transmission
  */
-typedef BmsManagerReturnCode (*bms_manager_send_callback_t)(uint8_t *const data, const size_t size);
+typedef enum BmsManagerReturnCode (*bms_manager_send_callback_t)(uint8_t *const data, const size_t size);
 
 /**
  * @brief Callback used to send and receive data via SPI
@@ -112,9 +112,9 @@ typedef BmsManagerReturnCode (*bms_manager_send_callback_t)(uint8_t *const data,
  * @param size The length of the sent data in bytes
  * @param out_size The length of the received data in bytes
  *
- * @return BmsManagerReturnCode The result of the data transmission and reception
+ * @return enum BmsManagerReturnCode The result of the data transmission and reception
  */
-typedef BmsManagerReturnCode (*bms_manager_send_receive_callback_t)(
+typedef enum BmsManagerReturnCode (*bms_manager_send_receive_callback_t)(
     uint8_t *const data,
     uint8_t *out,
     const size_t size,
@@ -135,7 +135,7 @@ typedef BmsManagerReturnCode (*bms_manager_send_receive_callback_t)(
  * @param requested_config The requested configuration register of the LTC
  * @param pup An array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_PUP)
  */
-typedef struct {
+struct int_BmsManagerHandler {
     bms_manager_send_callback_t send;
     bms_manager_send_receive_callback_t send_receive;
 
@@ -143,8 +143,7 @@ typedef struct {
     Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
     Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
     cells_volt_t pup[2U];
-
-} _BmsManagerHandler;
+};
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
 
@@ -154,21 +153,21 @@ typedef struct {
  * @param send A pointer to the callback used to send data via SPI (can be NULL)
  * @param send_receive A pointer to the callback used to send and receive data via SPI
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_NULL_POINTER if the send/receive callback pointer is NULL
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive);
+enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive);
 
 /**
  * @brief Routine that handles the communication with the BMS monitor
  *
  * @details This function should be called periodically with a certain interval
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_OK
  */
-BmsManagerReturnCode bms_manager_routine(void);
+enum BmsManagerReturnCode bms_manager_routine(void);
 
 /**
  * @brief Write the configuration registers of the BMS monitor
@@ -176,19 +175,19 @@ BmsManagerReturnCode bms_manager_routine(void);
  * @attention This function does not ensure that the data is correctly stored inside the LTCs
  * to check if the registers are updated correctly a read command has to be performed
  * 
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR error while encoding the command
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
  *     - BMS_MANAGER_BUSY if the peripherial is busy
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_write_configuration(void);
+enum BmsManagerReturnCode bms_manager_write_configuration(void);
 
 /**
  * @brief Read the configuration registers from the BMS monitor
  * 
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the received data
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
@@ -196,64 +195,64 @@ BmsManagerReturnCode bms_manager_write_configuration(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_configuration(void);
+enum BmsManagerReturnCode bms_manager_read_configuration(void);
 
 /**
  * @brief Start the cells voltage ADC conversion
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
  *     - BMS_MANAGER_BUSY if the peripherial is busy
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_start_volt_conversion(void);
+enum BmsManagerReturnCode bms_manager_start_volt_conversion(void);
 
 /**
  * @brief Start the discharge resistors temperatures ADC conversion
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
  *     - BMS_MANAGER_BUSY if the peripherial is busy
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_start_temp_conversion(void);
+enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
 
 /**
  * @brief Start the open wire ADC conversion
  *
  * @param pull_up Pull-up/pull-down option to select
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
  *     - BMS_MANAGER_BUSY if the peripherial is busy
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pull_up);
+enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pull_up);
 
 /**
  * @brief Check if the started ADC conversion has ended
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
  *     - BMS_MANAGER_BUSY if the peripherial is busy
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_poll_conversion_status(void);
+enum BmsManagerReturnCode bms_manager_poll_conversion_status(void);
 
 /**
  * @brief Read the cells voltages from the BMS monitor
  *
  * @param reg The register to read from
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
@@ -261,14 +260,14 @@ BmsManagerReturnCode bms_manager_poll_conversion_status(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister reg);
+enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltageRegister reg);
 
 /**
  * @brief Read the discharge resistors temperatures from the LTCs
  *
  * @param reg The register to read from
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
@@ -276,7 +275,7 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRegister reg);
+enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTemperatureRegister reg);
 
 /**
  * @brief Read the cells voltages after the open wire conversion from the LTCs
@@ -284,7 +283,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
  * @param reg The register to read from
  * @param op The type of operation completed before the readings (Pull-up/Pull-down)
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_ENCODE_ERROR if there was an error while encoding the command
  *     - BMS_MANAGER_DECODE_ERROR if there was an error while decoding the data
  *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
@@ -292,7 +291,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltageRegister reg, const BmsManagerOpenWireOperation op);
+enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation op);
 
 /**
  * @brief Check for open wires
@@ -304,21 +303,21 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
  *     - The last pull-down voltage value is 0.0000 (same as above)
  *     - At least one delta voltage value is below the -400 mV threshold
  *     
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_OPEN_WIRE if an open wire is detected
  *     - BMS_MANAGER_OK otherwise
  */
-BmsManagerReturnCode bms_manager_check_open_wire(void);
+enum BmsManagerReturnCode bms_manager_check_open_wire(void);
 
 /**
  * @brief Set the cells to discharge
  *
  * @param cells The bitmask where the n-th bit represent the n-th cell (up to 32)
  *
- * @return BmsManagerReturnCode
+ * @return enum BmsManagerReturnCode
  *     - BMS_MANAGER_OK
  */
-BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32_t cells);
+enum BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32_t cells);
 
 /**
  * @brief Get the cells that are being currently discharged

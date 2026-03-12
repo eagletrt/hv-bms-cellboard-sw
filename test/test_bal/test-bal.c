@@ -15,7 +15,7 @@
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern _BalHandler hbal;
-extern _BmsManagerHandler hmanager;
+extern struct int_BmsManagerHandler hmanager;
 
 void test_bal_init_ok() {
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, bal_init(), "bal_init() failed to return BAL_OK");

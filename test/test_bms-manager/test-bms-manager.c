@@ -14,17 +14,17 @@
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-BmsManagerReturnCode send(uint8_t *data, size_t size) {
+enum BmsManagerReturnCode send(uint8_t *data, size_t size) {
     // Do nothing
     return BMS_MANAGER_OK;
 }
 
-BmsManagerReturnCode send_receive(uint8_t *data, uint8_t *out, size_t size, size_t size_out) {
+enum BmsManagerReturnCode send_receive(uint8_t *data, uint8_t *out, size_t size, size_t size_out) {
     // Do nothing
     return BMS_MANAGER_OK;
 }
 
-extern _BmsManagerHandler hmanager;
+extern struct int_BmsManagerHandler hmanager;
 
 void test_bms_manager_init_null() {
     TEST_ASSERT_EQUAL(BMS_MANAGER_NULL_POINTER, bms_manager_init(NULL, NULL));

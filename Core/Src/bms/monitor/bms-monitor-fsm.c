@@ -760,7 +760,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    BmsManagerReturnCode code = bms_manager_check_open_wire();
+    enum BmsManagerReturnCode code = bms_manager_check_open_wire();
     switch (code) {
         case BMS_MANAGER_OK:
             error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
