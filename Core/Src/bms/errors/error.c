@@ -83,7 +83,7 @@ int32_t *error[] = {
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
-ErrorReturnCode error_init(const system_reset_callback_t reset) {
+enum ErrorReturnCode error_init(const system_reset_callback_t reset) {
     if (errorlib_init(&herror,
                       error,
                       instances,
@@ -101,7 +101,7 @@ ErrorReturnCode error_init(const system_reset_callback_t reset) {
     return ERROR_OK;
 }
 
-ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance instance) {
     ErrorLibReturnCode rt = errorlib_error_set(&herror, (errorlib_error_group_t)group, instance);
 
     if (errorlib_get_expired(&herror) > 0U) {
@@ -124,7 +124,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
     return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;
 }
 
-ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance instance) {
     if (errorlib_error_reset(&herror, (errorlib_error_group_t)group, instance) != ERRORLIB_OK)
         return ERROR_UNKNOWN;
     return ERROR_OK;

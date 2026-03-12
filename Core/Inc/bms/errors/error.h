@@ -30,7 +30,7 @@
 #define ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT (1U)
 
 /** @brief Type redefinition for an error instance */
-typedef errorlib_error_instance_t error_instance_t;
+typedef errorlib_error_instance_t error_instance;
 
 /**
  * @brief Return code for the error module functions
@@ -40,12 +40,11 @@ typedef errorlib_error_instance_t error_instance_t;
  *     - ERROR_NULL_POINTER a NULL pointer was given to a function
  *     - ERROR_UNKNOWN unknown error
  */
-typedef enum {
+enum ErrorReturnCode {
     ERROR_OK,
     ERROR_NULL_POINTER,
     ERROR_UNKNOWN
-} ErrorReturnCode;
-
+};
 /**
  * @brief Type of the error that categorize a group of instances
  *
@@ -62,7 +61,7 @@ typedef enum {
  *     - ERROR_GROUP_BMS_MONITOR BMS monitor communication is not working
  *     - ERROR_GROUP_OPEN_WIRE The BMS monitor detected an open-wire
  */
-typedef enum {
+enum ErrorGroup {
     ERROR_GROUP_POST,
     ERROR_GROUP_UNDER_VOLTAGE,
     ERROR_GROUP_OVER_VOLTAGE,
@@ -75,29 +74,29 @@ typedef enum {
     ERROR_GROUP_BMS_MONITOR_COMMUNICATION,
     ERROR_GROUP_OPEN_WIRE,
     ERROR_GROUP_COUNT
-} ErrorGroup;
+};
 
-typedef enum {
+enum ErrorCanInstance {
     ERROR_CAN_INSTANCE_BMS
-} ErrorCanInstance;
+};
 
-typedef enum {
+enum ErrorBmsMonitorCommunicationInstance {
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION,
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE,
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_TEMPERATURE_DISCHARGE,
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE,
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL,
     ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT
-} ErrorBmsMonitorCommunicationInstance;
+};
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
 /**
  * @brief Initialization of the internal error handler structure
  */
-ErrorReturnCode error_init(const system_reset_callback_t reset);
-ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance);
-ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance);
+enum ErrorReturnCode error_init(const system_reset_callback_t reset);
+enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance instance);
+enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance instance);
 size_t error_get_expired(void);
 ErrorInfo error_get_expired_info(void);
 

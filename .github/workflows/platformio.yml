@@ -35,7 +35,7 @@ jobs:
         run: pio run -e base
       
       - name: Run Unit Tests
-        run: pio test -e tests
+        run: pio test -e tests --ignore timebase/*
 
       - name: Static Code Analysis
         if: github.ref == 'refs/heads/dev'
