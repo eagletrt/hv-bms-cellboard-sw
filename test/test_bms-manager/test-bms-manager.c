@@ -10,7 +10,7 @@
 #include "bms-manager.h"
 #include "identity.h"
 #include "cellboard-def.h"
-#include "ltc6811.h"
+#include "ltc6811-1-api.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 

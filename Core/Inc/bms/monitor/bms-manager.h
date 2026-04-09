@@ -16,7 +16,7 @@
 #include "cellboard-def.h"
 
 #include "volt.h"
-#include "ltc6811.h"
+#include "ltc6811-1-api.h"
 
 /** @brief Thresholds used during the open wire check in V */
 #define BMS_MANAGER_OPEN_WIRE_THRESHOLD_V (-0.400f)
@@ -74,24 +74,24 @@ enum BmsManagerReturnCode {
 
 /** @brief List of voltage registers */
 enum BmsManagerVoltageRegister {
-    BMS_MANAGER_VOLTAGE_REGISTER_A = LTC6811_CVAR,
-    BMS_MANAGER_VOLTAGE_REGISTER_B = LTC6811_CVBR,
-    BMS_MANAGER_VOLTAGE_REGISTER_C = LTC6811_CVCR,
-    BMS_MANAGER_VOLTAGE_REGISTER_D = LTC6811_CVDR,
-    BMS_MANAGER_VOLTAGE_REGISTER_COUNT = LTC6811_CVXR_COUNT
+    BMS_MANAGER_VOLTAGE_REGISTER_A = LTC6811_1_CVAR,
+    BMS_MANAGER_VOLTAGE_REGISTER_B = LTC6811_1_CVBR,
+    BMS_MANAGER_VOLTAGE_REGISTER_C = LTC6811_1_CVCR,
+    BMS_MANAGER_VOLTAGE_REGISTER_D = LTC6811_1_CVDR,
+    BMS_MANAGER_VOLTAGE_REGISTER_COUNT = LTC6811_1_CVXR_COUNT
 };
 
 /** @brief List of temperatures registers */
 enum BmsManagerTemperatureRegister {
-    BMS_MANAGER_TEMPERATURE_REGISTER_A = LTC6811_AVAR,
-    BMS_MANAGER_TEMPERATURE_REGISTER_B = LTC6811_AVBR,
-    BMS_MANAGER_TEMPERATURE_REGISTER_COUNT = LTC6811_AVXR_COUNT
+    BMS_MANAGER_TEMPERATURE_REGISTER_A = LTC6811_1_AVAR,
+    BMS_MANAGER_TEMPERATURE_REGISTER_B = LTC6811_1_AVBR,
+    BMS_MANAGER_TEMPERATURE_REGISTER_COUNT = LTC6811_1_AVXR_COUNT
 };
 
 /** @brief List of open wire procedure operations */
 enum BmsManagerOpenWireOperation {
-    BMS_MANAGER_OPEN_WIRE_OPERATION_PUD = LTC6811_PUP_INACTIVE,
-    BMS_MANAGER_OPEN_WIRE_OPERATION_PUP = LTC6811_PUP_ACTIVE,
+    BMS_MANAGER_OPEN_WIRE_OPERATION_PUD = LTC6811_1_PUP_INACTIVE,
+    BMS_MANAGER_OPEN_WIRE_OPERATION_PUP = LTC6811_1_PUP_ACTIVE,
 };
 
 /**
@@ -130,18 +130,18 @@ typedef enum BmsManagerReturnCode (*bms_manager_send_receive_callback_t)(
  *
  * @param send A pointer to the callback used to send the data via SPI
  * @param send_receive A pointer to the callback used to send and receive the data via SPI
- * @param chain The LTC handler structure
+ * @param handler The LTC handler structure
  * @param actual_config The actual configuration register read from the LTC
  * @param requested_config The requested configuration register of the LTC
- * @param pup An array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_PUP)
+ * @param pup An array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_1_PUP)
  */
 struct int_BmsManagerHandler {
     bms_manager_send_callback_t send;
     bms_manager_send_receive_callback_t send_receive;
 
-    Ltc6811Chain chain;
-    Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
-    Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    struct Ltc68111Handler handler;
+    struct Ltc68111Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
+    struct Ltc68111Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
     cells_volt_t pup[2U];
 };
 
@@ -233,7 +233,7 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
  *     - BMS_MANAGER_ERROR if an unkown error happens
  *     - BMS_MANAGER_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const Ltc6811Pup pull_up);
+enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum Ltc68111Pup pull_up);
 
 /**
  * @brief Check if the started ADC conversion has ended
