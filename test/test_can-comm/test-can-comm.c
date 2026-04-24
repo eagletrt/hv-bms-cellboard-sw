@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "can-comm.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
@@ -222,7 +222,7 @@ void test_can_comm_tx_add_added_payload() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     can_comm_init(can_comm_send);
     sended = false;
 }

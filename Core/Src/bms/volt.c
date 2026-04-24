@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "cellboard-def.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "timebase.h"
 #include "error.h"
 
@@ -42,7 +42,7 @@ _STATIC_INLINE void _volt_check_value(const size_t index, const volt_t value) {
 
 VoltReturnCode volt_init(void) {
     memset(&hvolt, 0U, sizeof(hvolt));
-    hvolt.voltages_can_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)identity_get_cellboard_id();
+    hvolt.voltages_can_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)identity_api_get_cellboard_id();
     return VOLT_OK;
 }
 

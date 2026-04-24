@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "led.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
@@ -47,7 +47,7 @@ void test_led_routine_set_called() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     led_set_called = false;
 }
 

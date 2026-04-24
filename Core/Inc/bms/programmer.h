@@ -53,7 +53,7 @@ typedef struct {
     fsm_event_data_t flash_event;
     bms_cellboard_flash_response_converted_t can_payload;
 
-    CellboardId target;
+    enum CellboardId target;
     bool flash_request;
     bool flashing;
     bool flash_stop;

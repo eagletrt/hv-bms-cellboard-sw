@@ -10,7 +10,7 @@
 #include "post.h"
 
 #include "error.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "programmer.h"
 #include "timebase.h"
 #include "volt.h"
@@ -36,7 +36,7 @@ PostReturnCode _post_modules_init(const PostInitData *const data) {
      */
     if (error_init(data->system_reset) != ERROR_OK)
         return POST_UNINITIALIZED;
-    identity_init(data->id);
+    identity_api_init(data->id);
 
     /**
      * Some of the function return values can be ignored because they are either

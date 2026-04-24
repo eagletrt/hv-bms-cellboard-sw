@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "programmer.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 #include "fsm.h"
 #include "timebase.h"
@@ -48,7 +48,7 @@ void test_programmer_init_target() {
 
 void test_programmer_routine_called() {
     hprogrammer.flashing = true;
-    hprogrammer.target = identity_get_cellboard_id();
+    hprogrammer.target = identity_api_get_cellboard_id();
     programmer_routine();
     TEST_ASSERT_TRUE(reset_called);
 }
@@ -57,7 +57,7 @@ void setUp() {
 
     timebase_init(500U);
     programmer_init(reset);
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
 
     reset_called = false;
 }

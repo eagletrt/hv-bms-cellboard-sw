@@ -60,9 +60,9 @@ void gpio_led_toggle_state(void);
 /**
  * @brief Get the current cellboard identifier
  *
- * @return CellboardId The ID of the cellboard or -1 on error
+ * @return enum CellboardId The ID of the cellboard or -1 on error
  */
-CellboardId gpio_get_cellboard_id(void);
+enum CellboardId gpio_get_cellboard_id(void);
 
 /**
  * @brief Set the address of the multiplexer used to get the cells temperature measurements

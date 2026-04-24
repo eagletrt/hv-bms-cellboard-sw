@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "bms_network.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "tasks.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
@@ -113,7 +113,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
         } else {
             // Otherwise init the error payload and start sending it to the mainboard
 
-            error_can_payload.cellboard_id = identity_get_cellboard_id();
+            error_can_payload.cellboard_id = identity_api_get_cellboard_id();
             error_can_payload.group = error.group;
             error_can_payload.instance = error.instance;
 

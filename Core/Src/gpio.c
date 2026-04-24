@@ -108,8 +108,8 @@ void gpio_led_toggle_state(void) {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 }
 
-CellboardId gpio_get_cellboard_id(void) {
-    CellboardId id = 0;
+enum CellboardId gpio_get_cellboard_id(void) {
+    enum CellboardId id = 0;
     /*
      * Get the individual bits of the cellboard identifier
      * The bits are inverted because it is Aris fault

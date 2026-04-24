@@ -13,7 +13,7 @@
 #include "bms_network.h"
 #include "can-comm.h"
 #include "fsm.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"
@@ -40,7 +40,7 @@ void _tasks_send_status(void) {
 /** @brief Send the version info via CAN */
 void _tasks_send_version(void) {
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)identity_get_version_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)identity_api_get_version_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_VERSION_INDEX,
         CAN_FRAME_TYPE_DATA,

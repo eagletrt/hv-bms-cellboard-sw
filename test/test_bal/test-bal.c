@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "bal.h"
-#include "identity.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 #include "bms-manager.h"
 #include "timebase.h"
@@ -181,7 +181,7 @@ void test_bal_set_balancing_status_handle_event() {
 
 void setUp() {
 
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     timebase_init(500U);
     bal_init();
 }
