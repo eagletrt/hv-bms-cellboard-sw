@@ -127,7 +127,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
     const PostReturnCode status = (data == NULL) ? POST_NULL_POINTER : post_run(*(PostInitData *)data);
 
     // Init canlib payloads
-    const CellboardId id = identity_get_cellboard_id();
+    const enum CellboardId id = identity_get_cellboard_id();
     hfsm.status_can_payload.cellboard_id = (int)id;
     hfsm.flash_can_payload.cellboard_id = (int)id;
     hfsm.flash_can_payload.ready = true;

@@ -71,7 +71,7 @@ void programmer_flash_request_handle(const bms_cellboard_flash_request_converted
 
     // TODO: Check the payload content
 
-    hprogrammer.target = payload->mainboard ? MAINBOARD_ID : (CellboardId)payload->cellboard_id;
+    hprogrammer.target = payload->mainboard ? MAINBOARD_ID : (enum CellboardId)payload->cellboard_id;
     hprogrammer.flash_request = true;
     hprogrammer.flash_stop = false;
     hprogrammer.flashing = false;

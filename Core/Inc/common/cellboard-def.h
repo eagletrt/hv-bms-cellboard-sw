@@ -283,10 +283,15 @@ typedef int32_t can_index_t;
 /** @brief Type definition for a custom amount of elapsed time */
 typedef uint32_t ticks_t;
 
-/** @brief Type definition for the time */
+/** @brief Type definition for the time for backwards compatibility*/
 typedef uint32_t seconds_t;
 typedef uint32_t milliseconds_t;
 typedef uint32_t microseconds_t;
+
+/** @brief Type definition for the time*/
+typedef uint32_t seconds;
+typedef uint32_t milliseconds;
+typedef uint32_t microseconds;
 
 /**
  * @brief Raw temperature value
@@ -337,7 +342,7 @@ typedef void (*interrupt_critical_section_exit_t)(void);
  * @details A mainboard identifier is added for utility purposes but it is not included
  * in the cellboard id count
  */
-typedef enum {
+enum CellboardId {
     CELLBOARD_ID_0 = 0U,
     CELLBOARD_ID_1,
     CELLBOARD_ID_2,
@@ -346,7 +351,7 @@ typedef enum {
     CELLBOARD_ID_5,
     CELLBOARD_ID_COUNT,
     MAINBOARD_ID
-} CellboardId;
+};
 
 /**
  * @brief Definition of different CAN networks

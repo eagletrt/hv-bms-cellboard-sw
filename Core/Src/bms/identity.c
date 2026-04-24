@@ -1,55 +1,63 @@
-/**
- * @file identity.c
- * @date 2024-04-26
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
- *
- * @brief Module that stores the information about the identity of the current board
+/*!
+ * \file identity.c
+ * \date 2024-04-26
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \author Alessandro Giustina [giustinalessandro@gmail.com]
+ * 
+ * \brief Module that stores the information about the identity of the current board
  */
 
 #include "identity.h"
 
 #include <time.h>
 #include <string.h>
+#include "eagletrt.h"
 
 #ifdef CONF_IDENTITY_MODULE_ENABLE
 
-_STATIC _IdentityHandler hidentity;
+EAGLETRT_STATIC struct IdentityHandler identity_handler;
 
-void identity_init(const CellboardId id) {
-    memset(&hidentity, 0U, sizeof(hidentity));
+enum IdentityReturnCode identity_init(const enum CellboardId id) {
 
-    hidentity.cellboard_id = id;
+    memset(&identity_handler, 0U, sizeof(identity_handler));
 
-    // TODO: Build time at compile time
+    if (id >= CELLBOARD_ID_COUNT || id < 0) {
+        return IDENTITY_RC_INVALID_ID;
+    }
+
+    identity_handler.cellboard_id = id;
+
     // Get build time
     struct tm tm = { 0 };
     // Ignore warnings from this line
-    if (strptime(IDENTITY_BUILD_TIME_STR, "%b %d %Y %H:%M:%S", &tm) != NULL)
-        hidentity.build_time = mktime(&tm);
+    if (strptime(IDENTITY_BUILD_TIME_STRING, "%b %d %Y %H:%M:%S", &tm) != NULL)
+        identity_handler.build_time = mktime(&tm);
 
     // Update canlib payload info
-    hidentity.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)id;
-    hidentity.version_can_payload.component_build_time = hidentity.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
-    hidentity.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
+    identity_handler.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)id;
+    identity_handler.version_can_payload.component_build_time = identity_handler.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
+    identity_handler.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
+
+    return IDENTITY_RC_OK;
 }
 
-CellboardId identity_get_cellboard_id(void) {
-    return hidentity.cellboard_id;
+enum CellboardId identity_get_cellboard_id(void) {
+    return identity_handler.cellboard_id;
 }
 
-seconds_t identity_get_build_time(void) {
-    return hidentity.build_time;
+seconds identity_get_build_time(void) {
+    return identity_handler.build_time;
 }
 
 bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(hidentity.version_can_payload);
-    return &hidentity.version_can_payload;
+        *byte_size = sizeof(identity_handler.version_can_payload);
+    return &identity_handler.version_can_payload;
 }
 
 #ifdef CONF_IDENTITY_STRINGS_ENABLE
 
-_STATIC char *identity_module_name = "identity";
+EAGLETRT_STATIC char *identity_module_name = "identity";
 
 #endif // CONF_IDENTITY_STRINGS_ENABLE
 

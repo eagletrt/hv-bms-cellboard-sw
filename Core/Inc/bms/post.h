@@ -46,7 +46,7 @@ typedef enum {
  * @param led_toggle A pointer to a function that toggles the state of a LED
  */
 typedef struct {
-    CellboardId id;
+    enum CellboardId id;
     system_reset_callback_t system_reset;
     interrupt_critical_section_enter_t cs_enter;
     interrupt_critical_section_exit_t cs_exit;
