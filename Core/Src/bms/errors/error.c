@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "bms_network.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "tasks.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE

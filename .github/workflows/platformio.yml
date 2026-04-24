@@ -11,7 +11,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: ci-runners
+      labels: Linux
     continue-on-error: ${{ !(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') }}
 
     steps:
@@ -32,11 +34,11 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build
-        run: pio run -e base
-      
+        run: pio run -e release
+
       - name: Run Unit Tests
         run: pio test -e tests
 
       - name: Static Code Analysis
         if: github.ref == 'refs/heads/dev'
-        run: pio check --src-filters="+<Core/Src/*>" --src-filters="+<Core/Inc/*>" --src-filters="-<Drivers/*>" || true
+        run: pio check || true

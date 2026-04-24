@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "temp.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "cellboard-def.h"
 #include "error.h"
 

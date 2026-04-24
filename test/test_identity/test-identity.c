@@ -9,7 +9,7 @@
 
 #include "unity.h"
 #include <time.h>
-#include "identity.h"
+#include "identity_api.h"
 #include "cellboard-def.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_2

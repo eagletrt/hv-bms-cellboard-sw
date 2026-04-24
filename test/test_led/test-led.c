@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "led.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "cellboard-def.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1

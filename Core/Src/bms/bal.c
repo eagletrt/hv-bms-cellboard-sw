@@ -13,7 +13,7 @@
 #include "post.h"
 #include "timebase.h"
 #include "volt.h"
-#include "identity.h"
+#include "identity_api.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 

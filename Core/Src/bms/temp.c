@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "cellboard-def.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "error.h"
 #include "timebase.h"
 

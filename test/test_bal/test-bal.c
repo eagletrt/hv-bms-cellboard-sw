@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "bal.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "cellboard-def.h"
 #include "bms-manager.h"
 #include "timebase.h"

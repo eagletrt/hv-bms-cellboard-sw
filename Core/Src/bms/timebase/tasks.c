@@ -13,7 +13,7 @@
 #include "bms_network.h"
 #include "can-comm.h"
 #include "fsm.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "timebase.h"
 #include "volt.h"
 #include "temp.h"

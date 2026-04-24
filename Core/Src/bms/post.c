@@ -10,7 +10,7 @@
 #include "post.h"
 
 #include "error.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "programmer.h"
 #include "timebase.h"
 #include "volt.h"

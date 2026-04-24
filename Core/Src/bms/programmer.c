@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "identity.h"
+#include "identity_api.h"
 #include "timebase.h"
 
 _STATIC _ProgrammerHandler hprogrammer;

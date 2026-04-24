@@ -420,5 +420,6 @@ STM32Make.make
 .local_gitignore
 
 .pio/
+docs/
 
 ## ---------------- END MANUALLY ADDED ---------------- ##

@@ -57,47 +57,4 @@ enum IdentityReturnCode {
 
 };
 
-#ifdef CONF_IDENTITY_MODULE_ENABLE
-
-/**
- * \brief Initialize all the info about the cellboard identity
- *
- * \param id The cellboard id
- * \retval IDENTITY_RC_OK the function executed succesfully
- * \retval IDENTITY_RC_INVALID_ID the given cellboard id is invalid
- */
-enum IdentityReturnCode identity_init(const enum CellboardId id);
-
-/**
- * \brief Get the cellboard idenfitier
- *
- * \return enum CellboardId The cellboard id
- */
-enum CellboardId identity_get_cellboard_id(void);
-
-/**
- * \brief Get the cellboard software build time in unix timestamp format (seconds)
- *
- * \return seconds The build time
- */
-seconds identity_get_build_time(void);
-
-/**
- * \brief Get a pointer to the canlib payload of the cellboard identity info
- *
- * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
- *
- * \return bms_cellboard_version_converted_t* A pointer to the payload
- */
-bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size);
-
-#else // CONF_IDENTITY_MODULE_ENABLE
-
-#define identity_init(id) EAGLETRT_API_NOP()
-#define identity_get_cellboard_id() (CELLBOARD_ID_0)
-#define identity_get_build_time() (0U)
-#define identity_get_version_canlib_payload(byte_size) (NULL)
-
-#endif // CONF_IDENTITY_MODULE_ENABLE
-
 #endif // IDENTITY_H

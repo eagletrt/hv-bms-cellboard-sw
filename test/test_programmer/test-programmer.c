@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "programmer.h"
-#include "identity.h"
+#include "identity_api.h"
 #include "cellboard-def.h"
 #include "fsm.h"
 #include "timebase.h"

@@ -8,7 +8,7 @@
 
 #include "led.h"
 
-#include "identity.h"
+#include "identity_api.h"
 
 #ifdef CONF_LED_MODULE_ENABLE
 
