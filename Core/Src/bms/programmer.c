@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "identity_api.h"
+#include "identity-api.h"
 #include "timebase.h"
 
 _STATIC _ProgrammerHandler hprogrammer;
@@ -43,7 +43,7 @@ ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
 
     hprogrammer.reset = reset;
     hprogrammer.flash_event.type = FSM_EVENT_TYPE_FLASH_REQUEST;
-    hprogrammer.can_payload.cellboard_id = (bms_cellboard_flash_response_cellboard_id)identity_get_cellboard_id();
+    hprogrammer.can_payload.cellboard_id = (bms_cellboard_flash_response_cellboard_id)identity_api_get_cellboard_id();
     hprogrammer.can_payload.ready = true;
 
     // Reset flash procedure data
@@ -106,7 +106,7 @@ ProgrammerReturnCode programmer_routine(void) {
         return PROGRAMMER_OK;
 
     // Reset the microcontroller if the current cellboard is the target
-    if (hprogrammer.flashing && identity_get_cellboard_id() == hprogrammer.target)
+    if (hprogrammer.flashing && identity_api_get_cellboard_id() == hprogrammer.target)
         hprogrammer.reset();
 
     return PROGRAMMER_BUSY;

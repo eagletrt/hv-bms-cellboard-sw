@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "temp.h"
-#include "identity_api.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 #include "error.h"
 
@@ -161,7 +161,7 @@ void test_temp_get_discharge_temp_canlib_payload() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     temp_init(mock_set_address, mock_start_conversion);
 }
 

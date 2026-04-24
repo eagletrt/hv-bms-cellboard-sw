@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "cellboard-def.h"
-#include "identity_api.h"
+#include "identity-api.h"
 #include "error.h"
 #include "timebase.h"
 
@@ -96,7 +96,7 @@ TempReturnCode temp_init(const temp_set_mux_address_callback_t set_address, cons
     // Copy callback pointers
     htemp.set_address = set_address;
     htemp.start_conversion = start_conversion;
-    htemp.temp_can_payload.cellboard_id = (bms_cellboard_cells_temperature_cellboard_id)identity_get_cellboard_id();
+    htemp.temp_can_payload.cellboard_id = (bms_cellboard_cells_temperature_cellboard_id)identity_api_get_cellboard_id();
     return TEMP_OK;
 }
 

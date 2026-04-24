@@ -8,7 +8,7 @@
 
 #include "unity.h"
 #include "bms-manager.h"
-#include "identity_api.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 #include "ltc6811.h"
 
@@ -64,7 +64,7 @@ void test_bms_manager_get_discharge_cells() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     bms_manager_init(send, send_receive);
 }
 

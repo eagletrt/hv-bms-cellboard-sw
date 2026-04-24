@@ -9,7 +9,7 @@
 
 #include "unity.h"
 #include <time.h>
-#include "identity_api.h"
+#include "identity-api.h"
 #include "cellboard-def.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_2
@@ -29,7 +29,7 @@ void test_identity_init() {
     if (strptime(IDENTITY_BUILD_TIME_STRING, "%b %d %Y %H:%M:%S", &tm) != NULL)
         expected.build_time = mktime(&tm);
 
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
 
     TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, identity_handler.cellboard_id, "Identity init failed: cellboard_id mismatch");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected, &identity_handler, sizeof(identity_handler), "Handler not filled correctly");
@@ -39,7 +39,7 @@ void test_identity_init_when_id_is_negative() {
 
     struct IdentityHandler expected = { 0 };
 
-    TEST_ASSERT_EQUAL_MESSAGE(IDENTITY_RC_INVALID_ID, identity_init(-1), "Identity init didn't return invalid");
+    TEST_ASSERT_EQUAL_MESSAGE(IDENTITY_RC_INVALID_ID, identity_api_init(-1), "Identity init didn't return invalid");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected, &identity_handler, sizeof(identity_handler), "Handler not empty");
 }
 
@@ -47,7 +47,7 @@ void test_identity_init_when_id_is_out_of_bounds() {
 
     struct IdentityHandler expected = { 0 };
 
-    TEST_ASSERT_EQUAL_MESSAGE(IDENTITY_RC_INVALID_ID, identity_init(CELLBOARD_ID_COUNT), "Identity init didn't return invalid");
+    TEST_ASSERT_EQUAL_MESSAGE(IDENTITY_RC_INVALID_ID, identity_api_init(CELLBOARD_ID_COUNT), "Identity init didn't return invalid");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected, &identity_handler, sizeof(identity_handler), "Handler not empty");
 }
 
@@ -62,7 +62,7 @@ void test_identity_get_can_payload_build_time() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
 }
 
 void tearDown() {

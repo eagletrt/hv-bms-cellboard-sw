@@ -1,5 +1,5 @@
 /**
- * \file identity_api.h
+ * \file identity-api.h
  * \date 2024-04-26
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
@@ -22,21 +22,21 @@
  * \retval IDENTITY_RC_OK the function executed succesfully
  * \retval IDENTITY_RC_INVALID_ID the given cellboard id is invalid
  */
-enum IdentityReturnCode identity_init(const enum CellboardId id);
+enum IdentityReturnCode identity_api_init(const enum CellboardId id);
 
 /**
  * \brief Get the cellboard idenfitier
  *
  * \return enum CellboardId The cellboard id
  */
-enum CellboardId identity_get_cellboard_id(void);
+enum CellboardId identity_api_get_cellboard_id(void);
 
 /**
  * \brief Get the cellboard software build time in unix timestamp format (seconds)
  *
  * \return seconds The build time
  */
-seconds identity_get_build_time(void);
+seconds identity_api_get_build_time(void);
 
 /**
  * \brief Get a pointer to the canlib payload of the cellboard identity info
@@ -45,14 +45,14 @@ seconds identity_get_build_time(void);
  *
  * \return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size);
+bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *const byte_size);
 
 #else // CONF_IDENTITY_MODULE_ENABLE
 
-#define identity_init(id) EAGLETRT_API_NOP()
-#define identity_get_cellboard_id() (CELLBOARD_ID_0)
-#define identity_get_build_time() (0U)
-#define identity_get_version_canlib_payload(byte_size) (NULL)
+#define identity_api_init(id) EAGLETRT_API_NOP()
+#define identity_api_get_cellboard_id() (CELLBOARD_ID_0)
+#define identity_api_get_build_time() (0U)
+#define identity_api_get_version_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_IDENTITY_MODULE_ENABLE
 

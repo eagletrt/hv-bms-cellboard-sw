@@ -9,7 +9,7 @@
 #include "unity.h"
 #include "volt.h"
 #include "cellboard-def.h"
-#include "identity_api.h"
+#include "identity-api.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
@@ -109,7 +109,7 @@ void test_volt_get_canlib_payload_voltage() {
 }
 
 void setUp() {
-    identity_init(CELLBOARD_ID);
+    identity_api_init(CELLBOARD_ID);
     volt_init();
 }
 

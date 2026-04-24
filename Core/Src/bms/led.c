@@ -8,7 +8,7 @@
 
 #include "led.h"
 
-#include "identity_api.h"
+#include "identity-api.h"
 
 #ifdef CONF_LED_MODULE_ENABLE
 
@@ -23,7 +23,7 @@ LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_stat
     hled.pattern_size = 0U;
 
     // Set pattern
-    for (size_t i = 0U; i <= identity_get_cellboard_id(); ++i) {
+    for (size_t i = 0U; i <= identity_api_get_cellboard_id(); ++i) {
         hled.pattern[hled.pattern_size++] = LED_SHORT_OFF_MS;
         hled.pattern[hled.pattern_size++] = LED_SHORT_ON_MS;
     }

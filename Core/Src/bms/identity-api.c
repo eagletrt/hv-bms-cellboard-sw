@@ -17,7 +17,7 @@
 
 EAGLETRT_STATIC struct IdentityHandler identity_handler;
 
-enum IdentityReturnCode identity_init(const enum CellboardId id) {
+enum IdentityReturnCode identity_api_init(const enum CellboardId id) {
 
     memset(&identity_handler, 0U, sizeof(identity_handler));
 
@@ -41,15 +41,15 @@ enum IdentityReturnCode identity_init(const enum CellboardId id) {
     return IDENTITY_RC_OK;
 }
 
-enum CellboardId identity_get_cellboard_id(void) {
+enum CellboardId identity_api_get_cellboard_id(void) {
     return identity_handler.cellboard_id;
 }
 
-seconds identity_get_build_time(void) {
+seconds identity_api_get_build_time(void) {
     return identity_handler.build_time;
 }
 
-bms_cellboard_version_converted_t *identity_get_version_canlib_payload(size_t *const byte_size) {
+bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(identity_handler.version_can_payload);
     return &identity_handler.version_can_payload;

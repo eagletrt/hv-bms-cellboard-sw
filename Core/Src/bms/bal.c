@@ -13,7 +13,7 @@
 #include "post.h"
 #include "timebase.h"
 #include "volt.h"
-#include "identity_api.h"
+#include "identity-api.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
@@ -31,7 +31,7 @@ BalReturnCode bal_init(void) {
     // Set default event and canlib payload
     hbal.event.type = FSM_EVENT_TYPE_IGNORED;
 
-    hbal.status_can_payload.cellboard_id = (bms_cellboard_balancing_status_cellboard_id)identity_get_cellboard_id();
+    hbal.status_can_payload.cellboard_id = (bms_cellboard_balancing_status_cellboard_id)identity_api_get_cellboard_id();
 
     // Set default balancing parameters
     hbal.params.target = BAL_TARGET_MAX_V;
