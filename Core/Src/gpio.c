@@ -100,7 +100,7 @@ void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 2 */
 
-void gpio_led_set_state(const LedStatus state) {
+void gpio_led_set_state(const enum LedStatus state) {
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (const GPIO_PinState)state);
 }
 

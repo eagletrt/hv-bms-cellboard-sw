@@ -15,7 +15,7 @@
 
 #include "can-comm.h"
 #include "bms-manager.h"
-#include "led.h"
+#include "led-api.h"
 #include "temp.h"
 
 /**
