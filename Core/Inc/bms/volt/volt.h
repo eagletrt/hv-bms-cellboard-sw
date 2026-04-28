@@ -17,9 +17,15 @@
 
 #include "bms_network.h"
 
-/*! \brief Minimum and maximum allowed cell voltage in V */
+/*! 
+ * \defgroup VOLT_LIMIT_V Voltage limits
+ * \brief Minimum and maximum allowed cell voltage in V 
+ * 
+ * \{
+ */
 #define VOLT_MIN_V (2.8f)
 #define VOLT_MAX_V (4.2f)
+/*! \} */
 
 /*!
  * \brief Type definition for the array of cells voltages
