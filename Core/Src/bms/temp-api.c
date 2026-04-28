@@ -141,7 +141,7 @@ enum TempReturnCode temp_update_values(
         return TEMP_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i) {
         temp_handler.temperatures[index + i] = values[i];
-        _temp_check_cells_value(index + i, values[index + i]);
+        _temp_check_cells_value(index + i, values[i]);
     }
     return TEMP_OK;
 }
