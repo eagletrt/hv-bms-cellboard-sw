@@ -12,9 +12,9 @@
 
 #ifdef CONF_LED_MODULE_ENABLE
 
-EAGLETRT_STATIC struct _LedHandler hled;
+EAGLETRT_STATIC struct LedHandler hled;
 
-enum LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_state_callback_t toggle) {
+enum LedReturnCode led_init(const led_set_state_callback set, const led_toggle_state_callback toggle) {
 
     memset(&hled, 0, sizeof(hled));
 

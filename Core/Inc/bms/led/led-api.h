@@ -1,4 +1,4 @@
-/**
+/*!
  * \file led-api.h
  * \date 2024-05-08
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
@@ -14,7 +14,7 @@
 
 #ifdef CONF_LED_MODULE_ENABLE
 
-/**
+/*!
  * \brief Initialize the internal LED handler
  *
  * \details The LED handler is disabled by default after initialization
@@ -22,26 +22,25 @@
  * \param set The callback used to set the status of the LED
  * \param toggle The callback used to toggle the status of the LED
  *
- * \return enum LedReturnCode
- *     - LED_NULL_POINTER if the set or toggle callbacks are NULL
- *     - LED_OK otherwise
+ * \retval LED_NULL_POINTER if the set or toggle callbacks are NULL
+ * \retval LED_OK otherwise
  */
-enum LedReturnCode led_init(const led_set_state_callback_t set, const led_toggle_state_callback_t toggle);
+enum LedReturnCode led_init(const led_set_state_callback set, const led_toggle_state_callback toggle);
 
-/**
+/*!
  * \brief Enable or disable the LED handler
  *
  * \param enabled True to enable the handler, false otherwise
  */
 void led_set_enable(const bool enabled);
 
-/**
+/*!
  * \brief Routine used to set the LED state
  *
  * \param t The current time in ms
  *
- * \return enum LedReturnCode
- *     - LED_OK
+ * \retval LED_NULL_POINTER if the set or toggle callbacks are NULL
+ * \retval LED_OK otherwise
  */
 enum LedReturnCode led_routine(const milliseconds_t t);
 
