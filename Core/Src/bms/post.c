@@ -14,7 +14,7 @@
 #include "programmer.h"
 #include "timebase.h"
 #include "volt.h"
-#include "temp.h"
+#include "temp-api.h"
 #include "bal.h"
 
 #ifdef CONF_POST_MODULE_ENABLE

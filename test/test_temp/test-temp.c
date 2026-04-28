@@ -7,14 +7,14 @@
  */
 
 #include "unity.h"
-#include "temp.h"
+#include "temp-api.h"
 #include "identity-api.h"
 #include "cellboard-def.h"
 #include "error.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-extern _TempHandler htemp;
+extern struct TempHandler temp_handler;
 
 void mock_set_address(const uint8_t address) {
     (void)address;
@@ -33,12 +33,12 @@ void test_temp_init_null_pointer() {
 }
 
 void test_temp_init_cellboard_id() {
-    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, htemp.temp_can_payload.cellboard_id, "Cellboard ID mismatch in payload initialization");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, temp_handler.temp_can_payload.cellboard_id, "Cellboard ID mismatch in payload initialization");
 }
 
 void test_temp_start_conversion_ok() {
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OK, temp_start_conversion(), "temp_start_conversion() failed to return TEMP_OK");
-    TEST_ASSERT_TRUE_MESSAGE(htemp.busy, "Module should be busy after starting conversion");
+    TEST_ASSERT_TRUE_MESSAGE(temp_handler.busy, "Module should be busy after starting conversion");
 }
 
 void test_temp_start_conversion_busy() {
@@ -53,12 +53,12 @@ void test_temp_notify_conversion_complete() {
     volt_t raw_values[2] = { 1.5f, 1.5f };
 
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OK, temp_notify_conversion_complete(raw_values, 2), "temp_notify_conversion_complete() failed");
-    TEST_ASSERT_FALSE_MESSAGE(htemp.busy, "Module should not be busy after notification");
+    TEST_ASSERT_FALSE_MESSAGE(temp_handler.busy, "Module should not be busy after notification");
 }
 
 void test_temp_update_value_ok() {
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OK, temp_update_value(0, 25.0f), "temp_update_value() failed");
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 25.0f, htemp.temperatures[0], "Temperature value not updated correctly");
+    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 25.0f, temp_handler.temperatures[0], "Temperature value not updated correctly");
 }
 
 void test_temp_update_value_out_of_bounds() {
@@ -66,14 +66,14 @@ void test_temp_update_value_out_of_bounds() {
 }
 
 void test_temp_update_values_ok() {
-    celsius_t values[2] = { 20.0f, 30.0f };
+    celsius values[2] = { 20.0f, 30.0f };
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OK, temp_update_values(0, values, 2), "temp_update_values() failed");
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 20.0f, htemp.temperatures[0], "First value mismatch");
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 30.0f, htemp.temperatures[1], "Second value mismatch");
+    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 20.0f, temp_handler.temperatures[0], "First value mismatch");
+    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 30.0f, temp_handler.temperatures[1], "Second value mismatch");
 }
 
 void test_temp_update_values_out_of_bounds() {
-    celsius_t values[2] = { 20.0f, 30.0f };
+    celsius values[2] = { 20.0f, 30.0f };
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OUT_OF_BOUNDS, temp_update_values(CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT, values, 1), "Should return OUT_OF_BOUNDS for invalid range");
 }
 
@@ -87,7 +87,7 @@ void test_temp_update_discharge_value_out_of_bounds() {
 }
 
 void test_temp_get_values_ptr() {
-    TEST_ASSERT_EQUAL_MESSAGE(&htemp.temperatures, temp_get_values(), "temp_get_values() returned incorrect pointer");
+    TEST_ASSERT_EQUAL_MESSAGE(&temp_handler.temperatures, temp_get_values(), "temp_get_values() returned incorrect pointer");
 }
 
 void test_temp_get_min() {
@@ -124,7 +124,7 @@ void test_temp_get_avg() {
 }
 
 void test_temp_dump_values() {
-    celsius_t out_buffer[2];
+    celsius out_buffer[2];
     temp_update_value(0, 15.0f);
     temp_update_value(1, 25.0f);
 
@@ -140,11 +140,11 @@ void test_temp_get_cells_temp_canlib_payload() {
     temp_update_value(2, 12.0f);
     temp_update_value(3, 13.0f);
 
-    htemp.offset = 0; // Reset offset manually for deterministic test
+    temp_handler.offset = 0; // Reset offset manually for deterministic test
 
     bms_cellboard_cells_temperature_converted_t *payload = temp_get_cells_temp_canlib_payload(&size);
 
-    TEST_ASSERT_EQUAL_MESSAGE(sizeof(htemp.temp_can_payload), size, "Payload size mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(sizeof(temp_handler.temp_can_payload), size, "Payload size mismatch");
     TEST_ASSERT_EQUAL_MESSAGE(0, payload->offset, "Payload offset mismatch");
     TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 10.0f, payload->temperature_0, "Payload temp 0 mismatch");
 }
@@ -152,11 +152,11 @@ void test_temp_get_cells_temp_canlib_payload() {
 void test_temp_get_discharge_temp_canlib_payload() {
     size_t size;
     // Mock internal values directly or via update_discharge function
-    htemp.discharge_temperatures[0] = 50.0f;
+    temp_handler.discharge_temperatures[0] = 50.0f;
 
     bms_cellboard_discharge_temperature_converted_t *payload = temp_get_discharge_temp_canlib_payload(&size);
 
-    TEST_ASSERT_EQUAL_MESSAGE(sizeof(htemp.discharge_temp_can_payload), size, "Payload size mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(sizeof(temp_handler.discharge_temp_can_payload), size, "Payload size mismatch");
     TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 50.0f, payload->temperature_0, "Payload discharge temp 0 mismatch");
 }
 
