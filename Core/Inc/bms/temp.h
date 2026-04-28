@@ -145,7 +145,7 @@ TempReturnCode temp_start_conversion(void);
  * @param values A pointer to the array of voltages to copy in V
  * @param size The number of elements to copy
  */
-TempReturnCode temp_notify_conversion_complete(const volt_t *const values, const size_t size);
+TempReturnCode temp_notify_conversion_complete(const volt *const values, const size_t size);
 
 /**
  * @brief Update a single temperature value
@@ -185,7 +185,7 @@ TempReturnCode temp_update_values(
  *     - TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
  *     - TEMP_OK otherwise
  */
-TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value);
+TempReturnCode temp_update_discharge_value(const size_t index, const volt value);
 
 /**
  * @brief Update multiple temperature values of the discharge resistors
@@ -200,7 +200,7 @@ TempReturnCode temp_update_discharge_value(const size_t index, const volt_t valu
  */
 TempReturnCode temp_update_discharge_values(
     const size_t index,
-    const volt_t *const values,
+    const volt *const values,
     const size_t size);
 
 /**

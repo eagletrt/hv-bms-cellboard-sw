@@ -71,8 +71,8 @@ typedef enum {
  * voltage value that can be reached in V
  */
 typedef struct {
-    volt_t target;
-    volt_t threshold;
+    volt target;
+    volt threshold;
 } BalParams;
 
 /**

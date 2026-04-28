@@ -13,7 +13,7 @@
 #include "identity-api.h"
 #include "programmer.h"
 #include "timebase.h"
-#include "volt.h"
+#include "volt-api.h"
 #include "temp.h"
 #include "bal.h"
 

@@ -15,7 +15,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "volt.h"
+#include "volt-api.h"
 #include "ltc6811.h"
 
 /** @brief Thresholds used during the open wire check in V */
@@ -33,7 +33,7 @@
  *
  * @param value The raw value
  *
- * @return volt_t The converted voltage value in V
+ * @return volt The converted voltage value in V
  */
 // TODO: Move macro into the bms monitor library
 #define BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(value) ((value) * 0.0001f)
@@ -43,7 +43,7 @@
  *
  * @param value The raw value
  *
- * @return volt_t The converted voltage value in V
+ * @return volt The converted voltage value in V
  */
 // TODO: Move macro into the bms monitor library
 #define BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(value) ((value) * 0.0001f)
@@ -142,7 +142,7 @@ typedef struct {
     Ltc6811Chain chain;
     Ltc6811Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];
     Ltc6811Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT];
-    cells_volt_t pup[2U];
+    cells_volt pup[2U];
 
 } _BmsManagerHandler;
 
@@ -318,14 +318,14 @@ BmsManagerReturnCode bms_manager_check_open_wire(void);
  * @return BmsManagerReturnCode
  *     - BMS_MANAGER_OK
  */
-BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32_t cells);
+BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32 cells);
 
 /**
  * @brief Get the cells that are being currently discharged
  *
- * @return bit_flag32_t The bitmask where the n-th bit represent the n-th cell (up to 32)
+ * @return bit_flag32 The bitmask where the n-th bit represent the n-th cell (up to 32)
  */
-bit_flag32_t bms_manager_get_discharge_cells(void);
+bit_flag32 bms_manager_get_discharge_cells(void);
 
 #ifdef CONF_BMS_MANAGER_STRINGS_ENABLE
 
