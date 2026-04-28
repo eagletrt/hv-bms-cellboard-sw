@@ -121,7 +121,7 @@ enum VoltReturnCode volt_dump_values(
     return VOLT_RC_OK;
 }
 
-bms_cellboard_cells_voltage_converted *volt_get_canlib_payload(size_t *byte_size) {
+bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size) {
     if (byte_size != NULL)
         *byte_size = sizeof(volt_handler.voltages_can_payload);
 

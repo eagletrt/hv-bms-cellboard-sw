@@ -43,8 +43,8 @@ enum VoltReturnCode {
  * \brief Type definition for the voltages handler structure
  */
 struct VoltHandler {
-    cells_volt voltages;                                        /*<! The array of cells voltages in V */
-    bms_cellboard_cells_voltage_converted voltages_can_payload; /*<! The canlib payload of the cells voltages */
+    cells_volt voltages;                                          /*<! The array of cells voltages in V */
+    bms_cellboard_cells_voltage_converted_t voltages_can_payload; /*<! The canlib payload of the cells voltages */
 };
 
 #endif // VOLT_H

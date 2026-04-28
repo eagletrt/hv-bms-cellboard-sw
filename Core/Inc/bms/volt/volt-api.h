@@ -131,9 +131,9 @@ enum VoltReturnCode volt_dump_values(
  *
  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * \returns bms_cellboard_cells_voltage_converted* A pointer to the payload
+ * \returns bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_voltage_converted *volt_get_canlib_payload(size_t *byte_size);
+bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size);
 
 #else // CONF_VOLTAGE_MODULE_ENABLE
 

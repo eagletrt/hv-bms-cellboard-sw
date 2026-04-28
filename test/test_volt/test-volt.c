@@ -69,7 +69,7 @@ void test_volt_select_values() {
 
     bit_flag32 bits = volt_select_values_strictly_greater(VOLT_MIN_V);
 
-    TEST_ASSERT_EQUAL_MESSAGE(0xFFFFFE, bits, "volt_select_values_strictly_greater() returned incorrect bitmask");
+    TEST_ASSERT_BITS_HIGH_MESSAGE(expected, bits, "volt_select_values_strictly_greater() returned incorrect bitmask");
 }
 
 void test_volt_get_min() {
@@ -140,7 +140,7 @@ void test_volt_get_canlib_payload_size() {
     volt_update_values(0, values, 4);
 
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted *payload = volt_get_canlib_payload(&byte_size);
+    bms_cellboard_cells_voltage_converted_t *payload = volt_get_canlib_payload(&byte_size);
 
     TEST_ASSERT_EQUAL_MESSAGE(sizeof(volt_handler.voltages_can_payload), byte_size, "volt_get_canlib_payload() returned incorrect size");
 }
@@ -155,9 +155,9 @@ void test_volt_get_canlib_payload_voltage() {
     volt_update_values(0, values, 4);
 
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted *payload = volt_get_canlib_payload(&byte_size);
+    bms_cellboard_cells_voltage_converted_t *payload = volt_get_canlib_payload(&byte_size);
 
-    bms_cellboard_cells_voltage_converted expected_payload;
+    bms_cellboard_cells_voltage_converted_t expected_payload;
     expected_payload.cellboard_id = CELLBOARD_ID;
     expected_payload.offset = 0;
     expected_payload.voltage_0 = (values[0]);
