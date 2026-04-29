@@ -21,15 +21,20 @@
 /*! \brief Maximum size of the pattern */
 #define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
 
-/*! 
- * \defgroup LED_TIMINGS Timings for the LED status
- * \brief Timings for the led status in ms 
- * \{
+/*! \defgroup LED_TIMINGS Timings for the LED status
+ *  @{
  */
+
+/** Short ON time in ms */
 #define LED_SHORT_ON_MS (250U)
+
+/** Short OFF time in ms */
 #define LED_SHORT_OFF_MS (250U)
+
+/** Long OFF time in ms */
 #define LED_LONG_OFF_MS (1000U)
-/*! \} */
+
+/** @} */
 
 /*!
  * \brief Return code for the LED module functions
