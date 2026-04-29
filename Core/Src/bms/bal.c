@@ -91,7 +91,7 @@ BalReturnCode bal_start(void) {
 
     // Set discharge configuration
     const volt target = hbal.params.target + hbal.params.threshold;
-    const bit_flag32 cells_to_discharge = volt_select_values_strictly_greater(target);
+    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
 
     hbal.status = BAL_STATUS_DISCHARCING;
@@ -128,7 +128,7 @@ BalReturnCode bal_resume(void) {
 
     // Set discharge configuration
     const volt target = hbal.params.target + hbal.params.threshold;
-    const bit_flag32 cells_to_discharge = volt_select_values_strictly_greater(target);
+    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
     hbal.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;

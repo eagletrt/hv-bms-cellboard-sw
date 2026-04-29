@@ -308,11 +308,11 @@ typedef float celsius_t;
  * @details This type depends on the mechanism of acquisition of the voltages
  * @details If and ADC is used the number of bits depends on its resolution
  */
-typedef uint16_t raw_volt_t;
+typedef uint16_t raw_volt;
 
 /** @brief Actual voltages */
 typedef float volt;
-typedef float millivolt_t;
+typedef float millivolt;
 
 /** @brief Function callback that resets the microcontroller */
 typedef void (*system_reset_callback_t)(void);

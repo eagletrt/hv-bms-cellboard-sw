@@ -49,6 +49,7 @@ enum VoltReturnCode volt_update_value(const size_t index, const volt value);
  * \param size The number of elements to copy
  *
  * \retval VOLT_RC_OUT_OF_BOUNDS if the index plus the size exceed the maximum number of values
+ * \retval VOLT_RC_NULL_POINTER if a NULL pointer is given as parameter
  * \retval VOLT_RC_OK otherwise
  */
 enum VoltReturnCode volt_update_values(
@@ -106,7 +107,7 @@ volt volt_get_sum(void);
  *
  * \returns bit_flag32 The bitmask of cells
  */
-bit_flag32 volt_select_values_strictly_greater(const volt target);
+bit_flag32 volt_select_values_above_target(const volt target);
 
 /*!
  * \brief Copy a list of adjacent voltages
@@ -141,7 +142,7 @@ bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_si
 #define volt_update_value(index, value) (VOLT_RC_OK)
 #define volt_update_values(index, value, size) (VOLT_RC_OK)
 #define volt_get_values() (NULL)
-#define volt_select_values_strictly_greater(target) (0U)
+#define volt_select_values_above_target(target) (0U)
 #define volt_dump_values(out, start, size) (VOLT_RC_OK)
 #define volt_get_canlib_payload(byte_size) (NULL)
 
