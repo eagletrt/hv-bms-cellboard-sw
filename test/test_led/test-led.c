@@ -1,4 +1,4 @@
-/**
+/*!
  * \file test_led.c
  * \date 2024-06-21
  * \author Riccardo Segala [riccardo.segala@icloud.com]
@@ -16,27 +16,27 @@ DEFINE_FFF_GLOBALS;
 
 #define CELLBOARD_ID CELLBOARD_ID_2
 
-extern struct LedHandler hled;
+extern struct LedHandler led_handler;
 
 FAKE_VOID_FUNC(led_set, const enum LedStatus);
 FAKE_VOID_FUNC(led_toggle);
 
 void test_led_init_with_null_led_set() {
-    hled.pattern_size = 13;
-    hled.set = led_set;
-    hled.toggle = led_toggle;
+    led_handler.pattern_size = 13;
+    led_handler.set = led_set;
+    led_handler.toggle = led_toggle;
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_NULL_POINTER, led_init(NULL, led_toggle), "led_init did not return LED_NULL_POINTER when called with null pointers");
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &hled, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_init(NULL, led_toggle), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
+    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &led_handler, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
 }
 
 void test_led_init_with_null_led_toggle() {
-    hled.pattern_size = 13;
-    hled.set = led_set;
-    hled.toggle = led_toggle;
+    led_handler.pattern_size = 13;
+    led_handler.set = led_set;
+    led_handler.toggle = led_toggle;
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_NULL_POINTER, led_init(led_set, NULL), "led_init did not return LED_NULL_POINTER when called with null pointers");
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &hled, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_init(led_set, NULL), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
+    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &led_handler, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
 }
 
 void test_led_init_correct_struct_parameters() {
@@ -56,20 +56,18 @@ void test_led_init_correct_struct_parameters() {
 
     enum LedReturnCode rc = led_init(led_set, led_toggle);
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_OK, rc, "led_init did not return LED_OK when called with correct parameters");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_OK, rc, "led_init did not return LED_RC_OK when called with correct parameters");
 
-    expected.blinker = hled.blinker; // The blinker structure is initialized with a function call so it is not possible to set it as an expected value
-
-    TEST_ASSERT_EQUAL_MESSAGE(expected.set, hled.set, "led_init did not correctly set the set callback");
-    TEST_ASSERT_EQUAL_MESSAGE(expected.toggle, hled.toggle, "led_init did not correctly set the toggle callback");
-    TEST_ASSERT_EQUAL_MESSAGE(expected.pattern_size, hled.pattern_size, "led_init did not correctly set the pattern size");
-    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected.pattern, hled.pattern, sizeof(expected.pattern[0]), expected.pattern_size, "led_init did not correctly set the pattern");
+    TEST_ASSERT_EQUAL_MESSAGE(expected.set, led_handler.set, "led_init did not correctly set the set callback");
+    TEST_ASSERT_EQUAL_MESSAGE(expected.toggle, led_handler.toggle, "led_init did not correctly set the toggle callback");
+    TEST_ASSERT_EQUAL_MESSAGE(expected.pattern_size, led_handler.pattern_size, "led_init did not correctly set the pattern size");
+    TEST_ASSERT_EQUAL_UINT16_ARRAY_MESSAGE(expected.pattern, led_handler.pattern, expected.pattern_size, "led_init did not correctly set the pattern");
 }
 
 void test_led_routine_set_called() {
     enum LedReturnCode rc = led_routine(0);
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_OK, rc, "led_routine did not return LED_OK");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_OK, rc, "led_routine did not return LED_RC_OK");
     TEST_ASSERT_TRUE_MESSAGE(led_set_fake.call_count > 0, "led_routine did not call led_set");
 }
 

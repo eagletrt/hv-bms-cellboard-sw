@@ -16,7 +16,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "blinky.h"
+#include "blinky-api.h"
 
 /*! \brief Maximum size of the pattern */
 #define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)
@@ -40,17 +40,17 @@
  * \brief Return code for the LED module functions
  */
 enum LedReturnCode {
-    LED_OK,                  /*!< The function executed successfully */
-    LED_NULL_POINTER,        /*!< A NULL pointer was given to a function */
-    LED_INVALID_CELLBOARD_ID /*!< An invalid cellboard identifier was used */
+    LED_RC_OK,                  /*!< The function executed successfully */
+    LED_RC_NULL_POINTER,        /*!< A NULL pointer was given to a function */
+    LED_RC_INVALID_CELLBOARD_ID /*!< An invalid cellboard identifier was used */
 };
 
 /*!
  * \brief Status of a single LED
  */
 enum LedStatus {
-    LED_OFF, /*!< The led is turned off */
-    LED_ON   /*!< The led is turned on */
+    LED_STATUS_OFF, /*!< The led is turned off */
+    LED_STATUS_ON   /*!< The led is turned on */
 };
 
 /*!

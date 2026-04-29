@@ -11,6 +11,7 @@
 #define LED_API_H
 
 #include "led.h"
+#include "eagletrt-api.h"
 
 #ifdef CONF_LED_MODULE_ENABLE
 
@@ -22,8 +23,8 @@
  * \param set The callback used to set the status of the LED
  * \param toggle The callback used to toggle the status of the LED
  *
- * \retval LED_NULL_POINTER if the set or toggle callbacks are NULL
- * \retval LED_OK otherwise
+ * \retval LED_RC_NULL_POINTER if the set or toggle callbacks are NULL
+ * \retval LED_RC_OK otherwise
  */
 enum LedReturnCode led_init(const led_set_state_callback set, const led_toggle_state_callback toggle);
 
@@ -39,16 +40,16 @@ void led_set_enable(const bool enabled);
  *
  * \param t The current time in ms
  *
- * \retval LED_NULL_POINTER if the set or toggle callbacks are NULL
- * \retval LED_OK otherwise
+ * \retval LED_RC_NULL_POINTER if the set or toggle callbacks are NULL
+ * \retval LED_RC_OK otherwise
  */
 enum LedReturnCode led_routine(const milliseconds_t t);
 
 #else // CONF_LED_MODULE_ENABLE
 
-#define led_init(set, toggle) (LED_OK)
-#define led_set_enable(enabled) CELLBOARD_NOPE()
-#define led_routine(t) (LED_OK)
+#define led_init(set, toggle) (LED_RC_OK)
+#define led_set_enable(enabled) EAGLETRT_API_NOP()
+#define led_routine(t) (LED_RC_OK)
 
 #endif // CONF_LED_MODULE_ENABLE
 
