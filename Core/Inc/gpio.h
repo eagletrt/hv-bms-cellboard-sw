@@ -33,7 +33,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include "cellboard-def.h"
-#include "led.h"
+#include "led-api.h"
 
 /* USER CODE END Includes */
 
@@ -50,7 +50,7 @@ void MX_GPIO_Init(void);
  *
  * @param state The state to set
  */
-void gpio_led_set_state(const LedStatus state);
+void gpio_led_set_state(const enum LedStatus state);
 
 /**
  * @brief Toggle the current state of the LED

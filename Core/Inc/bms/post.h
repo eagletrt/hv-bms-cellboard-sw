@@ -15,7 +15,7 @@
 
 #include "can-comm.h"
 #include "bms-manager.h"
-#include "led.h"
+#include "led-api.h"
 #include "temp.h"
 
 /**
@@ -53,8 +53,8 @@ typedef struct {
     can_comm_transmit_callback_t can_send;
     bms_manager_send_callback_t spi_send;
     bms_manager_send_receive_callback_t spi_send_receive;
-    led_set_state_callback_t led_set;
-    led_toggle_state_callback_t led_toggle;
+    led_set_state_callback led_set;
+    led_toggle_state_callback led_toggle;
     temp_set_mux_address_callback_t gpio_set_address;
     temp_start_conversion_callback_t adc_start;
 } PostInitData;
