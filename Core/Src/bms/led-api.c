@@ -33,18 +33,18 @@ enum LedReturnCode led_init(const led_set_state_callback set, const led_toggle_s
     led_handler.pattern[led_handler.pattern_size++] = LED_LONG_OFF_MS;
 
     // Initialize the blinker structure
-    blinky_init(&led_handler.blinker, led_handler.pattern, led_handler.pattern_size, true, BLINKY_LOW);
-    blinky_enable(&led_handler.blinker, false);
+    blinky_api_init(&led_handler.blinker, led_handler.pattern, led_handler.pattern_size, true, BLINKY_LOW);
+    blinky_api_enable(&led_handler.blinker, false);
 
     return LED_RC_OK;
 }
 
 void led_set_enable(const bool enabled) {
-    blinky_enable(&led_handler.blinker, enabled);
+    blinky_api_enable(&led_handler.blinker, enabled);
 }
 
 enum LedReturnCode led_routine(const milliseconds_t t) {
-    const enum LedStatus state = (enum LedStatus)blinky_routine(&led_handler.blinker, t);
+    const enum LedStatus state = (enum LedStatus)blinky_api_routine(&led_handler.blinker, t);
     led_handler.set(state);
     return LED_RC_OK;
 }

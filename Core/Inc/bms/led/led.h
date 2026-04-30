@@ -25,16 +25,16 @@
  *  @{
  */
 
-/** Short ON time in ms */
+/*! Short ON time in ms */
 #define LED_SHORT_ON_MS (250U)
 
-/** Short OFF time in ms */
+/*! Short OFF time in ms */
 #define LED_SHORT_OFF_MS (250U)
 
-/** Long OFF time in ms */
+/*! Long OFF time in ms */
 #define LED_LONG_OFF_MS (1000U)
 
-/** @} */
+/*! @} */
 
 /*!
  * \brief Return code for the LED module functions
@@ -74,7 +74,7 @@ struct LedHandler {
     led_set_state_callback set;       /*!< A pointer to the function callback used to set the led state */
     led_toggle_state_callback toggle; /*!< A pointer to the function callback used to toggle the led state */
 
-    Blinky blinker;                         /*!< The structure handler used to blink the LED */
+    struct Blinky blinker;                  /*!< The structure handler used to blink the LED */
     uint16_t pattern[LED_PATTERN_MAX_SIZE]; /*!< The main blinking pattern */
     size_t pattern_size;                    /*!< The size of the pattern */
 };
