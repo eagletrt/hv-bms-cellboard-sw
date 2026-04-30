@@ -214,7 +214,7 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
     }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
+    raw_volt volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
@@ -245,7 +245,7 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
         const size_t index = (reg * LTC6811_REG_CELL_COUNT) + (ltc * LTC6811_CELL_COUNT);
         const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_CELL_COUNT;
         for (size_t i = 0U; i < LTC6811_REG_CELL_COUNT; ++i) {
-            const volt_t value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
+            const volt value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
             volt_update_value(index + i, value);
         }
     }
@@ -299,7 +299,7 @@ BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRe
     const size_t index = reg * LTC6811_REG_AUX_COUNT;
     const size_t off = ltc * LTC6811_REG_AUX_COUNT;
     for (size_t i = 0U; i < temp_size; ++i) {
-        volt_t value = BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(temp[off + i]);
+        volt value = BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(temp[off + i]);
         temp_update_discharge_value(index + i, value);
     }
     return BMS_MANAGER_OK;
@@ -318,7 +318,7 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
     }
 
     uint8_t data[LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
-    raw_volt_t volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
+    raw_volt volts[LTC6811_REG_CELL_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
 
     // Send command bytes
     const BmsManagerReturnCode code = hmanager.send_receive(cmd, data, byte_size, LTC6811_DATA_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT));
@@ -349,7 +349,7 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
         const size_t index = (reg * LTC6811_REG_CELL_COUNT) + (ltc * LTC6811_CELL_COUNT);
         const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_REG_CELL_COUNT;
         for (size_t i = 0U; i < LTC6811_REG_CELL_COUNT; ++i) {
-            const volt_t value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
+            const volt value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
             hmanager.pup[op][index + i] = value;
         }
     }
@@ -371,7 +371,7 @@ BmsManagerReturnCode bms_manager_check_open_wire(void) {
         // Check other voltages
         for (size_t i = 1U; i <= CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
-            const volt_t dv = hmanager.pup[LTC6811_PUP_ACTIVE][i] - hmanager.pup[LTC6811_PUP_INACTIVE][i];
+            const volt dv = hmanager.pup[LTC6811_PUP_ACTIVE][i] - hmanager.pup[LTC6811_PUP_INACTIVE][i];
             if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V) {
                 error_set(ERROR_GROUP_OPEN_WIRE, 0U);
                 return BMS_MANAGER_OPEN_WIRE;
@@ -382,7 +382,7 @@ BmsManagerReturnCode bms_manager_check_open_wire(void) {
     return BMS_MANAGER_OK;
 }
 
-BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
+BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells) {
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // The first 12 cells are connected to the last LTC
         const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
@@ -398,8 +398,8 @@ BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32_t cells) {
     return BMS_MANAGER_OK;
 }
 
-bit_flag32_t bms_manager_get_discharge_cells(void) {
-    bit_flag32_t cells = 0U;
+bit_flag32 bms_manager_get_discharge_cells(void) {
+    bit_flag32 cells = 0U;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // Get cells from config
         cells |= (hmanager.actual_config[ltc].DCC << (ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));

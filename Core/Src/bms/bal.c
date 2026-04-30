@@ -12,7 +12,7 @@
 #include "cellboard-def.h"
 #include "post.h"
 #include "timebase.h"
-#include "volt.h"
+#include "volt-api.h"
 #include "identity-api.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
@@ -54,8 +54,8 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
         return;
 
     // Update data
-    const volt_t target = payload->target;
-    const volt_t threshold = payload->threshold;
+    const volt target = payload->target;
+    const volt threshold = payload->threshold;
     hbal.params.target = CELLBOARD_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);
     hbal.params.threshold = CELLBOARD_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V);
 
@@ -90,8 +90,8 @@ BalReturnCode bal_start(void) {
         return BAL_WATCHDOG_ERROR;
 
     // Set discharge configuration
-    const volt_t target = hbal.params.target + hbal.params.threshold;
-    const bit_flag32_t cells_to_discharge = volt_select_values(target);
+    const volt target = hbal.params.target + hbal.params.threshold;
+    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
 
     hbal.status = BAL_STATUS_DISCHARCING;
@@ -127,8 +127,8 @@ BalReturnCode bal_resume(void) {
         return BAL_OK;
 
     // Set discharge configuration
-    const volt_t target = hbal.params.target + hbal.params.threshold;
-    const bit_flag32_t cells_to_discharge = volt_select_values(target);
+    const volt target = hbal.params.target + hbal.params.threshold;
+    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
     (void)bms_manager_set_discharge_cells(cells_to_discharge);
     hbal.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;
