@@ -26,30 +26,30 @@
  * \retval LED_RC_NULL_POINTER if the set or toggle callbacks are NULL
  * \retval LED_RC_OK otherwise
  */
-enum LedReturnCode led_init(const led_set_state_callback set, const led_toggle_state_callback toggle);
+enum LedReturnCode led_init(led_set_state_callback set, led_toggle_state_callback toggle);
 
 /*!
  * \brief Enable or disable the LED handler
  *
  * \param enabled True to enable the handler, false otherwise
  */
-void led_set_enable(const bool enabled);
+void led_set_enable(bool enabled);
 
 /*!
  * \brief Routine used to set the LED state
  *
- * \param t The current time in ms
+ * \param time The current time in ms
  *
  * \retval LED_RC_NULL_POINTER if the set or toggle callbacks are NULL
  * \retval LED_RC_OK otherwise
  */
-enum LedReturnCode led_routine(const milliseconds_t t);
+enum LedReturnCode led_routine(milliseconds_t time);
 
 #else // CONF_LED_MODULE_ENABLE
 
 #define led_init(set, toggle) (LED_RC_OK)
 #define led_set_enable(enabled) EAGLETRT_API_NOP()
-#define led_routine(t) (LED_RC_OK)
+#define led_routine(time) (LED_RC_OK)
 
 #endif // CONF_LED_MODULE_ENABLE
 
