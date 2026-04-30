@@ -54,7 +54,7 @@ enum VoltReturnCode volt_update_value(size_t index, volt value);
  */
 enum VoltReturnCode volt_update_values(
     size_t index,
-    volt *values,
+    const volt *values,
     size_t size);
 
 /*!
