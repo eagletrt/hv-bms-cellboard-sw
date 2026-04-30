@@ -267,7 +267,7 @@ void cellboard_assert_failed(const char *file, const int line);
 /** @brief Type definition for bit flags */
 typedef uint8_t bit_flag8_t;
 typedef uint16_t bit_flag16_t;
-typedef uint32_t bit_flag32_t;
+typedef uint32_t bit_flag32;
 
 /** @brief Type definition for the standard CAN 2.0a and CAN 2.0b (extended) identifiers */
 typedef uint16_t can_id_t;
@@ -308,11 +308,11 @@ typedef float celsius_t;
  * @details This type depends on the mechanism of acquisition of the voltages
  * @details If and ADC is used the number of bits depends on its resolution
  */
-typedef uint16_t raw_volt_t;
+typedef uint16_t raw_volt;
 
 /** @brief Actual voltages */
-typedef float volt_t;
-typedef float millivolt_t;
+typedef float volt;
+typedef float millivolt;
 
 /** @brief Function callback that resets the microcontroller */
 typedef void (*system_reset_callback_t)(void);

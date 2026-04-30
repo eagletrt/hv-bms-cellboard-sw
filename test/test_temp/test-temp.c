@@ -50,7 +50,7 @@ void test_temp_notify_conversion_complete() {
     temp_start_conversion();
 
     // Values in Volts to trigger polynomial conversion
-    volt_t raw_values[2] = { 1.5f, 1.5f };
+    volt raw_values[2] = { 1.5f, 1.5f };
 
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_OK, temp_notify_conversion_complete(raw_values, 2), "temp_notify_conversion_complete() failed");
     TEST_ASSERT_FALSE_MESSAGE(htemp.busy, "Module should not be busy after notification");

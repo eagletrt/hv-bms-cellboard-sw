@@ -27,7 +27,7 @@ _STATIC _TempHandler htemp;
  *
  * @return celsius_t The converted value in °C
  */
-celsius_t _temp_volt_to_celsius(volt_t value) {
+celsius_t _temp_volt_to_celsius(volt value) {
     // Value is converted in V and limited to fit the polynomial range
     value = CELLBOARD_CLAMP(value, TEMP_MIN_LIMIT_V, TEMP_MAX_LIMIT_V);
     const double v = value;
@@ -53,7 +53,7 @@ celsius_t _temp_volt_to_celsius(volt_t value) {
  *
  * @return celsius_t The converted value in °C
  */
-celsius_t _temp_discharge_volt_to_celsius(volt_t value) {
+celsius_t _temp_discharge_volt_to_celsius(volt value) {
     // Value is converted in V and limited to fit the polynomial range
     value = CELLBOARD_CLAMP(value, TEMP_DISCHARGE_MIN_LIMIT_V, TEMP_DISCHARGE_MAX_LIMIT_V);
     const double v = value;
@@ -114,7 +114,7 @@ TempReturnCode temp_start_conversion(void) {
     return TEMP_OK;
 }
 
-TempReturnCode temp_notify_conversion_complete(const volt_t *const values, size_t size) {
+TempReturnCode temp_notify_conversion_complete(const volt *const values, size_t size) {
     const size_t index = htemp.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
@@ -146,7 +146,7 @@ TempReturnCode temp_update_values(
     return TEMP_OK;
 }
 
-TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value) {
+TempReturnCode temp_update_discharge_value(const size_t index, const volt value) {
     if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
     htemp.discharge_temperatures[index] = _temp_discharge_volt_to_celsius(value);
@@ -155,7 +155,7 @@ TempReturnCode temp_update_discharge_value(const size_t index, const volt_t valu
 
 TempReturnCode temp_update_discharge_values(
     const size_t index,
-    const volt_t *const values,
+    const volt *const values,
     const size_t size) {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
         return TEMP_OUT_OF_BOUNDS;
