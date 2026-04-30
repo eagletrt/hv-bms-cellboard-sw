@@ -22,22 +22,26 @@
 
 EAGLETRT_STATIC struct VoltHandler volt_handler;
 
-/**
+/*!
  * \brief Check if the voltage values are in range otherwise set an error
  *
+ * \param index The index of the cell voltage to check
  * \param value The cell voltage value in V
  */
-EAGLETRT_STATIC_INLINE void prv_volt_check_value(const size_t index, const volt value) {
 
-    if (value < VOLT_MIN_V)
+EAGLETRT_STATIC_INLINE void prv_volt_check_value(const uint16_t index, const volt value) {
+
+    if (value < VOLT_MIN_V) {
         error_set(ERROR_GROUP_UNDER_VOLTAGE, index);
-    else
+    } else {
         error_reset(ERROR_GROUP_UNDER_VOLTAGE, index);
+    }
 
-    if (value > VOLT_MAX_V)
+    if (value > VOLT_MAX_V) {
         error_set(ERROR_GROUP_OVER_VOLTAGE, index);
-    else
+    } else {
         error_reset(ERROR_GROUP_OVER_VOLTAGE, index);
+    }
 }
 
 enum VoltReturnCode volt_init(void) {
@@ -47,18 +51,21 @@ enum VoltReturnCode volt_init(void) {
 }
 
 enum VoltReturnCode volt_update_value(const size_t index, const volt value) {
-    if (index > CELLBOARD_SEGMENT_SERIES_COUNT)
+    if (index > CELLBOARD_SEGMENT_SERIES_COUNT) {
         return VOLT_RC_OUT_OF_BOUNDS;
+    }
     volt_handler.voltages[index] = value;
     prv_volt_check_value(index, value);
     return VOLT_RC_OK;
 }
 
 enum VoltReturnCode volt_update_values(const size_t index, const volt *const values, const size_t size) {
-    if (values == NULL)
+    if (values == NULL) {
         return VOLT_RC_NULL_POINTER;
-    if (index + size > CELLBOARD_SEGMENT_SERIES_COUNT)
+    }
+    if (index + size > CELLBOARD_SEGMENT_SERIES_COUNT) {
         return VOLT_RC_OUT_OF_BOUNDS;
+    }
     for (size_t i = 0U; i < size; ++i) {
         volt_handler.voltages[index + i] = values[i];
         prv_volt_check_value(index + i, volt_handler.voltages[index + i]);
@@ -100,12 +107,13 @@ volt volt_get_sum(void) {
 
 bit_flag32 volt_select_values_above_target(const volt target) {
     bit_flag32 bits = 0U;
-    CELLBOARD_ASSERT(CELLBOARD_SEGMENT_SERIES_COUNT > sizeof(bits) * 8U);
+    CELLBOARD_ASSERT((uint32_t)CELLBOARD_SEGMENT_SERIES_COUNT > sizeof(bits) * 8U);
 
     // Iterate over cells and choose the one which voltage is greater than the target
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
-        if (volt_handler.voltages[i] > target)
+        if (volt_handler.voltages[i] > target) {
             bits = EAGLETRT_API_BIT_SET(bits, i);
+        }
     }
     return bits;
 }
@@ -114,17 +122,20 @@ enum VoltReturnCode volt_dump_values(
     volt *const out,
     const size_t start,
     const size_t size) {
-    if (out == NULL)
+    if (out == NULL) {
         return VOLT_RC_NULL_POINTER;
-    if (start >= CELLBOARD_SEGMENT_SERIES_COUNT || start + size >= CELLBOARD_SEGMENT_SERIES_COUNT)
+    }
+    if (start >= CELLBOARD_SEGMENT_SERIES_COUNT || start + size >= CELLBOARD_SEGMENT_SERIES_COUNT) {
         return VOLT_RC_OUT_OF_BOUNDS;
+    }
     memcpy(out, volt_handler.voltages + start, size * sizeof(volt_handler.voltages[0U]));
     return VOLT_RC_OK;
 }
 
 bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size) {
-    if (byte_size != NULL)
+    if (byte_size != NULL) {
         *byte_size = sizeof(volt_handler.voltages_can_payload);
+    }
 
     EAGLETRT_STATIC size_t offset = 0U;
     volt_handler.voltages_can_payload.offset = offset;
@@ -133,8 +144,9 @@ bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_si
     volt_handler.voltages_can_payload.voltage_2 = volt_handler.voltages[offset + 2U];
 
     offset += 3U;
-    if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT)
+    if (offset >= CELLBOARD_SEGMENT_SERIES_COUNT) {
         offset = 0U;
+    }
     return &volt_handler.voltages_can_payload;
 }
 

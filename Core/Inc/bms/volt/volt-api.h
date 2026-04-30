@@ -37,7 +37,7 @@ enum VoltReturnCode volt_init(void);
  * \retval VOLT_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
  * \retval VOLT_RC_OK otherwise
  */
-enum VoltReturnCode volt_update_value(const size_t index, const volt value);
+enum VoltReturnCode volt_update_value(size_t index, volt value);
 
 /*!
  * \brief Update multiple voltage values
@@ -53,9 +53,9 @@ enum VoltReturnCode volt_update_value(const size_t index, const volt value);
  * \retval VOLT_RC_OK otherwise
  */
 enum VoltReturnCode volt_update_values(
-    const size_t index,
-    const volt *const values,
-    const size_t size);
+    size_t index,
+    volt *values,
+    size_t size);
 
 /*!
  * \brief Get a pointer to the array where the voltage values are stored
@@ -107,7 +107,7 @@ volt volt_get_sum(void);
  *
  * \returns bit_flag32 The bitmask of cells
  */
-bit_flag32 volt_select_values_above_target(const volt target);
+bit_flag32 volt_select_values_above_target(volt target);
 
 /*!
  * \brief Copy a list of adjacent voltages
@@ -123,9 +123,9 @@ bit_flag32 volt_select_values_above_target(const volt target);
  * \retval VOLT_RC_OK otherwise
  */
 enum VoltReturnCode volt_dump_values(
-    volt *const out,
-    const size_t start,
-    const size_t size);
+    volt *out,
+    size_t start,
+    size_t size);
 
 /*!
  * \brief Get a pointer to the CAN payload of the cells voltages
