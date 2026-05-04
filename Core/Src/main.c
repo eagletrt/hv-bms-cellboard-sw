@@ -34,7 +34,7 @@
 #include "cellboard-def.h"
 
 #include "fsm.h"
-#include "post.h"
+#include "post-api.h"
 
 #include "stm32g4xx_it.h"
 
@@ -229,7 +229,7 @@ int main(void) {
     fsm_state_t fsm_state = FSM_STATE_INIT;
 
     // Prepare data for the POST procedure
-    PostInitData init_data = {
+    struct PostInitData init_data = {
         .system_reset = system_reset,
         .cs_enter = it_cs_enter,
         .cs_exit = it_cs_exit,
