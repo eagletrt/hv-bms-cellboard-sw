@@ -23,8 +23,13 @@ EAGLETRT_STATIC struct TempHandler temp_handler;
 
 //
 celsius prv_temp_volt_to_celsius(volt_t value) {
+
+    // To please clang-tidy, really don't like this
+    const volt_t temp_min_limit_v = TEMP_MIN_LIMIT_V;
+    const volt_t temp_max_limit_v = TEMP_MAX_LIMIT_V;
+
     // Value is converted in V and limited to fit the polynomial range
-    value = EAGLETRT_API_CLAMP(value, TEMP_MIN_LIMIT_V, TEMP_MAX_LIMIT_V); // NOLINT(readability-magic-numbers)
+    value = EAGLETRT_API_CLAMP(value, temp_min_limit_v, temp_max_limit_v);
     const double val = value;
     const double val2 = val * val;
     const double val3 = val2 * val;
@@ -41,8 +46,13 @@ celsius prv_temp_volt_to_celsius(volt_t value) {
 }
 
 celsius prv_temp_discharge_volt_to_celsius(volt_t value) {
+
+    // To please clang-tidy, really don't like this
+    const volt_t temp_discharge_min_limit_v = TEMP_DISCHARGE_MIN_LIMIT_V;
+    const volt_t temp_discharge_max_limit_v = TEMP_DISCHARGE_MAX_LIMIT_V;
+
     // Value is converted in V and limited to fit the polynomial range
-    value = EAGLETRT_API_CLAMP(value, TEMP_DISCHARGE_MIN_LIMIT_V, TEMP_DISCHARGE_MAX_LIMIT_V); // NOLINT(readability-magic-numbers)
+    value = EAGLETRT_API_CLAMP(value, temp_discharge_min_limit_v, temp_discharge_max_limit_v);
     const double val = value;
     const double val2 = val * val;
     const double val3 = val2 * val;
@@ -58,7 +68,7 @@ celsius prv_temp_discharge_volt_to_celsius(volt_t value) {
     // TEMP_DISCHARGE_COEFF_6 * v6;
 }
 
-EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, const celsius value) {
+EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, const celsius value) { //NOLINT(bugprone-easily-swappable-parameters)
     // BUG: Ignore under temp caused by broken NTCs
     // if (value < TEMP_MIN_C)
     //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
@@ -162,7 +172,7 @@ const cells_temp *temp_get_values(void) {
 celsius temp_get_min(void) {
     celsius min = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
-        min = CELLBOARD_MIN(min, temp_handler.temperatures[i]);
+        min = EAGLETRT_API_MIN(min, temp_handler.temperatures[i]);
     }
     return min;
 }
@@ -170,7 +180,7 @@ celsius temp_get_min(void) {
 celsius temp_get_max(void) {
     celsius max = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
-        max = CELLBOARD_MAX(max, temp_handler.temperatures[i]);
+        max = EAGLETRT_API_MAX(max, temp_handler.temperatures[i]);
     }
     return max;
 }

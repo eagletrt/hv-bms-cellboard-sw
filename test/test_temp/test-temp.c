@@ -125,7 +125,7 @@ void test_temp_init_null_start_conversion() {
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected, &temp_handler, sizeof(expected), "temp_init() should not modify temp_handler on failure");
 }
 
-void test_temp_start_conversion_check_correct_fct_calls() {
+void test_temp_start_conversion_check_correct_function_calls() {
 
     const enum TempReturnCode rc = temp_start_conversion();
 
@@ -375,7 +375,7 @@ int main() {
     RUN_TEST(test_temp_init_ok);
     RUN_TEST(test_temp_init_null_set_address);
     RUN_TEST(test_temp_init_null_start_conversion);
-    RUN_TEST(test_temp_start_conversion_check_correct_fct_calls);
+    RUN_TEST(test_temp_start_conversion_check_correct_function_calls);
     RUN_TEST(test_temp_start_conversion_when_busy);
     RUN_TEST(test_temp_notify_conversion_complete_ok);
     RUN_TEST(test_temp_update_value_ok);
