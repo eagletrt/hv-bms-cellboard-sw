@@ -14,22 +14,16 @@
 #include "identity-api.h"
 #include "error.h"
 #include "timebase.h"
+#include "eagletrt-api.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 
 // TODO: Send discharge temperatures
-_STATIC struct TempHandler temp_handler;
+EAGLETRT_STATIC struct TempHandler temp_handler;
 
-/**
- * @brief Convert a voltage into a temperature using a polynomial conversion
- *
- * @param value The voltage value in V
- *
- * @return celsius The converted value in °C
- */
-celsius _temp_volt_to_celsius(volt_t value) {
+celsius prv_temp_volt_to_celsius(volt_t value) {
     // Value is converted in V and limited to fit the polynomial range
-    value = CELLBOARD_CLAMP(value, TEMP_MIN_LIMIT_V, TEMP_MAX_LIMIT_V);
+    value = EAGLETRT_API_CLAMP(value, TEMP_MIN_LIMIT_V, TEMP_MAX_LIMIT_V);
     const double v = value;
     const double v2 = v * v;
     const double v3 = v2 * v;
@@ -45,17 +39,9 @@ celsius _temp_volt_to_celsius(volt_t value) {
            TEMP_COEFF_6 * v6;
 }
 
-/**
- * @brief Convert the discharge temp voltage value into a temperature in °C using
- * a polynomial conversion
- *
- * @param value The voltage value in V
- *
- * @return celsius The converted value in °C
- */
-celsius _temp_discharge_volt_to_celsius(volt_t value) {
+celsius prv_temp_discharge_volt_to_celsius(volt_t value) {
     // Value is converted in V and limited to fit the polynomial range
-    value = CELLBOARD_CLAMP(value, TEMP_DISCHARGE_MIN_LIMIT_V, TEMP_DISCHARGE_MAX_LIMIT_V);
+    value = EAGLETRT_API_CLAMP(value, TEMP_DISCHARGE_MIN_LIMIT_V, TEMP_DISCHARGE_MAX_LIMIT_V);
     const double v = value;
     const double v2 = v * v;
     const double v3 = v2 * v;
@@ -71,12 +57,7 @@ celsius _temp_discharge_volt_to_celsius(volt_t value) {
     // TEMP_DISCHARGE_COEFF_6 * v6;
 }
 
-/**
- * @brief Check if the cells temperature values are in range otherwise set an error
- *
- * @param value The temperature value to check in °C
- */
-_STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius value) {
+EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const size_t index, const celsius value) {
     // BUG: Ignore under temp caused by broken NTCs
     // if (value < TEMP_MIN_C)
     //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
@@ -90,19 +71,19 @@ _STATIC_INLINE void _temp_check_cells_value(const size_t index, const celsius va
 
 enum TempReturnCode temp_init(const temp_set_mux_address_callback set_address, const temp_start_conversion_callback start_conversion) {
     if (set_address == NULL || start_conversion == NULL)
-        return TEMP_NULL_POINTER;
+        return TEMP_RC_NULL_POINTER;
     memset(&temp_handler, 0U, sizeof(temp_handler));
 
     // Copy callback pointers
     temp_handler.set_address = set_address;
     temp_handler.start_conversion = start_conversion;
     temp_handler.temp_can_payload.cellboard_id = (bms_cellboard_cells_temperature_cellboard_id)identity_api_get_cellboard_id();
-    return TEMP_OK;
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_start_conversion(void) {
     if (temp_handler.busy)
-        return TEMP_BUSY;
+        return TEMP_RC_BUSY;
     // Set busy flag
     temp_handler.busy = true;
 
@@ -111,26 +92,26 @@ enum TempReturnCode temp_start_conversion(void) {
         temp_handler.address = 0U;
     temp_handler.set_address(temp_handler.address);
     temp_handler.start_conversion();
-    return TEMP_OK;
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, size_t size) {
     const size_t index = temp_handler.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
-        const celsius temp = _temp_volt_to_celsius(values[i]);
+        const celsius temp = prv_temp_volt_to_celsius(values[i]);
         temp_update_value(index + i, temp);
     }
     temp_handler.busy = false;
-    return TEMP_OK;
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_update_value(const size_t index, const celsius value) {
-    if (index > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
-        return TEMP_OUT_OF_BOUNDS;
+    if (index >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
+        return TEMP_RC_OUT_OF_BOUNDS;
     temp_handler.temperatures[index] = value;
-    _temp_check_cells_value(index, value);
-    return TEMP_OK;
+    prv_temp_check_cells_value(index, value);
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_update_values(
@@ -138,19 +119,19 @@ enum TempReturnCode temp_update_values(
     const celsius *const values,
     const size_t size) {
     if (index + size > CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
-        return TEMP_OUT_OF_BOUNDS;
+        return TEMP_RC_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i) {
         temp_handler.temperatures[index + i] = values[i];
-        _temp_check_cells_value(index + i, values[i]);
+        prv_temp_check_cells_value(index + i, values[i]);
     }
-    return TEMP_OK;
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value) {
-    if (index > CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
-        return TEMP_OUT_OF_BOUNDS;
-    temp_handler.discharge_temperatures[index] = _temp_discharge_volt_to_celsius(value);
-    return TEMP_OK;
+    if (index >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
+        return TEMP_RC_OUT_OF_BOUNDS;
+    temp_handler.discharge_temperatures[index] = prv_temp_discharge_volt_to_celsius(value);
+    return TEMP_RC_OK;
 }
 
 enum TempReturnCode temp_update_discharge_values(
@@ -158,10 +139,10 @@ enum TempReturnCode temp_update_discharge_values(
     const volt_t *const values,
     const size_t size) {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT)
-        return TEMP_OUT_OF_BOUNDS;
+        return TEMP_RC_OUT_OF_BOUNDS;
     for (size_t i = 0U; i < size; ++i)
-        temp_handler.discharge_temperatures[index + i] = _temp_discharge_volt_to_celsius(values[i]);
-    return TEMP_OK;
+        temp_handler.discharge_temperatures[index + i] = prv_temp_discharge_volt_to_celsius(values[i]);
+    return TEMP_RC_OK;
 }
 
 const cells_temp *temp_get_values(void) {
@@ -169,7 +150,7 @@ const cells_temp *temp_get_values(void) {
 }
 
 celsius temp_get_min(void) {
-    celsius min = TEMP_MAX_C;
+    celsius min = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         min = CELLBOARD_MIN(min, temp_handler.temperatures[i]);
     }
@@ -177,7 +158,7 @@ celsius temp_get_min(void) {
 }
 
 celsius temp_get_max(void) {
-    celsius max = 0U;
+    celsius max = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         max = CELLBOARD_MAX(max, temp_handler.temperatures[i]);
     }
@@ -205,12 +186,12 @@ enum TempReturnCode temp_dump_values(
     const size_t start,
     const size_t size) {
     if (out == NULL)
-        return TEMP_NULL_POINTER;
+        return TEMP_RC_NULL_POINTER;
     if (start >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT ||
         start + size >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT)
-        return TEMP_OUT_OF_BOUNDS;
+        return TEMP_RC_OUT_OF_BOUNDS;
     memcpy(out, temp_handler.temperatures + start, size * sizeof(*out));
-    return TEMP_OK;
+    return TEMP_RC_OK;
 }
 
 bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(size_t *const byte_size) {
@@ -244,20 +225,20 @@ bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_
 
 #ifdef CONF_TEMPEATURE_STRINGS_ENABLE
 
-_STATIC char *temp_module_name = "temperature";
+EAGLETRT_STATIC char *temp_module_name = "temperature";
 
-_STATIC char *temp_return_code_name[] = {
-    [TEMP_OK] = "ok",
-    [TEMP_NULL_POINTER] = "null pointer",
-    [TEMP_BUSY] = "busy",
-    [TEMP_OUT_OF_BOUNDS] = "out of bounds"
+EAGLETRT_STATIC char *temp_return_code_name[] = {
+    [TEMP_RC_OK] = "ok",
+    [TEMP_RC_NULL_POINTER] = "null pointer",
+    [TEMP_RC_BUSY] = "busy",
+    [TEMP_RC_OUT_OF_BOUNDS] = "out of bounds"
 };
 
-_STATIC char *temp_return_code_description[] = {
-    [TEMP_OK] = "executed successfully",
-    [TEMP_NULL_POINTER] = "attempt to dereference a null pointer",
-    [TEMP_BUSY] = "the temperature module is busy",
-    [TEMP_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
+EAGLETRT_STATIC char *temp_return_code_description[] = {
+    [TEMP_RC_OK] = "executed successfully",
+    [TEMP_RC_NULL_POINTER] = "attempt to dereference a null pointer",
+    [TEMP_RC_BUSY] = "the temperature module is busy",
+    [TEMP_RC_OUT_OF_BOUNDS] = "attempt to access an invalid memory region"
 };
 
 #endif // CONF_TEMPEATURE_STRINGS_ENABLE

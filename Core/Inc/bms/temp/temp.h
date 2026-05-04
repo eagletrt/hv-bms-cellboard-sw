@@ -101,10 +101,10 @@ typedef celsius discharge_temp[CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT];
  * \brief Return code for the temperature module functions
  */
 enum TempReturnCode {
-    TEMP_OK,           /*!< Function executed successfully */
-    TEMP_NULL_POINTER, /*!< A NULL pointer is given as parameter or used inside the function */
-    TEMP_BUSY,         /*!< The module is busy and cannot execute the requested function */
-    TEMP_OUT_OF_BOUNDS /*!< An index (or pointer) value is greater/lower than the maximum/minimum allowed value */
+    TEMP_RC_OK,           /*!< Function executed successfully */
+    TEMP_RC_NULL_POINTER, /*!< A NULL pointer is given as parameter or used inside the function */
+    TEMP_RC_BUSY,         /*!< The module is busy and cannot execute the requested function */
+    TEMP_RC_OUT_OF_BOUNDS /*!< An index (or pointer) value is greater/lower than the maximum/minimum allowed value */
 };
 
 /*!

@@ -20,16 +20,16 @@
  * \param set_address A pointer to the function callback used to set the multiplexer address
  * \param start_conversion A pointer to the function callback used to start the ADC conversion
  *
- * \retval TEMP_OK if the module is initialized successfully
- * \retval TEMP_NULL_POINTER if a NULL pointer is given as parameter
+ * \retval TEMP_RC_OK if the module is initialized successfully
+ * \retval TEMP_RC_NULL_POINTER if a NULL pointer is given as parameter
  */
 enum TempReturnCode temp_init(const temp_set_mux_address_callback set_address, const temp_start_conversion_callback start_conversion);
 
 /*!
  * \brief Start the ADC conversion to get the cells temperature values
  *
- * \retval TEMP_OK if the conversion is started successfully
- * \retval TEMP_BUSY if the module is already busy making a conversion
+ * \retval TEMP_RC_OK if the conversion is started successfully
+ * \retval TEMP_RC_BUSY if the module is already busy making a conversion
  */
 enum TempReturnCode temp_start_conversion(void);
 
@@ -39,7 +39,7 @@ enum TempReturnCode temp_start_conversion(void);
  * \param values A pointer to the array of voltages to copy in V
  * \param size The number of elements to copy
  * 
- * \retval TEMP_OK
+ * \retval TEMP_RC_OK
  */
 enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, const size_t size);
 
@@ -49,8 +49,8 @@ enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, 
  * \param index The index of the value to update
  * \param value The new value
  *
- * \retval TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
- * \retval TEMP_OK otherwise
+ * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
+ * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_value(const size_t index, const celsius value);
 
@@ -61,8 +61,8 @@ enum TempReturnCode temp_update_value(const size_t index, const celsius value);
  * \param values A pointer to the array of temperatures values to copy
  * \param size The number of elements to copy
  *
- * \retval TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
- * \retval TEMP_OK otherwise
+ * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
+ * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_values(
     const size_t index,
@@ -75,8 +75,8 @@ enum TempReturnCode temp_update_values(
  * \param index The index of the value to update
  * \param value The value read from the ADC in V
  *
- * \retval TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
- * \retval TEMP_OK otherwise
+ * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
+ * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value);
 
@@ -87,8 +87,8 @@ enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t
  * \param values A pointer to the array of ADC voltage values to copy in V
  * \param size The number of elements to copy
  *
- * \retval TEMP_OUT_OF_BOUNDS if the index is greater than the total number of values
- * \retval TEMP_OK otherwise
+ * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
+ * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_discharge_values(
     const size_t index,
@@ -146,9 +146,9 @@ const discharge_temp *temp_get_discharge_values(void);
  * \param start The index of the first element to copy
  * \param size The number of element that should be copied
  *
- * \retval TEMP_NULL_POINTER if NULL is passed as parameter
- * \retval TEMP_OUT_OF_BOUNDS if the required range exceeds the maximum number of temperatures
- * \retval TEMP_OK otherwise
+ * \retval TEMP_RC_NULL_POINTER if NULL is passed as parameter
+ * \retval TEMP_RC_OUT_OF_BOUNDS if the required range exceeds the maximum number of temperatures
+ * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_dump_values(
     celsius *const out,
@@ -175,13 +175,13 @@ bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_
 
 #else // CONF_TEMPERATURE_MODULE_ENABLE
 
-#define temp_init() (TEMP_OK)
-#define temp_update_value(index, value) (TEMP_OK)
-#define temp_update_values(index, values, size) (TEMP_OK)
-#define temp_update_discharge_value(index, value) (TEMP_OK)
-#define temp_update_discharge_values(index, values, size) (TEMP_OK)
+#define temp_init() (TEMP_RC_OK)
+#define temp_update_value(index, value) (TEMP_RC_OK)
+#define temp_update_values(index, values, size) (TEMP_RC_OK)
+#define temp_update_discharge_value(index, value) (TEMP_RC_OK)
+#define temp_update_discharge_values(index, values, size) (TEMP_RC_OK)
 #define temp_get_values() (NULL)
-#define temp_dump_values(out, start, size) (TEMP_OK)
+#define temp_dump_values(out, start, size) (TEMP_RC_OK)
 #define temp_get_cells_temp_canlib_payload(byte_size) (NULL)
 #define temp_get_discharge_temp_canlib_payload(byte_size) (NULL)
 
