@@ -179,8 +179,7 @@ void test_temp_update_values_ok() {
     const enum TempReturnCode rc = temp_update_values(3U, values, 2U);
 
     TEST_ASSERT_EQUAL_MESSAGE(TEMP_RC_OK, rc, "temp_update_values() failed to return TEMP_RC_OK");
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 20.0f, temp_handler.temperatures[3], "First value mismatch");
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 30.0f, temp_handler.temperatures[4], "Second value mismatch");
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY_MESSAGE(values, temp_handler.temperatures + 3U, 2U, "Temperature values not updated correctly");
 }
 
 void test_temp_update_values_out_of_bounds() {
