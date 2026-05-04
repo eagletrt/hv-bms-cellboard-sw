@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "fsm.h"
-#include "programmer.h"
+#include "programmer-api.h"
 #include "watchdog.h"
 #include "timebase.h"
 #include "bal.h"

@@ -24,11 +24,12 @@
 /*!
  * \brief Return code for the programmer module functions 
  */
-typedef enum {
-    PROGRAMMER_RC_OK,     /*!< The function executed successfully */
-    PROGRAMMER_RC_BUSY,   /*!< The flash procedure is still ongoing, the function should be called again */
-    PROGRAMMER_RC_TIMEOUT /*!< The flash procedure has timed out */
-} ProgrammerReturnCode;
+enum ProgrammerReturnCode {
+    PROGRAMMER_RC_OK,          /*!< The function executed successfully */
+    PROGRAMMER_RC_BUSY,        /*!< The flash procedure is still ongoing, the function should be called again */
+    PROGRAMMER_RC_TIMEOUT,     /*!< The flash procedure has timed out */
+    PROGRAMMER_RC_NULL_POINTER /*!< The function recieved a null pointer*/
+};
 
 /*!
  * \brief Type definition for the programmer handler structure
@@ -36,7 +37,7 @@ typedef enum {
  * \attention This structure should not be used outside of this module
  *
  */
-typedef struct {
+struct ProgrammerHandler {
     system_reset_callback_t reset;                        /*!< A pointer to a function that resets the microcontroller */
     fsm_event_data_t flash_event;                         /*!< The FSM event data related to the flash procedure */
     bms_cellboard_flash_response_converted_t can_payload; /*!< The flash response canlib data */
@@ -47,40 +48,6 @@ typedef struct {
     bool flash_stop;         /*!< True if the flash procedure should be stopped, false otherwise */
 
     Watchdog watchdog; /*!< The watchdog used for the flash procedure */
-} _ProgrammerHandler;
-
-/*!
- * \brief Intialize the internal programmer handler structure
- *
- * \param reset A pointer to the function that resets the microcontroller
- *
- * \retval PROGRAMMER_RC_OK if the initialization is successful
- */
-ProgrammerReturnCode programmer_init(const system_reset_callback_t reset);
-
-/*!
- * \brief Handle the received flash request
- *
- * \param payload A pointer to the canlib payload of the request
- */
-void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload);
-
-/*!
- * \brief Handle the received actual flash command
- *
- * \param payload A pointer to the canlib payload of the command
- */
-void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload);
-
-/*!
- * \brief Routine that should be called during the flash procedure
- *
- * \attention This function can reset the microcontroller
- *
- * \retval PROGRAMMER_RC_TIMEOUT if the flash procedure has timed out
- * \retval PROGRAMMER_RC_OK if the flash procedure has finished
- * \retval PROGRAMMER_RC_BUSY otherwise
- */
-ProgrammerReturnCode programmer_routine(void);
+};
 
 #endif // PROGRAMMER_H

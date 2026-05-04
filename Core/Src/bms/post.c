@@ -11,7 +11,7 @@
 
 #include "error.h"
 #include "identity-api.h"
-#include "programmer.h"
+#include "programmer-api.h"
 #include "timebase.h"
 #include "volt-api.h"
 #include "temp.h"
