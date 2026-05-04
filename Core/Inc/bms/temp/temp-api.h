@@ -23,7 +23,7 @@
  * \retval TEMP_RC_OK if the module is initialized successfully
  * \retval TEMP_RC_NULL_POINTER if a NULL pointer is given as parameter
  */
-enum TempReturnCode temp_init(const temp_set_mux_address_callback set_address, const temp_start_conversion_callback start_conversion);
+enum TempReturnCode temp_init(temp_set_mux_address_callback set_address, temp_start_conversion_callback start_conversion);
 
 /*!
  * \brief Start the ADC conversion to get the cells temperature values
@@ -41,7 +41,7 @@ enum TempReturnCode temp_start_conversion(void);
  * 
  * \retval TEMP_RC_OK
  */
-enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, const size_t size);
+enum TempReturnCode temp_notify_conversion_complete(const volt_t *values, size_t size);
 
 /*!
  * \brief Update a single temperature value
@@ -52,7 +52,7 @@ enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, 
  * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
  * \retval TEMP_RC_OK otherwise
  */
-enum TempReturnCode temp_update_value(const size_t index, const celsius value);
+enum TempReturnCode temp_update_value(size_t index, celsius value);
 
 /*!
  * \brief Update multiple temperature values
@@ -65,9 +65,9 @@ enum TempReturnCode temp_update_value(const size_t index, const celsius value);
  * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_values(
-    const size_t index,
-    const celsius *const values,
-    const size_t size);
+    size_t index,
+    const celsius *values,
+    size_t size);
 
 /*!
  * \brief Update a single temperature value of the discharge resistors
@@ -78,7 +78,7 @@ enum TempReturnCode temp_update_values(
  * \retval TEMP_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
  * \retval TEMP_RC_OK otherwise
  */
-enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value);
+enum TempReturnCode temp_update_discharge_value(size_t index, volt_t value);
 
 /*!
  * \brief Update multiple temperature values of the discharge resistors
@@ -91,9 +91,9 @@ enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t
  * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_update_discharge_values(
-    const size_t index,
-    const volt_t *const values,
-    const size_t size);
+    size_t index,
+    const volt_t *values,
+    size_t size);
 
 /*!
  * \brief Get a pointer to the array where the temperature values are stored
@@ -151,9 +151,9 @@ const discharge_temp *temp_get_discharge_values(void);
  * \retval TEMP_RC_OK otherwise
  */
 enum TempReturnCode temp_dump_values(
-    celsius *const out,
-    const size_t start,
-    const size_t size);
+    celsius *out,
+    size_t start,
+    size_t size);
 
 /*!
  * \brief Get a pointer to the CAN payload of the cells temperatures
@@ -162,7 +162,7 @@ enum TempReturnCode temp_dump_values(
  *
  * \returns bms_cellboard_cells_temperature_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(size_t *const byte_size);
+bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(size_t *byte_size);
 
 /*!
  * \brief Get a pointer to the CAN payload of the discharge resistors temperature
@@ -171,7 +171,7 @@ bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(
  *
  * \returns bms_cellboard_discharge_temperature_converted_t* A pointer to the payload
  */
-bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_payload(size_t *const byte_size);
+bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_payload(size_t *byte_size);
 
 #else // CONF_TEMPERATURE_MODULE_ENABLE
 

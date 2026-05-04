@@ -22,8 +22,8 @@
  *
  * \brief Minimum and maximum allowed cell temperature in celsius 
 */
-#define TEMP_MIN_C (-10.f)
-#define TEMP_MAX_C (60.f)
+#define TEMP_MIN_C (-10.0F)
+#define TEMP_MAX_C (60.0F)
 /*! \} */
 
 /*!
@@ -35,8 +35,8 @@
  * 
  * \{
  */
-#define TEMP_MIN_LIMIT_V (0.f)
-#define TEMP_MAX_LIMIT_V (3.f)
+#define TEMP_MIN_LIMIT_V (0.0F)
+#define TEMP_MAX_LIMIT_V (3.0F)
 /*! \} */
 
 /*!
@@ -48,8 +48,8 @@
  * for the polynomial conversion, allowing a plausible temperature value.
  * \{
  */
-#define TEMP_DISCHARGE_MIN_LIMIT_V (0.0f)
-#define TEMP_DISCHARGE_MAX_LIMIT_V (5.1f)
+#define TEMP_DISCHARGE_MIN_LIMIT_V (0.0F)
+#define TEMP_DISCHARGE_MAX_LIMIT_V (5.1F)
 /*! \} */
 
 /*! 
