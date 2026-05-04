@@ -20,21 +20,21 @@
  *
  * \retval PROGRAMMER_RC_OK if the initialization is successful
  */
-enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset);
+enum ProgrammerReturnCode programmer_init(system_reset_callback_t reset);
 
 /*!
  * \brief Handle the received flash request
  *
  * \param payload A pointer to the canlib payload of the request
  */
-void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload);
+void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *payload);
 
 /*!
  * \brief Handle the received actual flash command
  *
  * \param payload A pointer to the canlib payload of the command
  */
-void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload);
+void programmer_flash_handle(const bms_cellboard_flash_converted_t *payload);
 
 /*!
  * \brief Routine that should be called during the flash procedure

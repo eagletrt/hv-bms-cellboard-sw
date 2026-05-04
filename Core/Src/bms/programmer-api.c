@@ -67,14 +67,16 @@ enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
 }
 
 void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
-    if (payload == NULL)
+    if (payload == NULL) {
         return;
-    if (programmer_handler.flash_request)
+    }
+    if (programmer_handler.flash_request) {
         return;
+    }
     const fsm_state_t status = fsm_get_status();
-    if (status != FSM_STATE_IDLE && status != FSM_STATE_FATAL)
+    if (status != FSM_STATE_IDLE && status != FSM_STATE_FATAL) {
         return;
-
+    }
     // TODO: Check the payload content
 
     programmer_handler.target = payload->mainboard ? MAINBOARD_ID : (enum CellboardId)payload->cellboard_id;
@@ -89,13 +91,15 @@ void programmer_flash_request_handle(const bms_cellboard_flash_request_converted
 }
 
 void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload) {
-    if (payload == NULL)
+    if (payload == NULL) {
         return;
-    if (payload->start == programmer_handler.flashing)
+    }
+    if (payload->start == programmer_handler.flashing) {
         return;
-    if (fsm_get_status() != FSM_STATE_FLASH || !programmer_handler.flash_request)
+    }
+    if (fsm_get_status() != FSM_STATE_FLASH || !programmer_handler.flash_request) {
         return;
-
+    }
     if (payload->start) {
         watchdog_reset(&programmer_handler.watchdog);
         programmer_handler.flashing = true;
@@ -106,14 +110,16 @@ void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payloa
 }
 
 enum ProgrammerReturnCode programmer_routine(void) {
-    if (watchdog_is_timed_out(&programmer_handler.watchdog))
+    if (watchdog_is_timed_out(&programmer_handler.watchdog)) {
         return PROGRAMMER_RC_TIMEOUT;
-    if (programmer_handler.flash_stop)
+    }
+    if (programmer_handler.flash_stop) {
         return PROGRAMMER_RC_OK;
-
+    }
     // Reset the microcontroller if the current cellboard is the target
-    if (programmer_handler.flashing && identity_api_get_cellboard_id() == programmer_handler.target)
+    if (programmer_handler.flashing && identity_api_get_cellboard_id() == programmer_handler.target) {
         programmer_handler.reset();
+    }
 
     return PROGRAMMER_RC_BUSY;
 }
