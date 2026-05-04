@@ -1,9 +1,10 @@
-/**
- * @file programmer.c
- * @date 2024-05-12
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+/*!
+ * \file programmer.c
+ * \date 2024-05-12
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \author Alessandro Giustina [giustinalessandro@gmail.com]
  *
- * @brief Functions used during the flash procedure where the microcontroller
+ * \brief Functions used during the flash procedure where the microcontroller
  * is reset and openblt load the new code inside the flash memory
  */
 
@@ -57,7 +58,7 @@ ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
         TIMEBASE_MS_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT_MS, timebase_get_resolution()),
         _programmer_flash_timeout);
 
-    return PROGRAMMER_OK;
+    return PROGRAMMER_RC_OK;
 }
 
 void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
@@ -101,13 +102,13 @@ void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payloa
 
 ProgrammerReturnCode programmer_routine(void) {
     if (watchdog_is_timed_out(&hprogrammer.watchdog))
-        return PROGRAMMER_TIMEOUT;
+        return PROGRAMMER_RC_TIMEOUT;
     if (hprogrammer.flash_stop)
-        return PROGRAMMER_OK;
+        return PROGRAMMER_RC_OK;
 
     // Reset the microcontroller if the current cellboard is the target
     if (hprogrammer.flashing && identity_api_get_cellboard_id() == hprogrammer.target)
         hprogrammer.reset();
 
-    return PROGRAMMER_BUSY;
+    return PROGRAMMER_RC_BUSY;
 }

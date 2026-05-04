@@ -23,7 +23,7 @@ void reset() {
 }
 
 void test_programmer_init_ok() {
-    TEST_ASSERT_EQUAL(PROGRAMMER_OK, programmer_init(NULL));
+    TEST_ASSERT_EQUAL(PROGRAMMER_RC_OK, programmer_init(NULL));
 }
 
 void test_programmer_init_reset() {
