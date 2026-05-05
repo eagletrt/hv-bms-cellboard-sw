@@ -66,19 +66,20 @@ enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
     return PROGRAMMER_RC_OK;
 }
 
-void programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
+enum ProgrammerReturnCode programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
     if (payload == NULL) {
-        return;
+        return PROGRAMMER_RC_NULL_POINTER;
     }
     if (programmer_handler.flash_request) {
-        return;
+        return PROGRAMMER_RC_BUSY;
     }
     const fsm_state_t status = fsm_get_status();
     if (status != FSM_STATE_IDLE && status != FSM_STATE_FATAL) {
-        return;
+        return PROGRAMMER_RC_ERROR;
     }
-    // TODO: Check the payload content
-
+    if (payload->cellboard_id >= CELLBOARD_ID_COUNT && !payload->mainboard) {
+        return PROGRAMMER_RC_ERROR;
+    }
     programmer_handler.target = payload->mainboard ? MAINBOARD_ID : (enum CellboardId)payload->cellboard_id;
     programmer_handler.flash_request = true;
     programmer_handler.flash_stop = false;
@@ -88,17 +89,18 @@ void programmer_flash_request_handle(const bms_cellboard_flash_request_converted
 
     // Trigger event
     fsm_event_trigger(&programmer_handler.flash_event);
+    return PROGRAMMER_RC_OK;
 }
 
-void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload) {
+enum ProgrammerReturnCode programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload) {
     if (payload == NULL) {
-        return;
+        return PROGRAMMER_RC_NULL_POINTER;
     }
     if (payload->start == programmer_handler.flashing) {
-        return;
+        return PROGRAMMER_RC_OK; // No change, just ignore the message
     }
     if (fsm_get_status() != FSM_STATE_FLASH || !programmer_handler.flash_request) {
-        return;
+        return PROGRAMMER_RC_ERROR;
     }
     if (payload->start) {
         watchdog_reset(&programmer_handler.watchdog);
@@ -107,6 +109,7 @@ void programmer_flash_handle(const bms_cellboard_flash_converted_t *const payloa
         watchdog_stop(&programmer_handler.watchdog);
         prv_programmer_flash_stop();
     }
+    return PROGRAMMER_RC_OK;
 }
 
 enum ProgrammerReturnCode programmer_routine(void) {

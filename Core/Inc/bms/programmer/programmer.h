@@ -25,10 +25,11 @@
  * \brief Return code for the programmer module functions 
  */
 enum ProgrammerReturnCode {
-    PROGRAMMER_RC_OK,          /*!< The function executed successfully */
-    PROGRAMMER_RC_BUSY,        /*!< The flash procedure is still ongoing, the function should be called again */
-    PROGRAMMER_RC_TIMEOUT,     /*!< The flash procedure has timed out */
-    PROGRAMMER_RC_NULL_POINTER /*!< The function recieved a null pointer*/
+    PROGRAMMER_RC_OK,           /*!< The function executed successfully */
+    PROGRAMMER_RC_BUSY,         /*!< The flash procedure is still ongoing, the function should be called again */
+    PROGRAMMER_RC_TIMEOUT,      /*!< The flash procedure has timed out */
+    PROGRAMMER_RC_NULL_POINTER, /*!< The function recieved a null pointer*/
+    PROGRAMMER_RC_ERROR         /*!< An error occurred during the execution of the function */
 };
 
 /*!
