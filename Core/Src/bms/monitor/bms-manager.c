@@ -32,7 +32,7 @@ EAGLETRT_STATIC struct BmsManagerHandler bms_handler;
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode _bms_manager_send(uint8_t *const data, const size_t size) {
+enum BmsManagerReturnCode prv_bms_manager_send(uint8_t *const data, const size_t size) {
     EAGLETRT_STATIC uint8_t aux;
     return bms_handler.send_receive(data, &aux, size, 0U);
 }
@@ -44,7 +44,7 @@ enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t sen
     memset(&bms_handler, 0U, sizeof(bms_handler));
 
     // Set callbacks
-    bms_handler.send = (send == NULL) ? _bms_manager_send : send;
+    bms_handler.send = (send == NULL) ? prv_bms_manager_send : send;
     bms_handler.send_receive = send_receive;
 
     // Initialize the LTCs
