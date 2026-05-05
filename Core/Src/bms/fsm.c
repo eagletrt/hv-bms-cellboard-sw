@@ -19,7 +19,7 @@ Functions and types have been generated with prefix "fsm_"
 #include <string.h>
 
 #include "can-comm.h"
-#include "post.h"
+#include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
 #include "programmer.h"
@@ -124,7 +124,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
     hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
 
     // Run the Power On Self Test
-    const PostReturnCode status = (data == NULL) ? POST_NULL_POINTER : post_run(*(PostInitData *)data);
+    const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_run(*(struct PostInitData *)data);
 
     // Init canlib payloads
     const enum CellboardId id = identity_api_get_cellboard_id();
@@ -144,7 +144,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
         _fsm_cooldown_timeout);
 
     switch (status) {
-        case POST_OK:
+        case POST_RC_OK:
             next_state = FSM_STATE_IDLE;
             break;
         default:
