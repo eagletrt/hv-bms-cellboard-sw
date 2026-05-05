@@ -33,7 +33,7 @@ extern "C" {
 #include "cellboard-def.h"
 #include "cellboard-conf.h"
 
-#include "bms-manager.h"
+#include "bms-manager-api.h"
 
 /* USER CODE END Includes */
 
@@ -64,13 +64,13 @@ void MX_SPI3_Init(void);
  * @param data A pointer to the data to send
  * @param size The length of the data in bytes
  *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission of the data
- *     - BMS_MANAGER_BUSY if the peripherial is busy
- *     - BMS_MANAGER_ERROR if an unkown error happens
- *     - BMS_MANAGER_OK otherwise
+ * @return enum BmsManagerReturnCode
+ *     - BMS_MANAGER_RC_COMMUNICATION_ERROR if there is an error during the transmission of the data
+ *     - BMS_MANAGER_RC_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_RC_ERROR if an unkown error happens
+ *     - BMS_MANAGER_RC_OK otherwise
  */
-BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size);
+enum BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size);
 
 /**
  * @brief Send and receive data via SPI
@@ -80,13 +80,13 @@ BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size);
  * @param size The length of the sent data in bytes
  * @param out_size The length of the received data in bytes
  *
- * @return BmsManagerReturnCode
- *     - BMS_MANAGER_COMMUNICATION_ERROR if there is an error during the transmission or reception of the data
- *     - BMS_MANAGER_BUSY if the peripherial is busy
- *     - BMS_MANAGER_ERROR if an unkown error happens
- *     - BMS_MANAGER_OK otherwise
+ * @return enum BmsManagerReturnCode
+ *     - BMS_MANAGER_RC_COMMUNICATION_ERROR if there is an error during the transmission or reception of the data
+ *     - BMS_MANAGER_RC_BUSY if the peripherial is busy
+ *     - BMS_MANAGER_RC_ERROR if an unkown error happens
+ *     - BMS_MANAGER_RC_OK otherwise
  */
-BmsManagerReturnCode spi_send_and_receive(
+enum BmsManagerReturnCode spi_send_and_receive(
     uint8_t *const data,
     uint8_t *const out,
     const size_t size,

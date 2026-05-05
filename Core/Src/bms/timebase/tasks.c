@@ -18,7 +18,7 @@
 #include "volt-api.h"
 #include "temp.h"
 #include "bms-monitor-fsm.h"
-#include "bms-manager.h"
+#include "bms-manager-api.h"
 #include "bal.h"
 #include "error.h"
 

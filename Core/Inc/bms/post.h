@@ -14,7 +14,7 @@
 #include "cellboard-def.h"
 
 #include "can-comm.h"
-#include "bms-manager.h"
+#include "bms-manager-api.h"
 #include "led-api.h"
 #include "temp.h"
 

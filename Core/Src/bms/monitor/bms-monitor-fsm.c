@@ -412,7 +412,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
+    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_ACTIVE);
     /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
 
     switch (next_state) {
@@ -454,7 +454,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_ACTIVE);
+    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_ACTIVE);
     /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
 
     switch (next_state) {
@@ -580,7 +580,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
+    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_INACTIVE);
     /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
 
     switch (next_state) {
@@ -622,7 +622,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_PUP_INACTIVE);
+    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_INACTIVE);
     /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
 
     switch (next_state) {
@@ -760,12 +760,12 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    BmsManagerReturnCode code = bms_manager_check_open_wire();
+    enum BmsManagerReturnCode code = bms_manager_check_open_wire();
     switch (code) {
-        case BMS_MANAGER_OK:
+        case BMS_MANAGER_RC_OK:
             error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
             break;
-        case BMS_MANAGER_OPEN_WIRE:
+        case BMS_MANAGER_RC_OPEN_WIRE:
             error_set(ERROR_GROUP_OPEN_WIRE, 0U);
             break;
         default:
