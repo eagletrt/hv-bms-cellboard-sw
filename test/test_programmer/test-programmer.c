@@ -40,9 +40,6 @@ void test_programmer_init_with_correct_value(void) {
     TEST_ASSERT_EQUAL_MESSAGE(FSM_EVENT_TYPE_FLASH_REQUEST, programmer_handler.flash_event.type, "programmer_handler.flash_event.type should be initialized to FSM_EVENT_TYPE_FLASH_REQUEST");
     TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, programmer_handler.can_payload.cellboard_id, "programmer_handler.can_payload.cellboard_id should be initialized to the correct cellboard ID");
     TEST_ASSERT_TRUE_MESSAGE(programmer_handler.can_payload.ready, "programmer_handler.can_payload.ready should be initialized to true");
-}
-
-void test_programmer_init_target(void) {
     TEST_ASSERT_EQUAL_MESSAGE(MAINBOARD_ID, programmer_handler.target, "programmer_handler.target should be initialized to the correct mainboard ID");
 }
 
@@ -217,7 +214,6 @@ int main() {
     UNITY_BEGIN();
     RUN_TEST(test_programmer_init_with_null_pointer);
     RUN_TEST(test_programmer_init_with_correct_value);
-    RUN_TEST(test_programmer_init_target);
     RUN_TEST(test_programmer_routine_called);
     RUN_TEST(test_programmer_flash_timeout);
     RUN_TEST(test_programmer_flash_stop);
