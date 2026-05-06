@@ -38,6 +38,10 @@ enum BmsManagerReturnCode prv_bms_manager_send(uint8_t *const data, const size_t
 }
 
 enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive) {
+
+    const uint8_t gpio_default = 0b11111;
+    const uint8_t refon_default = 1U;
+
     if (send_receive == NULL) {
         return BMS_MANAGER_RC_NULL_POINTER;
     }
@@ -52,8 +56,8 @@ enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t sen
 
     // Initialize the LTCs configurations
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
-        bms_handler.requested_config[i].GPIO = 0b11111;
-        bms_handler.requested_config[i].REFON = 1U;
+        bms_handler.requested_config[i].GPIO = gpio_default;
+        bms_handler.requested_config[i].REFON = refon_default;
     }
     return BMS_MANAGER_RC_OK;
 }
@@ -164,6 +168,12 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
 
 enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum Ltc68111Pup pull_up) {
     // Encode the command
+
+    if (pull_up >= LTC6811_1_PUP_COUNT) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
+        return BMS_MANAGER_RC_ENCODE_ERROR;
+    }
+
     uint8_t cmd[LTC6811_1_POLL_BUFFER_SIZE];
     size_t byte_size = ltc6811_1_adow_encode_broadcast(
         &bms_handler.ltc_handler,
@@ -200,8 +210,9 @@ enum BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
     uint8_t poll_status = 0;
     const enum BmsManagerReturnCode code = bms_handler.send_receive(cmd, &poll_status, byte_size, LTC6811_1_POLL_BYTE_COUNT);
     if (code != BMS_MANAGER_RC_OK) {
-        if (code != BMS_MANAGER_RC_BUSY)
+        if (code != BMS_MANAGER_RC_BUSY) {
             error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL);
+        }
         return code;
     }
     error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_POLL);
@@ -210,6 +221,12 @@ enum BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
 
 enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltageRegister reg) {
     // Encode the command
+
+    if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_VOLTAGE);
+        return BMS_MANAGER_RC_ENCODE_ERROR;
+    }
+
     uint8_t cmd[LTC6811_1_READ_BUFFER_SIZE];
     size_t byte_size = ltc6811_1_rdcv_encode_broadcast(
         &bms_handler.ltc_handler,
@@ -314,7 +331,13 @@ enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTem
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation op) {
+enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation pull_up_operation) {
+
+    if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT || pull_up_operation >= LTC6811_1_PUP_COUNT) {
+        error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
+        return BMS_MANAGER_RC_ENCODE_ERROR;
+    }
+
     // Encode the command
     uint8_t cmd[LTC6811_1_READ_BUFFER_SIZE];
     size_t byte_size = ltc6811_1_rdcv_encode_broadcast(
@@ -360,29 +383,35 @@ enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsMana
         const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_1_REG_CELL_COUNT;
         for (size_t i = 0U; i < LTC6811_1_REG_CELL_COUNT; ++i) {
             const volt value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
-            bms_handler.pup[op][index + i] = value;
+            bms_handler.pup[pull_up_operation][index + i] = value;
         }
     }
     return BMS_MANAGER_RC_OK;
 };
 
 enum BmsManagerReturnCode bms_manager_check_open_wire(void) {
-    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
+
+    size_t offset = 0;
+
+    for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ltc++) {
+
+        offset = ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT;
+
         // Check first and last voltages
-        if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+        if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_set(ERROR_GROUP_OPEN_WIRE, 0U);
             return BMS_MANAGER_RC_OPEN_WIRE;
         }
-        if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+        if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_set(ERROR_GROUP_OPEN_WIRE, 0U);
             return BMS_MANAGER_RC_OPEN_WIRE;
         }
 
         // Check other voltages
-        for (size_t i = 1U; i <= CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
+        for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
-            const volt dv = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i];
-            if (dv < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V) {
+            const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
+            if (delta_v < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V) {
                 error_set(ERROR_GROUP_OPEN_WIRE, 0U);
                 return BMS_MANAGER_RC_OPEN_WIRE;
             }
@@ -398,8 +427,8 @@ enum BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells) {
         const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
 
         // Select the correct cells for each LTC
-        const bit_flag16_t dcc = (cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
-                                 ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+        const bit_flag16_t dcc = (bit_flag16_t)((cells >> (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) &
+                                                ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U));
 
         // Set configuration
         bms_handler.requested_config[ltc].DCTO = (dcc == 0U) ? LTC6811_1_DCTO_OFF : LTC6811_1_DCTO_30S;

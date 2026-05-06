@@ -24,7 +24,7 @@
  * \retval BMS_MANAGER_RC_NULL_POINTER if the send/receive callback pointer is NULL
  * \retval BMS_MANAGER_RC_OK if the handler is initialized correctly
  */
-enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive);
+enum BmsManagerReturnCode bms_manager_init(bms_manager_send_callback_t send, bms_manager_send_receive_callback_t send_receive);
 
 /*!
  * \brief Routine that handles the communication with the BMS monitor
@@ -94,7 +94,7 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum Ltc68111Pup pull_up);
+enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(enum Ltc68111Pup pull_up);
 
 /*! 
  * \brief Check if the started ADC conversion has ended
@@ -119,7 +119,7 @@ enum BmsManagerReturnCode bms_manager_poll_conversion_status(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltageRegister reg);
+enum BmsManagerReturnCode bms_manager_read_voltages(enum BmsManagerVoltageRegister reg);
 
 /*!
  * \brief Read the discharge resistors temperatures from the LTCs
@@ -133,7 +133,7 @@ enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltage
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTemperatureRegister reg);
+enum BmsManagerReturnCode bms_manager_read_temperatures(enum BmsManagerTemperatureRegister reg);
 
 /*!
  * \brief Read the cells voltages after the open wire conversion from the LTCs
@@ -148,7 +148,7 @@ enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTem
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation op);
+enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(enum BmsManagerVoltageRegister reg, enum BmsManagerOpenWireOperation pull_up_operation);
 
 /*!
  * \brief Check for open wires
@@ -172,7 +172,7 @@ enum BmsManagerReturnCode bms_manager_check_open_wire(void);
  *
  * \retval BMS_MANAGER_RC_OK if the operation was successful
  */
-enum BmsManagerReturnCode bms_manager_set_discharge_cells(const bit_flag32 cells);
+enum BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells);
 
 /*!
  * \brief Get the cells that are being currently discharged
