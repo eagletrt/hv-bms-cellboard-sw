@@ -25,8 +25,11 @@ enum BalReturnCode bal_init(void);
  * \brief Handler the information received inside the canlib payload
  *
  * \param payload A pointer to the CAN paylaod data
+ * \retval BAL_NULL_POINTER if the payload pointer is NULL
+ * \retval BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
+ * \retval BAL_OK if the function executed correctly
  */
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload);
+enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload);
 
 /*!
  * \brief Check if the balancing is active

@@ -38,6 +38,8 @@ enum BalReturnCode bal_init(void) {
     balancing_handler.params.target = BAL_TARGET_MAX_V;
     balancing_handler.params.threshold = BAL_THRESHOLD_MAX_V;
 
+    balancing_handler.status = BAL_STATUS_STOPPED;
+
     // Initialize main balancing watchdog
     (void)watchdog_init(
         &balancing_handler.watchdog,
@@ -47,12 +49,12 @@ enum BalReturnCode bal_init(void) {
 }
 
 // TODO: Handle unavailable watchdog
-void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload) {
+enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload) {
     if (payload == NULL)
-        return;
+        return BAL_NULL_POINTER;
     // Ignore stop command if not balancing
     if (!bal_is_active() && !payload->start)
-        return;
+        return BAL_OK;
 
     // Update data
     const volt target = payload->target;
@@ -62,14 +64,15 @@ void bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converte
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);
-    if (code == WATCHDOG_UNAVAILABLE)
-        return;
+    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING)
+        return BAL_WATCHDOG_ERROR;
 
     // Send event to the FSM
     if (bal_is_active() == !payload->start) {
         balancing_handler.event.type = payload->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
         fsm_event_trigger(&balancing_handler.event);
     }
+    return BAL_OK;
 }
 
 bool bal_is_active(void) {
@@ -87,7 +90,7 @@ enum BalReturnCode bal_start(void) {
 
     // Start watchdog
     const WatchdogReturnCode code = watchdog_restart(&balancing_handler.watchdog);
-    if (code == WATCHDOG_UNAVAILABLE)
+    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING)
         return BAL_WATCHDOG_ERROR;
 
     // Set discharge configuration
@@ -124,7 +127,7 @@ enum BalReturnCode bal_pause(void) {
 }
 
 enum BalReturnCode bal_resume(void) {
-    if (bal_is_active() && !bal_is_paused())
+    if (bal_is_active() && !bal_is_paused() || balancing_handler.status == BAL_STATUS_STOPPED)
         return BAL_OK;
 
     // Set discharge configuration
@@ -146,30 +149,30 @@ bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t
     }
     // Update discharging cells
     const uint32_t cells = bms_manager_get_discharge_cells();
-    balancing_handler.status_can_payload.discharging_cell_0 = EAGLETRT_API_BIT_SET(cells, 0U);
-    balancing_handler.status_can_payload.discharging_cell_1 = EAGLETRT_API_BIT_SET(cells, 1U);
-    balancing_handler.status_can_payload.discharging_cell_2 = EAGLETRT_API_BIT_SET(cells, 2U);
-    balancing_handler.status_can_payload.discharging_cell_3 = EAGLETRT_API_BIT_SET(cells, 3U);
-    balancing_handler.status_can_payload.discharging_cell_4 = EAGLETRT_API_BIT_SET(cells, 4U);
-    balancing_handler.status_can_payload.discharging_cell_5 = EAGLETRT_API_BIT_SET(cells, 5U);
-    balancing_handler.status_can_payload.discharging_cell_6 = EAGLETRT_API_BIT_SET(cells, 6U);
-    balancing_handler.status_can_payload.discharging_cell_7 = EAGLETRT_API_BIT_SET(cells, 7U);
-    balancing_handler.status_can_payload.discharging_cell_8 = EAGLETRT_API_BIT_SET(cells, 8U);
-    balancing_handler.status_can_payload.discharging_cell_9 = EAGLETRT_API_BIT_SET(cells, 9U);
-    balancing_handler.status_can_payload.discharging_cell_10 = EAGLETRT_API_BIT_SET(cells, 10U);
-    balancing_handler.status_can_payload.discharging_cell_11 = EAGLETRT_API_BIT_SET(cells, 11U);
-    balancing_handler.status_can_payload.discharging_cell_12 = EAGLETRT_API_BIT_SET(cells, 12U);
-    balancing_handler.status_can_payload.discharging_cell_13 = EAGLETRT_API_BIT_SET(cells, 13U);
-    balancing_handler.status_can_payload.discharging_cell_14 = EAGLETRT_API_BIT_SET(cells, 14U);
-    balancing_handler.status_can_payload.discharging_cell_15 = EAGLETRT_API_BIT_SET(cells, 15U);
-    balancing_handler.status_can_payload.discharging_cell_16 = EAGLETRT_API_BIT_SET(cells, 16U);
-    balancing_handler.status_can_payload.discharging_cell_17 = EAGLETRT_API_BIT_SET(cells, 17U);
-    balancing_handler.status_can_payload.discharging_cell_18 = EAGLETRT_API_BIT_SET(cells, 18U);
-    balancing_handler.status_can_payload.discharging_cell_19 = EAGLETRT_API_BIT_SET(cells, 19U);
-    balancing_handler.status_can_payload.discharging_cell_20 = EAGLETRT_API_BIT_SET(cells, 20U);
-    balancing_handler.status_can_payload.discharging_cell_21 = EAGLETRT_API_BIT_SET(cells, 21U);
-    balancing_handler.status_can_payload.discharging_cell_22 = EAGLETRT_API_BIT_SET(cells, 22U);
-    balancing_handler.status_can_payload.discharging_cell_23 = EAGLETRT_API_BIT_SET(cells, 23U);
+    balancing_handler.status_can_payload.discharging_cell_0 = EAGLETRT_API_BIT_GET(cells, 0U);
+    balancing_handler.status_can_payload.discharging_cell_1 = EAGLETRT_API_BIT_GET(cells, 1U);
+    balancing_handler.status_can_payload.discharging_cell_2 = EAGLETRT_API_BIT_GET(cells, 2U);
+    balancing_handler.status_can_payload.discharging_cell_3 = EAGLETRT_API_BIT_GET(cells, 3U);
+    balancing_handler.status_can_payload.discharging_cell_4 = EAGLETRT_API_BIT_GET(cells, 4U);
+    balancing_handler.status_can_payload.discharging_cell_5 = EAGLETRT_API_BIT_GET(cells, 5U);
+    balancing_handler.status_can_payload.discharging_cell_6 = EAGLETRT_API_BIT_GET(cells, 6U);
+    balancing_handler.status_can_payload.discharging_cell_7 = EAGLETRT_API_BIT_GET(cells, 7U);
+    balancing_handler.status_can_payload.discharging_cell_8 = EAGLETRT_API_BIT_GET(cells, 8U);
+    balancing_handler.status_can_payload.discharging_cell_9 = EAGLETRT_API_BIT_GET(cells, 9U);
+    balancing_handler.status_can_payload.discharging_cell_10 = EAGLETRT_API_BIT_GET(cells, 10U);
+    balancing_handler.status_can_payload.discharging_cell_11 = EAGLETRT_API_BIT_GET(cells, 11U);
+    balancing_handler.status_can_payload.discharging_cell_12 = EAGLETRT_API_BIT_GET(cells, 12U);
+    balancing_handler.status_can_payload.discharging_cell_13 = EAGLETRT_API_BIT_GET(cells, 13U);
+    balancing_handler.status_can_payload.discharging_cell_14 = EAGLETRT_API_BIT_GET(cells, 14U);
+    balancing_handler.status_can_payload.discharging_cell_15 = EAGLETRT_API_BIT_GET(cells, 15U);
+    balancing_handler.status_can_payload.discharging_cell_16 = EAGLETRT_API_BIT_GET(cells, 16U);
+    balancing_handler.status_can_payload.discharging_cell_17 = EAGLETRT_API_BIT_GET(cells, 17U);
+    balancing_handler.status_can_payload.discharging_cell_18 = EAGLETRT_API_BIT_GET(cells, 18U);
+    balancing_handler.status_can_payload.discharging_cell_19 = EAGLETRT_API_BIT_GET(cells, 19U);
+    balancing_handler.status_can_payload.discharging_cell_20 = EAGLETRT_API_BIT_GET(cells, 20U);
+    balancing_handler.status_can_payload.discharging_cell_21 = EAGLETRT_API_BIT_GET(cells, 21U);
+    balancing_handler.status_can_payload.discharging_cell_22 = EAGLETRT_API_BIT_GET(cells, 22U);
+    balancing_handler.status_can_payload.discharging_cell_23 = EAGLETRT_API_BIT_GET(cells, 23U);
     return &balancing_handler.status_can_payload;
 }
 
