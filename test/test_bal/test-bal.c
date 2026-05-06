@@ -12,6 +12,7 @@
 #include "cellboard-def.h"
 #include "bms-manager.h"
 #include "timebase.h"
+#include "eagletrt-api.h"
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern struct BalHandler balancing_handler;
@@ -120,30 +121,30 @@ void test_bal_get_canlib_payload_content() {
     size_t byte_size;
     bms_cellboard_balancing_status_converted_t *payload = bal_get_status_canlib_payload(&byte_size);
 
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_0, CELLBOARD_BIT_GET(cells, 0U), "Discharging cell 0 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_1, CELLBOARD_BIT_GET(cells, 1U), "Discharging cell 1 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_2, CELLBOARD_BIT_GET(cells, 2U), "Discharging cell 2 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_3, CELLBOARD_BIT_GET(cells, 3U), "Discharging cell 3 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_4, CELLBOARD_BIT_GET(cells, 4U), "Discharging cell 4 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_5, CELLBOARD_BIT_GET(cells, 5U), "Discharging cell 5 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_6, CELLBOARD_BIT_GET(cells, 6U), "Discharging cell 6 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_7, CELLBOARD_BIT_GET(cells, 7U), "Discharging cell 7 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_8, CELLBOARD_BIT_GET(cells, 8U), "Discharging cell 8 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_9, CELLBOARD_BIT_GET(cells, 9U), "Discharging cell 9 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_10, CELLBOARD_BIT_GET(cells, 10U), "Discharging cell 10 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_11, CELLBOARD_BIT_GET(cells, 11U), "Discharging cell 11 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_12, CELLBOARD_BIT_GET(cells, 12U), "Discharging cell 12 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_13, CELLBOARD_BIT_GET(cells, 13U), "Discharging cell 13 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_14, CELLBOARD_BIT_GET(cells, 14U), "Discharging cell 14 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_15, CELLBOARD_BIT_GET(cells, 15U), "Discharging cell 15 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_16, CELLBOARD_BIT_GET(cells, 16U), "Discharging cell 16 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_17, CELLBOARD_BIT_GET(cells, 17U), "Discharging cell 17 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_18, CELLBOARD_BIT_GET(cells, 18U), "Discharging cell 18 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_19, CELLBOARD_BIT_GET(cells, 19U), "Discharging cell 19 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_20, CELLBOARD_BIT_GET(cells, 20U), "Discharging cell 20 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_21, CELLBOARD_BIT_GET(cells, 21U), "Discharging cell 21 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_22, CELLBOARD_BIT_GET(cells, 22U), "Discharging cell 22 status mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_23, CELLBOARD_BIT_GET(cells, 23U), "Discharging cell 23 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_0, EAGLETRT_API_BIT_GET(cells, 0U), "Discharging cell 0 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_1, EAGLETRT_API_BIT_GET(cells, 1U), "Discharging cell 1 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_2, EAGLETRT_API_BIT_GET(cells, 2U), "Discharging cell 2 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_3, EAGLETRT_API_BIT_GET(cells, 3U), "Discharging cell 3 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_4, EAGLETRT_API_BIT_GET(cells, 4U), "Discharging cell 4 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_5, EAGLETRT_API_BIT_GET(cells, 5U), "Discharging cell 5 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_6, EAGLETRT_API_BIT_GET(cells, 6U), "Discharging cell 6 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_7, EAGLETRT_API_BIT_GET(cells, 7U), "Discharging cell 7 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_8, EAGLETRT_API_BIT_GET(cells, 8U), "Discharging cell 8 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_9, EAGLETRT_API_BIT_GET(cells, 9U), "Discharging cell 9 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_10, EAGLETRT_API_BIT_GET(cells, 10U), "Discharging cell 10 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_11, EAGLETRT_API_BIT_GET(cells, 11U), "Discharging cell 11 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_12, EAGLETRT_API_BIT_GET(cells, 12U), "Discharging cell 12 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_13, EAGLETRT_API_BIT_GET(cells, 13U), "Discharging cell 13 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_14, EAGLETRT_API_BIT_GET(cells, 14U), "Discharging cell 14 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_15, EAGLETRT_API_BIT_GET(cells, 15U), "Discharging cell 15 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_16, EAGLETRT_API_BIT_GET(cells, 16U), "Discharging cell 16 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_17, EAGLETRT_API_BIT_GET(cells, 17U), "Discharging cell 17 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_18, EAGLETRT_API_BIT_GET(cells, 18U), "Discharging cell 18 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_19, EAGLETRT_API_BIT_GET(cells, 19U), "Discharging cell 19 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_20, EAGLETRT_API_BIT_GET(cells, 20U), "Discharging cell 20 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_21, EAGLETRT_API_BIT_GET(cells, 21U), "Discharging cell 21 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_22, EAGLETRT_API_BIT_GET(cells, 22U), "Discharging cell 22 status mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(balancing_handler.status_can_payload.discharging_cell_23, EAGLETRT_API_BIT_GET(cells, 23U), "Discharging cell 23 status mismatch");
 }
 
 void test_bal_set_balancing_status_handle_target() {
