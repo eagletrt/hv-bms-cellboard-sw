@@ -1,9 +1,10 @@
-/**
- * @file bal.c 
- * @date 2024-04-17
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+/*!
+ * \file bal.c
+ * \date 2024-04-17
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \author Alessandro Giustina [giustinalessandro@gmail.com]
  *
- * @brief Balancing handling functions
+ * \brief Balancing handling functions
  */
 
 #include "bal-api.h"
