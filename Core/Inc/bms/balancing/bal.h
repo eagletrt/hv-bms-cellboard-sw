@@ -21,12 +21,12 @@
 #include "watchdog.h"
 
 /*! \brief Balancing threshold range in V */
-#define BAL_THRESHOLD_MIN_V (0.005f)
-#define BAL_THRESHOLD_MAX_V (0.200f)
+#define BAL_THRESHOLD_MIN_V (0.005F)
+#define BAL_THRESHOLD_MAX_V (0.200F)
 
 /*! \brief Balancing target range in mV */
-#define BAL_TARGET_MIN_V (2.8f)
-#define BAL_TARGET_MAX_V (4.2f)
+#define BAL_TARGET_MIN_V (2.8F)
+#define BAL_TARGET_MAX_V (4.2F)
 
 /*! \brief Balancing timeouts in ms */
 #define BAL_TIMEOUT_MS (5000U)

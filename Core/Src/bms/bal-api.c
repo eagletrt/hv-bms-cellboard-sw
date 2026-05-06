@@ -50,22 +50,25 @@ enum BalReturnCode bal_init(void) {
 
 // TODO: Handle unavailable watchdog
 enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload) {
-    if (payload == NULL)
+    if (payload == NULL) {
         return BAL_NULL_POINTER;
+    }
     // Ignore stop command if not balancing
-    if (!bal_is_active() && !payload->start)
+    if (!bal_is_active() && !payload->start) {
         return BAL_OK;
+    }
 
     // Update data
     const volt target = payload->target;
     const volt threshold = payload->threshold;
-    balancing_handler.params.target = EAGLETRT_API_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);
-    balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V);
+    balancing_handler.params.target = EAGLETRT_API_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);             // NOLINT(readability-magic-numbers)
+    balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V); // NOLINT(readability-magic-numbers)
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);
-    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING)
+    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING) {
         return BAL_WATCHDOG_ERROR;
+    }
 
     // Send event to the FSM
     if (bal_is_active() == !payload->start) {
@@ -85,13 +88,15 @@ bool bal_is_paused(void) {
 
 enum BalReturnCode bal_start(void) {
     // Check actual balancing state
-    if (bal_is_active())
+    if (bal_is_active()) {
         return BAL_OK;
+    }
 
     // Start watchdog
     const WatchdogReturnCode code = watchdog_restart(&balancing_handler.watchdog);
-    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING)
+    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING) {
         return BAL_WATCHDOG_ERROR;
+    }
 
     // Set discharge configuration
     const volt target = balancing_handler.params.target + balancing_handler.params.threshold;
@@ -104,8 +109,9 @@ enum BalReturnCode bal_start(void) {
 
 enum BalReturnCode bal_stop(void) {
     // Check actual balancing status
-    if (!bal_is_active())
+    if (!bal_is_active()) {
         return BAL_OK;
+    }
 
     // Set discharge configuration
     (void)bms_manager_set_discharge_cells(0U);
@@ -117,9 +123,9 @@ enum BalReturnCode bal_stop(void) {
 }
 
 enum BalReturnCode bal_pause(void) {
-    if (!bal_is_active() || bal_is_paused())
+    if (!bal_is_active() || bal_is_paused()) {
         return BAL_OK;
-
+    }
     // Set discharge configuration
     (void)bms_manager_set_discharge_cells(0U);
     balancing_handler.status = BAL_STATUS_PAUSED;
@@ -127,9 +133,9 @@ enum BalReturnCode bal_pause(void) {
 }
 
 enum BalReturnCode bal_resume(void) {
-    if (bal_is_active() && !bal_is_paused() || balancing_handler.status == BAL_STATUS_STOPPED)
+    if (bal_is_active() && !bal_is_paused() || balancing_handler.status == BAL_STATUS_STOPPED) {
         return BAL_OK;
-
+    }
     // Set discharge configuration
     const volt target = balancing_handler.params.target + balancing_handler.params.threshold;
     const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
@@ -139,8 +145,9 @@ enum BalReturnCode bal_resume(void) {
 }
 
 bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL)
+    if (byte_size != NULL) {
         *byte_size = sizeof(balancing_handler.status_can_payload);
+    }
     balancing_handler.status_can_payload.status = bms_cellboard_balancing_status_status_stopped;
 
     // Update balancing status

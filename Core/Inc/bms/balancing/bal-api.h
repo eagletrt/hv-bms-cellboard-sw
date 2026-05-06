@@ -29,7 +29,7 @@ enum BalReturnCode bal_init(void);
  * \retval BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
  * \retval BAL_OK if the function executed correctly
  */
-enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload);
+enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *payload);
 
 /*!
  * \brief Check if the balancing is active
