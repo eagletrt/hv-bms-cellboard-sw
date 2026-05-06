@@ -47,7 +47,6 @@ celsius prv_temp_volt_to_celsius(volt_t value) {
 
 celsius prv_temp_discharge_volt_to_celsius(volt_t value) {
 
-    // To please clang-tidy, really don't like this
     const volt_t temp_discharge_min_limit_v = TEMP_DISCHARGE_MIN_LIMIT_V;
     const volt_t temp_discharge_max_limit_v = TEMP_DISCHARGE_MAX_LIMIT_V;
 
