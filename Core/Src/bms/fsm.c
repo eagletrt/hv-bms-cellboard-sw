@@ -23,7 +23,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "timebase.h"
 #include "identity-api.h"
 #include "programmer-api.h"
-#include "bal.h"
+#include "bal-api.h"
 #include "error.h"
 /*** USER CODE END MACROS ***/
 
