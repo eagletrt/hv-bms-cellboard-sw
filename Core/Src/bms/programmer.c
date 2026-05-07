@@ -38,7 +38,7 @@ void _programmer_flash_reset_flags(void) {
     hprogrammer.flash_stop = false;
 }
 
-ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
+ProgrammerReturnCode programmer_init(const system_reset_callback reset) {
     memset(&hprogrammer, 0U, sizeof(hprogrammer));
 
     hprogrammer.reset = reset;

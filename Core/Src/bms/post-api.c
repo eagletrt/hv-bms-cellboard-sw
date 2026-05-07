@@ -34,7 +34,7 @@ enum PostReturnCode prv_post_modules_init(const struct PostInitData *const data)
      * The error and identity initialization functions have to be executed
      * before every other function to ensure the proper functionality
      */
-    if (error_init(data->system_reset) != ERROR_OK) {
+    if (error_init(data->system_reset) != ERROR_RC_OK) {
         return POST_RC_UNINITIALIZED;
     }
     identity_api_init(data->id);

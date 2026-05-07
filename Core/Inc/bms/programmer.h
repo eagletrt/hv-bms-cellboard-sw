@@ -49,7 +49,7 @@ typedef enum {
  * @param timeout True if the watchdog has timed-out, false otherwise
  */
 typedef struct {
-    system_reset_callback_t reset;
+    system_reset_callback reset;
     fsm_event_data_t flash_event;
     bms_cellboard_flash_response_converted_t can_payload;
 
@@ -69,7 +69,7 @@ typedef struct {
  * @return ProgrammerReturnCode
  *     - PROGRAMMER_OK
  */
-ProgrammerReturnCode programmer_init(const system_reset_callback_t reset);
+ProgrammerReturnCode programmer_init(const system_reset_callback reset);
 
 /**
  * @brief Handle the received flash request

@@ -1,9 +1,9 @@
-/**
- * @file error.c
- * @date 2024-08-24
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+/*!
+ * \file error.c
+ * \date 2024-08-24
+ * \author Antonio Gelain [antonio.gelain2\gmail.com]
  *
- * @brief Simple wrapper for the error handler generated code
+ * \brief Simple wrapper for the error handler generated code
  */
 
 #include "error.h"
@@ -13,18 +13,19 @@
 #include "bms_network.h"
 #include "identity-api.h"
 #include "tasks.h"
+#include "eagletrt-api.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
-_STATIC ErrorLibHandler herror;
+EAGLETRT_STATIC ErrorLibHandler error_handler;
 
-// Canlib payload containing the error
-_STATIC bms_cellboard_error_converted_t error_can_payload;
+/*! \brief Canlib payload containing the error */
+EAGLETRT_STATIC bms_cellboard_error_converted_t error_can_payload;
 
-// A callback to resets the mainboard
-_STATIC system_reset_callback_t system_reset;
+/*! \brief A callback to resets the mainboard */
+EAGLETRT_STATIC system_reset_callback system_reset;
 
-/** @brief Total number of instances for each group */
+/*! \brief Total number of instances for each group */
 const size_t instances[] = {
     [ERROR_GROUP_POST] = ERROR_GROUP_POST_INSTANCE_COUNT,
     [ERROR_GROUP_UNDER_VOLTAGE] = ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT,
@@ -38,10 +39,10 @@ const size_t instances[] = {
     [ERROR_GROUP_BMS_MONITOR_COMMUNICATION] = ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT,
     [ERROR_GROUP_OPEN_WIRE] = ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT
 };
-/**
- * @brief Error thresholds for each group
+/*!
+ * \brief Error thresholds for each group
  *
- * @details The values are arbitrary and should not be too much high
+ * \details The values are arbitrary and should not be too much high
  */
 const size_t thresholds[] = {
     [ERROR_GROUP_POST] = 1U,
@@ -57,7 +58,7 @@ const size_t thresholds[] = {
     [ERROR_GROUP_OPEN_WIRE] = 3U
 };
 
-/** @brief List of errors where the data is stored */
+/*! \brief List of errors where the data is stored */
 int32_t error_post_instances[ERROR_GROUP_POST_INSTANCE_COUNT];
 int32_t error_under_voltage_instances[ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT];
 int32_t error_over_voltage_instances[ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT];
@@ -83,29 +84,29 @@ int32_t *error[] = {
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
-ErrorReturnCode error_init(const system_reset_callback_t reset) {
-    if (errorlib_init(&herror,
+ErrorReturnCode error_init(const system_reset_callback reset) {
+    if (errorlib_init(&error_handler,
                       error,
                       instances,
                       thresholds,
                       ERROR_GROUP_COUNT) != ERRORLIB_OK)
-        return ERROR_UNKNOWN;
+        return ERROR_RC_UNKNOWN;
 
     memset(&error_can_payload, 0U, sizeof(error_can_payload));
 
-    if (reset == NULL)
-        return ERROR_NULL_POINTER;
-
+    if (reset == NULL) {
+        return ERROR_RC_NULL_POINTER;
+    }
     system_reset = reset;
 
-    return ERROR_OK;
+    return ERROR_RC_OK;
 }
 
 ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance) {
-    ErrorLibReturnCode rt = errorlib_error_set(&herror, (errorlib_error_group_t)group, instance);
+    ErrorLibReturnCode rt = errorlib_error_set(&error_handler, (errorlib_error_group_t)group, instance);
 
-    if (errorlib_get_expired(&herror) > 0U) {
-        ErrorInfo error = errorlib_get_expired_info(&herror);
+    if (errorlib_get_expired(&error_handler) > 0U) {
+        ErrorInfo error = errorlib_get_expired_info(&error_handler);
 
         if (error.group == ERROR_GROUP_CAN_COMMUNICATION) {
             // Check if the error is from can and in that case reset the cellboard
@@ -121,45 +122,47 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
         }
     }
 
-    return rt != ERRORLIB_OK ? ERROR_UNKNOWN : ERROR_OK;
+    return rt != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
 }
 
 ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance) {
-    if (errorlib_error_reset(&herror, (errorlib_error_group_t)group, instance) != ERRORLIB_OK)
-        return ERROR_UNKNOWN;
-    return ERROR_OK;
+    if (errorlib_error_reset(&error_handler, (errorlib_error_group_t)group, instance) != ERRORLIB_OK) {
+        return ERROR_RC_UNKNOWN;
+    }
+    return ERROR_RC_OK;
 }
 
 size_t error_get_expired(void) {
-    return errorlib_get_expired(&herror);
+    return errorlib_get_expired(&error_handler);
 }
 
 ErrorInfo error_get_expired_info(void) {
-    return errorlib_get_expired_info(&herror);
+    return errorlib_get_expired_info(&error_handler);
 }
 
 bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL)
+    if (byte_size != NULL) {
         *byte_size = sizeof(error_can_payload);
+    }
     return &error_can_payload;
 }
 
 #ifdef CONF_ERROR_STRINGS_ENABLE
 
-_STATIC char *error_module_name = "error";
+EAGLETRT_STATIC char *error_module_name = "error";
 
 // clang-format off
-_STATIC char *error_return_code_name[] = {
-    [ERROR_OK] = "ok",
-    [ERROR_NULL_POINTER] = "null pointer",
-    [ERROR_UNKNOWN] = "unknown"
-}
+EAGLETRT_STATIC char *error_return_code_name[] = {
+    [ERROR_RC_OK] = "ok",
+    [ERROR_RC_NULL_POINTER] = "null pointer",
+    [ERROR_RC_UNKNOWN] = "unknown"
+};
 
-_STATIC char* error_return_code_description[] = {
-    [ERROR_OK] = "executed succesfully", 
-    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", 
-    [ERROR_UNKNOWN] = "unknown error" 
-}
+EAGLETRT_STATIC char* error_return_code_description[] = {
+    [ERROR_RC_OK] = "executed succesfully", 
+    [ERROR_RC_NULL_POINTER] = "attempt to dereference a null pointer", 
+    [ERROR_RC_UNKNOWN] = "unknown error" 
+};
 // clang-format on
 
 #endif // CONF_ERROR_STRINGS_ENABLE
