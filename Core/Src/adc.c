@@ -184,7 +184,7 @@ void adc_temperature_start_conversion(void) {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     if (hadc->Instance == HADC_TEMPS.Instance) {
-        volt_t data[ADC_DMA_CHANNEL_COUNT];
+        volt data[ADC_DMA_CHANNEL_COUNT];
         for (size_t i = 0U; i < ADC_DMA_CHANNEL_COUNT; ++i) {
             data[i] = CELLBOARD_ADC_RAW_VALUE_TO_VOLT(dma_data[i], ADC_VREF, ADC_RESOLUTION);
         }

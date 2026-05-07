@@ -145,9 +145,8 @@ void test_temp_start_conversion_when_busy() {
 }
 
 void test_temp_notify_conversion_complete_ok() {
-
     temp_handler.busy = true;
-    volt_t raw_values[2] = { 1.5f, 1.5f };
+    volt raw_values[2] = { 1.5f, 1.5f };
 
     const enum TempReturnCode rc = temp_notify_conversion_complete(raw_values, 2U);
 

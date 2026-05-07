@@ -15,7 +15,7 @@
 #include "fsm.h"
 #include "identity-api.h"
 #include "timebase.h"
-#include "volt.h"
+#include "volt-api.h"
 #include "temp-api.h"
 #include "bms-monitor-fsm.h"
 #include "bms-manager.h"
