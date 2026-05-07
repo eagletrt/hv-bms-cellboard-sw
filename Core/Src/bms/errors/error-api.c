@@ -93,8 +93,9 @@ enum ErrorReturnCode error_init(const system_reset_callback reset) {
                       error,
                       instances,
                       thresholds,
-                      ERROR_GROUP_COUNT) != ERRORLIB_OK)
+                      ERROR_GROUP_COUNT) != ERRORLIB_OK) {
         return ERROR_RC_UNKNOWN;
+    }
 
     memset(&error_can_payload, 0U, sizeof(error_can_payload));
 
@@ -107,7 +108,7 @@ enum ErrorReturnCode error_init(const system_reset_callback reset) {
 }
 
 enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance_t instance) {
-    ErrorLibReturnCode rt = errorlib_error_set(&error_handler, (errorlib_error_group_t)group, instance);
+    ErrorLibReturnCode ret_code = errorlib_error_set(&error_handler, (errorlib_error_group_t)group, instance);
 
     if (errorlib_get_expired(&error_handler) > 0U) {
         ErrorInfo error = errorlib_get_expired_info(&error_handler);
@@ -126,7 +127,7 @@ enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance
         }
     }
 
-    return rt != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
+    return ret_code != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
 }
 
 enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance_t instance) {

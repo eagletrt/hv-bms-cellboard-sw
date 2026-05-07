@@ -22,7 +22,7 @@
  * \retval ERROR_RC_UNKNOWN if the errorlib returned error
  * \retval ERROR_RC_NULL_POINTER if reset is not a valid function pointer
  */
-enum ErrorReturnCode error_init(const system_reset_callback reset);
+enum ErrorReturnCode error_init(system_reset_callback reset);
 
 /*!
  * \brief Increments the error counter on a specific instance of an error group.
@@ -38,7 +38,7 @@ enum ErrorReturnCode error_init(const system_reset_callback reset);
  * \retval ERROR_RC_UNKNOWN The errorlib returned error
  * \retval ERROR_RC_OK The function executed correctly
  */
-enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance_t instance);
+enum ErrorReturnCode error_set(enum ErrorGroup group, error_instance_t instance);
 
 /*!
  * \brief Resets the error counter for a specific instance of an error group.
@@ -49,7 +49,7 @@ enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance
  * \retval ERROR_RC_UNKNOWN The errorlib returned error
  * \retval ERROR_RC_OK The function executed correctly
  */
-enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance_t instance);
+enum ErrorReturnCode error_reset(enum ErrorGroup group, error_instance_t instance);
 
 /*!
  * \brief Get the number of expired errors
@@ -72,7 +72,7 @@ ErrorInfo error_get_expired_info(void);
  *
  * \return bms_cellboard_error_converted_t*  A pointer to the payload
  */
-bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const byte_size);
+bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *byte_size);
 
 #else // CONF_ERROR_MODULE_ENABLE
 
