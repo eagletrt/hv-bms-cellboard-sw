@@ -38,7 +38,7 @@
 
 #include "stm32g4xx_it.h"
 
-#include "error.h"
+#include "error-api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

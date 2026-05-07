@@ -20,7 +20,7 @@
 #include "bms-monitor-fsm.h"
 #include "bms-manager.h"
 #include "bal.h"
-#include "error.h"
+#include "error-api.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 

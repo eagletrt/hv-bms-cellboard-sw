@@ -6,7 +6,7 @@
  * \brief Simple wrapper for the error handler generated code
  */
 
-#include "error.h"
+#include "error-api.h"
 
 #include <string.h>
 
@@ -84,7 +84,11 @@ int32_t *error[] = {
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
-ErrorReturnCode error_init(const system_reset_callback reset) {
+enum ErrorReturnCode error_init(const system_reset_callback reset) {
+
+    system_reset = NULL;
+    memset(&error_handler, 0U, sizeof(error_handler));
+
     if (errorlib_init(&error_handler,
                       error,
                       instances,
@@ -102,7 +106,7 @@ ErrorReturnCode error_init(const system_reset_callback reset) {
     return ERROR_RC_OK;
 }
 
-ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance_t instance) {
     ErrorLibReturnCode rt = errorlib_error_set(&error_handler, (errorlib_error_group_t)group, instance);
 
     if (errorlib_get_expired(&error_handler) > 0U) {
@@ -125,7 +129,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
     return rt != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
 }
 
-ErrorReturnCode error_reset(const ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance_t instance) {
     if (errorlib_error_reset(&error_handler, (errorlib_error_group_t)group, instance) != ERRORLIB_OK) {
         return ERROR_RC_UNKNOWN;
     }

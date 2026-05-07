@@ -15,7 +15,7 @@
 #include "watchdog.h"
 #include "timebase.h"
 #include "bal.h"
-#include "error.h"
+#include "error-api.h"
 
 #include "canlib_device.h"
 

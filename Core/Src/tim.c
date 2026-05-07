@@ -25,7 +25,7 @@
 #include "timer_utils.h"
 
 #include "timebase.h"
-#include "error.h"
+#include "error-api.h"
 
 /* USER CODE END 0 */
 

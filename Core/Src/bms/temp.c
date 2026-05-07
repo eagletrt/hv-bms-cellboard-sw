@@ -12,7 +12,7 @@
 
 #include "cellboard-def.h"
 #include "identity-api.h"
-#include "error.h"
+#include "error-api.h"
 #include "timebase.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE

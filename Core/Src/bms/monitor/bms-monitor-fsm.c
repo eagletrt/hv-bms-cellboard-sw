@@ -20,7 +20,7 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include <string.h>
 
 #include "timebase.h"
-#include "error.h"
+#include "error-api.h"
 /*** USER CODE END MACROS ***/
 
 // GLOBALS

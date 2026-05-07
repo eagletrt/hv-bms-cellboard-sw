@@ -14,7 +14,7 @@
 #include "cellboard-def.h"
 #include "identity-api.h"
 #include "timebase.h"
-#include "error.h"
+#include "error-api.h"
 
 #include "eagletrt-api.h"
 

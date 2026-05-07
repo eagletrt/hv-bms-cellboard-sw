@@ -10,7 +10,7 @@
 #include "temp.h"
 #include "identity-api.h"
 #include "cellboard-def.h"
-#include "error.h"
+#include "error-api.h"
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 

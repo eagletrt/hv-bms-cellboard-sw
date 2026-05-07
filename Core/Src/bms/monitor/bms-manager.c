@@ -13,7 +13,7 @@
 
 #include "bms-monitor-fsm.h"
 #include "temp.h"
-#include "error.h"
+#include "error-api.h"
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
 

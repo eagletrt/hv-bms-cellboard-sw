@@ -24,7 +24,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "identity-api.h"
 #include "programmer.h"
 #include "bal.h"
-#include "error.h"
+#include "error-api.h"
 /*** USER CODE END MACROS ***/
 
 // GLOBALS
