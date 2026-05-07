@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "cellboard-def.h"
-#include "post.h"
+#include "post-api.h"
 #include "timebase.h"
 #include "volt-api.h"
 #include "identity-api.h"
