@@ -23,12 +23,12 @@ extern struct TempHandler temp_handler;
 FAKE_VOID_FUNC(mock_set_address, uint8_t);
 FAKE_VOID_FUNC(mock_start_conversion);
 
-celsius prv_temp_volt_to_celsius(volt_t value);
-celsius prv_temp_discharge_volt_to_celsius(volt_t value);
+celsius prv_temp_volt_to_celsius(volt value);
+celsius prv_temp_discharge_volt_to_celsius(volt value);
 
 void test_prv_temp_volt_to_celsius_midrange() {
     // Test with a value in the middle of the range
-    volt_t input = 1.5f;
+    volt input = 1.5f;
     celsius expected = 19.14291f;
 
     celsius result = prv_temp_volt_to_celsius(input);
@@ -38,7 +38,7 @@ void test_prv_temp_volt_to_celsius_midrange() {
 
 void test_prv_temp_volt_to_celsius_limit_low() {
     // Test with a value at the minimum limit
-    volt_t input = -3.0f;
+    volt input = -3.0f;
     celsius expected = TEMP_COEFF_0;
 
     celsius result = prv_temp_volt_to_celsius(input);
@@ -48,7 +48,7 @@ void test_prv_temp_volt_to_celsius_limit_low() {
 
 void test_prv_temp_volt_to_celsius_limit_high() {
     // Test with a value at the maximum limit
-    volt_t input = 4.0f; // This value is above the maximum limit and should be clamped
+    volt input = 4.0f; // This value is above the maximum limit and should be clamped
     celsius expected = -24.02;
 
     celsius result = prv_temp_volt_to_celsius(input);
@@ -58,7 +58,7 @@ void test_prv_temp_volt_to_celsius_limit_high() {
 
 void test_prv_temp_discharge_volt_to_celsius_midrange() {
     // Test with a value in the middle of the range
-    volt_t input = 2.5f;
+    volt input = 2.5f;
     celsius expected = 28.96582f;
 
     celsius result = prv_temp_discharge_volt_to_celsius(input);
@@ -68,7 +68,7 @@ void test_prv_temp_discharge_volt_to_celsius_midrange() {
 
 void test_prv_temp_discharge_volt_to_celsius_limit_low() {
     // Test with a value at the minimum limit
-    volt_t input = -1.0f;
+    volt input = -1.0f;
     celsius expected = TEMP_DISCHARGE_COEFF_0;
 
     celsius result = prv_temp_discharge_volt_to_celsius(input);
@@ -78,7 +78,7 @@ void test_prv_temp_discharge_volt_to_celsius_limit_low() {
 
 void test_prv_temp_discharge_volt_to_celsius_limit_high() {
     // Test with a value at the maximum limit
-    volt_t input = 6.0f; // This value is above the maximum limit and should be clamped
+    volt input = 6.0f; // This value is above the maximum limit and should be clamped
     celsius expected = -1143.111f;
 
     celsius result = prv_temp_discharge_volt_to_celsius(input);
@@ -213,7 +213,7 @@ void test_temp_update_discharge_values_with_valid_values() {
 
     temp_handler.discharge_temperatures[1] = -999.0f;
     temp_handler.discharge_temperatures[2] = -999.0f;
-    volt_t values[2] = { 2.0f, 2.1f };
+    volt values[2] = { 2.0f, 2.1f };
 
     celsius expected[2] = {
         prv_temp_discharge_volt_to_celsius(values[0]),
@@ -227,7 +227,7 @@ void test_temp_update_discharge_values_with_valid_values() {
 
 void test_temp_update_discharge_values_out_of_bounds() {
 
-    volt_t values[1] = { 2.0f };
+    volt values[1] = { 2.0f };
 
     const enum TempReturnCode rc = temp_update_discharge_values(CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT, values, 1U);
 

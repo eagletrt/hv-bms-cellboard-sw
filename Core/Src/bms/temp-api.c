@@ -22,11 +22,11 @@
 EAGLETRT_STATIC struct TempHandler temp_handler;
 
 //
-celsius prv_temp_volt_to_celsius(volt_t value) {
+celsius prv_temp_volt_to_celsius(volt value) {
 
     // To please clang-tidy, really don't like this
-    const volt_t temp_min_limit_v = TEMP_MIN_LIMIT_V;
-    const volt_t temp_max_limit_v = TEMP_MAX_LIMIT_V;
+    const volt temp_min_limit_v = TEMP_MIN_LIMIT_V;
+    const volt temp_max_limit_v = TEMP_MAX_LIMIT_V;
 
     // Value is converted in V and limited to fit the polynomial range
     value = EAGLETRT_API_CLAMP(value, temp_min_limit_v, temp_max_limit_v);
@@ -45,10 +45,10 @@ celsius prv_temp_volt_to_celsius(volt_t value) {
            TEMP_COEFF_6 * val6;
 }
 
-celsius prv_temp_discharge_volt_to_celsius(volt_t value) {
+celsius prv_temp_discharge_volt_to_celsius(volt value) {
 
-    const volt_t temp_discharge_min_limit_v = TEMP_DISCHARGE_MIN_LIMIT_V;
-    const volt_t temp_discharge_max_limit_v = TEMP_DISCHARGE_MAX_LIMIT_V;
+    const volt temp_discharge_min_limit_v = TEMP_DISCHARGE_MIN_LIMIT_V;
+    const volt temp_discharge_max_limit_v = TEMP_DISCHARGE_MAX_LIMIT_V;
 
     // Value is converted in V and limited to fit the polynomial range
     value = EAGLETRT_API_CLAMP(value, temp_discharge_min_limit_v, temp_discharge_max_limit_v);
@@ -109,7 +109,7 @@ enum TempReturnCode temp_start_conversion(void) {
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_notify_conversion_complete(const volt_t *const values, size_t size) {
+enum TempReturnCode temp_notify_conversion_complete(const volt *const values, size_t size) {
     const size_t index = temp_handler.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
@@ -143,7 +143,7 @@ enum TempReturnCode temp_update_values(
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t value) {
+enum TempReturnCode temp_update_discharge_value(const size_t index, const volt value) {
     if (index >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT) {
         return TEMP_RC_OUT_OF_BOUNDS;
     }
@@ -153,7 +153,7 @@ enum TempReturnCode temp_update_discharge_value(const size_t index, const volt_t
 
 enum TempReturnCode temp_update_discharge_values(
     const size_t index,
-    const volt_t *const values,
+    const volt *const values,
     const size_t size) {
     if (index + size >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT) {
         return TEMP_RC_OUT_OF_BOUNDS;
