@@ -43,8 +43,8 @@ struct PostInitData {
     bms_manager_send_receive_callback_t spi_send_receive; /*!< A pointer to a function that can send and receive data via the SPI peripheral */
     led_set_state_callback led_set;                       /*!< A pointer to a function that sets the state of a LED */
     led_toggle_state_callback led_toggle;                 /*!< A pointer to a function that toggles the state of a LED */
-    temp_set_mux_address_callback_t gpio_set_address;     /*!< A pointer to a function that sets the address of the mux used for the temperature measurement */
-    temp_start_conversion_callback_t adc_start;           /*!< A pointer to a function that starts the ADC conversion for the temperature measurement */
+    temp_set_mux_address_callback gpio_set_address;       /*!< A pointer to a function that sets the address of the mux used for the temperature measurement */
+    temp_start_conversion_callback adc_start;             /*!< A pointer to a function that starts the ADC conversion for the temperature measurement */
 };
 
 #endif // POST_H
