@@ -39,6 +39,7 @@
 #include "stm32g4xx_it.h"
 
 #include "error.h"
+#include "temp-api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,7 +100,7 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Display cells temperatures
-    const cells_temp_t *const temp_values = temp_get_values();
+    const cells_temp *const temp_values = temp_get_values();
     const size_t temp_cols = 6U;
 
     usart_log("                  --- TEMPERATURE VALUES ---\r\n");
@@ -117,7 +118,7 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Display discharge temperatures
-    const discharge_temp_t *discharge_temp_values = temp_get_discharge_values();
+    const discharge_temp *discharge_temp_values = temp_get_discharge_values();
 
     usart_log("                  --- DISCHARGE TEMP VALUES ---\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
@@ -135,8 +136,8 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Min Max temperature
-    const celsius_t t_min = temp_get_min();
-    const celsius_t t_max = temp_get_max();
+    const celsius t_min = temp_get_min();
+    const celsius t_max = temp_get_max();
     usart_log("                  --- TEMPERATURE INFO ---\r\n");
     usart_log("Min: %.3f °C\r\n", t_min);
     usart_log("Max: %.3f °C\r\n", t_max);

@@ -41,7 +41,7 @@ SOFTWARE.
 #endif
 #ifndef CUSTOM_FFF_FUNCTION_TEMPLATE
 #define CUSTOM_FFF_FUNCTION_TEMPLATE(RETURN, FUNCNAME, ...) \
-    RETURN (*FUNCNAME)                                      \
+    RETURN(*FUNCNAME)                                       \
     (__VA_ARGS__)
 #endif /* CUSTOM_FFF_FUNCTION_TEMPLATE */
 /* -- INTERNAL HELPER MACROS -- */
