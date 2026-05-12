@@ -3,7 +3,7 @@
  * \date 2024-04-16
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
- * 
+ *
  * \brief Power-On Self Test function to check that every internal system and
  * peripheral is working correctly
  */
@@ -12,7 +12,7 @@
 
 #include "error.h"
 #include "identity-api.h"
-#include "programmer.h"
+#include "programmer-api.h"
 #include "timebase.h"
 #include "volt-api.h"
 #include "temp-api.h"
@@ -22,7 +22,7 @@
 
 /*!
  * \brief Initialize all the cellboard modules
- * 
+ *
  * \attention The order in which the init functions are called matters
  *
  * \param data A pointer to the initialization data

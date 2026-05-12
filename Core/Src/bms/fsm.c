@@ -22,7 +22,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
-#include "programmer.h"
+#include "programmer-api.h"
 #include "bal.h"
 #include "error.h"
 /*** USER CODE END MACROS ***/
@@ -244,10 +244,10 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
     (void)led_routine(timebase_get_time());
     (void)can_comm_routine();
 
-    const ProgrammerReturnCode code = programmer_routine();
+    const enum ProgrammerReturnCode code = programmer_routine();
     if (error_get_expired() > 0U)
         next_state = FSM_STATE_FATAL;
-    else if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
+    else if (code == PROGRAMMER_RC_TIMEOUT || code == PROGRAMMER_RC_OK)
         next_state = FSM_STATE_IDLE;
     /*** USER CODE END DO_FLASH ***/
 
