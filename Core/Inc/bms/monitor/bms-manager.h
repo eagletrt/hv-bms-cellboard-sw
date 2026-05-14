@@ -20,7 +20,6 @@
 #include "ltc6811-1-api.h"
 
 /*! \brief Thresholds used during the open wire check in V */
-#define BMS_MANAGER_OPEN_WIRE_THRESHOLD_V (-0.400f)
 #define BMS_MANAGER_OPEN_WIRE_ZERO_V (0.000005f)
 
 /*! \brief Voltage reference of the LTCs ADC in V */
@@ -36,7 +35,6 @@
  *
  * \return volt The converted voltage value in V
  */
-// TODO: Move macro into the bms monitor library
 #define BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(value) ((value) * 0.0001f)
 
 /*!
@@ -46,7 +44,6 @@
  *
  * \return volt The converted voltage value in V
  */
-// TODO: Move macro into the bms monitor library
 #define BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(value) ((value) * 0.0001f)
 
 /*!
@@ -83,6 +80,7 @@ enum BmsManagerTemperatureRegister {
 enum BmsManagerOpenWireOperation {
     BMS_MANAGER_OPEN_WIRE_OPERATION_PUD = LTC6811_1_PUP_INACTIVE,
     BMS_MANAGER_OPEN_WIRE_OPERATION_PUP = LTC6811_1_PUP_ACTIVE,
+    BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT = LTC6811_1_PUP_COUNT
 };
 
 /*!
@@ -126,7 +124,7 @@ struct BmsManagerHandler {
     struct Ltc68111Handler ltc_handler;                                /*!< LTC handler structure */
     struct Ltc68111Cfgr actual_config[CELLBOARD_SEGMENT_LTC_COUNT];    /*!< Actual configuration register read from the LTCs */
     struct Ltc68111Cfgr requested_config[CELLBOARD_SEGMENT_LTC_COUNT]; /*!< Requested configuration register of the LTCs */
-    cells_volt pup[2U];                                                /*!< Array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_1PUP) */
+    cells_volt pup[BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT];             /*!< Array of cells voltages read with pull-up and pull-down used for the open-wire check (see LTC6811_1_1PUP) */
 };
 
 #endif // BMS_MANAGER_H

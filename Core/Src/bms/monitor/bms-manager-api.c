@@ -117,7 +117,7 @@ enum BmsManagerReturnCode bms_manager_read_configuration(void) {
     }
     error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
     return code;
-};
+}
 
 enum BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
     // Encode the command
@@ -166,10 +166,10 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum Ltc68111Pup pull_up) {
+enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum BmsManagerOpenWireOperation pull_up) {
     // Encode the command
 
-    if (pull_up >= LTC6811_1_PUP_COUNT) {
+    if (pull_up >= BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_RC_ENCODE_ERROR;
     }
@@ -275,7 +275,7 @@ enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltage
         }
     }
     return BMS_MANAGER_RC_OK;
-};
+}
 
 enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTemperatureRegister reg) {
     // Encode the command
@@ -333,7 +333,7 @@ enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTem
 
 enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation pull_up_operation) {
 
-    if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT || pull_up_operation >= LTC6811_1_PUP_COUNT) {
+    if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT || pull_up_operation >= BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
         return BMS_MANAGER_RC_ENCODE_ERROR;
     }
@@ -411,7 +411,7 @@ enum BmsManagerReturnCode bms_manager_check_open_wire(void) {
         for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
-            if (delta_v < BMS_MANAGER_OPEN_WIRE_THRESHOLD_V) {
+            if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_set(ERROR_GROUP_OPEN_WIRE, 0U);
                 return BMS_MANAGER_RC_OPEN_WIRE;
             }
@@ -448,9 +448,9 @@ bit_flag32 bms_manager_get_discharge_cells(void) {
 
 #ifdef CONF_BMS_STRINGS_MODULE_ENABLE
 
-_STATIC char *bms_manager_module_name = "bms manager";
+EAGLETRT_STATIC char *bms_manager_module_name = "bms manager";
 
-_STATIC char *bms_manager_return_code_name[] = {
+EAGLETRT_STATIC char *bms_manager_return_code_name[] = {
     [BMS_MANAGER_RC_OK] = "ok",
     [BMS_MANAGER_RC_NULL_POINTER] = "null pointer",
     [BMS_MANAGER_RC_ENCODE_ERROR] = "encode error",
@@ -461,7 +461,7 @@ _STATIC char *bms_manager_return_code_name[] = {
     [BMS_MANAGER_RC_ERROR] = "error"
 };
 
-_STATIC char *bms_manager_return_code_description[] = {
+EAGLETRT_STATIC char *bms_manager_return_code_description[] = {
     [BMS_MANAGER_RC_OK] = "executed succesfully",
     [BMS_MANAGER_RC_NULL_POINTER] = "attempt to dereference a null pointer",
     [BMS_MANAGER_RC_ENCODE_ERROR] = "error while encoding of data",

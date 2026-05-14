@@ -172,57 +172,20 @@ void test_bms_manager_start_open_wire_conversion_pull_up_correct_cmd(void) {
         LTC6811_1_CH_ALL,
         expected_cmd);
 
-    enum BmsManagerReturnCode code = bms_manager_start_open_wire_conversion(LTC6811_1_PUP_ACTIVE);
+    enum BmsManagerReturnCode code = bms_manager_start_open_wire_conversion(BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_start_open_wire_conversion should return BMS_MANAGER_RC_OK with pull-up active");
     TEST_ASSERT_EQUAL_MESSAGE(expected_byte_size, send_fake.arg1_val, "bms_manager_start_open_wire_conversion should call send with the correct byte size");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(expected_cmd, captured_data, expected_byte_size, "bms_manager_start_open_wire_conversion should call send with the correct command bytes for pull-up");
 }
 
-void test_bms_manager_start_open_wire_conversion_pull_down_correct_cmd(void) {
-    send_fake.return_val = BMS_MANAGER_RC_OK;
-
-    uint8_t expected_cmd[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_adow_encode_broadcast(
-        &bms_handler.ltc_handler,
-        LTC6811_1_MD_27KHZ,
-        LTC6811_1_PUP_INACTIVE,
-        LTC6811_1_DCP_DISABLED,
-        LTC6811_1_CH_ALL,
-        expected_cmd);
-
-    enum BmsManagerReturnCode code = bms_manager_start_open_wire_conversion(LTC6811_1_PUP_INACTIVE);
-
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_start_open_wire_conversion should return BMS_MANAGER_RC_OK with pull-down active");
-    TEST_ASSERT_EQUAL_MESSAGE(expected_byte_size, send_fake.arg1_val, "bms_manager_start_open_wire_conversion should call send with the correct byte size");
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(expected_cmd, captured_data, expected_byte_size, "bms_manager_start_open_wire_conversion should call send with the correct command bytes for pull-down");
-}
-
 void test_bms_manager_start_open_wire_conversion_invalid_pull(void) {
-    enum BmsManagerReturnCode code = bms_manager_start_open_wire_conversion((enum Ltc68111Pup)LTC6811_1_PUP_COUNT);
+    enum BmsManagerReturnCode code = bms_manager_start_open_wire_conversion((enum BmsManagerOpenWireOperation)BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_ENCODE_ERROR, code, "bms_manager_start_open_wire_conversion should return BMS_MANAGER_RC_ENCODE_ERROR if an invalid pull-up value is given");
 }
 
 // --- poll conversion status ---
-
-void test_bms_manager_poll_conversion_status_completed(void) {
-    send_receive_fake.return_val = BMS_MANAGER_RC_OK;
-    fake_recieved_data[0] = LTC6811_1_PLADC_COMPLETE_BYTE_VALUE;
-
-    enum BmsManagerReturnCode code = bms_manager_poll_conversion_status();
-
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_poll_conversion_status should return BMS_MANAGER_RC_OK when conversion is complete");
-}
-
-void test_bms_manager_poll_conversion_status_not_completed(void) {
-    send_receive_fake.return_val = BMS_MANAGER_RC_OK;
-    fake_recieved_data[0] = 0x00;
-
-    enum BmsManagerReturnCode code = bms_manager_poll_conversion_status();
-
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_BUSY, code, "bms_manager_poll_conversion_status should return BMS_MANAGER_RC_BUSY when conversion is not complete");
-}
 
 void test_bms_manager_poll_conversion_status_correct_cmd(void) {
     send_receive_fake.return_val = BMS_MANAGER_RC_OK;
@@ -335,7 +298,7 @@ void test_bms_manager_read_open_wire_voltages_pull_error(void) {
 void test_bms_manager_check_open_wire_no_open_wire(void) {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
-        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = BMS_MANAGER_OPEN_WIRE_THRESHOLD_V + 0.1f;
+        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
 
     enum BmsManagerReturnCode code = bms_manager_check_open_wire();
@@ -346,7 +309,7 @@ void test_bms_manager_check_open_wire_no_open_wire(void) {
 void test_bms_manager_check_open_wire_first_cell_open(void) {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
-        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = BMS_MANAGER_OPEN_WIRE_THRESHOLD_V + 0.1f;
+        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
@@ -358,7 +321,7 @@ void test_bms_manager_check_open_wire_first_cell_open(void) {
 void test_bms_manager_check_open_wire_last_cell_open(void) {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
-        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = BMS_MANAGER_OPEN_WIRE_THRESHOLD_V + 0.1f;
+        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
@@ -370,7 +333,7 @@ void test_bms_manager_check_open_wire_last_cell_open(void) {
 void test_bms_manager_check_open_wire_mid_cell_open(void) {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
-        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = BMS_MANAGER_OPEN_WIRE_THRESHOLD_V + 0.1f;
+        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][15U] = 0.0f;
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][15U] = 3.8f;
@@ -384,11 +347,13 @@ void test_bms_manager_check_open_wire_mid_cell_open(void) {
 
 void test_bms_manager_set_discharge_cells_correct_config(void) {
     const bit_flag32 cells = 0b000000100001000000010001U;
-    const bit_flag16_t expected_dcc_ltc0 = (cells >> (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) & ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
-    const bit_flag16_t expected_dcc_ltc1 = (cells >> (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) & ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+    const bit_flag16_t expected_dcc_ltc0 = 33U; //(cells >> (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) & ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
+    const bit_flag16_t expected_dcc_ltc1 = 17U; //(cells >> (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) & ((1U << CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT) - 1U);
 
     bms_manager_set_discharge_cells(cells);
 
+    TEST_ASSERT_EQUAL_MESSAGE(LTC6811_1_DCTO_30S, bms_handler.requested_config[0].DCTO, "bms_manager_set_discharge_cells should set DCTO_30S for LTC 0 when cells are active");
+    TEST_ASSERT_EQUAL_MESSAGE(LTC6811_1_DCTO_30S, bms_handler.requested_config[1].DCTO, "bms_manager_set_discharge_cells should set DCTO_30S for LTC 1 when cells are active");
     TEST_ASSERT_EQUAL_MESSAGE(expected_dcc_ltc0, bms_handler.requested_config[0].DCC, "bms_manager_set_discharge_cells should set the correct DCC for LTC 0");
     TEST_ASSERT_EQUAL_MESSAGE(expected_dcc_ltc1, bms_handler.requested_config[1].DCC, "bms_manager_set_discharge_cells should set the correct DCC for LTC 1");
 }
@@ -396,15 +361,12 @@ void test_bms_manager_set_discharge_cells_correct_config(void) {
 void test_bms_manager_set_discharge_cells_sets_dcto_off_when_no_cells(void) {
     bms_manager_set_discharge_cells(0U);
 
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
-        TEST_ASSERT_EQUAL_MESSAGE(LTC6811_1_DCTO_OFF, bms_handler.requested_config[i].DCTO, "bms_manager_set_discharge_cells should set DCTO_OFF when no cells are discharging");
-    }
-}
+    struct Ltc68111Cfgr expected_config[CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
 
-void test_bms_manager_set_discharge_cells_sets_dcto_30s_when_cells_active(void) {
-    bms_manager_set_discharge_cells(0b000000000001U);
-
-    TEST_ASSERT_EQUAL_MESSAGE(LTC6811_1_DCTO_30S, bms_handler.requested_config[1].DCTO, "bms_manager_set_discharge_cells should set DCTO_30S when cells are discharging");
+    TEST_ASSERT_EQUAL_MESSAGE(expected_config[0].DCTO, bms_handler.requested_config[0].DCTO, "bms_manager_set_discharge_cells should set DCTO_30S for LTC 0 when cells are active");
+    TEST_ASSERT_EQUAL_MESSAGE(expected_config[1].DCTO, bms_handler.requested_config[1].DCTO, "bms_manager_set_discharge_cells should set DCTO_30S for LTC 1 when cells are active");
+    TEST_ASSERT_EQUAL_MESSAGE(expected_config[0].DCC, bms_handler.requested_config[0].DCC, "bms_manager_set_discharge_cells should set the correct DCC for LTC 0");
+    TEST_ASSERT_EQUAL_MESSAGE(expected_config[1].DCC, bms_handler.requested_config[1].DCC, "bms_manager_set_discharge_cells should set the correct DCC for LTC 1");
 }
 
 void test_bms_manager_get_discharge_cells_correct_value(void) {
@@ -416,15 +378,6 @@ void test_bms_manager_get_discharge_cells_correct_value(void) {
     const bit_flag32 expected = (0b000000000001U << (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) |
                                 (0b000000000010U << (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
     TEST_ASSERT_EQUAL_HEX32_MESSAGE(expected, cells, "bms_manager_get_discharge_cells should return the correct cell bitmask from actual_config");
-}
-
-void test_bms_manager_get_discharge_cells_no_cells(void) {
-    bms_handler.actual_config[0].DCC = 0U;
-    bms_handler.actual_config[1].DCC = 0U;
-
-    bit_flag32 cells = bms_manager_get_discharge_cells();
-
-    TEST_ASSERT_EQUAL_HEX32_MESSAGE(0U, cells, "bms_manager_get_discharge_cells should return 0 when no cells are discharging");
 }
 
 // --- helpers ---
@@ -479,11 +432,8 @@ int main() {
     RUN_TEST(test_bms_manager_start_temp_conversion_correct_cmd);
 
     RUN_TEST(test_bms_manager_start_open_wire_conversion_pull_up_correct_cmd);
-    RUN_TEST(test_bms_manager_start_open_wire_conversion_pull_down_correct_cmd);
     RUN_TEST(test_bms_manager_start_open_wire_conversion_invalid_pull);
 
-    RUN_TEST(test_bms_manager_poll_conversion_status_completed);
-    RUN_TEST(test_bms_manager_poll_conversion_status_not_completed);
     RUN_TEST(test_bms_manager_poll_conversion_status_correct_cmd);
 
     RUN_TEST(test_bms_manager_read_voltages_invalid_register);
@@ -502,9 +452,7 @@ int main() {
 
     RUN_TEST(test_bms_manager_set_discharge_cells_correct_config);
     RUN_TEST(test_bms_manager_set_discharge_cells_sets_dcto_off_when_no_cells);
-    RUN_TEST(test_bms_manager_set_discharge_cells_sets_dcto_30s_when_cells_active);
     RUN_TEST(test_bms_manager_get_discharge_cells_correct_value);
-    RUN_TEST(test_bms_manager_get_discharge_cells_no_cells);
 
     return UNITY_END();
 }

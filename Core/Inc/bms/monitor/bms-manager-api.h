@@ -94,7 +94,7 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(enum Ltc68111Pup pull_up);
+enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(enum BmsManagerOpenWireOperation pull_up);
 
 /*! 
  * \brief Check if the started ADC conversion has ended

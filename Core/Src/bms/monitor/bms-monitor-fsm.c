@@ -412,7 +412,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_ACTIVE);
+    (void)bms_manager_start_open_wire_conversion(BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
     /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_FIRST ***/
 
     switch (next_state) {
@@ -454,7 +454,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_ACTIVE);
+    (void)bms_manager_start_open_wire_conversion(BMS_MANAGER_OPEN_WIRE_OPERATION_PUP);
     /*** USER CODE END DO_START_OPEN_WIRE_PUP_CONVERSION_SECOND ***/
 
     switch (next_state) {
@@ -580,7 +580,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_INACTIVE);
+    (void)bms_manager_start_open_wire_conversion(BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
     /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_FIRST ***/
 
     switch (next_state) {
@@ -622,7 +622,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second
     /*** USER CODE BEGIN DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
     CELLBOARD_UNUSED(data);
 
-    (void)bms_manager_start_open_wire_conversion(LTC6811_1_PUP_INACTIVE);
+    (void)bms_manager_start_open_wire_conversion(BMS_MANAGER_OPEN_WIRE_OPERATION_PUD);
     /*** USER CODE END DO_START_OPEN_WIRE_PUD_CONVERSION_SECOND ***/
 
     switch (next_state) {
