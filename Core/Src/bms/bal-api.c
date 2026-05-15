@@ -9,6 +9,7 @@
 
 #include "bal-api.h"
 
+#include <stdint.h>
 #include <string.h>
 
 #include "cellboard-def.h"
@@ -50,30 +51,32 @@ enum BalReturnCode bal_init(void) {
 }
 
 // TODO: Handle unavailable watchdog
-enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *const payload) {
-    if (payload == NULL) {
-        return BAL_NULL_POINTER;
+int32_t bal_set_balancing_status_handle(const void *const payload) {
+    const bms_cellboard_set_balancing_status_converted_t *const set_balancing_status = (bms_cellboard_set_balancing_status_converted_t *)payload;
+
+    if (set_balancing_status == NULL) {
+        return -BAL_NULL_POINTER;
     }
     // Ignore stop command if not balancing
-    if (!bal_is_active() && !payload->start) {
+    if (!bal_is_active() && !set_balancing_status->start) {
         return BAL_OK;
     }
 
     // Update data
-    const volt target = payload->target;
-    const volt threshold = payload->threshold;
+    const volt target = set_balancing_status->target;
+    const volt threshold = set_balancing_status->threshold;
     balancing_handler.params.target = EAGLETRT_API_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);             // NOLINT(readability-magic-numbers)
     balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V); // NOLINT(readability-magic-numbers)
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);
     if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING) {
-        return BAL_WATCHDOG_ERROR;
+        return -BAL_WATCHDOG_ERROR;
     }
 
     // Send event to the FSM
-    if (bal_is_active() == !payload->start) {
-        balancing_handler.event.type = payload->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
+    if (bal_is_active() == !set_balancing_status->start) {
+        balancing_handler.event.type = set_balancing_status->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
         fsm_event_trigger(&balancing_handler.event);
     }
     return BAL_OK;

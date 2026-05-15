@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 #include "bms-monitor-fsm.h"
-#include "temp.h"
+#include "temp-api.h"
 #include "error.h"
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
@@ -109,7 +109,7 @@ BmsManagerReturnCode bms_manager_read_configuration(void) {
     }
     error_reset(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_CONFIGURATION);
     return code;
-};
+}
 
 BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
     // Encode the command
@@ -250,7 +250,7 @@ BmsManagerReturnCode bms_manager_read_voltages(const BmsManagerVoltageRegister r
         }
     }
     return BMS_MANAGER_OK;
-};
+}
 
 BmsManagerReturnCode bms_manager_read_temperatures(const BmsManagerTemperatureRegister reg) {
     // Encode the command
@@ -354,7 +354,7 @@ BmsManagerReturnCode bms_manager_read_open_wire_voltages(const BmsManagerVoltage
         }
     }
     return BMS_MANAGER_OK;
-};
+}
 
 BmsManagerReturnCode bms_manager_check_open_wire(void) {
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {

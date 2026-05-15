@@ -22,7 +22,7 @@
  * \retval IDENTITY_RC_OK the function executed succesfully
  * \retval IDENTITY_RC_INVALID_ID the given cellboard id is invalid
  */
-enum IdentityReturnCode identity_api_init(const enum CellboardId id);
+enum IdentityReturnCode identity_api_init(enum CellboardId id);
 
 /**
  * \brief Get the cellboard idenfitier
@@ -45,7 +45,7 @@ seconds identity_api_get_build_time(void);
  *
  * \return bms_cellboard_version_converted_t* A pointer to the payload
  */
-bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *const byte_size);
+bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *byte_size);
 
 #else // CONF_IDENTITY_MODULE_ENABLE
 

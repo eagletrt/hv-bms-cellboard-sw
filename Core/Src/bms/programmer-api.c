@@ -8,8 +8,10 @@
  * is reset and openblt load the new code inside the flash memory
  */
 
+#include "cellboard-def.h"
 #include "programmer.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -66,21 +68,22 @@ enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
     return PROGRAMMER_RC_OK;
 }
 
-enum ProgrammerReturnCode programmer_flash_request_handle(const bms_cellboard_flash_request_converted_t *const payload) {
-    if (payload == NULL) {
-        return PROGRAMMER_RC_NULL_POINTER;
+int32_t programmer_flash_request_handle(const void *const payload) {
+    const bms_cellboard_flash_request_converted_t *const flash_request = (bms_cellboard_flash_request_converted_t *)payload;
+    if (flash_request == NULL) {
+        return -PROGRAMMER_RC_NULL_POINTER;
     }
     if (programmer_handler.flash_request) {
-        return PROGRAMMER_RC_BUSY;
+        return -PROGRAMMER_RC_BUSY;
     }
     const fsm_state_t status = fsm_get_status();
     if (status != FSM_STATE_IDLE && status != FSM_STATE_FATAL) {
-        return PROGRAMMER_RC_ERROR;
+        return -PROGRAMMER_RC_ERROR;
     }
-    if (payload->cellboard_id >= CELLBOARD_ID_COUNT && !payload->mainboard) {
-        return PROGRAMMER_RC_ERROR;
+    if ((enum CellboardId)flash_request->cellboard_id >= CELLBOARD_ID_COUNT && !flash_request->mainboard) {
+        return -PROGRAMMER_RC_ERROR;
     }
-    programmer_handler.target = payload->mainboard ? MAINBOARD_ID : (enum CellboardId)payload->cellboard_id;
+    programmer_handler.target = flash_request->mainboard ? MAINBOARD_ID : (enum CellboardId)flash_request->cellboard_id;
     programmer_handler.flash_request = true;
     programmer_handler.flash_stop = false;
     programmer_handler.flashing = false;
@@ -92,17 +95,18 @@ enum ProgrammerReturnCode programmer_flash_request_handle(const bms_cellboard_fl
     return PROGRAMMER_RC_OK;
 }
 
-enum ProgrammerReturnCode programmer_flash_handle(const bms_cellboard_flash_converted_t *const payload) {
-    if (payload == NULL) {
-        return PROGRAMMER_RC_NULL_POINTER;
+int32_t programmer_flash_handle(const void *const payload) {
+    const bms_cellboard_flash_converted_t *const flash = (bms_cellboard_flash_converted_t *)payload;
+    if (flash == NULL) {
+        return -PROGRAMMER_RC_NULL_POINTER;
     }
-    if (payload->start == programmer_handler.flashing) {
-        return PROGRAMMER_RC_OK; // No change, just ignore the message
+    if (flash->start == programmer_handler.flashing) {
+        return -PROGRAMMER_RC_OK; // No change, just ignore the message
     }
     if (fsm_get_status() != FSM_STATE_FLASH || !programmer_handler.flash_request) {
-        return PROGRAMMER_RC_ERROR;
+        return -PROGRAMMER_RC_ERROR;
     }
-    if (payload->start) {
+    if (flash->start) {
         watchdog_reset(&programmer_handler.watchdog);
         programmer_handler.flashing = true;
     } else {

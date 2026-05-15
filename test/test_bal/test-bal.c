@@ -14,6 +14,7 @@
 #include "bms-manager.h"
 #include "timebase.h"
 #include "eagletrt-api.h"
+#include <stdint.h>
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern struct BalHandler balancing_handler;
@@ -40,8 +41,8 @@ void test_bal_set_balancing_status_handle_null_payload() {
     // Set initial status to active to check that it does not change
     balancing_handler.status = BAL_STATUS_DISCHARCING;
 
-    enum BalReturnCode result = bal_set_balancing_status_handle(NULL);
-    TEST_ASSERT_EQUAL_MESSAGE(BAL_NULL_POINTER, result, "bal_set_balancing_status_handle() should return BAL_NULL_POINTER when given a NULL payload");
+    int32_t result = bal_set_balancing_status_handle(NULL);
+    TEST_ASSERT_EQUAL_MESSAGE(-BAL_NULL_POINTER, result, "bal_set_balancing_status_handle() should return BAL_NULL_POINTER when given a NULL payload");
     TEST_ASSERT_EQUAL_MESSAGE(BAL_STATUS_DISCHARCING, balancing_handler.status, "bal_set_balancing_status_handle() should not change the status when given a NULL payload");
 }
 
@@ -55,7 +56,7 @@ void test_bal_set_balancing_status_handle_stop_while_inactive() {
         .threshold = BAL_THRESHOLD_MAX_V
     };
 
-    enum BalReturnCode result = bal_set_balancing_status_handle(&payload);
+    int32_t result = bal_set_balancing_status_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, result, "bal_set_balancing_status_handle() should return BAL_OK when given a stop command while inactive");
     TEST_ASSERT_EQUAL_MESSAGE(BAL_STATUS_STOPPED, balancing_handler.status, "bal_set_balancing_status_handle() should not change the status when given a stop command while inactive");
 }
@@ -70,7 +71,7 @@ void test_bal_set_balancing_status_handle_ok() {
         .threshold = BAL_THRESHOLD_MAX_V,
     };
 
-    enum BalReturnCode result = bal_set_balancing_status_handle(&payload);
+    int32_t result = bal_set_balancing_status_handle(&payload);
 
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, result, "bal_set_balancing_status_handle() should return BAL_OK when given a valid payload");
     TEST_ASSERT_EQUAL_MESSAGE(BAL_TARGET_MAX_V, balancing_handler.params.target, "bal_set_balancing_status_handle() should set the target voltage correctly");
@@ -87,7 +88,7 @@ void test_bal_set_balancing_status_handle_target_out_of_range() {
         .threshold = BAL_THRESHOLD_MAX_V
     };
 
-    enum BalReturnCode result = bal_set_balancing_status_handle(&payload);
+    int32_t result = bal_set_balancing_status_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, result, "bal_set_balancing_status_handle() should return BAL_OK even if the target is out of range");
     TEST_ASSERT_EQUAL_MESSAGE(BAL_TARGET_MAX_V, balancing_handler.params.target, "bal_set_balancing_status_handle() should clamp the target to BAL_TARGET_MAX_V when given an out of range value");
 }
@@ -102,7 +103,7 @@ void test_bal_set_balancing_status_handle_threshold_out_of_range() {
         .threshold = BAL_THRESHOLD_MAX_V + 0.1f // Out of range threshold
     };
 
-    enum BalReturnCode result = bal_set_balancing_status_handle(&payload);
+    int32_t result = bal_set_balancing_status_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(BAL_OK, result, "bal_set_balancing_status_handle() should return BAL_OK even if the threshold is out of range");
     TEST_ASSERT_EQUAL_MESSAGE(BAL_THRESHOLD_MAX_V, balancing_handler.params.threshold, "bal_set_balancing_status_handle() should clamp the threshold to BAL_THRESHOLD_MAX_V when given an out of range value");
 }

@@ -113,7 +113,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
         } else {
             // Otherwise init the error payload and start sending it to the mainboard
 
-            error_can_payload.cellboard_id = identity_api_get_cellboard_id();
+            error_can_payload.cellboard_id = (bms_cellboard_error_cellboard_id)identity_api_get_cellboard_id();
             error_can_payload.group = error.group;
             error_can_payload.instance = error.instance;
 

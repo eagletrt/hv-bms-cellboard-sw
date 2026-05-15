@@ -11,6 +11,7 @@
 #define BAL_API_H
 
 #include "bal.h"
+#include <stdint.h>
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
@@ -25,11 +26,11 @@ enum BalReturnCode bal_init(void);
  * \brief Handler the information received inside the canlib payload
  *
  * \param payload A pointer to the CAN paylaod data
- * \retval BAL_NULL_POINTER if the payload pointer is NULL
- * \retval BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
+ * \retval -BAL_NULL_POINTER if the payload pointer is NULL
+ * \retval -BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
  * \retval BAL_OK if the function executed correctly
  */
-enum BalReturnCode bal_set_balancing_status_handle(bms_cellboard_set_balancing_status_converted_t *payload);
+int32_t bal_set_balancing_status_handle(const void *const payload);
 
 /*!
  * \brief Check if the balancing is active
