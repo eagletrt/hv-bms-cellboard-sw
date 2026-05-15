@@ -21,7 +21,7 @@ enum IdentityReturnCode identity_api_init(const enum CellboardId id) {
 
     memset(&identity_handler, 0U, sizeof(identity_handler));
 
-    if (id >= CELLBOARD_ID_COUNT || id < 0) {
+    if (id >= CELLBOARD_ID_COUNT) {
         return IDENTITY_RC_INVALID_ID;
     }
 

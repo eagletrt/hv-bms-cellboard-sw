@@ -14,6 +14,7 @@
 #include "fsm.h"
 #include "timebase.h"
 #include "fff.h"
+#include <stdint.h>
 DEFINE_FFF_GLOBALS;
 
 #define CELLBOARD_ID CELLBOARD_ID_1
@@ -97,8 +98,8 @@ void test_programmer_flash_reset_flags(void) {
 }
 
 void test_programmer_flash_request_handle_with_null_pointer(void) {
-    enum ProgrammerReturnCode result = programmer_flash_request_handle(NULL);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_NULL_POINTER, result, "programmer_flash_request_handle should return PROGRAMMER_RC_NULL_POINTER when called with a null pointer");
+    int32_t result = programmer_flash_request_handle(NULL);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_NULL_POINTER, result, "programmer_flash_request_handle should return PROGRAMMER_RC_NULL_POINTER when called with a null pointer");
 }
 
 void test_programmer_flash_request_handle_with_valid_payload(void) {
@@ -106,7 +107,7 @@ void test_programmer_flash_request_handle_with_valid_payload(void) {
     payload.cellboard_id = CELLBOARD_ID + 1; // Set a different cellboard ID to verify that the handler sets the correct one
     payload.mainboard = false;
 
-    enum ProgrammerReturnCode result = programmer_flash_request_handle(&payload);
+    int32_t result = programmer_flash_request_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_OK, result, "programmer_flash_request_handle should return PROGRAMMER_RC_OK when called with a valid payload");
     TEST_ASSERT_TRUE_MESSAGE(programmer_handler.flash_request, "programmer_handler.flash_request should be true after handling a valid flash request");
     TEST_ASSERT_FALSE_MESSAGE(programmer_handler.flashing, "programmer_handler.flashing should be false after handling a valid flash request");
@@ -121,8 +122,8 @@ void test_programmer_flash_request_handle_with_busy_state(void) {
 
     programmer_handler.flash_request = true; // Simulate a busy state
 
-    enum ProgrammerReturnCode result = programmer_flash_request_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_BUSY, result, "programmer_flash_request_handle should return PROGRAMMER_RC_BUSY when called while a flash request is already being processed");
+    int32_t result = programmer_flash_request_handle(&payload);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_BUSY, result, "programmer_flash_request_handle should return PROGRAMMER_RC_BUSY when called while a flash request is already being processed");
 }
 
 void test_programmer_flash_request_handle_with_invalid_fsm_state(void) {
@@ -132,8 +133,8 @@ void test_programmer_flash_request_handle_with_invalid_fsm_state(void) {
 
     hfsm.fsm_state = FSM_STATE_DISCHARGE; // Set an invalid FSM state
 
-    enum ProgrammerReturnCode result = programmer_flash_request_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_ERROR, result, "programmer_flash_request_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
+    int32_t result = programmer_flash_request_handle(&payload);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_request_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
 }
 
 void test_programmer_flash_request_handle_with_invalid_payload(void) {
@@ -141,13 +142,13 @@ void test_programmer_flash_request_handle_with_invalid_payload(void) {
     payload.cellboard_id = 0xFF; // Set an invalid cellboard ID
     payload.mainboard = false;
 
-    enum ProgrammerReturnCode result = programmer_flash_request_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_ERROR, result, "programmer_flash_request_handle should return PROGRAMMER_RC_ERROR when called with an invalid payload");
+    int32_t result = programmer_flash_request_handle(&payload);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_request_handle should return PROGRAMMER_RC_ERROR when called with an invalid payload");
 }
 
 void test_programmer_flash_handle_with_null_pointer(void) {
-    enum ProgrammerReturnCode result = programmer_flash_handle(NULL);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_NULL_POINTER, result, "programmer_flash_handle should return PROGRAMMER_RC_NULL_POINTER when called with a null pointer");
+    int32_t result = programmer_flash_handle(NULL);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_NULL_POINTER, result, "programmer_flash_handle should return PROGRAMMER_RC_NULL_POINTER when called with a null pointer");
 }
 
 void test_programmer_flash_handle_with_valid_payload(void) {
@@ -157,7 +158,7 @@ void test_programmer_flash_handle_with_valid_payload(void) {
 
     programmer_handler.flash_request = true; // Simulate that a flash request has been received
 
-    enum ProgrammerReturnCode result = programmer_flash_handle(&payload);
+    int32_t result = programmer_flash_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_OK, result, "programmer_flash_handle should return PROGRAMMER_RC_OK when called with a valid payload");
     TEST_ASSERT_TRUE_MESSAGE(programmer_handler.flashing, "programmer_handler.flashing should be true after handling a valid flash command with start set to true");
 }
@@ -170,7 +171,7 @@ void test_programmer_flash_handle_with_no_change(void) {
     programmer_handler.flash_request = true; // Simulate that a flash request has been received
     programmer_handler.flashing = true;      // Simulate that we're already flashing
 
-    enum ProgrammerReturnCode result = programmer_flash_handle(&payload);
+    int32_t result = programmer_flash_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_OK, result, "programmer_flash_handle should return PROGRAMMER_RC_OK when called with a payload that doesn't change the flashing state");
 }
 
@@ -181,8 +182,8 @@ void test_programmer_flash_handle_with_invalid_fsm_state(void) {
     programmer_handler.flash_request = true; // Simulate that a flash request has been received
     hfsm.fsm_state = FSM_STATE_DISCHARGE;    // Set an invalid FSM state
 
-    enum ProgrammerReturnCode result = programmer_flash_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_ERROR, result, "programmer_flash_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
+    int32_t result = programmer_flash_handle(&payload);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
 }
 
 void test_programmer_flash_handle_without_flash_request(void) {
@@ -193,8 +194,8 @@ void test_programmer_flash_handle_without_flash_request(void) {
     programmer_handler.flash_request = false; // Simulate that no flash request has been received
     programmer_handler.flashing = true;       // Simulate that we're already flashing
 
-    enum ProgrammerReturnCode result = programmer_flash_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(PROGRAMMER_RC_ERROR, result, "programmer_flash_handle should return PROGRAMMER_RC_ERROR when called without a flash request");
+    int32_t result = programmer_flash_handle(&payload);
+    TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_handle should return PROGRAMMER_RC_ERROR when called without a flash request");
 }
 
 void setUp() {

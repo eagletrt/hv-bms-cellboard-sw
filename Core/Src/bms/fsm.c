@@ -23,7 +23,7 @@ Functions and types have been generated with prefix "fsm_"
 #include "timebase.h"
 #include "identity-api.h"
 #include "programmer-api.h"
-#include "bal.h"
+#include "bal-api.h"
 #include "error.h"
 /*** USER CODE END MACROS ***/
 
@@ -88,7 +88,7 @@ void cellboard_assert_failed(const char *file, const int line) {
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired
-bool fsm_is_event_triggered() {
+bool fsm_is_event_triggered(void) {
     return fsm_fired_event != NULL;
 }
 
@@ -96,17 +96,17 @@ bool fsm_is_event_triggered() {
 void fsm_event_trigger(fsm_event_data_t *event) {
     if (fsm_fired_event != NULL)
         return;
-    fsm_fired_event = event ? event : &(fsm_event_data_t){};
+    fsm_fired_event = event ? event : &(fsm_event_data_t){ 0U };
 }
 
-/*  ____  _        _       
- * / ___|| |_ __ _| |_ ___ 
+/*  ____  _        _
+ * / ___|| |_ __ _| |_ ___
  * \___ \| __/ _` | __/ _ \
  *  ___) | || (_| | ||  __/
  * |____/ \__\__,_|\__\___|
- *                         
- *   __                  _   _                 
- *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
+ *
+ *   __                  _   _
+ *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
@@ -340,14 +340,14 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
     return next_state;
 }
 
-/*  _____                    _ _   _              
- * |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __   
+/*  _____                    _ _   _
+ * |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
  *   | || '__/ _` | '_ \/ __| | __| |/ _ \| '_ \
- *   | || | | (_| | | | \__ \ | |_| | (_) | | | | 
- *   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_| 
- *                                                
- *   __                  _   _                 
- *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
+ *   | || | | (_| | | | \__ \ | |_| | (_) | | | |
+ *   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_|
+ *
+ *   __                  _   _
+ *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
@@ -471,18 +471,18 @@ void fsm_restart_discharge(fsm_state_data_t *data) {
     /*** USER CODE END RESTART_DISCHARGE ***/
 }
 
-/*  ____  _        _        
- * / ___|| |_ __ _| |_ ___  
+/*  ____  _        _
+ * / ___|| |_ __ _| |_ ___
  * \___ \| __/ _` | __/ _ \
- *  ___) | || (_| | ||  __/ 
- * |____/ \__\__,_|\__\___| 
- *                          
- *                                              
- *  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __ 
+ *  ___) | || (_| | ||  __/
+ * |____/ \__\__,_|\__\___|
+ *
+ *
+ *  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __
  * | '_ ` _ \ / _` | '_ \ / _` |/ _` |/ _ \ '__|
- * | | | | | | (_| | | | | (_| | (_| |  __/ |   
- * |_| |_| |_|\__,_|_| |_|\__,_|\__, |\___|_|   
- *                              |___/           
+ * | | | | | | (_| | | | | (_| | (_| |  __/ |
+ * |_| |_| |_|\__,_|_| |_|\__,_|\__, |\___|_|
+ *                              |___/
  */
 
 fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
@@ -502,7 +502,7 @@ fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
     if (transition)
         transition(data);
     return new_state;
-};
+}
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 fsm_state_t fsm_get_status(void) {

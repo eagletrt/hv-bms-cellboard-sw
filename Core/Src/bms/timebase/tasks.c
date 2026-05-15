@@ -19,7 +19,7 @@
 #include "temp-api.h"
 #include "bms-monitor-fsm.h"
 #include "bms-manager.h"
-#include "bal.h"
+#include "bal-api.h"
 #include "error.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE

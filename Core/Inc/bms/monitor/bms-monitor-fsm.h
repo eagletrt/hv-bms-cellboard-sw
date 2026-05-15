@@ -15,6 +15,7 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 
 #ifndef BMS_MONITOR_FSM_H
 #define BMS_MONITOR_FSM_H
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -37,7 +38,7 @@ typedef void bms_monitor_fsm_state_data_t;
 typedef struct {
 
     /*** USER CODE BEGIN EVENT_DATA ***/
-
+    uint8_t _;
     /*** USER CODE END EVENT_DATA ***/
 
 } bms_monitor_fsm_event_data_t;
