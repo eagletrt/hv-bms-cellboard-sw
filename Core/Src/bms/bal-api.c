@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "bal.h"
 #include "cellboard-def.h"
 #include "post.h"
 #include "timebase.h"
@@ -63,10 +64,14 @@ int32_t bal_set_balancing_status_handle(const void *const payload) {
     }
 
     // Update data
+    constexpr float min_target = BAL_TARGET_MIN_V;
+    constexpr float max_target = BAL_TARGET_MAX_V;
+    constexpr float min_threshold = BAL_THRESHOLD_MIN_V;
+    constexpr float max_threshold = BAL_THRESHOLD_MIN_V;
     const volt target = set_balancing_status->target;
     const volt threshold = set_balancing_status->threshold;
-    balancing_handler.params.target = EAGLETRT_API_CLAMP(target, BAL_TARGET_MIN_V, BAL_TARGET_MAX_V);             // NOLINT(readability-magic-numbers)
-    balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, BAL_THRESHOLD_MIN_V, BAL_THRESHOLD_MAX_V); // NOLINT(readability-magic-numbers)
+    balancing_handler.params.target = EAGLETRT_API_CLAMP(target, min_target, max_target);
+    balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, min_threshold, max_threshold);
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);

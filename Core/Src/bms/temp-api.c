@@ -67,7 +67,7 @@ celsius prv_temp_discharge_volt_to_celsius(volt value) {
     // TEMP_DISCHARGE_COEFF_6 * v6;
 }
 
-EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, const celsius value) { //NOLINT(bugprone-easily-swappable-parameters)
+EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, const celsius value) {
     // BUG: Ignore under temp caused by broken NTCs
     // if (value < TEMP_MIN_C)
     //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
