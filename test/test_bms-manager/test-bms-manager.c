@@ -373,10 +373,11 @@ void test_bms_manager_get_discharge_cells_correct_value(void) {
     bms_handler.actual_config[0].DCC = 0b000000000001U;
     bms_handler.actual_config[1].DCC = 0b000000000010U;
 
-    bit_flag32 cells = bms_manager_get_discharge_cells();
-
     const bit_flag32 expected = (0b000000000001U << (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) |
                                 (0b000000000010U << (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
+
+    bit_flag32 cells = bms_manager_get_discharge_cells();
+
     TEST_ASSERT_EQUAL_HEX32_MESSAGE(expected, cells, "bms_manager_get_discharge_cells should return the correct cell bitmask from actual_config");
 }
 

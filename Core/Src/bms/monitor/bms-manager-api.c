@@ -178,7 +178,7 @@ enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum BmsM
     size_t byte_size = ltc6811_1_adow_encode_broadcast(
         &bms_handler.ltc_handler,
         LTC6811_1_MD_27KHZ,
-        pull_up,
+        (enum Ltc68111Pup)pull_up,
         LTC6811_1_DCP_DISABLED,
         LTC6811_1_CH_ALL,
         cmd);
@@ -387,7 +387,7 @@ enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsMana
         }
     }
     return BMS_MANAGER_RC_OK;
-};
+}
 
 enum BmsManagerReturnCode bms_manager_check_open_wire(void) {
 
