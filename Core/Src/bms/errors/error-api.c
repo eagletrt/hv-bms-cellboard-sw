@@ -1,7 +1,7 @@
 /*!
  * \file error.c
  * \date 2024-08-24
- * \author Antonio Gelain [antonio.gelain2\gmail.com]
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  *
  * \brief Simple wrapper for the error handler generated code
  */
