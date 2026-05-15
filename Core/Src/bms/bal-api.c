@@ -134,7 +134,7 @@ enum BalReturnCode bal_pause(void) {
 }
 
 enum BalReturnCode bal_resume(void) {
-    if (bal_is_active() && !bal_is_paused() || balancing_handler.status == BAL_STATUS_STOPPED) {
+    if ((bal_is_active() && !bal_is_paused()) || balancing_handler.status == BAL_STATUS_STOPPED) {
         return BAL_OK;
     }
     // Set discharge configuration

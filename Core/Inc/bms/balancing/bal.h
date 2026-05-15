@@ -24,7 +24,7 @@
 #define BAL_THRESHOLD_MIN_V (0.005F)
 #define BAL_THRESHOLD_MAX_V (0.200F)
 
-/*! \brief Balancing target range in mV */
+/*! \brief Balancing target range in V */
 #define BAL_TARGET_MIN_V (2.8F)
 #define BAL_TARGET_MAX_V (4.2F)
 

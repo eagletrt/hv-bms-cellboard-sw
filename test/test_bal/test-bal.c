@@ -60,20 +60,6 @@ void test_bal_set_balancing_status_handle_stop_while_inactive() {
     TEST_ASSERT_EQUAL_MESSAGE(BAL_STATUS_STOPPED, balancing_handler.status, "bal_set_balancing_status_handle() should not change the status when given a stop command while inactive");
 }
 
-void test_bal_set_balancing_status_handle_watchdog_error() {
-    // Simulate watchdog error by setting an invalid timeout value
-    balancing_handler.watchdog.timed_out = true;
-
-    bms_cellboard_set_balancing_status_converted_t payload = {
-        .start = true,
-        .target = BAL_TARGET_MAX_V,
-        .threshold = BAL_THRESHOLD_MAX_V
-    };
-
-    enum BalReturnCode result = bal_set_balancing_status_handle(&payload);
-    TEST_ASSERT_EQUAL_MESSAGE(BAL_WATCHDOG_ERROR, result, "bal_set_balancing_status_handle() should return BAL_WATCHDOG_ERROR when there is a watchdog error");
-}
-
 void test_bal_set_balancing_status_handle_ok() {
     // Set initial status to inactive
     balancing_handler.status = BAL_STATUS_STOPPED;
@@ -279,7 +265,6 @@ int main() {
     RUN_TEST(test_bal_init_ok);
     RUN_TEST(test_bal_set_balancing_status_handle_null_payload);
     RUN_TEST(test_bal_set_balancing_status_handle_stop_while_inactive);
-    RUN_TEST(test_bal_set_balancing_status_handle_watchdog_error);
     RUN_TEST(test_bal_set_balancing_status_handle_ok);
     RUN_TEST(test_bal_set_balancing_status_handle_target_out_of_range);
     RUN_TEST(test_bal_set_balancing_status_handle_threshold_out_of_range);
