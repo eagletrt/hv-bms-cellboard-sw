@@ -13,11 +13,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "volt-api.h"
-#include "ltc6811-1-api.h"
+#include "volt.h"
+#include "ltc6811-1.h"
 
 /*! \brief Thresholds used during the open wire check in V */
 #define BMS_MANAGER_OPEN_WIRE_ZERO_V (0.000005f)

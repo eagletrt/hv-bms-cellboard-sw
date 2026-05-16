@@ -3,7 +3,7 @@
  * \date 2024-05-08
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
- * 
+ *
  * \brief Functions used to manage the on-board LED
  */
 
@@ -13,10 +13,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "blinky-api.h"
+#include "blinky.h"
 
 /*! \brief Maximum size of the pattern */
 #define LED_PATTERN_MAX_SIZE ((CELLBOARD_COUNT * 2U) + 1U)

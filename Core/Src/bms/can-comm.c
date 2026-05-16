@@ -10,11 +10,8 @@
 
 #include <string.h>
 
-#include "fsm.h"
-#include "programmer.h"
-#include "watchdog.h"
-#include "timebase.h"
-#include "bal.h"
+#include "bal-api.h"
+#include "programmer-api.h"
 #include "error.h"
 
 #include "canlib_device.h"
@@ -34,11 +31,11 @@ _STATIC _CanCommHandler hcan_comm;
 can_comm_canlib_payload_handle_callback_t _can_comm_payload_handle(const can_index_t index) {
     switch (index) {
         case BMS_CELLBOARD_FLASH_REQUEST_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_request_handle;
+            return (can_comm_canlib_payload_handle_callback_t)programmer_api_flash_request_handle;
         case BMS_CELLBOARD_FLASH_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_flash_handle;
+            return (can_comm_canlib_payload_handle_callback_t)programmer_api_flash_handle;
         case BMS_CELLBOARD_SET_BALANCING_STATUS_INDEX:
-            return (can_comm_canlib_payload_handle_callback_t)bal_set_balancing_status_handle;
+            return (can_comm_canlib_payload_handle_callback_t)bal_api_set_balancing_status_handle;
         default:
             return NULL;
     }

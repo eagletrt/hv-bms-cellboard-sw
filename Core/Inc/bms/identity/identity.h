@@ -13,9 +13,7 @@
 
 #include <stddef.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
-#include "eagletrt.h"
 #include "bms_network.h"
 
 /**
@@ -54,7 +52,6 @@ struct IdentityHandler {
 enum IdentityReturnCode {
     IDENTITY_RC_OK,
     IDENTITY_RC_INVALID_ID
-
 };
 
 #endif // IDENTITY_H

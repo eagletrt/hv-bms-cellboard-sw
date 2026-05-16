@@ -19,11 +19,12 @@ Functions and types have been generated with prefix "fsm_"
 #include <string.h>
 
 #include "can-comm.h"
-#include "post.h"
+#include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
-#include "programmer.h"
-#include "bal.h"
+#include "programmer-api.h"
+#include "bal-api.h"
+#include "led-api.h"
 #include "error.h"
 /*** USER CODE END MACROS ***/
 
@@ -88,7 +89,7 @@ void cellboard_assert_failed(const char *file, const int line) {
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired
-bool fsm_is_event_triggered() {
+bool fsm_is_event_triggered(void) {
     return fsm_fired_event != NULL;
 }
 
@@ -96,17 +97,17 @@ bool fsm_is_event_triggered() {
 void fsm_event_trigger(fsm_event_data_t *event) {
     if (fsm_fired_event != NULL)
         return;
-    fsm_fired_event = event ? event : &(fsm_event_data_t){};
+    fsm_fired_event = event ? event : &(fsm_event_data_t){ 0U };
 }
 
-/*  ____  _        _       
- * / ___|| |_ __ _| |_ ___ 
+/*  ____  _        _
+ * / ___|| |_ __ _| |_ ___
  * \___ \| __/ _` | __/ _ \
  *  ___) | || (_| | ||  __/
  * |____/ \__\__,_|\__\___|
- *                         
- *   __                  _   _                 
- *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
+ *
+ *   __                  _   _
+ *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
@@ -124,7 +125,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
     hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
 
     // Run the Power On Self Test
-    const PostReturnCode status = (data == NULL) ? POST_NULL_POINTER : post_run(*(PostInitData *)data);
+    const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_api_run(*(struct PostInitData *)data);
 
     // Init canlib payloads
     const enum CellboardId id = identity_api_get_cellboard_id();
@@ -144,7 +145,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
         _fsm_cooldown_timeout);
 
     switch (status) {
-        case POST_OK:
+        case POST_RC_OK:
             next_state = FSM_STATE_IDLE;
             break;
         default:
@@ -175,7 +176,7 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
 
     (void)timebase_routine();
     (void)can_comm_routine();
-    (void)led_routine(timebase_get_time());
+    (void)led_api_routine(timebase_get_time());
 
     if (error_get_expired() > 0U)
         next_state = FSM_STATE_FATAL;
@@ -213,7 +214,7 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
 
     (void)timebase_routine();
     (void)can_comm_routine();
-    (void)led_routine(timebase_get_time());
+    (void)led_api_routine(timebase_get_time());
 
     // Check for flash request
     if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
@@ -241,13 +242,13 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
     CELLBOARD_UNUSED(data);
 
     (void)timebase_routine();
-    (void)led_routine(timebase_get_time());
+    (void)led_api_routine(timebase_get_time());
     (void)can_comm_routine();
 
-    const ProgrammerReturnCode code = programmer_routine();
+    const enum ProgrammerReturnCode code = programmer_api_routine();
     if (error_get_expired() > 0U)
         next_state = FSM_STATE_FATAL;
-    else if (code == PROGRAMMER_TIMEOUT || code == PROGRAMMER_OK)
+    else if (code == PROGRAMMER_RC_TIMEOUT || code == PROGRAMMER_RC_OK)
         next_state = FSM_STATE_IDLE;
     /*** USER CODE END DO_FLASH ***/
 
@@ -274,7 +275,7 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
 
     (void)timebase_routine();
     (void)can_comm_routine();
-    (void)led_routine(timebase_get_time());
+    (void)led_api_routine(timebase_get_time());
 
     if (error_get_expired() > 0U)
         next_state = FSM_STATE_FATAL;
@@ -312,7 +313,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
 
     (void)timebase_routine();
     (void)can_comm_routine();
-    (void)led_routine(timebase_get_time());
+    (void)led_api_routine(timebase_get_time());
 
     if (error_get_expired() > 0U)
         next_state = FSM_STATE_FATAL;
@@ -340,14 +341,14 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
     return next_state;
 }
 
-/*  _____                    _ _   _              
- * |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __   
+/*  _____                    _ _   _
+ * |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
  *   | || '__/ _` | '_ \/ __| | __| |/ _ \| '_ \
- *   | || | | (_| | | | \__ \ | |_| | (_) | | | | 
- *   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_| 
- *                                                
- *   __                  _   _                 
- *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
+ *   | || | | (_| | | | \__ \ | |_| | (_) | | | |
+ *   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_|
+ *
+ *   __                  _   _
+ *  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
  * | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  * |  _| |_| | | | | (__| |_| | (_) | | | \__ \
  * |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
@@ -399,7 +400,7 @@ void fsm_start_discharge(fsm_state_data_t *data) {
     CELLBOARD_UNUSED(data);
 
     // TODO: Handle watchdog unavailable
-    (void)bal_start();
+    (void)bal_api_start();
 
     (void)watchdog_restart(&hfsm.discharge_wdg);
     /*** USER CODE END START_DISCHARGE ***/
@@ -437,7 +438,7 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
     /*** USER CODE BEGIN STOP_DISCHARGE ***/
     CELLBOARD_UNUSED(data);
 
-    bal_stop();
+    bal_api_stop();
     (void)watchdog_stop(&hfsm.discharge_wdg);
     (void)watchdog_stop(&hfsm.cooldown_wdg);
     /*** USER CODE END STOP_DISCHARGE ***/
@@ -450,7 +451,7 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
     /*** USER CODE BEGIN START_COOLDOWN ***/
     CELLBOARD_UNUSED(data);
 
-    bal_pause();
+    bal_api_pause();
     (void)watchdog_stop(&hfsm.discharge_wdg);
     // TODO: Handle watchdog unavailabe
     (void)watchdog_restart(&hfsm.cooldown_wdg);
@@ -464,25 +465,25 @@ void fsm_restart_discharge(fsm_state_data_t *data) {
     /*** USER CODE BEGIN RESTART_DISCHARGE ***/
     CELLBOARD_UNUSED(data);
 
-    bal_resume();
+    bal_api_resume();
     (void)watchdog_stop(&hfsm.cooldown_wdg);
     // TODO: Handle watchdog unavailabe
     (void)watchdog_restart(&hfsm.discharge_wdg);
     /*** USER CODE END RESTART_DISCHARGE ***/
 }
 
-/*  ____  _        _        
- * / ___|| |_ __ _| |_ ___  
+/*  ____  _        _
+ * / ___|| |_ __ _| |_ ___
  * \___ \| __/ _` | __/ _ \
- *  ___) | || (_| | ||  __/ 
- * |____/ \__\__,_|\__\___| 
- *                          
- *                                              
- *  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __ 
+ *  ___) | || (_| | ||  __/
+ * |____/ \__\__,_|\__\___|
+ *
+ *
+ *  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __
  * | '_ ` _ \ / _` | '_ \ / _` |/ _` |/ _ \ '__|
- * | | | | | | (_| | | | | (_| | (_| |  __/ |   
- * |_| |_| |_|\__,_|_| |_|\__,_|\__, |\___|_|   
- *                              |___/           
+ * | | | | | | (_| | | | | (_| | (_| |  __/ |
+ * |_| |_| |_|\__,_|_| |_|\__,_|\__, |\___|_|
+ *                              |___/
  */
 
 fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
@@ -502,7 +503,7 @@ fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
     if (transition)
         transition(data);
     return new_state;
-};
+}
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 fsm_state_t fsm_get_status(void) {

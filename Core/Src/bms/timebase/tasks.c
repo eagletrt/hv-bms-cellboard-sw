@@ -12,14 +12,13 @@
 
 #include "bms_network.h"
 #include "can-comm.h"
+#include "bal-api.h"
 #include "fsm.h"
 #include "identity-api.h"
 #include "timebase.h"
 #include "volt-api.h"
-#include "temp.h"
-#include "bms-monitor-fsm.h"
+#include "temp-api.h"
 #include "bms-manager-api.h"
-#include "bal.h"
 #include "error.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
@@ -63,7 +62,7 @@ void _tasks_send_errors(void) {
 /** @brief Send the cells voltages via CAN */
 void _tasks_send_voltages(void) {
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)volt_get_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)volt_api_get_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_CELLS_VOLTAGE_INDEX,
         CAN_FRAME_TYPE_DATA,
@@ -74,7 +73,7 @@ void _tasks_send_voltages(void) {
 /** @brief Send the cells temperatures via CAN */
 void _tasks_send_temperatures(void) {
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)temp_get_cells_temp_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)temp_api_get_cells_temp_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX,
         CAN_FRAME_TYPE_DATA,
@@ -85,7 +84,7 @@ void _tasks_send_temperatures(void) {
 /** @brief Send the discharge resistors temperature via CAN */
 void _tasks_send_discharge_temperatures(void) {
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)temp_get_discharge_temp_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)temp_api_get_discharge_temp_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_DISCHARGE_TEMPERATURE_INDEX,
         CAN_FRAME_TYPE_DATA,
@@ -96,7 +95,7 @@ void _tasks_send_discharge_temperatures(void) {
 /** @brief Send the current balancing status info via CAN */
 void _tasks_send_balancing_status(void) {
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)bal_get_status_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)bal_api_get_status_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_BALANCING_STATUS_INDEX,
         CAN_FRAME_TYPE_DATA,
@@ -106,12 +105,12 @@ void _tasks_send_balancing_status(void) {
 
 /** @brief Start the temperatures conversion */
 void _tasks_read_temperatures(void) {
-    temp_start_conversion();
+    temp_api_start_conversion();
 }
 
 /** @brief Run the bms manager procedures */
 void _tasks_run_bms_manager(void) {
-    bms_manager_routine();
+    bms_manager_api_routine();
 }
 
 TasksReturnCode tasks_init(milliseconds_t resolution) {

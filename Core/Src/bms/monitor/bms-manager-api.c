@@ -1,9 +1,9 @@
 /*!
- * \file bms-manager.c
+ * \file bms-manager-api.c
  * \date 2024-05-07
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
- * 
+ *
  * \brief Manager for the BMS monitor operations
  */
 
@@ -12,10 +12,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "bms-monitor-fsm.h"
-#include "temp.h"
+#include "eagletrt.h"
 #include "error.h"
-#include "eagletrt-api.h"
+#include "ltc6811-1-api.h"
+#include "bms-monitor-fsm.h"
+#include "volt-api.h"
+#include "temp-api.h"
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
 
@@ -32,12 +34,12 @@ EAGLETRT_STATIC struct BmsManagerHandler bms_handler;
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode prv_bms_manager_send(uint8_t *const data, const size_t size) {
+enum BmsManagerReturnCode prv_bms_manager_api_send(uint8_t *const data, const size_t size) {
     EAGLETRT_STATIC uint8_t aux;
     return bms_handler.send_receive(data, &aux, size, 0U);
 }
 
-enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive) {
+enum BmsManagerReturnCode bms_manager_api_init(const bms_manager_send_callback_t send, const bms_manager_send_receive_callback_t send_receive) {
 
     const uint8_t gpio_default = 0b11111;
     const uint8_t refon_default = 1U;
@@ -48,7 +50,7 @@ enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t sen
     memset(&bms_handler, 0U, sizeof(bms_handler));
 
     // Set callbacks
-    bms_handler.send = (send == NULL) ? prv_bms_manager_send : send;
+    bms_handler.send = (send == NULL) ? prv_bms_manager_api_send : send;
     bms_handler.send_receive = send_receive;
 
     // Initialize the LTCs
@@ -62,13 +64,13 @@ enum BmsManagerReturnCode bms_manager_init(const bms_manager_send_callback_t sen
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_routine(void) {
+enum BmsManagerReturnCode bms_manager_api_routine(void) {
     EAGLETRT_STATIC bms_monitor_fsm_state_t state = BMS_MONITOR_FSM_STATE_INIT;
     state = bms_monitor_fsm_run_state(state, NULL);
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_write_configuration(void) {
+enum BmsManagerReturnCode bms_manager_api_write_configuration(void) {
     // Encode the command
     uint8_t cmd[LTC6811_1_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)];
     const size_t byte_size = ltc6811_1_wrcfg_encode_broadcast(
@@ -90,7 +92,7 @@ enum BmsManagerReturnCode bms_manager_write_configuration(void) {
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_read_configuration(void) {
+enum BmsManagerReturnCode bms_manager_api_read_configuration(void) {
     // Encode the command
     uint8_t cmd[LTC6811_1_READ_BUFFER_SIZE];
     size_t byte_size = ltc6811_1_rdcfg_encode_broadcast(&bms_handler.ltc_handler, cmd);
@@ -119,7 +121,7 @@ enum BmsManagerReturnCode bms_manager_read_configuration(void) {
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
+enum BmsManagerReturnCode bms_manager_api_start_volt_conversion(void) {
     // Encode the command
     uint8_t cmd[LTC6811_1_POLL_BUFFER_SIZE];
     const size_t byte_size = ltc6811_1_adcv_encode_broadcast(
@@ -143,7 +145,7 @@ enum BmsManagerReturnCode bms_manager_start_volt_conversion(void) {
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
+enum BmsManagerReturnCode bms_manager_api_start_temp_conversion(void) {
     // Encode the command
     uint8_t cmd[LTC6811_1_POLL_BUFFER_SIZE];
     const size_t byte_size = ltc6811_1_adax_encode_broadcast(
@@ -166,7 +168,7 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void) {
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum BmsManagerOpenWireOperation pull_up) {
+enum BmsManagerReturnCode bms_manager_api_start_open_wire_conversion(const enum BmsManagerOpenWireOperation pull_up) {
     // Encode the command
 
     if (pull_up >= BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT) {
@@ -197,7 +199,7 @@ enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(const enum BmsM
     return code;
 }
 
-enum BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
+enum BmsManagerReturnCode bms_manager_api_poll_conversion_status(void) {
     // Encode command
     uint8_t cmd[LTC6811_1_POLL_BUFFER_SIZE];
     const size_t byte_size = ltc6811_1_pladc_encode_broadcast(&bms_handler.ltc_handler, cmd);
@@ -219,7 +221,7 @@ enum BmsManagerReturnCode bms_manager_poll_conversion_status(void) {
     return ltc6811_1_pladc_is_completed(poll_status) ? BMS_MANAGER_RC_OK : BMS_MANAGER_RC_BUSY;
 }
 
-enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltageRegister reg) {
+enum BmsManagerReturnCode bms_manager_api_read_voltages(const enum BmsManagerVoltageRegister reg) {
     // Encode the command
 
     if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT) {
@@ -271,13 +273,13 @@ enum BmsManagerReturnCode bms_manager_read_voltages(const enum BmsManagerVoltage
         const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_1_REG_CELL_COUNT;
         for (size_t i = 0U; i < LTC6811_1_REG_CELL_COUNT; ++i) {
             const volt value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
-            volt_update_value(index + i, value);
+            volt_api_update_value(index + i, value);
         }
     }
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTemperatureRegister reg) {
+enum BmsManagerReturnCode bms_manager_api_read_temperatures(const enum BmsManagerTemperatureRegister reg) {
     // Encode the command
     uint8_t cmd[LTC6811_1_READ_BUFFER_SIZE];
     size_t byte_size = ltc6811_1_rdaux_encode_broadcast(
@@ -326,12 +328,12 @@ enum BmsManagerReturnCode bms_manager_read_temperatures(const enum BmsManagerTem
     const size_t off = ltc * LTC6811_1_REG_AUX_COUNT;
     for (size_t i = 0U; i < temp_size; ++i) {
         volt value = BMS_MANAGER_RAW_GPIO_VALUE_TO_VOLT(temp[off + i]);
-        temp_update_discharge_value(index + i, value);
+        temp_api_update_discharge_value(index + i, value);
     }
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation pull_up_operation) {
+enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(const enum BmsManagerVoltageRegister reg, const enum BmsManagerOpenWireOperation pull_up_operation) {
 
     if (reg >= BMS_MANAGER_VOLTAGE_REGISTER_COUNT || pull_up_operation >= BMS_MANAGER_OPEN_WIRE_OPERATION_COUNT) {
         error_set(ERROR_GROUP_BMS_MONITOR_COMMUNICATION, ERROR_BMS_MONITOR_COMMUNICATION_INSTANCE_OPEN_WIRE);
@@ -389,10 +391,8 @@ enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(const enum BmsMana
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_check_open_wire(void) {
-
+enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
     size_t offset = 0;
-
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ltc++) {
 
         offset = ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT;
@@ -421,7 +421,7 @@ enum BmsManagerReturnCode bms_manager_check_open_wire(void) {
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells) {
+enum BmsManagerReturnCode bms_manager_api_set_discharge_cells(bit_flag32 cells) {
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // The first 12 cells are connected to the last LTC
         const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
@@ -437,7 +437,7 @@ enum BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells) {
     return BMS_MANAGER_RC_OK;
 }
 
-bit_flag32 bms_manager_get_discharge_cells(void) {
+bit_flag32 bms_manager_api_get_discharge_cells(void) {
     bit_flag32 cells = 0U;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
         // Get cells from config
@@ -472,8 +472,8 @@ EAGLETRT_STATIC char *bms_manager_return_code_description[] = {
     [BMS_MANAGER_RC_ERROR] = "unknown error"
 };
 
-int bms_manager_get_config_string(
-    const Ltc6811Cfgr config,
+int bms_manager_api_get_config_string(
+    const Ltc68111Cfgr config,
     char *const out,
     const size_t size) {
     const char *const fmt =
@@ -489,22 +489,22 @@ int bms_manager_get_config_string(
         out, size, fmt, config.ADCOPT, config.DTEN, config.REFON, config.GPIO, config.VUV, config.VOV, config.DCC, config.DCTO);
 }
 
-int bms_manager_get_requested_config_string(
+int bms_manager_api_get_requested_config_string(
     const size_t ltc,
     char *const out,
     size_t size) {
     if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
         return 0;
-    return bms_manager_get_config_string(bms_handler.requested_config[ltc], out, size);
+    return bms_manager_api_get_config_string(bms_handler.requested_config[ltc], out, size);
 }
 
-int bms_manager_get_actual_config_string(
+int bms_manager_api_get_actual_config_string(
     const size_t ltc,
     char *const out,
     const size_t size) {
     if (ltc >= CELLBOARD_SEGMENT_LTC_COUNT)
         return 0;
-    return bms_manager_get_config_string(bms_handler.actual_config[ltc], out, size);
+    return bms_manager_api_get_config_string(bms_handler.actual_config[ltc], out, size);
 }
 
 #endif // CONF_BMS_STRINGS_MODULE_ENABLE

@@ -28,17 +28,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <math.h>
 
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
-
 #include "fsm.h"
+#include "stm32g4xx_it.h"
 #include "post.h"
 
-#include "stm32g4xx_it.h"
+#include "temp-api.h"
+#include "volt-api.h"
 
-#include "error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -80,7 +79,7 @@ _STATIC void demo() {
     usart_log("\033[H");
 
     // Display cells voltages
-    const cells_volt *const volt_values = volt_get_values();
+    const cells_volt *const volt_values = volt_api_get_values();
     const size_t volt_cols = 6U;
 
     usart_log("                  --- VOLTAGE VALUES ---\r\n");
@@ -99,7 +98,7 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Display cells temperatures
-    const cells_temp_t *const temp_values = temp_get_values();
+    const cells_temp *const temp_values = temp_api_get_values();
     const size_t temp_cols = 6U;
 
     usart_log("                  --- TEMPERATURE VALUES ---\r\n");
@@ -117,7 +116,7 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Display discharge temperatures
-    const discharge_temp_t *discharge_temp_values = temp_get_discharge_values();
+    const discharge_temp *discharge_temp_values = temp_api_get_discharge_values();
 
     usart_log("                  --- DISCHARGE TEMP VALUES ---\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
@@ -126,8 +125,8 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Min Max voltage
-    const volt v_min = volt_get_min();
-    const volt v_max = volt_get_max();
+    const volt v_min = volt_api_get_min();
+    const volt v_max = volt_api_get_max();
     usart_log("                  --- VOLTAGE INFO ---\r\n");
     usart_log("Min: %.3f V\r\n", v_min);
     usart_log("Max: %.3f V\r\n", v_max);
@@ -135,8 +134,8 @@ _STATIC void demo() {
     usart_log("\r\n\r\n");
 
     // Min Max temperature
-    const celsius_t t_min = temp_get_min();
-    const celsius_t t_max = temp_get_max();
+    const celsius t_min = temp_api_get_min();
+    const celsius t_max = temp_api_get_max();
     usart_log("                  --- TEMPERATURE INFO ---\r\n");
     usart_log("Min: %.3f °C\r\n", t_min);
     usart_log("Max: %.3f °C\r\n", t_max);
@@ -146,7 +145,7 @@ _STATIC void demo() {
     static bit_flag32 cells = 1U;
     static uint32_t t = 0U;
     if (HAL_GetTick() - t >= 250U) {
-        bms_manager_set_discharge_cells(cells);
+        bms_manager_api_set_discharge_cells(cells);
         cells = (cells << 1U) & 0xFFFFFF;
         if (cells == 0U)
             cells = 1U;
@@ -229,7 +228,7 @@ int main(void) {
     fsm_state_t fsm_state = FSM_STATE_INIT;
 
     // Prepare data for the POST procedure
-    PostInitData init_data = {
+    struct PostInitData init_data = {
         .system_reset = system_reset,
         .cs_enter = it_cs_enter,
         .cs_exit = it_cs_exit,
@@ -269,7 +268,7 @@ int main(void) {
         if (usart_read(false) == 'd') {
             // Prevent a cell from continuous discharge after the demo is stopped
             if (run_demo)
-                bms_manager_set_discharge_cells(0U);
+                bms_manager_api_set_discharge_cells(0U);
             run_demo = !run_demo;
         }
 

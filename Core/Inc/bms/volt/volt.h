@@ -12,13 +12,12 @@
 
 #include <stddef.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
 #include "bms_network.h"
 
-/*! 
- * \defgroup VOLT_LIMIT_V Minimum and maximum allowed cell voltage in V 
+/*!
+ * \defgroup VOLT_LIMIT_V Minimum and maximum allowed cell voltage in V
  * @{
  */
 /* Minimum cell voltage in V */

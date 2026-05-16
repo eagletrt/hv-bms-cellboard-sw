@@ -24,7 +24,7 @@
  * \retval BMS_MANAGER_RC_NULL_POINTER if the send/receive callback pointer is NULL
  * \retval BMS_MANAGER_RC_OK if the handler is initialized correctly
  */
-enum BmsManagerReturnCode bms_manager_init(bms_manager_send_callback_t send, bms_manager_send_receive_callback_t send_receive);
+enum BmsManagerReturnCode bms_manager_api_init(bms_manager_send_callback_t send, bms_manager_send_receive_callback_t send_receive);
 
 /*!
  * \brief Routine that handles the communication with the BMS monitor
@@ -33,21 +33,21 @@ enum BmsManagerReturnCode bms_manager_init(bms_manager_send_callback_t send, bms
  *
  * \retval BMS_MANAGER_RC_OK
  */
-enum BmsManagerReturnCode bms_manager_routine(void);
+enum BmsManagerReturnCode bms_manager_api_routine(void);
 
 /*!
  * \brief Write the configuration registers of the BMS monitor
  *
  * \attention This function does not ensure that the data is correctly stored inside the LTCs
  * to check if the registers are updated correctly a read command has to be performed
- * 
+ *
  * \retval BMS_MANAGER_RC_ENCODE_ERROR error while encoding the command
  * \retval BMS_MANAGER_RC_COMMUNICATION_ERROR if there is an error during the transmission of the data
  * \retval BMS_MANAGER_RC_BUSY if the peripherial is busy
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_write_configuration(void);
+enum BmsManagerReturnCode bms_manager_api_write_configuration(void);
 
 /*!
  * \brief Read the configuration registers from the BMS monitor
@@ -59,7 +59,7 @@ enum BmsManagerReturnCode bms_manager_write_configuration(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_configuration(void);
+enum BmsManagerReturnCode bms_manager_api_read_configuration(void);
 
 /*!
  * \brief Start the cells voltage ADC conversion
@@ -70,7 +70,7 @@ enum BmsManagerReturnCode bms_manager_read_configuration(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_volt_conversion(void);
+enum BmsManagerReturnCode bms_manager_api_start_volt_conversion(void);
 
 /*!
  * \brief Start the discharge resistors temperatures ADC conversion
@@ -81,7 +81,7 @@ enum BmsManagerReturnCode bms_manager_start_volt_conversion(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
+enum BmsManagerReturnCode bms_manager_api_start_temp_conversion(void);
 
 /*!
  * \brief Start the open wire ADC conversion
@@ -94,9 +94,9 @@ enum BmsManagerReturnCode bms_manager_start_temp_conversion(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(enum BmsManagerOpenWireOperation pull_up);
+enum BmsManagerReturnCode bms_manager_api_start_open_wire_conversion(enum BmsManagerOpenWireOperation pull_up);
 
-/*! 
+/*!
  * \brief Check if the started ADC conversion has ended
  *
  * \retval BMS_MANAGER_RC_ENCODE_ERROR if there was an error while encoding the command
@@ -105,7 +105,7 @@ enum BmsManagerReturnCode bms_manager_start_open_wire_conversion(enum BmsManager
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_poll_conversion_status(void);
+enum BmsManagerReturnCode bms_manager_api_poll_conversion_status(void);
 
 /*!
  * \brief Read the cells voltages from the BMS monitor
@@ -119,7 +119,7 @@ enum BmsManagerReturnCode bms_manager_poll_conversion_status(void);
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_voltages(enum BmsManagerVoltageRegister reg);
+enum BmsManagerReturnCode bms_manager_api_read_voltages(enum BmsManagerVoltageRegister reg);
 
 /*!
  * \brief Read the discharge resistors temperatures from the LTCs
@@ -133,7 +133,7 @@ enum BmsManagerReturnCode bms_manager_read_voltages(enum BmsManagerVoltageRegist
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_temperatures(enum BmsManagerTemperatureRegister reg);
+enum BmsManagerReturnCode bms_manager_api_read_temperatures(enum BmsManagerTemperatureRegister reg);
 
 /*!
  * \brief Read the cells voltages after the open wire conversion from the LTCs
@@ -148,7 +148,7 @@ enum BmsManagerReturnCode bms_manager_read_temperatures(enum BmsManagerTemperatu
  * \retval BMS_MANAGER_RC_ERROR if an unkown error happens
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(enum BmsManagerVoltageRegister reg, enum BmsManagerOpenWireOperation pull_up_operation);
+enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(enum BmsManagerVoltageRegister reg, enum BmsManagerOpenWireOperation pull_up_operation);
 
 /*!
  * \brief Check for open wires
@@ -159,11 +159,11 @@ enum BmsManagerReturnCode bms_manager_read_open_wire_voltages(enum BmsManagerVol
  *     - The first pull up voltage value is 0.0000 (an epsilon is used to avoid float precision errors)
  *     - The last pull-down voltage value is 0.0000 (same as above)
  *     - At least one delta voltage value is below the -400 mV threshold
- *     
+ *
  * \retval BMS_MANAGER_RC_OPEN_WIRE if an open wire is detected
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_check_open_wire(void);
+enum BmsManagerReturnCode bms_manager_api_check_open_wire(void);
 
 /*!
  * \brief Set the cells to discharge
@@ -172,14 +172,14 @@ enum BmsManagerReturnCode bms_manager_check_open_wire(void);
  *
  * \retval BMS_MANAGER_RC_OK if the operation was successful
  */
-enum BmsManagerReturnCode bms_manager_set_discharge_cells(bit_flag32 cells);
+enum BmsManagerReturnCode bms_manager_api_set_discharge_cells(bit_flag32 cells);
 
 /*!
  * \brief Get the cells that are being currently discharged
  *
  * \returns bit_flag32 The bitmask where the n-th bit represent the n-th cell (up to 32)
  */
-bit_flag32 bms_manager_get_discharge_cells(void);
+bit_flag32 bms_manager_api_get_discharge_cells(void);
 
 #ifdef CONF_BMS_MANAGER_STRINGS_ENABLE
 
@@ -192,7 +192,7 @@ bit_flag32 bms_manager_get_discharge_cells(void);
  *
  * \returns int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_config_string(
+int bms_manager_api_get_config_string(
     const Ltc6811Cfgr config,
     char *const out,
     const size_t size);
@@ -206,7 +206,7 @@ int bms_manager_get_config_string(
  *
  * \returns int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_requested_config_string(
+int bms_manager_api_get_requested_config_string(
     const size_t ltc,
     char *const out,
     const size_t size);
@@ -220,34 +220,34 @@ int bms_manager_get_requested_config_string(
  *
  * \returns int The number of byte written inside the string or -1 on error
  */
-int bms_manager_get_actual_config_string(
+int bms_manager_api_get_actual_config_string(
     const size_t ltc,
     char *const out,
     const size_t size);
 
 #else // CONF_BMS_MANAGER_STRINGS_ENABLE
 
-#define bms_manager_get_config_string(config, out, size) (0)
-#define bms_manager_get_requested_config_string(config, out, size) (0)
-#define bms_manager_get_actual_config_string(config, out, size) (0)
+#define bms_manager_api_get_config_string(config, out, size) (0)
+#define bms_manager_api_get_requested_config_string(config, out, size) (0)
+#define bms_manager_api_get_actual_config_string(config, out, size) (0)
 
 #endif // CONF_BMS_MANAGER_STRINGS_ENABLE
 
 #else // CONF_BMS_MANAGER_MODULE_ENABLE
 
-#define bms_manager_init(send, send_receive) (BMS_MANAGER_RC_OK)
-#define bms_manager_routine() (BMS_MANAGER_RC_OK)
-#define bms_manager_write_configuration() (BMS_MANAGER_RC_OK)
-#define bms_manager_read_configuration() (BMS_MANAGER_RC_OK)
-#define bms_manager_start_volt_conversion() (BMS_MANAGER_RC_OK)
-#define bms_manager_start_temp_conversion() (BMS_MANAGER_RC_OK)
-#define bms_manager_start_open_wire_conversion() (BMS_MANAGER_RC_OK)
-#define bms_manager_poll_conversion_status() (BMS_MANAGER_RC_OK)
-#define bms_manager_read_voltages(reg) (BMS_MANAGER_RC_OK)
-#define bms_manager_read_temperatures(reg, op) (BMS_MANAGER_RC_OK)
-#define bms_manager_check_open_wire() (BMS_MANAGER_RC_OK)
-#define bms_manager_set_discharge_cells(cells) (BMS_MANAGER_RC_OK)
-#define bms_manager_get_discharge_cells() (0U)
+#define bms_manager_api_init(send, send_receive) (BMS_MANAGER_RC_OK)
+#define bms_manager_api_routine() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_write_configuration() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_read_configuration() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_start_volt_conversion() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_start_temp_conversion() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_start_open_wire_conversion() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_poll_conversion_status() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_read_voltages(reg) (BMS_MANAGER_RC_OK)
+#define bms_manager_api_read_temperatures(reg, op) (BMS_MANAGER_RC_OK)
+#define bms_manager_api_check_open_wire() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_set_discharge_cells(cells) (BMS_MANAGER_RC_OK)
+#define bms_manager_api_get_discharge_cells() (0U)
 
 #endif // CONF_BMS_MANAGER_MODULE_ENABLE
 

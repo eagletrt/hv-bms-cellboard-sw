@@ -30,7 +30,7 @@
 #define CELLBOARD_UNUSED(_) ((void)(_))
 
 /**
- * @brief Type definition for the static attribute 
+ * @brief Type definition for the static attribute
  *
  * @details Can be used to test if pisseria is doing fetenderi
  * @details Can be used to disable static functions for unit testing
@@ -40,7 +40,7 @@
 #endif // _STATIC
 
 /**
- * @brief Type definition for the inline attribute 
+ * @brief Type definition for the inline attribute
  *
  * @details Can be used to disable inlining functions for unit testing
  */
@@ -49,7 +49,7 @@
 #endif // _STATIC_INLINE
 
 /**
- * @brief Type definition for the volatile attribute 
+ * @brief Type definition for the volatile attribute
  *
  * @details Can be used to disable volatile variables for unit testing
  */
@@ -150,7 +150,7 @@
  * @param LOW The lower value of the range
  * @param UP The upper value of the range
  *
- * @return LOW if the value is lower or equal to the smallest range value, 
+ * @return LOW if the value is lower or equal to the smallest range value,
  *     UP if the value is greater or equal to the largest range value
  *     VAL otherwise
  */
@@ -275,7 +275,7 @@ typedef uint32_t can_ext_id_t;
 
 /**
  * @brief Type definition for a CAN index
- * 
+ *
  * @details Used to map the can identifiers
  */
 typedef int32_t can_index_t;
@@ -301,7 +301,7 @@ typedef uint32_t microseconds;
 typedef uint16_t raw_temp_t;
 
 /** @brief Temperature value in °C */
-typedef float celsius_t;
+typedef float celsius;
 
 /**
  * @brief Raw voltage value
@@ -335,7 +335,7 @@ typedef void (*interrupt_critical_section_exit_t)(void);
 
 /**
  * @brief Definition of the cellboard indices
- * 
+ *
  * @details Each cellboard is numbered from 0 to n where n is the last cellboard
  * The real cellboard order is not guaranteed to match this order
  *

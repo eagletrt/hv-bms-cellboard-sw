@@ -113,7 +113,7 @@ ErrorReturnCode error_set(const ErrorGroup group, const error_instance_t instanc
         } else {
             // Otherwise init the error payload and start sending it to the mainboard
 
-            error_can_payload.cellboard_id = identity_api_get_cellboard_id();
+            error_can_payload.cellboard_id = (bms_cellboard_error_cellboard_id)identity_api_get_cellboard_id();
             error_can_payload.group = error.group;
             error_can_payload.instance = error.instance;
 
@@ -156,9 +156,9 @@ _STATIC char *error_return_code_name[] = {
 }
 
 _STATIC char* error_return_code_description[] = {
-    [ERROR_OK] = "executed succesfully", 
-    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", 
-    [ERROR_UNKNOWN] = "unknown error" 
+    [ERROR_OK] = "executed succesfully",
+    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer",
+    [ERROR_UNKNOWN] = "unknown error"
 }
 // clang-format on
 

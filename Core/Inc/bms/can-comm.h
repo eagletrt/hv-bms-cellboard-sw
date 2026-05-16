@@ -165,7 +165,7 @@ typedef struct {
 /**
  * @brief Function used to send CAN message via a network
  *
- * @param id The CAN identifier 
+ * @param id The CAN identifier
  * @param frame_type The CAN frame type
  * @param data The actual payload of the message
  * @param size The size of the payload
@@ -186,12 +186,12 @@ typedef CanCommReturnCode (*can_comm_transmit_callback_t)(
  *
  * @param payload A pointer to the converted canlib structure data
  */
-typedef void (*can_comm_canlib_payload_handle_callback_t)(const void *const payload);
+typedef int32_t (*can_comm_canlib_payload_handle_callback_t)(const void *const payload);
 
 /**
  * @brief CAN manager handler structure
  *
- * @details The enabled bit flag 
+ * @details The enabled bit flag
  *
  * @param enabled Flag used to enable or disable the CAN communication
  * @param tx_busy Transmission messages flags to check if the message has not already been sent
