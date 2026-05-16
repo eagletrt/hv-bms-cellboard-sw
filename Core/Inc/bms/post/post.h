@@ -3,7 +3,7 @@
  * \date 2024-04-16
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
- * 
+ *
  * \brief Power-On Self Test function to check that every internal system and
  * peripheral is working correctly
  */
@@ -11,12 +11,11 @@
 #ifndef POST_H
 #define POST_H
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
 #include "can-comm.h"
 #include "bms-manager.h"
-#include "led-api.h"
+#include "led.h"
 #include "temp.h"
 
 /*!

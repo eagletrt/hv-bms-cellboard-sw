@@ -12,7 +12,6 @@
 
 #include <stdbool.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
 #include "bms_network.h"

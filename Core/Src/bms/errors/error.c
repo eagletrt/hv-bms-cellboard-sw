@@ -156,9 +156,9 @@ _STATIC char *error_return_code_name[] = {
 }
 
 _STATIC char* error_return_code_description[] = {
-    [ERROR_OK] = "executed succesfully", 
-    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer", 
-    [ERROR_UNKNOWN] = "unknown error" 
+    [ERROR_OK] = "executed succesfully",
+    [ERROR_NULL_POINTER] = "attempt to dereference a null pointer",
+    [ERROR_UNKNOWN] = "unknown error"
 }
 // clang-format on
 

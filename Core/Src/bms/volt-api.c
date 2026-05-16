@@ -1,5 +1,5 @@
 /*!
- * \file volt.c
+ * \file volt-api.c
  * \date 2024-04-20
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
@@ -13,7 +13,6 @@
 
 #include "cellboard-def.h"
 #include "identity-api.h"
-#include "timebase.h"
 #include "error.h"
 
 #include "eagletrt-api.h"
@@ -29,8 +28,7 @@ EAGLETRT_STATIC struct VoltHandler volt_handler;
  * \param value The cell voltage value in V
  */
 
-EAGLETRT_STATIC_INLINE void prv_volt_check_value(const uint16_t index, const volt value) {
-
+EAGLETRT_STATIC_INLINE void prv_volt_api_check_value(const uint16_t index, const volt value) {
     if (value < VOLT_MIN_V) {
         error_set(ERROR_GROUP_UNDER_VOLTAGE, index);
     } else {
@@ -44,22 +42,22 @@ EAGLETRT_STATIC_INLINE void prv_volt_check_value(const uint16_t index, const vol
     }
 }
 
-enum VoltReturnCode volt_init(void) {
+enum VoltReturnCode volt_api_init(void) {
     memset(&volt_handler, 0U, sizeof(volt_handler));
     volt_handler.voltages_can_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)identity_api_get_cellboard_id();
     return VOLT_RC_OK;
 }
 
-enum VoltReturnCode volt_update_value(const size_t index, const volt value) {
+enum VoltReturnCode volt_api_update_value(const size_t index, const volt value) {
     if (index > CELLBOARD_SEGMENT_SERIES_COUNT) {
         return VOLT_RC_OUT_OF_BOUNDS;
     }
     volt_handler.voltages[index] = value;
-    prv_volt_check_value(index, value);
+    prv_volt_api_check_value(index, value);
     return VOLT_RC_OK;
 }
 
-enum VoltReturnCode volt_update_values(const size_t index, const volt *const values, const size_t size) {
+enum VoltReturnCode volt_api_update_values(const size_t index, const volt *const values, const size_t size) {
     if (values == NULL) {
         return VOLT_RC_NULL_POINTER;
     }
@@ -68,16 +66,16 @@ enum VoltReturnCode volt_update_values(const size_t index, const volt *const val
     }
     for (size_t i = 0U; i < size; ++i) {
         volt_handler.voltages[index + i] = values[i];
-        prv_volt_check_value(index + i, volt_handler.voltages[index + i]);
+        prv_volt_api_check_value(index + i, volt_handler.voltages[index + i]);
     }
     return VOLT_RC_OK;
 }
 
-const cells_volt *volt_get_values(void) {
+const cells_volt *volt_api_get_values(void) {
     return (const cells_volt *)&volt_handler.voltages;
 }
 
-volt volt_get_min(void) {
+volt volt_api_get_min(void) {
     volt min = volt_handler.voltages[0];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
         min = EAGLETRT_API_MIN(min, volt_handler.voltages[i]);
@@ -85,7 +83,7 @@ volt volt_get_min(void) {
     return min;
 }
 
-volt volt_get_max(void) {
+volt volt_api_get_max(void) {
     volt max = volt_handler.voltages[0];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
         max = EAGLETRT_API_MAX(max, volt_handler.voltages[i]);
@@ -93,11 +91,11 @@ volt volt_get_max(void) {
     return max;
 }
 
-volt volt_get_avg(void) {
-    return volt_get_sum() / CELLBOARD_SEGMENT_SERIES_COUNT;
+volt volt_api_get_avg(void) {
+    return volt_api_get_sum() / CELLBOARD_SEGMENT_SERIES_COUNT;
 }
 
-volt volt_get_sum(void) {
+volt volt_api_get_sum(void) {
     volt sum = 0U;
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
         sum += volt_handler.voltages[i];
@@ -105,7 +103,7 @@ volt volt_get_sum(void) {
     return sum;
 }
 
-bit_flag32 volt_select_values_above_target(const volt target) {
+bit_flag32 volt_api_select_values_above_target(const volt target) {
     bit_flag32 bits = 0U;
     CELLBOARD_ASSERT((uint32_t)CELLBOARD_SEGMENT_SERIES_COUNT > sizeof(bits) * 8U);
 
@@ -118,7 +116,7 @@ bit_flag32 volt_select_values_above_target(const volt target) {
     return bits;
 }
 
-enum VoltReturnCode volt_dump_values(
+enum VoltReturnCode volt_api_dump_values(
     volt *const out,
     const size_t start,
     const size_t size) {
@@ -132,7 +130,7 @@ enum VoltReturnCode volt_dump_values(
     return VOLT_RC_OK;
 }
 
-bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size) {
+bms_cellboard_cells_voltage_converted_t *volt_api_get_canlib_payload(size_t *byte_size) {
     if (byte_size != NULL) {
         *byte_size = sizeof(volt_handler.voltages_can_payload);
     }

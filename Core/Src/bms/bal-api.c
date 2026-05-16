@@ -1,5 +1,5 @@
 /*!
- * \file bal.c
+ * \file bal-api.c
  * \date 2024-04-17
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
@@ -13,8 +13,8 @@
 #include <string.h>
 
 #include "bal.h"
+#include "eagletrt-api.h"
 #include "cellboard-def.h"
-#include "post.h"
 #include "timebase.h"
 #include "volt-api.h"
 #include "identity-api.h"
@@ -23,13 +23,13 @@
 
 EAGLETRT_STATIC struct BalHandler balancing_handler;
 
-void prv_bal_timeout(void) {
+void prv_bal_api_timeout(void) {
     // Stop balancing
     balancing_handler.event.type = FSM_EVENT_TYPE_BALANCING_STOP;
     fsm_event_trigger(&balancing_handler.event);
 }
 
-enum BalReturnCode bal_init(void) {
+enum BalReturnCode bal_api_init(void) {
     memset(&balancing_handler, 0U, sizeof(balancing_handler));
 
     // Set default event and canlib payload
@@ -47,19 +47,19 @@ enum BalReturnCode bal_init(void) {
     (void)watchdog_init(
         &balancing_handler.watchdog,
         TIMEBASE_MS_TO_TICKS(BAL_TIMEOUT_MS, timebase_get_resolution()),
-        prv_bal_timeout);
+        prv_bal_api_timeout);
     return BAL_OK;
 }
 
 // TODO: Handle unavailable watchdog
-int32_t bal_set_balancing_status_handle(const void *const payload) {
+int32_t bal_api_set_balancing_status_handle(const void *const payload) {
     const bms_cellboard_set_balancing_status_converted_t *const set_balancing_status = (bms_cellboard_set_balancing_status_converted_t *)payload;
 
     if (set_balancing_status == NULL) {
         return -BAL_NULL_POINTER;
     }
     // Ignore stop command if not balancing
-    if (!bal_is_active() && !set_balancing_status->start) {
+    if (!bal_api_is_active() && !set_balancing_status->start) {
         return BAL_OK;
     }
 
@@ -80,24 +80,24 @@ int32_t bal_set_balancing_status_handle(const void *const payload) {
     }
 
     // Send event to the FSM
-    if (bal_is_active() == !set_balancing_status->start) {
+    if (bal_api_is_active() == !set_balancing_status->start) {
         balancing_handler.event.type = set_balancing_status->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
         fsm_event_trigger(&balancing_handler.event);
     }
     return BAL_OK;
 }
 
-bool bal_is_active(void) {
+bool bal_api_is_active(void) {
     return balancing_handler.status != BAL_STATUS_STOPPED;
 }
 
-bool bal_is_paused(void) {
+bool bal_api_is_paused(void) {
     return balancing_handler.status == BAL_STATUS_PAUSED;
 }
 
-enum BalReturnCode bal_start(void) {
+enum BalReturnCode bal_api_start(void) {
     // Check actual balancing state
-    if (bal_is_active()) {
+    if (bal_api_is_active()) {
         return BAL_OK;
     }
 
@@ -109,21 +109,21 @@ enum BalReturnCode bal_start(void) {
 
     // Set discharge configuration
     const volt target = balancing_handler.params.target + balancing_handler.params.threshold;
-    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
-    (void)bms_manager_set_discharge_cells(cells_to_discharge);
+    const bit_flag32 cells_to_discharge = volt_api_select_values_above_target(target);
+    (void)bms_manager_api_set_discharge_cells(cells_to_discharge);
 
     balancing_handler.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;
 }
 
-enum BalReturnCode bal_stop(void) {
+enum BalReturnCode bal_api_stop(void) {
     // Check actual balancing status
-    if (!bal_is_active()) {
+    if (!bal_api_is_active()) {
         return BAL_OK;
     }
 
     // Set discharge configuration
-    (void)bms_manager_set_discharge_cells(0U);
+    (void)bms_manager_api_set_discharge_cells(0U);
 
     // Stop watchdog
     (void)watchdog_stop(&balancing_handler.watchdog);
@@ -131,40 +131,40 @@ enum BalReturnCode bal_stop(void) {
     return BAL_OK;
 }
 
-enum BalReturnCode bal_pause(void) {
-    if (!bal_is_active() || bal_is_paused()) {
+enum BalReturnCode bal_api_pause(void) {
+    if (!bal_api_is_active() || bal_api_is_paused()) {
         return BAL_OK;
     }
     // Set discharge configuration
-    (void)bms_manager_set_discharge_cells(0U);
+    (void)bms_manager_api_set_discharge_cells(0U);
     balancing_handler.status = BAL_STATUS_PAUSED;
     return BAL_OK;
 }
 
-enum BalReturnCode bal_resume(void) {
-    if ((bal_is_active() && !bal_is_paused()) || balancing_handler.status == BAL_STATUS_STOPPED) {
+enum BalReturnCode bal_api_resume(void) {
+    if ((bal_api_is_active() && !bal_api_is_paused()) || balancing_handler.status == BAL_STATUS_STOPPED) {
         return BAL_OK;
     }
     // Set discharge configuration
     const volt target = balancing_handler.params.target + balancing_handler.params.threshold;
-    const bit_flag32 cells_to_discharge = volt_select_values_above_target(target);
-    (void)bms_manager_set_discharge_cells(cells_to_discharge);
+    const bit_flag32 cells_to_discharge = volt_api_select_values_above_target(target);
+    (void)bms_manager_api_set_discharge_cells(cells_to_discharge);
     balancing_handler.status = BAL_STATUS_DISCHARCING;
     return BAL_OK;
 }
 
-bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t *const byte_size) {
+bms_cellboard_balancing_status_converted_t *bal_api_get_status_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL) {
         *byte_size = sizeof(balancing_handler.status_can_payload);
     }
     balancing_handler.status_can_payload.status = bms_cellboard_balancing_status_status_stopped;
 
     // Update balancing status
-    if (bal_is_active()) {
-        balancing_handler.status_can_payload.status = bal_is_paused() ? bms_cellboard_balancing_status_status_paused : bms_cellboard_balancing_status_status_running;
+    if (bal_api_is_active()) {
+        balancing_handler.status_can_payload.status = bal_api_is_paused() ? bms_cellboard_balancing_status_status_paused : bms_cellboard_balancing_status_status_running;
     }
     // Update discharging cells
-    const uint32_t cells = bms_manager_get_discharge_cells();
+    const uint32_t cells = bms_manager_api_get_discharge_cells();
     balancing_handler.status_can_payload.discharging_cell_0 = EAGLETRT_API_BIT_GET(cells, 0U);
     balancing_handler.status_can_payload.discharging_cell_1 = EAGLETRT_API_BIT_GET(cells, 1U);
     balancing_handler.status_can_payload.discharging_cell_2 = EAGLETRT_API_BIT_GET(cells, 2U);

@@ -23,7 +23,7 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include "cellboard-def.h"
 #include "cellboard-conf.h"
 
-#include "bms-manager.h"
+#include "bms-manager-api.h"
 /*** USER CODE END MACROS ***/
 
 // State data object

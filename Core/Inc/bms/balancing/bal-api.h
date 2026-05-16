@@ -20,7 +20,7 @@
  *
  * \returns BAL_OK
  */
-enum BalReturnCode bal_init(void);
+enum BalReturnCode bal_api_init(void);
 
 /*!
  * \brief Handler the information received inside the canlib payload
@@ -30,7 +30,7 @@ enum BalReturnCode bal_init(void);
  * \retval -BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
  * \retval BAL_OK if the function executed correctly
  */
-int32_t bal_set_balancing_status_handle(const void *const payload);
+int32_t bal_api_set_balancing_status_handle(const void *const payload);
 
 /*!
  * \brief Check if the balancing is active
@@ -39,14 +39,14 @@ int32_t bal_set_balancing_status_handle(const void *const payload);
  *
  * \returns bool True if the balancing procedure is running, false otherwise
  */
-bool bal_is_active(void);
+bool bal_api_is_active(void);
 
 /*!
  * \brief Check if the balancing is paused
  *
  * \returns bool True if the balancing procedure is paused, false otherwise
  */
-bool bal_is_paused(void);
+bool bal_api_is_paused(void);
 
 /*!
  * \brief Start the balancing mechanism
@@ -54,7 +54,7 @@ bool bal_is_paused(void);
  * \retval BAL_WATCHDOG_ERROR the interal watchdog could not be started
  * \retval BAL_OK if balancing is already active or if function executed correctly
  */
-enum BalReturnCode bal_start(void);
+enum BalReturnCode bal_api_start(void);
 
 /*!
  * \brief Stop the balancing mechanism
@@ -62,7 +62,7 @@ enum BalReturnCode bal_start(void);
  * \return enum BalReturnCode
  *     - BAL_OK
  */
-enum BalReturnCode bal_stop(void);
+enum BalReturnCode bal_api_stop(void);
 
 /*!
  * \brief Pause the discharge
@@ -73,7 +73,7 @@ enum BalReturnCode bal_stop(void);
  * \return enum BalReturnCode
  *     - BAL_OK
  */
-enum BalReturnCode bal_pause(void);
+enum BalReturnCode bal_api_pause(void);
 
 /*!
  * \brief Resume the discharge
@@ -83,7 +83,7 @@ enum BalReturnCode bal_pause(void);
  * \return enum BalReturnCode
  *     - BAL_OK
  */
-enum BalReturnCode bal_resume(void);
+enum BalReturnCode bal_api_resume(void);
 
 /*!
  * \brief Get a pointer to the CAN payload of the balancing info
@@ -93,20 +93,20 @@ enum BalReturnCode bal_resume(void);
  *
  * \return bms_cellboard_balancing_status_converted_t* A pointer to the payload
  */
-bms_cellboard_balancing_status_converted_t *bal_get_status_canlib_payload(size_t *const byte_size);
+bms_cellboard_balancing_status_converted_t *bal_api_get_status_canlib_payload(size_t *const byte_size);
 
 #else // CONF_BALANCING_MODULE_ENABLE
 
-#define bal_init() (BAL_OK)
-#define bal_set_balancing_status_handle(payload) (NULL)
-#define bal_set_balancing_status_handle (NULL)
-#define bal_is_active() (false)
-#define bal_is_paused() (false)
-#define bal_start() (BAL_OK)
-#define bal_stop() (BAL_OK)
-#define bal_pause() (BAL_OK)
-#define bal_resume() (BAL_OK)
-#define bal_get_status_canlib_payload(byte_size) (NULL)
+#define bal_api_init() (BAL_OK)
+#define bal_api_set_balancing_status_handle(payload) (NULL)
+#define bal_api_set_balancing_status_handle (NULL)
+#define bal_api_is_active() (false)
+#define bal_api_is_paused() (false)
+#define bal_api_start() (BAL_OK)
+#define bal_api_stop() (BAL_OK)
+#define bal_api_pause() (BAL_OK)
+#define bal_api_resume() (BAL_OK)
+#define bal_api_get_status_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 

@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "eagletrt.h"
 #include "temp-api.h"
 
 /* USER CODE END 0 */
@@ -176,7 +177,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *adcHandle) {
 
 /* USER CODE BEGIN 1 */
 
-_STATIC _VOLATILE raw_temp_t dma_data[ADC_DMA_CHANNEL_COUNT];
+EAGLETRT_STATIC EAGLETRT_VOLATILE raw_temp_t dma_data[ADC_DMA_CHANNEL_COUNT];
 
 void adc_temperature_start_conversion(void) {
     (void)HAL_ADC_Start_DMA(&HADC_TEMPS, (uint32_t *)dma_data, ADC_DMA_CHANNEL_COUNT);
@@ -188,7 +189,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
         for (size_t i = 0U; i < ADC_DMA_CHANNEL_COUNT; ++i) {
             data[i] = CELLBOARD_ADC_RAW_VALUE_TO_VOLT(dma_data[i], ADC_VREF, ADC_RESOLUTION);
         }
-        (void)temp_notify_conversion_complete(data, ADC_DMA_CHANNEL_COUNT);
+        (void)temp_api_notify_conversion_complete(data, ADC_DMA_CHANNEL_COUNT);
     }
 }
 

@@ -1,5 +1,5 @@
 /**
- * @file temp.c
+ * @file temp-api.c
  * @date 2024-04-19
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
@@ -13,7 +13,6 @@
 #include "cellboard-def.h"
 #include "identity-api.h"
 #include "error.h"
-#include "timebase.h"
 #include "eagletrt-api.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
@@ -22,14 +21,12 @@
 EAGLETRT_STATIC struct TempHandler temp_handler;
 
 //
-celsius prv_temp_volt_to_celsius(volt value) {
-
-    // To please clang-tidy, really don't like this
-    const volt temp_min_limit_v = TEMP_MIN_LIMIT_V;
-    const volt temp_max_limit_v = TEMP_MAX_LIMIT_V;
+celsius prv_temp_api_volt_to_celsius(volt value) {
+    constexpr volt temp_min_limit = TEMP_MIN_LIMIT_V;
+    constexpr volt temp_max_limit = TEMP_MAX_LIMIT_V;
 
     // Value is converted in V and limited to fit the polynomial range
-    value = EAGLETRT_API_CLAMP(value, temp_min_limit_v, temp_max_limit_v);
+    value = EAGLETRT_API_CLAMP(value, temp_min_limit, temp_max_limit);
     const double val = value;
     const double val2 = val * val;
     const double val3 = val2 * val;
@@ -45,29 +42,26 @@ celsius prv_temp_volt_to_celsius(volt value) {
            TEMP_COEFF_6 * val6;
 }
 
-celsius prv_temp_discharge_volt_to_celsius(volt value) {
-
-    const volt temp_discharge_min_limit_v = TEMP_DISCHARGE_MIN_LIMIT_V;
-    const volt temp_discharge_max_limit_v = TEMP_DISCHARGE_MAX_LIMIT_V;
+celsius prv_temp_api_discharge_volt_to_celsius(volt value) {
+    constexpr volt temp_discharge_min_limit = TEMP_DISCHARGE_MIN_LIMIT_V;
+    constexpr volt temp_discharge_max_limit = TEMP_DISCHARGE_MAX_LIMIT_V;
 
     // Value is converted in V and limited to fit the polynomial range
-    value = EAGLETRT_API_CLAMP(value, temp_discharge_min_limit_v, temp_discharge_max_limit_v);
+    value = EAGLETRT_API_CLAMP(value, temp_discharge_min_limit, temp_discharge_max_limit);
     const double val = value;
     const double val2 = val * val;
     const double val3 = val2 * val;
     const double val4 = val2 * val2;
     const double val5 = val4 * val;
-    // const double v6 = v3 * v3;
     return TEMP_DISCHARGE_COEFF_0 +
            TEMP_DISCHARGE_COEFF_1 * val +
            TEMP_DISCHARGE_COEFF_2 * val2 +
            TEMP_DISCHARGE_COEFF_3 * val3 +
            TEMP_DISCHARGE_COEFF_4 * val4 +
            TEMP_DISCHARGE_COEFF_5 * val5;
-    // TEMP_DISCHARGE_COEFF_6 * v6;
 }
 
-EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, const celsius value) {
+EAGLETRT_STATIC_INLINE void prv_temp_api_check_cells_value(const uint16_t index, const celsius value) {
     // BUG: Ignore under temp caused by broken NTCs
     // if (value < TEMP_MIN_C)
     //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
@@ -80,7 +74,7 @@ EAGLETRT_STATIC_INLINE void prv_temp_check_cells_value(const uint16_t index, con
     }
 }
 
-enum TempReturnCode temp_init(const temp_set_mux_address_callback set_address, const temp_start_conversion_callback start_conversion) {
+enum TempReturnCode temp_api_init(const temp_set_mux_address_callback set_address, const temp_start_conversion_callback start_conversion) {
     if (set_address == NULL || start_conversion == NULL) {
         return TEMP_RC_NULL_POINTER;
     }
@@ -93,7 +87,7 @@ enum TempReturnCode temp_init(const temp_set_mux_address_callback set_address, c
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_start_conversion(void) {
+enum TempReturnCode temp_api_start_conversion(void) {
     if (temp_handler.busy) {
         return TEMP_RC_BUSY;
     }
@@ -109,27 +103,27 @@ enum TempReturnCode temp_start_conversion(void) {
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_notify_conversion_complete(const volt *const values, size_t size) {
+enum TempReturnCode temp_api_notify_conversion_complete(const volt *const values, size_t size) {
     const size_t index = temp_handler.address * CELLBOARD_SEGMENT_TEMP_CHANNEL_COUNT;
     // Convert the raw value to celsius
     for (size_t i = 0U; i < size; ++i) {
-        const celsius temp = prv_temp_volt_to_celsius(values[i]);
-        temp_update_value(index + i, temp);
+        const celsius temp = prv_temp_api_volt_to_celsius(values[i]);
+        temp_api_update_value(index + i, temp);
     }
     temp_handler.busy = false;
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_update_value(const size_t index, const celsius value) {
+enum TempReturnCode temp_api_update_value(const size_t index, const celsius value) {
     if (index >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT) {
         return TEMP_RC_OUT_OF_BOUNDS;
     }
     temp_handler.temperatures[index] = value;
-    prv_temp_check_cells_value(index, value);
+    prv_temp_api_check_cells_value(index, value);
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_update_values(
+enum TempReturnCode temp_api_update_values(
     const size_t index,
     const celsius *const values,
     const size_t size) {
@@ -138,20 +132,20 @@ enum TempReturnCode temp_update_values(
     }
     for (size_t i = 0U; i < size; ++i) {
         temp_handler.temperatures[index + i] = values[i];
-        prv_temp_check_cells_value(index + i, values[i]);
+        prv_temp_api_check_cells_value(index + i, values[i]);
     }
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_update_discharge_value(const size_t index, const volt value) {
+enum TempReturnCode temp_api_update_discharge_value(const size_t index, const volt value) {
     if (index >= CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT) {
         return TEMP_RC_OUT_OF_BOUNDS;
     }
-    temp_handler.discharge_temperatures[index] = prv_temp_discharge_volt_to_celsius(value);
+    temp_handler.discharge_temperatures[index] = prv_temp_api_discharge_volt_to_celsius(value);
     return TEMP_RC_OK;
 }
 
-enum TempReturnCode temp_update_discharge_values(
+enum TempReturnCode temp_api_update_discharge_values(
     const size_t index,
     const volt *const values,
     const size_t size) {
@@ -159,16 +153,16 @@ enum TempReturnCode temp_update_discharge_values(
         return TEMP_RC_OUT_OF_BOUNDS;
     }
     for (size_t i = 0U; i < size; ++i) {
-        temp_handler.discharge_temperatures[index + i] = prv_temp_discharge_volt_to_celsius(values[i]);
+        temp_handler.discharge_temperatures[index + i] = prv_temp_api_discharge_volt_to_celsius(values[i]);
     }
     return TEMP_RC_OK;
 }
 
-const cells_temp *temp_get_values(void) {
+const cells_temp *temp_api_get_values(void) {
     return &temp_handler.temperatures;
 }
 
-celsius temp_get_min(void) {
+celsius temp_api_get_min(void) {
     celsius min = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         min = EAGLETRT_API_MIN(min, temp_handler.temperatures[i]);
@@ -176,7 +170,7 @@ celsius temp_get_min(void) {
     return min;
 }
 
-celsius temp_get_max(void) {
+celsius temp_api_get_max(void) {
     celsius max = temp_handler.temperatures[0U];
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         max = EAGLETRT_API_MAX(max, temp_handler.temperatures[i]);
@@ -184,11 +178,11 @@ celsius temp_get_max(void) {
     return max;
 }
 
-celsius temp_get_avg(void) {
-    return temp_get_sum() / CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT;
+celsius temp_api_get_avg(void) {
+    return temp_api_get_sum() / CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT;
 }
 
-celsius temp_get_sum(void) {
+celsius temp_api_get_sum(void) {
     celsius sum = 0U;
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         sum += temp_handler.temperatures[i];
@@ -196,11 +190,11 @@ celsius temp_get_sum(void) {
     return sum;
 }
 
-const discharge_temp *temp_get_discharge_values(void) {
+const discharge_temp *temp_api_get_discharge_values(void) {
     return &temp_handler.discharge_temperatures;
 }
 
-enum TempReturnCode temp_dump_values(
+enum TempReturnCode temp_api_dump_values(
     celsius *const out,
     const size_t start,
     const size_t size) {
@@ -215,7 +209,7 @@ enum TempReturnCode temp_dump_values(
     return TEMP_RC_OK;
 }
 
-bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(size_t *const byte_size) {
+bms_cellboard_cells_temperature_converted_t *temp_api_get_cells_temp_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL) {
         *byte_size = sizeof(temp_handler.temp_can_payload);
     }
@@ -233,7 +227,7 @@ bms_cellboard_cells_temperature_converted_t *temp_get_cells_temp_canlib_payload(
     return &temp_handler.temp_can_payload;
 }
 
-bms_cellboard_discharge_temperature_converted_t *temp_get_discharge_temp_canlib_payload(size_t *const byte_size) {
+bms_cellboard_discharge_temperature_converted_t *temp_api_get_discharge_temp_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL) {
         *byte_size = sizeof(temp_handler.discharge_temp_can_payload);
     }

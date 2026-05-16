@@ -26,7 +26,7 @@
  * \retval VOLT_RC_OK if the initialization is successful
  * \retval VOLT_RC_NULL_POINTER if a NULL pointer is used inside the function
  */
-enum VoltReturnCode volt_init(void);
+enum VoltReturnCode volt_api_init(void);
 
 /*!
  * \brief Update a single voltage value
@@ -37,7 +37,7 @@ enum VoltReturnCode volt_init(void);
  * \retval VOLT_RC_OUT_OF_BOUNDS if the index is greater than the total number of values
  * \retval VOLT_RC_OK otherwise
  */
-enum VoltReturnCode volt_update_value(size_t index, volt value);
+enum VoltReturnCode volt_api_update_value(size_t index, volt value);
 
 /*!
  * \brief Update multiple voltage values
@@ -52,7 +52,7 @@ enum VoltReturnCode volt_update_value(size_t index, volt value);
  * \retval VOLT_RC_NULL_POINTER if a NULL pointer is given as parameter
  * \retval VOLT_RC_OK otherwise
  */
-enum VoltReturnCode volt_update_values(
+enum VoltReturnCode volt_api_update_values(
     size_t index,
     const volt *values,
     size_t size);
@@ -62,35 +62,35 @@ enum VoltReturnCode volt_update_values(
  *
  * \returns cells_volt* The pointer to the array
  */
-const cells_volt *volt_get_values(void);
+const cells_volt *volt_api_get_values(void);
 
 /*!
  * \brief Get the minimum cell voltage
  *
  * \returns volt The minimum voltage in V
  */
-volt volt_get_min(void);
+volt volt_api_get_min(void);
 
 /*!
  * \brief Get the maximum cell voltage
  *
  * \returns volt The maximum voltage in V
  */
-volt volt_get_max(void);
+volt volt_api_get_max(void);
 
 /*!
  * \brief Get the average cell voltage
  *
  * \returns volt The average voltage in V
  */
-volt volt_get_avg(void);
+volt volt_api_get_avg(void);
 
 /*!
  * \brief Get the sum of the cells voltages
  *
  * \returns volt The cells voltages sum
  */
-volt volt_get_sum(void);
+volt volt_api_get_sum(void);
 
 /*!
  * \brief Get a bitmask of cells which voltage is STRICTLY greater than
@@ -107,7 +107,7 @@ volt volt_get_sum(void);
  *
  * \returns bit_flag32 The bitmask of cells
  */
-bit_flag32 volt_select_values_above_target(volt target);
+bit_flag32 volt_api_select_values_above_target(volt target);
 
 /*!
  * \brief Copy a list of adjacent voltages
@@ -122,7 +122,7 @@ bit_flag32 volt_select_values_above_target(volt target);
  * \retval VOLT_RC_OUT_OF_BOUNDS if the required range exceeds the maximum number of voltages
  * \retval VOLT_RC_OK otherwise
  */
-enum VoltReturnCode volt_dump_values(
+enum VoltReturnCode volt_api_dump_values(
     volt *out,
     size_t start,
     size_t size);
@@ -134,17 +134,17 @@ enum VoltReturnCode volt_dump_values(
  *
  * \returns bms_cellboard_cells_voltage_converted_t* A pointer to the payload
  */
-bms_cellboard_cells_voltage_converted_t *volt_get_canlib_payload(size_t *byte_size);
+bms_cellboard_cells_voltage_converted_t *volt_api_get_canlib_payload(size_t *byte_size);
 
 #else // CONF_VOLTAGE_MODULE_ENABLE
 
-#define volt_init() (VOLT_RC_OK)
-#define volt_update_value(index, value) (VOLT_RC_OK)
-#define volt_update_values(index, value, size) (VOLT_RC_OK)
-#define volt_get_values() (NULL)
-#define volt_select_values_above_target(target) (0U)
-#define volt_dump_values(out, start, size) (VOLT_RC_OK)
-#define volt_get_canlib_payload(byte_size) (NULL)
+#define volt_api_init() (VOLT_RC_OK)
+#define volt_api_update_value(index, value) (VOLT_RC_OK)
+#define volt_api_update_values(index, value, size) (VOLT_RC_OK)
+#define volt_api_get_values() (NULL)
+#define volt_api_select_values_above_target(target) (0U)
+#define volt_api_dump_values(out, start, size) (VOLT_RC_OK)
+#define volt_api_get_canlib_payload(byte_size) (NULL)
 
 #endif // CONF_VOLTAGE_MODULE_ENABLE
 

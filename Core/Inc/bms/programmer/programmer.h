@@ -22,7 +22,7 @@
 #define PROGRAMMER_FLASH_TIMEOUT_MS (1000U)
 
 /*!
- * \brief Return code for the programmer module functions 
+ * \brief Return code for the programmer module functions
  */
 enum ProgrammerReturnCode {
     PROGRAMMER_RC_OK,           /*!< The function executed successfully */

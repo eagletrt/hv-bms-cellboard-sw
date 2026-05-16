@@ -15,34 +15,34 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "eagletrt.h"
 #include "identity-api.h"
 #include "timebase.h"
 
 EAGLETRT_STATIC struct ProgrammerHandler programmer_handler;
 
 /*! \brief Function called when the watchdog times-out */
-void prv_programmer_flash_timeout(void) {
+void prv_programmer_api_flash_timeout(void) {
     programmer_handler.flash_request = false;
     programmer_handler.flashing = false;
     programmer_handler.flash_stop = false;
 }
 
 /*! \brief Function called when the flash procedure is completed */
-void prv_programmer_flash_stop(void) {
+void prv_programmer_api_flash_stop(void) {
     programmer_handler.flash_request = false;
     programmer_handler.flashing = false;
     programmer_handler.flash_stop = true;
 }
 
 /*! \brief Resets all the flash flags */
-void prv_programmer_flash_reset_flags(void) {
+void prv_programmer_api_flash_reset_flags(void) {
     programmer_handler.flash_request = false;
     programmer_handler.flashing = false;
     programmer_handler.flash_stop = false;
 }
 
-enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
-
+enum ProgrammerReturnCode programmer_api_init(const system_reset_callback_t reset) {
     if (reset == NULL) {
         return PROGRAMMER_RC_NULL_POINTER;
     }
@@ -56,19 +56,19 @@ enum ProgrammerReturnCode programmer_init(const system_reset_callback_t reset) {
 
     // Reset flash procedure data
     programmer_handler.target = MAINBOARD_ID;
-    prv_programmer_flash_reset_flags();
+    prv_programmer_api_flash_reset_flags();
 
     // TODO: Watchdog for the entire procedure?
     // Initialize watchdogs
     (void)watchdog_init(
         &programmer_handler.watchdog,
         TIMEBASE_MS_TO_TICKS(PROGRAMMER_FLASH_TIMEOUT_MS, timebase_get_resolution()),
-        prv_programmer_flash_timeout);
+        prv_programmer_api_flash_timeout);
 
     return PROGRAMMER_RC_OK;
 }
 
-int32_t programmer_flash_request_handle(const void *const payload) {
+int32_t programmer_api_flash_request_handle(const void *const payload) {
     const bms_cellboard_flash_request_converted_t *const flash_request = (bms_cellboard_flash_request_converted_t *)payload;
     if (flash_request == NULL) {
         return -PROGRAMMER_RC_NULL_POINTER;
@@ -95,7 +95,7 @@ int32_t programmer_flash_request_handle(const void *const payload) {
     return PROGRAMMER_RC_OK;
 }
 
-int32_t programmer_flash_handle(const void *const payload) {
+int32_t programmer_api_flash_handle(const void *const payload) {
     const bms_cellboard_flash_converted_t *const flash = (bms_cellboard_flash_converted_t *)payload;
     if (flash == NULL) {
         return -PROGRAMMER_RC_NULL_POINTER;
@@ -111,12 +111,12 @@ int32_t programmer_flash_handle(const void *const payload) {
         programmer_handler.flashing = true;
     } else {
         watchdog_stop(&programmer_handler.watchdog);
-        prv_programmer_flash_stop();
+        prv_programmer_api_flash_stop();
     }
     return PROGRAMMER_RC_OK;
 }
 
-enum ProgrammerReturnCode programmer_routine(void) {
+enum ProgrammerReturnCode programmer_api_routine(void) {
     if (watchdog_is_timed_out(&programmer_handler.watchdog)) {
         return PROGRAMMER_RC_TIMEOUT;
     }

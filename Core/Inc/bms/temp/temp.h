@@ -12,15 +12,14 @@
 
 #include <stddef.h>
 
-#include "cellboard-conf.h"
 #include "cellboard-def.h"
 
 #include "bms_network.h"
 
-/*! 
+/*!
  * \defgroup TEMP_LIMIT_C Temperature limits
  *
- * \brief Minimum and maximum allowed cell temperature in celsius 
+ * \brief Minimum and maximum allowed cell temperature in celsius
 */
 #define TEMP_MIN_C (-10.0F)
 #define TEMP_MAX_C (60.0F)
@@ -32,7 +31,7 @@
  *
  * \details This limit is applied to fit into the polynomial conversion
  * to get a plausible temperature value
- * 
+ *
  * \{
  */
 #define TEMP_MIN_LIMIT_V (0.0F)
@@ -52,9 +51,9 @@
 #define TEMP_DISCHARGE_MAX_LIMIT_V (5.1F)
 /*! \} */
 
-/*! 
+/*!
  * \defgroup TEMP_COEFF Polynomial coefficients
- * \brief Coefficients used for the polynomial conversion of the NTC cells temperatures values 
+ * \brief Coefficients used for the polynomial conversion of the NTC cells temperatures values
  *
  * \{
  */
@@ -69,8 +68,8 @@
 
 /*!
  * \defgroup TEMP_DISCHARGE_COEFF Polynomial coefficients for discharge resistors
- * \brief Coefficients used for the polynomial conversion of the NTC temperatures values of the discharge resistors 
- * 
+ * \brief Coefficients used for the polynomial conversion of the NTC temperatures values of the discharge resistors
+ *
  * \{
  */
 // #define TEMP_DISCHARGE_COEFF_0 ( 148.305319086073000)
@@ -84,7 +83,7 @@
 
 /*!
  * \brief Type definition for a function callback that sets the muliplexer address
- * 
+ *
  * \param address The address to set
  */
 typedef void (*temp_set_mux_address_callback)(const uint8_t address);
