@@ -6,7 +6,7 @@
  * @brief Functions to handle CAN communication with other devices
  */
 
-#include "can-comm.h"
+#include "can-comm-api.h"
 
 #include <string.h>
 

@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "bms_network.h"
-#include "can-comm.h"
+#include "can-comm-api.h"
 #include "bal-api.h"
 #include "fsm.h"
 #include "identity-api.h"

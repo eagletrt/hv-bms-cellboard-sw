@@ -7,7 +7,7 @@
  */
 
 #include "unity.h"
-#include "can-comm.h"
+#include "can-comm-api.h"
 #include "identity-api.h"
 #include "cellboard-def.h"
 

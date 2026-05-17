@@ -33,7 +33,7 @@ extern "C" {
 #include <stddef.h>
 
 #include "cellboard-def.h"
-#include "can-comm.h"
+#include "can-comm-api.h"
 
 /* USER CODE END Includes */
 
