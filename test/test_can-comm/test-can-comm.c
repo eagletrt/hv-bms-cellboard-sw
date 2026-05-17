@@ -13,20 +13,20 @@
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-extern _CanCommHandler hcan_comm;
+extern struct CanCommHandler hcan_comm;
 
 bool sended;
-CanCommReturnCode can_comm_send(can_id_t id, CanFrameType frame_type, const uint8_t *data, size_t size) {
+enum CanCommReturnCode can_comm_send(can_id_t id, CanFrameType frame_type, const uint8_t *data, size_t size) {
     sended = true;
-    return CAN_COMM_OK;
+    return CAN_COMM_RC_OK;
 }
 
 void test_can_comm_init_null() {
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_NULL_POINTER, can_comm_init(NULL), "Init should return CAN_COMM_NULL_POINTER when callback is NULL");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, can_comm_init(NULL), "Init should return CAN_COMM_RC_NULL_POINTER when callback is NULL");
 }
 
 void test_can_comm_init_ok() {
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_OK, can_comm_init(can_comm_send), "Init should return CAN_COMM_OK with valid callback");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, can_comm_init(can_comm_send), "Init should return CAN_COMM_RC_OK with valid callback");
 }
 
 void test_can_comm_enable_all() {
@@ -72,8 +72,8 @@ void test_can_comm_is_enabled_true() {
 
 void test_can_comm_send_immediate_ok() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_OK, ret, "Immediate send should return OK when enabled and parameters are valid");
+    enum CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, ret, "Immediate send should return OK when enabled and parameters are valid");
 }
 
 void test_can_comm_send_immediate_sended() {
@@ -84,70 +84,70 @@ void test_can_comm_send_immediate_sended() {
 }
 
 void test_can_comm_send_immediate_disabled() {
-    CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_DISABLED, ret, "Should return CAN_COMM_DISABLED when trying to send without enabling");
+    enum CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, ret, "Should return CAN_COMM_RC_DISABLED when trying to send without enabling");
 }
 
 void test_can_comm_send_immediate_invalid_frame_type() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_FRAME_TYPE, ret, "Should return CAN_COMM_INVALID_FRAME_TYPE for out-of-bound frame type");
+    enum CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, ret, "Should return CAN_COMM_RC_INVALID_FRAME_TYPE for out-of-bound frame type");
 }
 
 void test_can_comm_send_immediate_invalid_payload_size() {
     // can_comm_enable_all();
-    // CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
-    // TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_PAYLOAD_SIZE, ret, "Should return CAN_COMM_INVALID_PAYLOAD_SIZE when size exceeds MAX");
+    // enum CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
+    // TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_PAYLOAD_SIZE, ret, "Should return CAN_COMM_RC_INVALID_PAYLOAD_SIZE when size exceeds MAX");
 
     TEST_IGNORE_MESSAGE("Test for invalid payload size is currently disabled due to TODO in can_comm_send_immediate");
 }
 
 void test_can_comm_send_immediate_null() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_NULL_POINTER, ret, "Should return CAN_COMM_NULL_POINTER when data pointer is NULL");
+    enum CanCommReturnCode ret = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, ret, "Should return CAN_COMM_RC_NULL_POINTER when data pointer is NULL");
 }
 
 void test_can_comm_rx_add_disabled() {
-    CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_DISABLED, ret, "RX add should fail with DISABLED when module is not enabled");
+    enum CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, ret, "RX add should fail with DISABLED when module is not enabled");
 }
 
 void test_can_comm_rx_add_invalid_index() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_rx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_INDEX, ret, "RX add should fail with INVALID_INDEX when index is out of bounds");
+    enum CanCommReturnCode ret = can_comm_rx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_INDEX, ret, "RX add should fail with INVALID_INDEX when index is out of bounds");
 }
 
 void test_can_comm_rx_add_null() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_NULL_POINTER, ret, "RX add should fail with NULL_POINTER when data is NULL");
+    enum CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, ret, "RX add should fail with NULL_POINTER when data is NULL");
 }
 
 void test_can_comm_rx_add_invalid_payload_size() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_PAYLOAD_SIZE, ret, "RX add should fail with INVALID_PAYLOAD_SIZE when size is too large");
+    enum CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_PAYLOAD_SIZE, ret, "RX add should fail with INVALID_PAYLOAD_SIZE when size is too large");
 }
 
 void test_can_comm_rx_add_invalid_frame() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_FRAME_TYPE, ret, "RX add should fail with INVALID_FRAME_TYPE when type is unknown");
+    enum CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, ret, "RX add should fail with INVALID_FRAME_TYPE when type is unknown");
 }
 
 void test_can_comm_rx_add_ok() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_OK, ret, "RX add should return OK for valid parameters");
+    enum CanCommReturnCode ret = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, ret, "RX add should return OK for valid parameters");
 }
 
 void test_can_comm_rx_add_added() {
     can_comm_enable_all();
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
-    CanMessage rx_msg;
+    struct CanMessage rx_msg;
     TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg), "Should successfully pop the added message from the RX ring buffer");
 }
 
@@ -157,7 +157,7 @@ void test_can_comm_rx_add_added_payload() {
     can_comm_enable_all();
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
-    CanMessage rx_msg;
+    struct CanMessage rx_msg;
     ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, rx_msg.payload.rx, 4, "RX message payload content in buffer should match added data");
@@ -166,46 +166,46 @@ void test_can_comm_rx_add_added_payload() {
 //TX
 
 void test_can_comm_tx_add_disabled() {
-    CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_DISABLED, ret, "TX add should fail with DISABLED when module is not enabled");
+    enum CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, ret, "TX add should fail with DISABLED when module is not enabled");
 }
 
 void test_can_comm_tx_add_invalid_index() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_tx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_INDEX, ret, "TX add should fail with INVALID_INDEX when index is out of bounds");
+    enum CanCommReturnCode ret = can_comm_tx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_INDEX, ret, "TX add should fail with INVALID_INDEX when index is out of bounds");
 }
 
 void test_can_comm_tx_add_null() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_NULL_POINTER, ret, "TX add should fail with NULL_POINTER when data is NULL");
+    enum CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, ret, "TX add should fail with NULL_POINTER when data is NULL");
 }
 
 void test_can_comm_tx_add_invalid_payload_size() {
     // can_comm_enable_all();
-    // CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
-    // TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_PAYLOAD_SIZE, ret, "TX add should fail with INVALID_PAYLOAD_SIZE when size is too large");
+    // enum CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
+    // TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_PAYLOAD_SIZE, ret, "TX add should fail with INVALID_PAYLOAD_SIZE when size is too large");
     TEST_IGNORE_MESSAGE("Test for invalid payload size is currently disabled due to TODO in can_comm_tx_add");
 }
 
 void test_can_comm_tx_add_invalid_frame() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_INVALID_FRAME_TYPE, ret, "TX add should fail with INVALID_FRAME_TYPE when type is unknown");
+    enum CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, ret, "TX add should fail with INVALID_FRAME_TYPE when type is unknown");
 }
 
 void test_can_comm_tx_add_ok() {
     can_comm_enable_all();
-    CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_OK, ret, "TX add should return OK for valid parameters");
+    enum CanCommReturnCode ret = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, ret, "TX add should return OK for valid parameters");
 }
 
 void test_can_comm_tx_add_added() {
     can_comm_enable_all();
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
-    CanMessage tx_msg;
+    struct CanMessage tx_msg;
     TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg), "Should successfully pop the added message from the TX ring buffer");
 }
 
@@ -215,7 +215,7 @@ void test_can_comm_tx_add_added_payload() {
     can_comm_enable_all();
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
-    CanMessage tx_msg;
+    struct CanMessage tx_msg;
     ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, 4, "TX message payload content in buffer should match added data");

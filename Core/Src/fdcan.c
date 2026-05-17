@@ -227,23 +227,23 @@ CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {
 }
 
 // TODO: Return and check errors
-CanCommReturnCode can_send(
+enum CanCommReturnCode can_send(
     const can_id_t id,
     const CanFrameType frame_type,
     const uint8_t *const data,
     const size_t size) {
     if (id > CAN_COMM_ID_MASK)
-        return CAN_COMM_INVALID_INDEX;
+        return CAN_COMM_RC_INVALID_INDEX;
 
     // Get and check for data length
     const int32_t dlc = _can_get_dlc_from_size(size);
     if (dlc < 0)
-        return CAN_COMM_INVALID_PAYLOAD_SIZE;
+        return CAN_COMM_RC_INVALID_PAYLOAD_SIZE;
 
     // Get and check the frame type
     const int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
     if (type < 0)
-        return CAN_COMM_INVALID_FRAME_TYPE;
+        return CAN_COMM_RC_INVALID_FRAME_TYPE;
 
     // Setup transmission header
     const FDCAN_TxHeaderTypeDef header = {
@@ -260,8 +260,8 @@ CanCommReturnCode can_send(
 
     // Send message
     if (HAL_FDCAN_AddMessageToTxFifoQ(&HCAN_BMS, &header, data) != HAL_OK)
-        return CAN_COMM_TRANSMISSION_ERROR;
-    return CAN_COMM_OK;
+        return CAN_COMM_RC_TRANSMISSION_ERROR;
+    return CAN_COMM_RC_OK;
 }
 
 // TODO: Return and check errors
