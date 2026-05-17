@@ -50,7 +50,7 @@ enum FsmEventType {
 // By default set to void; override this typedef or load the proper
 // header if you need
 /*** USER STATE DATA TYPE BEGIN ***/
-typedef void fsm_state_data_t;
+typedef void fsm_state_data;
 /*** USER STATE DATA TYPE END ***/
 // Event data object
 // By default the struct is empty; put the data of the event inside
@@ -81,8 +81,8 @@ typedef enum {
 extern const char *fsm_state_names[];
 
 // State function and state transition prototypes
-typedef fsm_state_t fsm_state_func_t(fsm_state_data_t *data);
-typedef void transition_func_t(fsm_state_data_t *data);
+typedef fsm_state_t fsm_state_func_t(fsm_state_data *data);
+typedef void transition_func_t(fsm_state_data *data);
 
 /*** USER CODE BEGIN TYPES ***/
 /*!
@@ -110,47 +110,47 @@ void fsm_event_trigger(fsm_event_data_t *event);
 
 // Function to be executed in state init
 // valid return states: FSM_STATE_IDLE, FSM_STATE_FATAL
-fsm_state_t fsm_do_init(fsm_state_data_t *data);
+fsm_state_t fsm_do_init(fsm_state_data *data);
 
 // Function to be executed in state idle
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_FLASH, FSM_STATE_DISCHARGE, FSM_STATE_FATAL
-fsm_state_t fsm_do_idle(fsm_state_data_t *data);
+fsm_state_t fsm_do_idle(fsm_state_data *data);
 
 // Function to be executed in state fatal
 // valid return states: FSM_NO_CHANGE, FSM_STATE_FLASH, FSM_STATE_FATAL
-fsm_state_t fsm_do_fatal(fsm_state_data_t *data);
+fsm_state_t fsm_do_fatal(fsm_state_data *data);
 
 // Function to be executed in state flash
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_FLASH, FSM_STATE_FATAL
-fsm_state_t fsm_do_flash(fsm_state_data_t *data);
+fsm_state_t fsm_do_flash(fsm_state_data *data);
 
 // Function to be executed in state discharge
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_DISCHARGE, FSM_STATE_COOLDOWN, FSM_STATE_FATAL
-fsm_state_t fsm_do_discharge(fsm_state_data_t *data);
+fsm_state_t fsm_do_discharge(fsm_state_data *data);
 
 // Function to be executed in state cooldown
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_DISCHARGE, FSM_STATE_COOLDOWN, FSM_STATE_FATAL
-fsm_state_t fsm_do_cooldown(fsm_state_data_t *data);
+fsm_state_t fsm_do_cooldown(fsm_state_data *data);
 
 // List of state functions
 extern fsm_state_func_t *const fsm_state_table[FSM_NUM_STATES];
 
 // Transition functions
-void fsm_start(fsm_state_data_t *data);
-void fsm_handle_init_error(fsm_state_data_t *data);
-void fsm_start_flash_procedure(fsm_state_data_t *data);
-void fsm_start_discharge(fsm_state_data_t *data);
-void fsm_handle_fatal_error(fsm_state_data_t *data);
-void fsm_stop_flash_procedure(fsm_state_data_t *data);
-void fsm_stop_discharge(fsm_state_data_t *data);
-void fsm_start_cooldown(fsm_state_data_t *data);
-void fsm_restart_discharge(fsm_state_data_t *data);
+void fsm_start(fsm_state_data *data);
+void fsm_handle_init_error(fsm_state_data *data);
+void fsm_start_flash_procedure(fsm_state_data *data);
+void fsm_start_discharge(fsm_state_data *data);
+void fsm_handle_fatal_error(fsm_state_data *data);
+void fsm_stop_flash_procedure(fsm_state_data *data);
+void fsm_stop_discharge(fsm_state_data *data);
+void fsm_start_cooldown(fsm_state_data *data);
+void fsm_restart_discharge(fsm_state_data *data);
 
 // Table of transition functions
 extern transition_func_t *const fsm_transition_table[FSM_NUM_STATES][FSM_NUM_STATES];
 
 // state manager
-fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data);
+fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data *data);
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 /*!

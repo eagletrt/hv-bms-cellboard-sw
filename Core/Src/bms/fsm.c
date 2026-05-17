@@ -115,7 +115,7 @@ void fsm_event_trigger(fsm_event_data_t *event) {
 
 // Function to be executed in state init
 // valid return states: FSM_STATE_IDLE, FSM_STATE_FATAL
-fsm_state_t fsm_do_init(fsm_state_data_t *data) {
+fsm_state_t fsm_do_init(fsm_state_data *data) {
     fsm_state_t next_state = FSM_STATE_IDLE;
 
     /*** USER CODE BEGIN DO_INIT ***/
@@ -169,7 +169,7 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
 
 // Function to be executed in state idle
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_FLASH, FSM_STATE_DISCHARGE, FSM_STATE_FATAL
-fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
+fsm_state_t fsm_do_idle(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_IDLE ***/
@@ -209,7 +209,7 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
 
 // Function to be executed in state fatal
 // valid return states: FSM_NO_CHANGE, FSM_STATE_FLASH, FSM_STATE_FATAL
-fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
+fsm_state_t fsm_do_fatal(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_FATAL ***/
@@ -239,7 +239,7 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
 
 // Function to be executed in state flash
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_FLASH, FSM_STATE_FATAL
-fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
+fsm_state_t fsm_do_flash(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_FLASH ***/
@@ -272,7 +272,7 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
 
 // Function to be executed in state discharge
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_DISCHARGE, FSM_STATE_COOLDOWN, FSM_STATE_FATAL
-fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
+fsm_state_t fsm_do_discharge(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_DISCHARGE ***/
@@ -313,7 +313,7 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
 
 // Function to be executed in state cooldown
 // valid return states: FSM_NO_CHANGE, FSM_STATE_IDLE, FSM_STATE_DISCHARGE, FSM_STATE_COOLDOWN, FSM_STATE_FATAL
-fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
+fsm_state_t fsm_do_cooldown(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_COOLDOWN ***/
@@ -367,7 +367,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from init to idle
-void fsm_start(fsm_state_data_t *data) {
+void fsm_start(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START ***/
     CELLBOARD_UNUSED(data);
@@ -376,7 +376,7 @@ void fsm_start(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from init to fatal
-void fsm_handle_init_error(fsm_state_data_t *data) {
+void fsm_handle_init_error(fsm_state_data *data) {
 
     /*** USER CODE BEGIN HANDLE_INIT_ERROR ***/
     CELLBOARD_UNUSED(data);
@@ -386,7 +386,7 @@ void fsm_handle_init_error(fsm_state_data_t *data) {
 // This function is called in 2 transitions:
 // 1. from idle to flash
 // 2. from fatal to flash
-void fsm_start_flash_procedure(fsm_state_data_t *data) {
+void fsm_start_flash_procedure(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_FLASH_PROCEDURE ***/
     CELLBOARD_UNUSED(data);
@@ -405,7 +405,7 @@ void fsm_start_flash_procedure(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from idle to discharge
-void fsm_start_discharge(fsm_state_data_t *data) {
+void fsm_start_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_DISCHARGE ***/
     CELLBOARD_UNUSED(data);
@@ -422,7 +422,7 @@ void fsm_start_discharge(fsm_state_data_t *data) {
 // 2. from flash to fatal
 // 3. from discharge to fatal
 // 4. from cooldown to fatal
-void fsm_handle_fatal_error(fsm_state_data_t *data) {
+void fsm_handle_fatal_error(fsm_state_data *data) {
 
     /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
     CELLBOARD_UNUSED(data);
@@ -431,7 +431,7 @@ void fsm_handle_fatal_error(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from flash to idle
-void fsm_stop_flash_procedure(fsm_state_data_t *data) {
+void fsm_stop_flash_procedure(fsm_state_data *data) {
 
     /*** USER CODE BEGIN STOP_FLASH_PROCEDURE ***/
     CELLBOARD_UNUSED(data);
@@ -444,7 +444,7 @@ void fsm_stop_flash_procedure(fsm_state_data_t *data) {
 // This function is called in 2 transitions:
 // 1. from discharge to idle
 // 2. from cooldown to idle
-void fsm_stop_discharge(fsm_state_data_t *data) {
+void fsm_stop_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN STOP_DISCHARGE ***/
     CELLBOARD_UNUSED(data);
@@ -457,7 +457,7 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from discharge to cooldown
-void fsm_start_cooldown(fsm_state_data_t *data) {
+void fsm_start_cooldown(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_COOLDOWN ***/
     CELLBOARD_UNUSED(data);
@@ -471,7 +471,7 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
 
 // This function is called in 1 transition:
 // 1. from cooldown to discharge
-void fsm_restart_discharge(fsm_state_data_t *data) {
+void fsm_restart_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN RESTART_DISCHARGE ***/
     CELLBOARD_UNUSED(data);
@@ -497,7 +497,7 @@ void fsm_restart_discharge(fsm_state_data_t *data) {
  *                              |___/
  */
 
-fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
+fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data *data) {
 
     /*** USER CODE BEGIN RUN_STATE ***/
     fsm_handler.fsm_state = cur_state;
