@@ -49,9 +49,9 @@ CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send) {
     hcan_comm.send = send;
 
     // Return values are ignored becuase the buffer addresses are always not NULL
-    (void)ring_buffer_init(&hcan_comm.tx_buf, CanMessage, CAN_COMM_TX_BUFFER_BYTE_SIZE, NULL, NULL);
+    (void)ring_buffer_api_init(&hcan_comm.tx_buf, sizeof(CanMessage), CAN_COMM_TX_BUFFER_BYTE_SIZE, NULL, NULL, &hcan_comm.tx_arena);
     // TODO: Add callbacks to stop CAN reception interrupt during ring buffer operations
-    (void)ring_buffer_init(&hcan_comm.rx_buf, CanMessage, CAN_COMM_RX_BUFFER_BYTE_SIZE, NULL, NULL);
+    (void)ring_buffer_api_init(&hcan_comm.rx_buf, sizeof(CanMessage), CAN_COMM_RX_BUFFER_BYTE_SIZE, NULL, NULL, &hcan_comm.rx_arena);
 
     // Initialize the canlib device
     device_init(&hcan_comm.rx_device);
@@ -124,11 +124,11 @@ CanCommReturnCode can_comm_send_immediate(
         memcpy(msg.payload.tx, data, size);
 
     // If the buffer is full run the routine to free space for the new message
-    if (ring_buffer_is_full(&hcan_comm.tx_buf))
+    if (ring_buffer_api_is_full(&hcan_comm.tx_buf))
         (void)can_comm_routine();
 
     // Add and send the new message
-    if (ring_buffer_push_front(&hcan_comm.tx_buf, &msg) == RING_BUFFER_OK)
+    if (ring_buffer_api_push_front(&hcan_comm.tx_buf, &msg) == RING_BUFFER_RC_OK)
         return can_comm_routine();
     return CAN_COMM_OVERRUN;
 }
@@ -160,7 +160,7 @@ CanCommReturnCode can_comm_tx_add(
     if (frame_type != CAN_FRAME_TYPE_REMOTE)
         memcpy(msg.payload.tx, data, size);
 
-    if (ring_buffer_push_back(&hcan_comm.tx_buf, &msg) == RING_BUFFER_FULL)
+    if (ring_buffer_api_push_back(&hcan_comm.tx_buf, &msg) == RING_BUFFER_RC_FULL)
         return CAN_COMM_OVERRUN;
     hcan_comm.tx_busy[index] = true;
     return CAN_COMM_OK;
@@ -192,7 +192,7 @@ CanCommReturnCode can_comm_rx_add(
     if (frame_type != CAN_FRAME_TYPE_REMOTE)
         memcpy(msg.payload.rx, data, size);
 
-    if (ring_buffer_push_back(&hcan_comm.rx_buf, &msg) == RING_BUFFER_FULL)
+    if (ring_buffer_api_push_back(&hcan_comm.rx_buf, &msg) == RING_BUFFER_RC_FULL)
         return CAN_COMM_OVERRUN;
     hcan_comm.rx_busy[index] = true;
     return CAN_COMM_OK;
@@ -203,7 +203,7 @@ CanCommReturnCode can_comm_routine(void) {
     CanCommReturnCode ret = CAN_COMM_OK;
     CanMessage tx_msg, rx_msg;
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_TX_ENABLE_BIT) &&
-        ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_OK) {
+        ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg) == RING_BUFFER_RC_OK) {
         // Reset the busy flag to notify that the message is not inside the buffer anymore
         hcan_comm.tx_busy[tx_msg.index] = false;
 
@@ -245,7 +245,7 @@ CanCommReturnCode can_comm_routine(void) {
         }
     }
     if (CAN_COMM_IS_ENABLED(hcan_comm.enabled, CAN_COMM_RX_ENABLE_BIT) &&
-        ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_OK) {
+        ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg) == RING_BUFFER_RC_OK) {
         // Reset the busy flag to notify that the message is not inside the buffer anymore
         hcan_comm.rx_busy[rx_msg.index] = false;
 

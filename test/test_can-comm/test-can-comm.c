@@ -148,7 +148,7 @@ void test_can_comm_rx_add_added() {
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
     CanMessage rx_msg;
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_OK, ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg), "Should successfully pop the added message from the RX ring buffer");
+    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg), "Should successfully pop the added message from the RX ring buffer");
 }
 
 void test_can_comm_rx_add_added_payload() {
@@ -158,7 +158,7 @@ void test_can_comm_rx_add_added_payload() {
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
     CanMessage rx_msg;
-    ring_buffer_pop_front(&hcan_comm.rx_buf, &rx_msg);
+    ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, rx_msg.payload.rx, 4, "RX message payload content in buffer should match added data");
 }
@@ -206,7 +206,7 @@ void test_can_comm_tx_add_added() {
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
     CanMessage tx_msg;
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_OK, ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg), "Should successfully pop the added message from the TX ring buffer");
+    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg), "Should successfully pop the added message from the TX ring buffer");
 }
 
 void test_can_comm_tx_add_added_payload() {
@@ -216,7 +216,7 @@ void test_can_comm_tx_add_added_payload() {
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
     CanMessage tx_msg;
-    ring_buffer_pop_front(&hcan_comm.tx_buf, &tx_msg);
+    ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, 4, "TX message payload content in buffer should match added data");
 }
