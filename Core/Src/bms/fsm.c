@@ -57,27 +57,27 @@ transition_func_t *const fsm_transition_table[FSM_NUM_STATES][FSM_NUM_STATES] = 
 fsm_event_data_t *fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-_STATIC _FsmHandler hfsm = { .fsm_state = FSM_STATE_INIT };
+EAGLETRT_STATIC struct FsmHandler fsm_handler = { .fsm_state = FSM_STATE_INIT };
 
-void _fsm_discharge_timeout(void) {
+void prv_fsm_discharge_timeout(void) {
     // Stop balancing
-    hfsm.event.type = FSM_EVENT_TYPE_COOLDOWN_REQUEST;
-    fsm_event_trigger(&hfsm.event);
+    fsm_handler.event.type = FSM_EVENT_TYPE_COOLDOWN_REQUEST;
+    fsm_event_trigger(&fsm_handler.event);
 }
 
-void _fsm_cooldown_timeout(void) {
+void prv_fsm_cooldown_timeout(void) {
     // Stop balancing
-    hfsm.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
-    fsm_event_trigger(&hfsm.event);
+    fsm_handler.event.type = FSM_EVENT_TYPE_DISCHARGE_REQUEST;
+    fsm_event_trigger(&fsm_handler.event);
 }
 
 #ifdef CONF_FULL_ASSERT_ENABLE
 
-/**
- * @brief Debug function called when an assertion fails
+/*!
+ * \brief Debug function called when an assertion fails
  *
- * @param file The file where the assert failed
- * @param line The line where the assert failed
+ * \param file The file where the assert failed
+ * \param line The line where the assert failed
  */
 void cellboard_assert_failed(const char *file, const int line) {
     CELLBOARD_UNUSED(file);
@@ -119,30 +119,31 @@ fsm_state_t fsm_do_init(fsm_state_data_t *data) {
     fsm_state_t next_state = FSM_STATE_IDLE;
 
     /*** USER CODE BEGIN DO_INIT ***/
+
     // Initialize the FSM handler
-    memset(&hfsm, 0U, sizeof(hfsm));
-    hfsm.fsm_state = FSM_STATE_INIT;
-    hfsm.event.type = FSM_EVENT_TYPE_IGNORED;
+    memset(&fsm_handler, 0U, sizeof(fsm_handler));
+    fsm_handler.fsm_state = FSM_STATE_INIT;
+    fsm_handler.event.type = FSM_EVENT_TYPE_IGNORED;
 
     // Run the Power On Self Test
     const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_api_run(*(struct PostInitData *)data);
 
     // Init canlib payloads
     const enum CellboardId id = identity_api_get_cellboard_id();
-    hfsm.status_can_payload.cellboard_id = (int)id;
-    hfsm.flash_can_payload.cellboard_id = (int)id;
-    hfsm.flash_can_payload.ready = true;
+    fsm_handler.status_can_payload.cellboard_id = (int)id;
+    fsm_handler.flash_can_payload.cellboard_id = (int)id;
+    fsm_handler.flash_can_payload.ready = true;
 
     // Initialize discharge and cooldown watchdogs
     const milliseconds_t resolution = timebase_get_resolution();
     (void)watchdog_init(
-        &hfsm.discharge_wdg,
+        &fsm_handler.discharge_wdg,
         TIMEBASE_MS_TO_TICKS(FSM_DISCHARGE_TIMEOUT_MS, resolution),
-        _fsm_discharge_timeout);
+        prv_fsm_discharge_timeout);
     (void)watchdog_init(
-        &hfsm.cooldown_wdg,
+        &fsm_handler.cooldown_wdg,
         TIMEBASE_MS_TO_TICKS(FSM_COOLDOWN_TIMEOUT_MS, resolution),
-        _fsm_cooldown_timeout);
+        prv_fsm_cooldown_timeout);
 
     switch (status) {
         case POST_RC_OK:
@@ -178,15 +179,17 @@ fsm_state_t fsm_do_idle(fsm_state_data_t *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U)
+    if (error_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
-    else if (fsm_is_event_triggered()) {
+    } else if (fsm_is_event_triggered()) {
         // Check for flash request
-        if (fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
+        if (fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST) {
             next_state = FSM_STATE_FLASH;
+        }
         // Check for balancing request
-        else if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START)
+        else if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_START) {
             next_state = FSM_STATE_DISCHARGE;
+        }
     }
     /*** USER CODE END DO_IDLE ***/
 
@@ -217,8 +220,9 @@ fsm_state_t fsm_do_fatal(fsm_state_data_t *data) {
     (void)led_api_routine(timebase_get_time());
 
     // Check for flash request
-    if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST)
+    if (fsm_is_event_triggered() && fsm_fired_event->type == FSM_EVENT_TYPE_FLASH_REQUEST) {
         next_state = FSM_STATE_FLASH;
+    }
     /*** USER CODE END DO_FATAL ***/
 
     switch (next_state) {
@@ -246,10 +250,11 @@ fsm_state_t fsm_do_flash(fsm_state_data_t *data) {
     (void)can_comm_routine();
 
     const enum ProgrammerReturnCode code = programmer_api_routine();
-    if (error_get_expired() > 0U)
+    if (error_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
-    else if (code == PROGRAMMER_RC_TIMEOUT || code == PROGRAMMER_RC_OK)
+    } else if (code == PROGRAMMER_RC_TIMEOUT || code == PROGRAMMER_RC_OK) {
         next_state = FSM_STATE_IDLE;
+    }
     /*** USER CODE END DO_FLASH ***/
 
     switch (next_state) {
@@ -277,15 +282,18 @@ fsm_state_t fsm_do_discharge(fsm_state_data_t *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U)
+    if (error_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
+    }
     // Check for balancing request
     else if (fsm_is_event_triggered()) {
-        if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+        if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP) {
             next_state = FSM_STATE_IDLE;
+        }
         // Check for cooldown request
-        else if (fsm_fired_event->type == FSM_EVENT_TYPE_COOLDOWN_REQUEST)
+        else if (fsm_fired_event->type == FSM_EVENT_TYPE_COOLDOWN_REQUEST) {
             next_state = FSM_STATE_COOLDOWN;
+        }
     }
     /*** USER CODE END DO_DISCHARGE ***/
 
@@ -315,15 +323,18 @@ fsm_state_t fsm_do_cooldown(fsm_state_data_t *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U)
+    if (error_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
+    }
     // Check for balancing request
     else if (fsm_is_event_triggered()) {
-        if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP)
+        if (fsm_fired_event->type == FSM_EVENT_TYPE_BALANCING_STOP) {
             next_state = FSM_STATE_IDLE;
+        }
         // Check for discharge request
-        else if (fsm_fired_event->type == FSM_EVENT_TYPE_DISCHARGE_REQUEST)
+        else if (fsm_fired_event->type == FSM_EVENT_TYPE_DISCHARGE_REQUEST) {
             next_state = FSM_STATE_DISCHARGE;
+        }
     }
     /*** USER CODE END DO_COOLDOWN ***/
 
@@ -384,8 +395,8 @@ void fsm_start_flash_procedure(fsm_state_data_t *data) {
     can_comm_send_immediate(
         BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
         CAN_FRAME_TYPE_DATA,
-        (uint8_t *)&hfsm.flash_can_payload,
-        sizeof(hfsm.flash_can_payload));
+        (uint8_t *)&fsm_handler.flash_can_payload,
+        sizeof(fsm_handler.flash_can_payload));
 
     // Stop data transmission during flash procedure
     can_comm_disable(CAN_COMM_TX_ENABLE_BIT);
@@ -402,7 +413,7 @@ void fsm_start_discharge(fsm_state_data_t *data) {
     // TODO: Handle watchdog unavailable
     (void)bal_api_start();
 
-    (void)watchdog_restart(&hfsm.discharge_wdg);
+    (void)watchdog_restart(&fsm_handler.discharge_wdg);
     /*** USER CODE END START_DISCHARGE ***/
 }
 
@@ -439,8 +450,8 @@ void fsm_stop_discharge(fsm_state_data_t *data) {
     CELLBOARD_UNUSED(data);
 
     bal_api_stop();
-    (void)watchdog_stop(&hfsm.discharge_wdg);
-    (void)watchdog_stop(&hfsm.cooldown_wdg);
+    (void)watchdog_stop(&fsm_handler.discharge_wdg);
+    (void)watchdog_stop(&fsm_handler.cooldown_wdg);
     /*** USER CODE END STOP_DISCHARGE ***/
 }
 
@@ -452,9 +463,9 @@ void fsm_start_cooldown(fsm_state_data_t *data) {
     CELLBOARD_UNUSED(data);
 
     bal_api_pause();
-    (void)watchdog_stop(&hfsm.discharge_wdg);
+    (void)watchdog_stop(&fsm_handler.discharge_wdg);
     // TODO: Handle watchdog unavailabe
-    (void)watchdog_restart(&hfsm.cooldown_wdg);
+    (void)watchdog_restart(&fsm_handler.cooldown_wdg);
     /*** USER CODE END START_COOLDOWN ***/
 }
 
@@ -466,9 +477,9 @@ void fsm_restart_discharge(fsm_state_data_t *data) {
     CELLBOARD_UNUSED(data);
 
     bal_api_resume();
-    (void)watchdog_stop(&hfsm.cooldown_wdg);
+    (void)watchdog_stop(&fsm_handler.cooldown_wdg);
     // TODO: Handle watchdog unavailabe
-    (void)watchdog_restart(&hfsm.discharge_wdg);
+    (void)watchdog_restart(&fsm_handler.discharge_wdg);
     /*** USER CODE END RESTART_DISCHARGE ***/
 }
 
@@ -489,7 +500,7 @@ void fsm_restart_discharge(fsm_state_data_t *data) {
 fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
 
     /*** USER CODE BEGIN RUN_STATE ***/
-    hfsm.fsm_state = cur_state;
+    fsm_handler.fsm_state = cur_state;
     /*** USER CODE END RUN_STATE ***/
 
     fsm_event_data_t *prev_ev = fsm_fired_event;
@@ -507,15 +518,15 @@ fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data_t *data) {
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 fsm_state_t fsm_get_status(void) {
-    return hfsm.fsm_state;
+    return fsm_handler.fsm_state;
 }
 
 bms_cellboard_status_converted_t *fsm_get_status_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL)
-        *byte_size = sizeof(hfsm.status_can_payload);
+        *byte_size = sizeof(fsm_handler.status_can_payload);
     // Cellboard id is saved during the init state
-    hfsm.status_can_payload.status = (bms_cellboard_status_status)hfsm.fsm_state;
-    return &hfsm.status_can_payload;
+    fsm_handler.status_can_payload.status = (bms_cellboard_status_status)fsm_handler.fsm_state;
+    return &fsm_handler.status_can_payload;
 }
 /*** USER CODE END FUNCTIONS ***/
 

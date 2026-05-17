@@ -20,7 +20,7 @@ DEFINE_FFF_GLOBALS;
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern struct ProgrammerHandler programmer_handler;
-extern _FsmHandler hfsm;
+extern struct _FsmHandler hfsm;
 
 FAKE_VOID_FUNC(reset);
 
