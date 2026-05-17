@@ -421,5 +421,6 @@ STM32Make.make
 
 .pio/
 docs/
+.clangd
 
 ## ---------------- END MANUALLY ADDED ---------------- ##
