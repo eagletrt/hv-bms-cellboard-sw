@@ -13,7 +13,7 @@
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-extern struct CanCommHandler hcan_comm;
+extern struct CanCommHandler can_comm_handler;
 
 bool sended;
 enum CanCommReturnCode can_comm_send(can_id_t id, CanFrameType frame_type, const uint8_t *data, size_t size) {
@@ -31,13 +31,13 @@ void test_can_comm_init_ok() {
 
 void test_can_comm_enable_all() {
     can_comm_enable_all();
-    TEST_ASSERT_EQUAL_MESSAGE(0x03, hcan_comm.enabled, "Enabled bitmask should be 0x03 (binary 11) after enabling all");
+    TEST_ASSERT_EQUAL_MESSAGE(0x03, can_comm_handler.enabled, "Enabled bitmask should be 0x03 (binary 11) after enabling all");
 }
 
 void test_can_comm_disable_all() {
-    hcan_comm.enabled = 0x03;
+    can_comm_handler.enabled = 0x03;
     can_comm_disable_all();
-    TEST_ASSERT_EQUAL_MESSAGE(0x00, hcan_comm.enabled, "Enabled bitmask should be 0x00 after disabling all");
+    TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "Enabled bitmask should be 0x00 after disabling all");
 }
 
 void test_can_comm_is_enabled_all() {
@@ -49,14 +49,14 @@ void test_can_comm_is_enabled_all() {
 void test_can_comm_enable() {
     can_comm_enable(0);
     can_comm_enable(1);
-    TEST_ASSERT_EQUAL_MESSAGE(0x03, hcan_comm.enabled, "Enabled bitmask should be 0x03 after enabling indices 0 and 1 individually");
+    TEST_ASSERT_EQUAL_MESSAGE(0x03, can_comm_handler.enabled, "Enabled bitmask should be 0x03 after enabling indices 0 and 1 individually");
 }
 
 void test_can_comm_disable() {
     can_comm_enable_all();
     can_comm_disable(0);
     can_comm_disable(1);
-    TEST_ASSERT_EQUAL_MESSAGE(0x00, hcan_comm.enabled, "Enabled bitmask should be 0x00 after disabling indices 0 and 1");
+    TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "Enabled bitmask should be 0x00 after disabling indices 0 and 1");
 }
 
 void test_can_comm_is_enabled_false() {
@@ -148,7 +148,7 @@ void test_can_comm_rx_add_added() {
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
     struct CanMessage rx_msg;
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg), "Should successfully pop the added message from the RX ring buffer");
+    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&can_comm_handler.rx_buf, &rx_msg), "Should successfully pop the added message from the RX ring buffer");
 }
 
 void test_can_comm_rx_add_added_payload() {
@@ -158,7 +158,7 @@ void test_can_comm_rx_add_added_payload() {
     can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
     struct CanMessage rx_msg;
-    ring_buffer_api_pop_front(&hcan_comm.rx_buf, &rx_msg);
+    ring_buffer_api_pop_front(&can_comm_handler.rx_buf, &rx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, rx_msg.payload.rx, 4, "RX message payload content in buffer should match added data");
 }
@@ -206,7 +206,7 @@ void test_can_comm_tx_add_added() {
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)(0x01), 0);
 
     struct CanMessage tx_msg;
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg), "Should successfully pop the added message from the TX ring buffer");
+    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, ring_buffer_api_pop_front(&can_comm_handler.tx_buf, &tx_msg), "Should successfully pop the added message from the TX ring buffer");
 }
 
 void test_can_comm_tx_add_added_payload() {
@@ -216,7 +216,7 @@ void test_can_comm_tx_add_added_payload() {
     can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, data, 4);
 
     struct CanMessage tx_msg;
-    ring_buffer_api_pop_front(&hcan_comm.tx_buf, &tx_msg);
+    ring_buffer_api_pop_front(&can_comm_handler.tx_buf, &tx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, 4, "TX message payload content in buffer should match added data");
 }

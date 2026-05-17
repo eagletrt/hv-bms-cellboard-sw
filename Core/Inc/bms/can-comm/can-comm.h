@@ -144,7 +144,7 @@ struct CanMessage {
 /*!
  * \brief Function used to send CAN message via a network
  *
- * \param id The CAN identifier
+ * \param can_id The CAN identifier
  * \param frame_type The CAN frame type
  * \param data The actual payload of the message
  * \param size The size of the payload
@@ -153,7 +153,7 @@ struct CanMessage {
  */
 typedef enum CanCommReturnCode (*can_comm_transmit_callback_t)(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    const can_id_t id,
+    const can_id_t can_id,
     const CanFrameType frame_type,
     const uint8_t *const data,
     const size_t size);

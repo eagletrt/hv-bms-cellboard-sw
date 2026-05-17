@@ -22,7 +22,7 @@
  * \retval CAN_COMM_RC_NULL_POINTER a NULL pointer was given as parameter
  * \retval CAN_COMM_RC_OK otherwise
  */
-enum CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send);
+enum CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send);
 
 /*! \brief Enable the CAN manager */
 void can_comm_enable_all(void);
@@ -42,14 +42,14 @@ bool can_comm_is_enabled_all(void);
  *
  * \param bit The bit to enable
  */
-void can_comm_enable(const enum CanCommEnableBit bit);
+void can_comm_enable(enum CanCommEnableBit bit);
 
 /*!
  * \brief Disable a single bit of the internal handler flag
  *
  * \param bit The bit to disable
  */
-void can_comm_disable(const enum CanCommEnableBit bit);
+void can_comm_disable(enum CanCommEnableBit bit);
 
 /*!
  * \brief Check if a single bit of the internal handler flag is enabled
@@ -58,7 +58,7 @@ void can_comm_disable(const enum CanCommEnableBit bit);
  *
  * \returns bool True if the manager is enabled, false otherwise
  */
-bool can_comm_is_enabled(const enum CanCommEnableBit bit);
+bool can_comm_is_enabled(enum CanCommEnableBit bit);
 
 /*!
  * \brief Immediately send the message via the CAN bus
@@ -80,10 +80,10 @@ bool can_comm_is_enabled(const enum CanCommEnableBit bit);
  * \retval CAN_COMM_RC_OK otherwise
  */
 enum CanCommReturnCode can_comm_send_immediate(
-    const can_index_t index,
-    const CanFrameType frame_type,
-    const uint8_t *const data,
-    const size_t size);
+    can_index_t index,
+    CanFrameType frame_type,
+    const uint8_t *data,
+    size_t size);
 
 /*!
  * \brief Add a message to the transmission buffer
@@ -104,10 +104,10 @@ enum CanCommReturnCode can_comm_send_immediate(
  */
 enum CanCommReturnCode can_comm_tx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    const can_index_t index,
-    const CanFrameType frame_type,
-    const uint8_t *const data,
-    const size_t size);
+    can_index_t index,
+    CanFrameType frame_type,
+    const uint8_t *data,
+    size_t size);
 
 /*!
  * \brief Add a message to the reception buffer
@@ -127,10 +127,10 @@ enum CanCommReturnCode can_comm_tx_add(
  */
 enum CanCommReturnCode can_comm_rx_add(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
-    const can_index_t index,
-    const CanFrameType frame_type,
-    const uint8_t *const data,
-    const size_t size);
+    can_index_t index,
+    CanFrameType frame_type,
+    const uint8_t *data,
+    size_t size);
 
 /*!
  * \brief Routine used to manage the sent or received can data
