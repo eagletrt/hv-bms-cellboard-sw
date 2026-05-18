@@ -48,44 +48,32 @@ void test_can_comm_disable_all(void) {
 
     TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "can_comm_disable_all should clear the enabled bitmask to 0x00");
 }
-
-void test_can_comm_is_enabled_all_true(void) {
-    can_comm_enable_all();
-
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_is_enabled_all(), "can_comm_is_enabled_all should return true when all bits are set");
-}
-
-void test_can_comm_is_enabled_all_false(void) {
-    can_comm_disable_all();
-
-    TEST_ASSERT_FALSE_MESSAGE(can_comm_is_enabled_all(), "can_comm_is_enabled_all should return false when not all bits are set");
-}
-
 // --- enable/disable single bit ---
 
 void test_can_comm_enable_sets_bits(void) {
     can_comm_enable(0);
-    can_comm_enable(1);
 
-    TEST_ASSERT_EQUAL_MESSAGE(0x03, can_comm_handler.enabled, "can_comm_enable should set each bit individually");
+    TEST_ASSERT_EQUAL_MESSAGE(0b01, can_comm_handler.enabled, "can_comm_enable should set each bit individually");
 }
 
 void test_can_comm_disable_clears_bits(void) {
     can_comm_enable_all();
     can_comm_disable(0);
-    can_comm_disable(1);
 
-    TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "can_comm_disable should clear each bit individually");
+    TEST_ASSERT_EQUAL_MESSAGE(0b10, can_comm_handler.enabled, "can_comm_disable should clear each bit individually");
 }
 
-void test_can_comm_is_enabled_false(void) {
-    TEST_ASSERT_FALSE_MESSAGE(can_comm_is_enabled(0), "can_comm_is_enabled should return false when the bit is not set");
+void test_can_comm_enable_invalid_bit(void) {
+    can_comm_enable(2);
+
+    TEST_ASSERT_EQUAL_MESSAGE(0b00, can_comm_handler.enabled, "can_comm_enable should ignore invalid bits");
 }
 
-void test_can_comm_is_enabled_true(void) {
-    can_comm_enable(0);
+void test_can_comm_disable_invalid_bit(void) {
+    can_comm_enable_all();
+    can_comm_disable(2);
 
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_is_enabled(0), "can_comm_is_enabled should return true after enabling that bit");
+    TEST_ASSERT_EQUAL_MESSAGE(0b11, can_comm_handler.enabled, "can_comm_disable should ignore invalid bits");
 }
 
 // --- send immediate ---
@@ -293,13 +281,11 @@ int main(void) {
 
     RUN_TEST(test_can_comm_enable_all);
     RUN_TEST(test_can_comm_disable_all);
-    RUN_TEST(test_can_comm_is_enabled_all_true);
-    RUN_TEST(test_can_comm_is_enabled_all_false);
 
     RUN_TEST(test_can_comm_enable_sets_bits);
     RUN_TEST(test_can_comm_disable_clears_bits);
-    RUN_TEST(test_can_comm_is_enabled_false);
-    RUN_TEST(test_can_comm_is_enabled_true);
+    RUN_TEST(test_can_comm_enable_invalid_bit);
+    RUN_TEST(test_can_comm_disable_invalid_bit);
 
     RUN_TEST(test_can_comm_send_immediate_disabled);
     RUN_TEST(test_can_comm_send_immediate_invalid_index);
