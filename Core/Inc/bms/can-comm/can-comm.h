@@ -151,7 +151,7 @@ struct CanMessage {
  *
  * \returns enum CanCommReturnCode The return code value
  */
-typedef enum CanCommReturnCode (*can_comm_transmit_callback_t)(
+typedef enum CanCommReturnCode (*can_comm_transmit_callback)(
     // CanNetwork network, // Not needed because the cellboards have only the BMS network
     const can_id_t can_id,
     const CanFrameType frame_type,
@@ -165,7 +165,7 @@ typedef enum CanCommReturnCode (*can_comm_transmit_callback_t)(
  *
  * \param payload A pointer to the converted canlib structure data
  */
-typedef int32_t (*can_comm_canlib_payload_handle_callback_t)(const void *const payload);
+typedef int32_t (*can_comm_canlib_payload_handle_callback)(const void *const payload);
 
 /*!
  * \brief CAN manager handler structure
@@ -183,7 +183,7 @@ struct CanCommHandler {
     struct RingBufferHandler tx_buf; /*!< Transmission messages circular buffer */
     struct RingBufferHandler rx_buf; /*!< Reception messages circular buffer */
 
-    can_comm_transmit_callback_t send; /*!< A pointer to the callback used to send the data via CAN */
+    can_comm_transmit_callback send; /*!< A pointer to the callback used to send the data via CAN */
 
     // Canlib devices
     device_t rx_device;                              /*!< The reception canlib message handler */

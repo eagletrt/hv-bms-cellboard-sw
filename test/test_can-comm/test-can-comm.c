@@ -129,14 +129,6 @@ void test_can_comm_send_immediate_ok(void) {
     enum CanCommReturnCode code = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
 
     TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_send_immediate should return CAN_COMM_RC_OK with valid parameters");
-}
-
-void test_can_comm_send_immediate_calls_send(void) {
-    send_fake.return_val = CAN_COMM_RC_OK;
-    can_comm_enable_all();
-
-    can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
     TEST_ASSERT_EQUAL_MESSAGE(1, send_fake.call_count, "can_comm_send_immediate should invoke the send callback exactly once");
 }
 
@@ -192,6 +184,7 @@ void test_can_comm_rx_add_ok(void) {
     enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
 
     TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_rx_add should return CAN_COMM_RC_OK with valid parameters");
+    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.rx_busy[0], "can_comm_rx_add should set the rx_busy flag for the given index");
 }
 
 void test_can_comm_rx_add_message_in_buffer(void) {
@@ -213,13 +206,6 @@ void test_can_comm_rx_add_payload_stored_correctly(void) {
     ring_buffer_api_pop_front(&can_comm_handler.rx_buf, &rx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, rx_msg.payload.rx, sizeof(data), "can_comm_rx_add should store the payload verbatim in the RX ring buffer");
-}
-
-void test_can_comm_rx_add_sets_busy_flag(void) {
-    can_comm_enable_all();
-    can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.rx_busy[0], "can_comm_rx_add should set the rx_busy flag for the given index");
 }
 
 // --- tx add ---
@@ -262,6 +248,7 @@ void test_can_comm_tx_add_ok(void) {
     enum CanCommReturnCode code = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
 
     TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_tx_add should return CAN_COMM_RC_OK with valid parameters");
+    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.tx_busy[0], "can_comm_tx_add should set the tx_busy flag for the given index");
 }
 
 void test_can_comm_tx_add_message_in_buffer(void) {
@@ -283,13 +270,6 @@ void test_can_comm_tx_add_payload_stored_correctly(void) {
     ring_buffer_api_pop_front(&can_comm_handler.tx_buf, &tx_msg);
 
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, sizeof(data), "can_comm_tx_add should store the payload verbatim in the TX ring buffer");
-}
-
-void test_can_comm_tx_add_sets_busy_flag(void) {
-    can_comm_enable_all();
-    can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.tx_busy[0], "can_comm_tx_add should set the tx_busy flag for the given index");
 }
 
 void test_can_comm_tx_add_invalid_payload_size(void) {
@@ -326,7 +306,6 @@ int main(void) {
     RUN_TEST(test_can_comm_send_immediate_invalid_frame_type);
     RUN_TEST(test_can_comm_send_immediate_null_data);
     RUN_TEST(test_can_comm_send_immediate_ok);
-    RUN_TEST(test_can_comm_send_immediate_calls_send);
     RUN_TEST(test_can_comm_send_immediate_invalid_payload_size);
 
     RUN_TEST(test_can_comm_rx_add_disabled);
@@ -337,7 +316,6 @@ int main(void) {
     RUN_TEST(test_can_comm_rx_add_ok);
     RUN_TEST(test_can_comm_rx_add_message_in_buffer);
     RUN_TEST(test_can_comm_rx_add_payload_stored_correctly);
-    RUN_TEST(test_can_comm_rx_add_sets_busy_flag);
 
     RUN_TEST(test_can_comm_tx_add_disabled);
     RUN_TEST(test_can_comm_tx_add_invalid_index);
@@ -346,7 +324,6 @@ int main(void) {
     RUN_TEST(test_can_comm_tx_add_ok);
     RUN_TEST(test_can_comm_tx_add_message_in_buffer);
     RUN_TEST(test_can_comm_tx_add_payload_stored_correctly);
-    RUN_TEST(test_can_comm_tx_add_sets_busy_flag);
     RUN_TEST(test_can_comm_tx_add_invalid_payload_size);
 
     return UNITY_END();

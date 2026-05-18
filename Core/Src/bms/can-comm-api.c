@@ -29,7 +29,7 @@ EAGLETRT_STATIC struct CanCommHandler can_comm_handler;
  * \returns can_comm_canlib_payload_handle_callback_t A pointer to the callback function
  * or NULL if the index is not valid
  */
-can_comm_canlib_payload_handle_callback_t prv_can_comm_payload_handle(const can_index_t index) {
+can_comm_canlib_payload_handle_callback prv_can_comm_payload_handle(const can_index_t index) {
 
     constexpr can_index_t flash_request_index = BMS_CELLBOARD_FLASH_REQUEST_INDEX;
     constexpr can_index_t flash_index = BMS_CELLBOARD_FLASH_INDEX;
@@ -37,17 +37,17 @@ can_comm_canlib_payload_handle_callback_t prv_can_comm_payload_handle(const can_
 
     switch (index) {
         case flash_request_index:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_api_flash_request_handle;
+            return (can_comm_canlib_payload_handle_callback)programmer_api_flash_request_handle;
         case flash_index:
-            return (can_comm_canlib_payload_handle_callback_t)programmer_api_flash_handle;
+            return (can_comm_canlib_payload_handle_callback)programmer_api_flash_handle;
         case set_balancing_status_index:
-            return (can_comm_canlib_payload_handle_callback_t)bal_api_set_balancing_status_handle;
+            return (can_comm_canlib_payload_handle_callback)bal_api_set_balancing_status_handle;
         default:
             return NULL;
     }
 }
 
-enum CanCommReturnCode can_comm_init(const can_comm_transmit_callback_t send) {
+enum CanCommReturnCode can_comm_init(const can_comm_transmit_callback send) {
     if (send == NULL) {
         return CAN_COMM_RC_NULL_POINTER;
     }
@@ -290,7 +290,7 @@ enum CanCommReturnCode can_comm_routine(void) {
             // Deserialize message
             bms_devices_deserialize_from_id(&can_comm_handler.rx_device, can_id, rx_msg.payload.rx);
 
-            can_comm_canlib_payload_handle_callback_t handle_payload = prv_can_comm_payload_handle(rx_msg.index);
+            can_comm_canlib_payload_handle_callback handle_payload = prv_can_comm_payload_handle(rx_msg.index);
             if (handle_payload != NULL) {
                 handle_payload(can_comm_handler.rx_device.message);
             }

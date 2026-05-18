@@ -22,7 +22,7 @@
  * \retval CAN_COMM_RC_NULL_POINTER a NULL pointer was given as parameter
  * \retval CAN_COMM_RC_OK otherwise
  */
-enum CanCommReturnCode can_comm_init(can_comm_transmit_callback_t send);
+enum CanCommReturnCode can_comm_init(can_comm_transmit_callback send);
 
 /*! \brief Enable the CAN manager */
 void can_comm_enable_all(void);
@@ -144,11 +144,11 @@ enum CanCommReturnCode can_comm_routine(void);
 #else // CONF_CAN_COMM_MODULE_ENABLE
 
 #define can_comm_init(send) (CAN_COMM_RC_OK)
-#define can_comm_enable_all() CELLBOARD_NOPE()
-#define can_comm_disable_all() CELLBOARD_NOPE()
+#define can_comm_enable_all() EAGLETRT_API_NOP()
+#define can_comm_disable_all() EAGLETRT_API_NOP()
 #define can_comm_is_enabled_all() (false)
-#define can_comm_enable(bit) CELLBOARD_NOPE()
-#define can_comm_disable(bit) CELLBOARD_NOPE()
+#define can_comm_enable(bit) EAGLETRT_API_NOP()
+#define can_comm_disable(bit) EAGLETRT_API_NOP()
 #define can_comm_is_enabled(bit) (false)
 #define can_comm_send_immediate(index, frame_type, data, size) (CAN_COMM_RC_OK)
 #define can_comm_tx_add(index, frame_type, data, size) (CAN_COMM_RC_OK)
