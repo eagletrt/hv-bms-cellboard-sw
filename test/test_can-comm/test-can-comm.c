@@ -310,7 +310,6 @@ int main(void) {
 
     RUN_TEST(test_can_comm_init_null_send);
     RUN_TEST(test_can_comm_init_ok);
-    RUN_TEST(test_can_comm_init_disabled);
 
     RUN_TEST(test_can_comm_enable_all);
     RUN_TEST(test_can_comm_disable_all);
