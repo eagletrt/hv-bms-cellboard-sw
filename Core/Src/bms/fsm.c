@@ -129,9 +129,9 @@ fsm_state_t fsm_do_init(fsm_state_data *data) {
     const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_api_run(*(struct PostInitData *)data);
 
     // Init canlib payloads
-    const enum CellboardId id = identity_api_get_cellboard_id();
-    fsm_handler.status_can_payload.cellboard_id = (int)id;
-    fsm_handler.flash_can_payload.cellboard_id = (int)id;
+    const enum CellboardId cell_id = identity_api_get_cellboard_id();
+    fsm_handler.status_can_payload.cellboard_id = (int)cell_id;
+    fsm_handler.flash_can_payload.cellboard_id = (int)cell_id;
     fsm_handler.flash_can_payload.ready = true;
 
     // Initialize discharge and cooldown watchdogs
