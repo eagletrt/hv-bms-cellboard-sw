@@ -95,8 +95,9 @@ bool fsm_is_event_triggered(void) {
 
 // Function to trigger an event
 void fsm_event_trigger(fsm_event_data_t *event) {
-    if (fsm_fired_event != NULL)
+    if (fsm_fired_event != NULL) {
         return;
+    }
     fsm_fired_event = event ? event : &(fsm_event_data_t){ 0U };
 }
 
@@ -129,9 +130,9 @@ fsm_state_t fsm_do_init(fsm_state_data *data) {
     const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_api_run(*(struct PostInitData *)data);
 
     // Init canlib payloads
-    const enum CellboardId cell_id = identity_api_get_cellboard_id();
-    fsm_handler.status_can_payload.cellboard_id = (int)cell_id;
-    fsm_handler.flash_can_payload.cellboard_id = (int)cell_id;
+    const enum CellboardId cellboard_id = identity_api_get_cellboard_id();
+    fsm_handler.status_can_payload.cellboard_id = (int)cellboard_id;
+    fsm_handler.flash_can_payload.cellboard_id = (int)cellboard_id;
     fsm_handler.flash_can_payload.ready = true;
 
     // Initialize discharge and cooldown watchdogs
@@ -506,13 +507,16 @@ fsm_state_t fsm_run_state(fsm_state_t cur_state, fsm_state_data *data) {
     fsm_event_data_t *prev_ev = fsm_fired_event;
     fsm_state_t new_state = fsm_state_table[cur_state](data);
     // Reset event status
-    if (prev_ev != NULL)
+    if (prev_ev != NULL) {
         fsm_fired_event = NULL;
-    if (new_state == FSM_NO_CHANGE)
+    }
+    if (new_state == FSM_NO_CHANGE) {
         new_state = cur_state;
+    }
     transition_func_t *transition = fsm_transition_table[cur_state][new_state];
-    if (transition)
+    if (transition) {
         transition(data);
+    }
     return new_state;
 }
 
@@ -522,8 +526,9 @@ fsm_state_t fsm_get_status(void) {
 }
 
 bms_cellboard_status_converted_t *fsm_get_status_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL)
+    if (byte_size != NULL) {
         *byte_size = sizeof(fsm_handler.status_can_payload);
+    }
     // Cellboard id is saved during the init state
     fsm_handler.status_can_payload.status = (bms_cellboard_status_status)fsm_handler.fsm_state;
     return &fsm_handler.status_can_payload;
