@@ -39,36 +39,26 @@ void test_error_init_ok(void) {
 }
 
 void test_error_set_can_communication_expired(void) {
-    // Set the CAN communication error until it expires
-
     enum ErrorReturnCode rc[thresholds[ERROR_GROUP_CAN_COMMUNICATION] + 1U];
-    enum ErrorReturnCode rc_expected[thresholds[ERROR_GROUP_CAN_COMMUNICATION] + 1U];
 
     for (size_t i = 0; i < thresholds[ERROR_GROUP_CAN_COMMUNICATION]; i++) {
         rc[i] = error_set(ERROR_GROUP_CAN_COMMUNICATION, 0U);
-        rc_expected[i] = ERROR_RC_OK;
     }
 
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(rc_expected, rc, thresholds[ERROR_GROUP_CAN_COMMUNICATION] * sizeof(enum ErrorReturnCode), "error_set() should return ERROR_RC_OK for all calls before the error expires");
+    TEST_ASSERT_EACH_EQUAL_INT_MESSAGE(ERROR_RC_OK, rc, thresholds[ERROR_GROUP_CAN_COMMUNICATION], "error_set() should return ERROR_RC_OK for all calls before the error expires");
 
-    // Check if the system reset callback was called
     TEST_ASSERT_TRUE_MESSAGE(system_reset_fake_fake.call_count > 0, "system_reset should be called when CAN communication error expires");
 }
 
 void test_error_set_other_error_expired(void) {
-
     enum ErrorReturnCode rc[thresholds[ERROR_GROUP_UNDER_VOLTAGE] + 1U];
-
-    enum ErrorReturnCode rc_expected[thresholds[ERROR_GROUP_UNDER_VOLTAGE] + 1U];
 
     for (size_t i = 0; i < thresholds[ERROR_GROUP_UNDER_VOLTAGE]; i++) {
         rc[i] = error_set(ERROR_GROUP_UNDER_VOLTAGE, 0U);
-        rc_expected[i] = ERROR_RC_OK;
     }
 
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(rc_expected, rc, thresholds[ERROR_GROUP_UNDER_VOLTAGE] * sizeof(enum ErrorReturnCode), "error_set() should return ERROR_RC_OK for all calls before the error expires");
+    TEST_ASSERT_EACH_EQUAL_INT_MESSAGE(ERROR_RC_OK, rc, thresholds[ERROR_GROUP_UNDER_VOLTAGE], "error_set() should return ERROR_RC_OK for all calls before the error expires");
 
-    // Should the return code be ERROR_RC_UNKNOWN, it means that the error expired and the error handling procedure was executed, which is the expected behavior
     TEST_ASSERT_EQUAL_MESSAGE(ERROR_RC_UNKNOWN, error_set(ERROR_GROUP_UNDER_VOLTAGE, 0U), "error_set() should return ERROR_RC_UNKNOWN when the error expires");
 
     TEST_ASSERT_EQUAL_MESSAGE(0, system_reset_fake_fake.call_count, "system_reset should not be called when a non-CAN communication error expires");
