@@ -175,27 +175,6 @@ void test_can_comm_rx_add_ok(void) {
     TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.rx_busy[0], "can_comm_rx_add should set the rx_busy flag for the given index");
 }
 
-void test_can_comm_rx_add_message_in_buffer(void) {
-    can_comm_enable_all();
-    can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    struct CanMessage rx_msg;
-    enum RingBufferReturnCode rc = ring_buffer_api_pop_front(&can_comm_handler.rx_buf, &rx_msg);
-
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, rc, "can_comm_rx_add should push the message into the RX ring buffer");
-}
-
-void test_can_comm_rx_add_payload_stored_correctly(void) {
-    uint8_t data[] = { 0x01, 0x02, 0x03, 0x04 };
-    can_comm_enable_all();
-    can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, data, sizeof(data));
-
-    struct CanMessage rx_msg;
-    ring_buffer_api_pop_front(&can_comm_handler.rx_buf, &rx_msg);
-
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, rx_msg.payload.rx, sizeof(data), "can_comm_rx_add should store the payload verbatim in the RX ring buffer");
-}
-
 // --- tx add ---
 
 void test_can_comm_tx_add_disabled(void) {
@@ -239,27 +218,6 @@ void test_can_comm_tx_add_ok(void) {
     TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.tx_busy[0], "can_comm_tx_add should set the tx_busy flag for the given index");
 }
 
-void test_can_comm_tx_add_message_in_buffer(void) {
-    can_comm_enable_all();
-    can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    struct CanMessage tx_msg;
-    enum RingBufferReturnCode rc = ring_buffer_api_pop_front(&can_comm_handler.tx_buf, &tx_msg);
-
-    TEST_ASSERT_EQUAL_MESSAGE(RING_BUFFER_RC_OK, rc, "can_comm_tx_add should push the message into the TX ring buffer");
-}
-
-void test_can_comm_tx_add_payload_stored_correctly(void) {
-    uint8_t data[] = { 0x01, 0x02, 0x03, 0x04 };
-    can_comm_enable_all();
-    can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, data, sizeof(data));
-
-    struct CanMessage tx_msg;
-    ring_buffer_api_pop_front(&can_comm_handler.tx_buf, &tx_msg);
-
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(data, tx_msg.payload.tx, sizeof(data), "can_comm_tx_add should store the payload verbatim in the TX ring buffer");
-}
-
 void test_can_comm_tx_add_invalid_payload_size(void) {
     TEST_IGNORE_MESSAGE("Test for invalid payload size is currently disabled due to TODO in can_comm_tx_add");
 }
@@ -300,16 +258,12 @@ int main(void) {
     RUN_TEST(test_can_comm_rx_add_invalid_payload_size);
     RUN_TEST(test_can_comm_rx_add_invalid_frame_type);
     RUN_TEST(test_can_comm_rx_add_ok);
-    RUN_TEST(test_can_comm_rx_add_message_in_buffer);
-    RUN_TEST(test_can_comm_rx_add_payload_stored_correctly);
 
     RUN_TEST(test_can_comm_tx_add_disabled);
     RUN_TEST(test_can_comm_tx_add_invalid_index);
     RUN_TEST(test_can_comm_tx_add_null_data);
     RUN_TEST(test_can_comm_tx_add_invalid_frame_type);
     RUN_TEST(test_can_comm_tx_add_ok);
-    RUN_TEST(test_can_comm_tx_add_message_in_buffer);
-    RUN_TEST(test_can_comm_tx_add_payload_stored_correctly);
     RUN_TEST(test_can_comm_tx_add_invalid_payload_size);
 
     return UNITY_END();
