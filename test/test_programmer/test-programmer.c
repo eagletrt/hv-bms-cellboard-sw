@@ -20,7 +20,7 @@ DEFINE_FFF_GLOBALS;
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern struct ProgrammerHandler programmer_handler;
-extern _FsmHandler hfsm;
+extern struct FsmHandler fsm_handler;
 
 FAKE_VOID_FUNC(reset);
 
@@ -131,7 +131,7 @@ void test_programmer_flash_request_handle_with_invalid_fsm_state(void) {
     payload.cellboard_id = CELLBOARD_ID;
     payload.mainboard = false;
 
-    hfsm.fsm_state = FSM_STATE_DISCHARGE; // Set an invalid FSM state
+    fsm_handler.fsm_state = FSM_STATE_DISCHARGE; // Set an invalid FSM state
 
     int32_t result = programmer_api_flash_request_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_request_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
@@ -154,7 +154,7 @@ void test_programmer_flash_handle_with_null_pointer(void) {
 void test_programmer_flash_handle_with_valid_payload(void) {
     bms_cellboard_flash_converted_t payload = { 0 };
     payload.start = true;
-    hfsm.fsm_state = FSM_STATE_FLASH;
+    fsm_handler.fsm_state = FSM_STATE_FLASH;
 
     programmer_handler.flash_request = true; // Simulate that a flash request has been received
 
@@ -166,7 +166,7 @@ void test_programmer_flash_handle_with_valid_payload(void) {
 void test_programmer_flash_handle_with_no_change(void) {
     bms_cellboard_flash_converted_t payload = { 0 };
     payload.start = true;
-    hfsm.fsm_state = FSM_STATE_FLASH;
+    fsm_handler.fsm_state = FSM_STATE_FLASH;
 
     programmer_handler.flash_request = true; // Simulate that a flash request has been received
     programmer_handler.flashing = true;      // Simulate that we're already flashing
@@ -179,8 +179,8 @@ void test_programmer_flash_handle_with_invalid_fsm_state(void) {
     bms_cellboard_flash_converted_t payload = { 0 };
     payload.start = true;
 
-    programmer_handler.flash_request = true; // Simulate that a flash request has been received
-    hfsm.fsm_state = FSM_STATE_DISCHARGE;    // Set an invalid FSM state
+    programmer_handler.flash_request = true;     // Simulate that a flash request has been received
+    fsm_handler.fsm_state = FSM_STATE_DISCHARGE; // Set an invalid FSM state
 
     int32_t result = programmer_api_flash_handle(&payload);
     TEST_ASSERT_EQUAL_MESSAGE(-PROGRAMMER_RC_ERROR, result, "programmer_flash_handle should return PROGRAMMER_RC_ERROR when called while the FSM is in an invalid state");
@@ -189,7 +189,7 @@ void test_programmer_flash_handle_with_invalid_fsm_state(void) {
 void test_programmer_flash_handle_without_flash_request(void) {
     bms_cellboard_flash_converted_t payload = { 0 };
     payload.start = false;
-    hfsm.fsm_state = FSM_STATE_FLASH;
+    fsm_handler.fsm_state = FSM_STATE_FLASH;
 
     programmer_handler.flash_request = false; // Simulate that no flash request has been received
     programmer_handler.flashing = true;       // Simulate that we're already flashing
@@ -200,7 +200,7 @@ void test_programmer_flash_handle_without_flash_request(void) {
 
 void setUp() {
 
-    hfsm.fsm_state = FSM_STATE_IDLE;
+    fsm_handler.fsm_state = FSM_STATE_IDLE;
     timebase_init(500U);
     programmer_api_init(reset);
     identity_api_init(CELLBOARD_ID);
