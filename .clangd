@@ -1,0 +1,42 @@
+CompileFlags:
+  # ARM-specific flags that confuse clangd's frontend
+  Remove:
+    - -mthumb
+    - -mcpu=cortex-m4
+    - -mfpu=*
+    - -mfloat-abi=*
+    - -specs=*
+    - --specs=*
+    - -std=gnu23      # clangd uses its own C standard handling
+  Add:
+    - -std=c23
+    - -DSTM32G4A1xx
+    - -DSTM32G4xx
+    - -DSTM32G4
+
+Diagnostics:
+  UnusedIncludes: Strict
+  # Mirror your clangtidy checks from platformio.ini
+  ClangTidy:
+    Add:
+      - cert-*
+      - clang-analyzer-*
+      - bugprone-*
+      - performance-*
+      - readability-*
+    Remove:
+      - bugprone-easily-swappable-parameters
+    CheckOptions:
+      readability-identifier-length.MinimumVariableNameLength: 2
+
+Index:
+  Background: Build
+
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  BlockEnd: false
+
+Hover:
+  ShowAKA: true

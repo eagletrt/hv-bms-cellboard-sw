@@ -22,10 +22,10 @@ Functions and types have been generated with prefix "fsm_"
 #include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
-#include "programmer-api.h"
 #include "bal-api.h"
+#include "error-api.h"
+#include "programmer-api.h"
 #include "led-api.h"
-#include "error.h"
 /*** USER CODE END MACROS ***/
 
 // GLOBALS
@@ -151,7 +151,7 @@ fsm_state_t fsm_do_init(fsm_state_data *data) {
             next_state = FSM_STATE_IDLE;
             break;
         default:
-            error_set(ERROR_GROUP_POST, 0U);
+            error_api_set(ERROR_GROUP_POST, 0U);
             next_state = FSM_STATE_FATAL;
             break;
     }
@@ -180,7 +180,7 @@ fsm_state_t fsm_do_idle(fsm_state_data *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U) {
+    if (error_api_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
     } else if (fsm_is_event_triggered()) {
         // Check for flash request
@@ -251,7 +251,7 @@ fsm_state_t fsm_do_flash(fsm_state_data *data) {
     (void)can_comm_routine();
 
     const enum ProgrammerReturnCode code = programmer_api_routine();
-    if (error_get_expired() > 0U) {
+    if (error_api_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
     } else if (code == PROGRAMMER_RC_TIMEOUT || code == PROGRAMMER_RC_OK) {
         next_state = FSM_STATE_IDLE;
@@ -283,7 +283,7 @@ fsm_state_t fsm_do_discharge(fsm_state_data *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U) {
+    if (error_api_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
     }
     // Check for balancing request
@@ -324,7 +324,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data *data) {
     (void)can_comm_routine();
     (void)led_api_routine(timebase_get_time());
 
-    if (error_get_expired() > 0U) {
+    if (error_api_get_expired() > 0U) {
         next_state = FSM_STATE_FATAL;
     }
     // Check for balancing request

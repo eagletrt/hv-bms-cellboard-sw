@@ -39,7 +39,7 @@ enum ProgrammerReturnCode {
  *
  */
 struct ProgrammerHandler {
-    system_reset_callback_t reset;                        /*!< A pointer to a function that resets the microcontroller */
+    system_reset_callback reset;                          /*!< A pointer to a function that resets the microcontroller */
     fsm_event_data_t flash_event;                         /*!< The FSM event data related to the flash procedure */
     bms_cellboard_flash_response_converted_t can_payload; /*!< The flash response canlib data */
 

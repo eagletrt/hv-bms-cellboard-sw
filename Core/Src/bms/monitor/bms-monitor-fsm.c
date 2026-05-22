@@ -19,7 +19,7 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include <stdint.h>
 #include <string.h>
 
-#include "error.h"
+#include "error-api.h"
 /*** USER CODE END MACROS ***/
 
 // GLOBALS
@@ -107,8 +107,9 @@ bool bms_monitor_fsm_is_event_triggered(void) {
 
 // Function to trigger an event
 void bms_monitor_fsm_event_trigger(bms_monitor_fsm_event_data_t *event) {
-    if (bms_monitor_fsm_fired_event != NULL)
+    if (bms_monitor_fsm_fired_event != NULL) {
         return;
+    }
     bms_monitor_fsm_fired_event = event ? event : &(bms_monitor_fsm_event_data_t){ 0U };
 }
 
@@ -763,10 +764,10 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
     switch (code) {
         case BMS_MANAGER_RC_OK:
-            error_reset(ERROR_GROUP_OPEN_WIRE, 0U);
+            error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
             break;
         case BMS_MANAGER_RC_OPEN_WIRE:
-            error_set(ERROR_GROUP_OPEN_WIRE, 0U);
+            error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
             break;
         default:
             // Do nothing
@@ -798,13 +799,16 @@ bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_st
     bms_monitor_fsm_event_data_t *prev_ev = bms_monitor_fsm_fired_event;
     bms_monitor_fsm_state_t new_state = bms_monitor_fsm_state_table[cur_state](data);
     // Reset event status
-    if (prev_ev != NULL)
+    if (prev_ev != NULL) {
         bms_monitor_fsm_fired_event = NULL;
-    if (new_state == BMS_MONITOR_FSM_NO_CHANGE)
+    }
+    if (new_state == BMS_MONITOR_FSM_NO_CHANGE) {
         new_state = cur_state;
+    }
     transition_func_t *transition = bms_monitor_fsm_transition_table[cur_state][new_state];
-    if (transition)
+    if (transition) {
         transition(data);
+    }
     return new_state;
 }
 

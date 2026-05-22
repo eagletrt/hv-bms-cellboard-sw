@@ -13,7 +13,7 @@
 
 #include "cellboard-def.h"
 #include "identity-api.h"
-#include "error.h"
+#include "error-api.h"
 
 #include "eagletrt-api.h"
 
@@ -30,15 +30,15 @@ EAGLETRT_STATIC struct VoltHandler volt_handler;
 
 EAGLETRT_STATIC_INLINE void prv_volt_api_check_value(const uint16_t index, const volt value) {
     if (value < VOLT_MIN_V) {
-        error_set(ERROR_GROUP_UNDER_VOLTAGE, index);
+        error_api_set(ERROR_GROUP_UNDER_VOLTAGE, index);
     } else {
-        error_reset(ERROR_GROUP_UNDER_VOLTAGE, index);
+        error_api_reset(ERROR_GROUP_UNDER_VOLTAGE, index);
     }
 
     if (value > VOLT_MAX_V) {
-        error_set(ERROR_GROUP_OVER_VOLTAGE, index);
+        error_api_set(ERROR_GROUP_OVER_VOLTAGE, index);
     } else {
-        error_reset(ERROR_GROUP_OVER_VOLTAGE, index);
+        error_api_reset(ERROR_GROUP_OVER_VOLTAGE, index);
     }
 }
 

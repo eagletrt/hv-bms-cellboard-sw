@@ -10,9 +10,9 @@
 
 #include <string.h>
 
+#include "error-api.h"
 #include "bal-api.h"
 #include "programmer-api.h"
-#include "error.h"
 
 #include "canlib_device.h"
 
@@ -237,10 +237,10 @@ CanCommReturnCode can_comm_routine(void) {
                 // Do nothing
                 break;
             case CAN_COMM_OK:
-                error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+                error_api_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
                 break;
             default:
-                error_set(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+                error_api_set(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
                 break;
         }
     }
@@ -252,7 +252,7 @@ CanCommReturnCode can_comm_routine(void) {
         const can_id_t can_id = bms_id_from_index(rx_msg.index);
 
         // Reset CAN error
-        error_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
+        error_api_reset(ERROR_GROUP_CAN_COMMUNICATION, ERROR_CAN_INSTANCE_BMS);
 
         if (rx_msg.frame_type != CAN_FRAME_TYPE_REMOTE) {
             // Deserialize message

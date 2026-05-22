@@ -11,7 +11,6 @@
 #include "temp-api.h"
 #include "identity-api.h"
 #include "cellboard-def.h"
-#include "error.h"
 #include "fff.h"
 
 DEFINE_FFF_GLOBALS;

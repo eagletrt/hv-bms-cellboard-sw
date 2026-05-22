@@ -42,7 +42,7 @@ void prv_programmer_api_flash_reset_flags(void) {
     programmer_handler.flash_stop = false;
 }
 
-enum ProgrammerReturnCode programmer_api_init(const system_reset_callback_t reset) {
+enum ProgrammerReturnCode programmer_api_init(const system_reset_callback reset) {
     if (reset == NULL) {
         return PROGRAMMER_RC_NULL_POINTER;
     }

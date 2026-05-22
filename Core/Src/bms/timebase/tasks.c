@@ -17,9 +17,9 @@
 #include "identity-api.h"
 #include "timebase.h"
 #include "volt-api.h"
+#include "error-api.h"
 #include "temp-api.h"
 #include "bms-manager-api.h"
-#include "error.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
@@ -51,7 +51,7 @@ void _tasks_send_version(void) {
 void _tasks_send_errors(void) {
 
     size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)error_get_error_canlib_payload(&byte_size);
+    const uint8_t *const payload = (const uint8_t *const)error_api_get_error_canlib_payload(&byte_size);
     can_comm_tx_add(
         BMS_CELLBOARD_ERROR_INDEX,
         CAN_FRAME_TYPE_DATA,
