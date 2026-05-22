@@ -15,21 +15,23 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 
 #ifndef BMS_MONITOR_FSM_H
 #define BMS_MONITOR_FSM_H
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 /*** USER CODE BEGIN MACROS ***/
 #include "cellboard-def.h"
 #include "cellboard-conf.h"
+#include "eagletrt-api.h"
 
-#include "bms-manager.h"
+#include "bms-manager-api.h"
 /*** USER CODE END MACROS ***/
 
 // State data object
 // By default set to void; override this typedef or load the proper
 // header if you need
 /*** USER STATE DATA TYPE BEGIN ***/
-typedef void bms_monitor_fsm_state_data_t;
+typedef void bms_monitor_fsm_state_data;
 /*** USER STATE DATA TYPE END ***/
 // Event data object
 // By default the struct is empty; put the data of the event inside
@@ -37,7 +39,7 @@ typedef void bms_monitor_fsm_state_data_t;
 typedef struct {
 
     /*** USER CODE BEGIN EVENT_DATA ***/
-
+    uint8_t _;
     /*** USER CODE END EVENT_DATA ***/
 
 } bms_monitor_fsm_event_data_t;
@@ -83,23 +85,18 @@ typedef enum {
 extern const char *bms_monitor_fsm_state_names[];
 
 // State function and state transition prototypes
-typedef bms_monitor_fsm_state_t bms_monitor_fsm_state_func_t(bms_monitor_fsm_state_data_t *data);
-typedef void transition_func_t(bms_monitor_fsm_state_data_t *data);
+typedef bms_monitor_fsm_state_t bms_monitor_fsm_state_func_t(bms_monitor_fsm_state_data *data);
+typedef void transition_func_t(bms_monitor_fsm_state_data *data);
 
 /*** USER CODE BEGIN TYPES ***/
-/**
- * @brief Type definition for the BMS monitor structure handler
+/*!
+ * \brief Type definition for the BMS monitor structure handler
  *
- * @attention This structure should not be used outside of this module
- *
- * @param fsm_state The current state of the FSM
- * @param volt_reg The voltage register to read
- * @param temp_reg The temperature register to read
- * @param open_wire_operations Current number of open wire operations
+ * \attention This structure should not be used outside of this module
  */
-typedef struct {
-    bms_monitor_fsm_state_t fsm_state;
-} _BmsMonitorFsmHandler;
+struct BmsMonitorFsmHandler {
+    bms_monitor_fsm_state_t fsm_state; /*!< The current state of the FSM */
+};
 /*** USER CODE END TYPES ***/
 
 // Functions to check and trigger an event
@@ -110,137 +107,137 @@ void bms_monitor_fsm_event_trigger(bms_monitor_fsm_event_data_t *event);
 
 // Function to be executed in state init
 // valid return states: BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_volt_conversion
 // valid return states: BMS_MONITOR_FSM_STATE_VOLT_WRITE_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_volt_conversion(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_volt_conversion(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state volt_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_VOLT_READ_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_write_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_write_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state volt_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_A
-bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_read_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_volt_read_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_volt_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_B
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_a(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_a(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_volt_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_C
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_b(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_b(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_volt_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_VOLT_D
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_c(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_c(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_volt_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_TEMP_CONVERSION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_d(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_volt_d(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_temp_conversion
 // valid return states: BMS_MONITOR_FSM_STATE_TEMP_WRITE_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_temp_conversion(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_temp_conversion(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state temp_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_TEMP_READ_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_write_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_write_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state temp_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_TEMP_A
-bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_read_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_temp_read_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_temp_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_TEMP_B
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_a(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_a(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_temp_b
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_FIRST
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_b(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_temp_b(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_open_wire_pup_conversion_first
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_WRITE_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_first(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state open_wire_pup_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUP_CONVERSION_SECOND
-bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_write_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_write_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_open_wire_pup_conversion_second
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUP_READ_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pup_conversion_second(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state open_wire_pup_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_A
-bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_read_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pup_read_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pup_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_B
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_a(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_a(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pup_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_C
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_b(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_b(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pup_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUP_D
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_c(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_c(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pup_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_FIRST
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_d(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pup_d(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_open_wire_pud_conversion_first
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_WRITE_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_first(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state open_wire_pud_write_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_START_OPEN_WIRE_PUD_CONVERSION_SECOND
-bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_write_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_write_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state start_open_wire_pud_conversion_second
 // valid return states: BMS_MONITOR_FSM_STATE_OPEN_WIRE_PUD_READ_CONFIGURATION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_start_open_wire_pud_conversion_second(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state open_wire_pud_read_configuration
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_A
-bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_read_configuration(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_open_wire_pud_read_configuration(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pud_a
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_B
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_a(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_a(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pud_b
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_C
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_b(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_b(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pud_c
 // valid return states: BMS_MONITOR_FSM_STATE_READ_OPEN_WIRE_PUD_D
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_c(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_c(bms_monitor_fsm_state_data *data);
 
 // Function to be executed in state read_open_wire_pud_d
 // valid return states: BMS_MONITOR_FSM_STATE_START_VOLT_CONVERSION
-bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_do_read_open_wire_pud_d(bms_monitor_fsm_state_data *data);
 
 // List of state functions
 extern bms_monitor_fsm_state_func_t *const bms_monitor_fsm_state_table[BMS_MONITOR_FSM_NUM_STATES];
 
 // Transition functions
-void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data_t *data);
+void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data);
 
 // Table of transition functions
 extern transition_func_t *const bms_monitor_fsm_transition_table[BMS_MONITOR_FSM_NUM_STATES][BMS_MONITOR_FSM_NUM_STATES];
 
 // state manager
-bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_state, bms_monitor_fsm_state_data_t *data);
+bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_state, bms_monitor_fsm_state_data *data);
 
 /*** USER CODE BEGIN FUNCTIONS ***/
-/**
- * @brief Get the current status of the FSM
+/*!
+ * \brief Get the current status of the FSM
  *
- * @return fsm_state_t The FSM status
+ * \returns bms_monitor_fsm_state_t The FSM status
  */
 bms_monitor_fsm_state_t bms_monitor_fsm_get_state(void);
 /*** USER CODE END FUNCTIONS ***/

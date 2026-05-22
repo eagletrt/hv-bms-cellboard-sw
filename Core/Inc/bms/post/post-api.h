@@ -3,7 +3,7 @@
  * \date 2024-04-16
  * \author Antonio Gelain [antonio.gelain2@gmail.com]
  * \author Alessandro Giustina [giustinalessandro@gmail.com]
- * 
+ *
  * \brief Power-On Self Test function to check that every internal system and
  * peripheral is working correctly
  */
@@ -28,11 +28,11 @@
  * \retval POST_RC_NULL_POINTER if the given function pointers are NULL
  * \retval POST_RC_OK otherwise
  */
-enum PostReturnCode post_run(struct PostInitData data);
+enum PostReturnCode post_api_run(struct PostInitData data);
 
 #else // CONF_POST_MODULE_ENABLE
 
-#define post_run(data) (POST_RC_OK)
+#define post_api_run(data) (POST_RC_OK)
 
 #endif // CONF_POST_MODULE_ENABLE
 

@@ -27,19 +27,19 @@ void test_volt_init_check_struct() {
             .voltage_2 = 0 }
     };
 
-    enum VoltReturnCode rc = volt_init();
+    enum VoltReturnCode rc = volt_api_init();
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_OK, "volt_init() failed to return VOLT_RC_OK");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected_hvolt, &volt_handler, sizeof(expected_hvolt), "volt_init() failed to initialize volt_handler correctly");
 }
 
 void test_volt_update_value_with_valid_input() {
-    enum VoltReturnCode rc = volt_update_value(0, VOLT_MIN_V + 2);
+    enum VoltReturnCode rc = volt_api_update_value(0, VOLT_MIN_V + 2);
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_OK, "volt_update_value() failed to return VOLT_RC_OK for valid input");
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_MIN_V + 2, volt_handler.voltages[0], "volt_update_value() failed to update volt_handler.voltages correctly");
 }
 
 void test_volt_update_with_value_out_of_bounds() {
-    enum VoltReturnCode rc = volt_update_value(CELLBOARD_SEGMENT_SERIES_COUNT + 1, 0);
+    enum VoltReturnCode rc = volt_api_update_value(CELLBOARD_SEGMENT_SERIES_COUNT + 1, 0);
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_OUT_OF_BOUNDS, "volt_update_value() failed to return VOLT_RC_OUT_OF_BOUNDS for out of bounds input");
 }
 
@@ -48,7 +48,7 @@ void test_volt_update_values_with_valid_input() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         values[i] = VOLT_MIN_V + i;
 
-    enum VoltReturnCode rc = volt_update_values(0, values, CELLBOARD_SEGMENT_SERIES_COUNT);
+    enum VoltReturnCode rc = volt_api_update_values(0, values, CELLBOARD_SEGMENT_SERIES_COUNT);
 
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_OK, "volt_update_values() failed to return VOLT_RC_OK for valid input");
     TEST_ASSERT_EQUAL_FLOAT_ARRAY_MESSAGE(values, volt_handler.voltages, CELLBOARD_SEGMENT_SERIES_COUNT, "volt_update_values() failed to update volt_handler.voltages correctly");
@@ -59,13 +59,13 @@ void test_volt_update_values_with_values_out_of_bounds() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         values[i] = VOLT_MIN_V + i;
 
-    enum VoltReturnCode rc = volt_update_values(CELLBOARD_SEGMENT_SERIES_COUNT + 1, values, CELLBOARD_SEGMENT_SERIES_COUNT);
+    enum VoltReturnCode rc = volt_api_update_values(CELLBOARD_SEGMENT_SERIES_COUNT + 1, values, CELLBOARD_SEGMENT_SERIES_COUNT);
 
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_OUT_OF_BOUNDS, "volt_update_values() failed to return VOLT_RC_OUT_OF_BOUNDS for out of bounds input");
 }
 
 void test_volt_update_values_with_null_pointer() {
-    enum VoltReturnCode rc = volt_update_values(0, NULL, CELLBOARD_SEGMENT_SERIES_COUNT);
+    enum VoltReturnCode rc = volt_api_update_values(0, NULL, CELLBOARD_SEGMENT_SERIES_COUNT);
 
     TEST_ASSERT_EQUAL_MESSAGE(rc, VOLT_RC_NULL_POINTER, "volt_update_values() failed to return VOLT_RC_NULL_POINTER when given a NULL pointer");
 }
@@ -76,7 +76,7 @@ void test_volt_select_values_valid_input() {
 
     bit_flag32 expected = 0b111111111111111111111110;
 
-    bit_flag32 bits = volt_select_values_above_target(VOLT_MIN_V);
+    bit_flag32 bits = volt_api_select_values_above_target(VOLT_MIN_V);
 
     TEST_ASSERT_BITS_HIGH_MESSAGE(expected, bits, "volt_select_values_above_target() returned incorrect bitmask");
 }
@@ -85,7 +85,7 @@ void test_volt_get_min() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         volt_handler.voltages[i] = VOLT_MIN_V + i;
 
-    volt min = volt_get_min();
+    volt min = volt_api_get_min();
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_MIN_V, min, "volt_get_min() returned incorrect value");
 }
@@ -94,7 +94,7 @@ void test_volt_get_max() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         volt_handler.voltages[i] = VOLT_MIN_V + i;
 
-    volt max = volt_get_max();
+    volt max = volt_api_get_max();
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_MIN_V + CELLBOARD_SEGMENT_SERIES_COUNT - 1, max, "volt_get_max() returned incorrect value");
 }
@@ -103,7 +103,7 @@ void test_volt_get_avg() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         volt_handler.voltages[i] = VOLT_MIN_V + i;
 
-    volt avg = volt_get_avg();
+    volt avg = volt_api_get_avg();
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_MIN_V + (CELLBOARD_SEGMENT_SERIES_COUNT - 1) / 2.0f, avg, "volt_get_avg() returned incorrect value");
 }
@@ -112,20 +112,20 @@ void test_volt_get_sum() {
     for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
         volt_handler.voltages[i] = VOLT_MIN_V + i;
 
-    volt sum = volt_get_sum();
+    volt sum = volt_api_get_sum();
 
     TEST_ASSERT_EQUAL_MESSAGE((VOLT_MIN_V * CELLBOARD_SEGMENT_SERIES_COUNT) + ((CELLBOARD_SEGMENT_SERIES_COUNT - 1) * CELLBOARD_SEGMENT_SERIES_COUNT) / 2.0f, sum, "volt_get_sum() returned incorrect value");
 }
 
 void test_volt_dump_values_null_pointer() {
-    enum VoltReturnCode rc = volt_dump_values(NULL, 0, 1);
+    enum VoltReturnCode rc = volt_api_dump_values(NULL, 0, 1);
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_RC_NULL_POINTER, rc, "volt_dump_values() failed to return VOLT_RC_NULL_POINTER when given a NULL pointer");
 }
 
 void test_volt_dump_values_out_of_bounds() {
     volt out[1];
-    enum VoltReturnCode rc = volt_dump_values(out, CELLBOARD_SEGMENT_SERIES_COUNT + 1, 1);
+    enum VoltReturnCode rc = volt_api_dump_values(out, CELLBOARD_SEGMENT_SERIES_COUNT + 1, 1);
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_RC_OUT_OF_BOUNDS, rc, "volt_dump_values() failed to return VOLT_RC_OUT_OF_BOUNDS when given an out of bounds index");
 }
@@ -135,7 +135,7 @@ void test_volt_dump_values_valid_input() {
         volt_handler.voltages[i] = VOLT_MIN_V + i;
 
     volt out[CELLBOARD_SEGMENT_SERIES_COUNT / 2 - 1];
-    enum VoltReturnCode rc = volt_dump_values(out, CELLBOARD_SEGMENT_SERIES_COUNT / 2, CELLBOARD_SEGMENT_SERIES_COUNT / 2 - 1);
+    enum VoltReturnCode rc = volt_api_dump_values(out, CELLBOARD_SEGMENT_SERIES_COUNT / 2, CELLBOARD_SEGMENT_SERIES_COUNT / 2 - 1);
 
     TEST_ASSERT_EQUAL_MESSAGE(VOLT_RC_OK, rc, "volt_dump_values() failed to return VOLT_RC_OK for valid input");
     TEST_ASSERT_EQUAL_FLOAT_ARRAY_MESSAGE(&volt_handler.voltages[CELLBOARD_SEGMENT_SERIES_COUNT / 2], out, CELLBOARD_SEGMENT_SERIES_COUNT / 2 - 1, "volt_dump_values() failed to copy the correct values to the output array");
@@ -146,10 +146,10 @@ void test_volt_get_canlib_payload_size() {
     for (size_t i = 0; i < 4; ++i)
         values[i] = VOLT_MIN_V + i;
 
-    volt_update_values(0, values, 4);
+    volt_api_update_values(0, values, 4);
 
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted_t *payload = volt_get_canlib_payload(&byte_size);
+    bms_cellboard_cells_voltage_converted_t *payload = volt_api_get_canlib_payload(&byte_size);
 
     TEST_ASSERT_EQUAL_MESSAGE(sizeof(volt_handler.voltages_can_payload), byte_size, "volt_get_canlib_payload() returned incorrect size");
 }
@@ -161,13 +161,13 @@ void test_volt_get_canlib_payload_voltage() {
     for (size_t i = 0; i < 4; ++i)
         values[i] = VOLT_MIN_V + i;
 
-    volt_update_values(0, values, 4);
+    volt_api_update_values(0, values, 4);
 
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted_t *payload = volt_get_canlib_payload(&byte_size);
+    bms_cellboard_cells_voltage_converted_t *payload = volt_api_get_canlib_payload(&byte_size);
 
     bms_cellboard_cells_voltage_converted_t expected_payload;
-    expected_payload.cellboard_id = CELLBOARD_ID;
+    expected_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)CELLBOARD_ID;
     expected_payload.offset = 0;
     expected_payload.voltage_0 = (values[0]);
     expected_payload.voltage_1 = (values[1]);
@@ -178,7 +178,7 @@ void test_volt_get_canlib_payload_voltage() {
 
 void setUp() {
     identity_api_init(CELLBOARD_ID);
-    volt_init();
+    volt_api_init();
 }
 
 void tearDown() {

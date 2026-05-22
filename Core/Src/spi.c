@@ -112,8 +112,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *spiHandle) {
 /* USER CODE BEGIN 1 */
 
 // TODO: Return and check errors
-BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size) {
-    BmsManagerReturnCode code = BMS_MANAGER_ERROR;
+enum BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size) {
+    enum BmsManagerReturnCode code = BMS_MANAGER_RC_ERROR;
 
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
@@ -122,16 +122,16 @@ BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size) {
     switch (status) {
         case HAL_TIMEOUT:
         case HAL_ERROR:
-            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            code = BMS_MANAGER_RC_COMMUNICATION_ERROR;
             break;
         case HAL_BUSY:
-            code = BMS_MANAGER_BUSY;
+            code = BMS_MANAGER_RC_BUSY;
             break;
         case HAL_OK:
-            code = BMS_MANAGER_OK;
+            code = BMS_MANAGER_RC_OK;
             break;
         default:
-            code = BMS_MANAGER_ERROR;
+            code = BMS_MANAGER_RC_ERROR;
             break;
     }
 
@@ -139,12 +139,12 @@ BmsManagerReturnCode spi_send(uint8_t *const data, const size_t size) {
     return code;
 }
 
-BmsManagerReturnCode spi_send_and_receive(
+enum BmsManagerReturnCode spi_send_and_receive(
     uint8_t *const data,
     uint8_t *const out,
     const size_t size,
     const size_t out_size) {
-    BmsManagerReturnCode code = BMS_MANAGER_ERROR;
+    enum BmsManagerReturnCode code = BMS_MANAGER_RC_ERROR;
     HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_SET);
 
     // TODO: Non-blocking or set a decent enough timeout
@@ -152,19 +152,19 @@ BmsManagerReturnCode spi_send_and_receive(
     switch (status) {
         case HAL_TIMEOUT:
         case HAL_ERROR:
-            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            code = BMS_MANAGER_RC_COMMUNICATION_ERROR;
             break;
         case HAL_BUSY:
-            code = BMS_MANAGER_BUSY;
+            code = BMS_MANAGER_RC_BUSY;
             break;
         case HAL_OK:
-            code = BMS_MANAGER_OK;
+            code = BMS_MANAGER_RC_OK;
             break;
         default:
-            code = BMS_MANAGER_ERROR;
+            code = BMS_MANAGER_RC_ERROR;
             break;
     }
-    if (code != BMS_MANAGER_OK) {
+    if (code != BMS_MANAGER_RC_OK) {
         HAL_GPIO_WritePin(LTC_CS_GPIO_Port, LTC_CS_Pin, SPI_CS_RESET);
         return code;
     }
@@ -173,16 +173,16 @@ BmsManagerReturnCode spi_send_and_receive(
     switch (status) {
         case HAL_TIMEOUT:
         case HAL_ERROR:
-            code = BMS_MANAGER_COMMUNICATION_ERROR;
+            code = BMS_MANAGER_RC_COMMUNICATION_ERROR;
             break;
         case HAL_BUSY:
-            code = BMS_MANAGER_BUSY;
+            code = BMS_MANAGER_RC_BUSY;
             break;
         case HAL_OK:
-            code = BMS_MANAGER_OK;
+            code = BMS_MANAGER_RC_OK;
             break;
         default:
-            code = BMS_MANAGER_ERROR;
+            code = BMS_MANAGER_RC_ERROR;
             break;
     }
 

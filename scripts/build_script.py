@@ -12,6 +12,12 @@ def apply_core_warnings(env, node):
     # Replace backslashes to ensure compatibility (Windows = bad)
     path = node.get_path().replace("\\", "/")
 
+    if "Core/Lib" in path:
+        return env.Object(
+            node,
+            CCFLAGS=env.get("CCFLAGS", []) + ["-w",]
+        )
+
     # Check if the source file is inside the Core/ directory
     if "Core/" in path:
         return env.Object(

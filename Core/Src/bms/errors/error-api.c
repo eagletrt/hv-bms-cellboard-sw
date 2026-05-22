@@ -13,7 +13,7 @@
 #include "bms_network.h"
 #include "identity-api.h"
 #include "tasks.h"
-#include "eagletrt-api.h"
+#include "eagletrt.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
 
@@ -26,7 +26,7 @@ EAGLETRT_STATIC bms_cellboard_error_converted_t error_can_payload;
 EAGLETRT_STATIC system_reset_callback system_reset;
 
 /*! \brief Total number of instances for each group */
-const size_t instances[] = {
+EAGLETRT_STATIC const size_t error_instances[] = {
     [ERROR_GROUP_POST] = ERROR_GROUP_POST_INSTANCE_COUNT,
     [ERROR_GROUP_UNDER_VOLTAGE] = ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT,
     [ERROR_GROUP_OVER_VOLTAGE] = ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT,
@@ -44,7 +44,7 @@ const size_t instances[] = {
  *
  * \details The values are arbitrary and should not be too much high
  */
-const size_t thresholds[] = {
+EAGLETRT_STATIC const size_t error_thresholds[] = {
     [ERROR_GROUP_POST] = 1U,
     [ERROR_GROUP_UNDER_VOLTAGE] = 3U,
     [ERROR_GROUP_OVER_VOLTAGE] = 3U,
@@ -59,18 +59,18 @@ const size_t thresholds[] = {
 };
 
 /*! \brief List of errors where the data is stored */
-int32_t error_post_instances[ERROR_GROUP_POST_INSTANCE_COUNT];
-int32_t error_under_voltage_instances[ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT];
-int32_t error_over_voltage_instances[ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT];
-int32_t error_under_temperature_cells_instances[ERROR_GROUP_UNDER_TEMPERATURE_CELLS_INSTANCE_COUNT];
-int32_t error_over_temperature_cells_instances[ERROR_GROUP_OVER_TEMPERATURE_CELLS_INSTANCE_COUNT];
-int32_t error_under_temperature_discharge_instances[ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
-int32_t error_over_temperature_discharge_instances[ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
-int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT];
-int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
-int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
-int32_t error_open_wire_instances[ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT];
-int32_t *error[] = {
+EAGLETRT_STATIC int32_t error_post_instances[ERROR_GROUP_POST_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_under_voltage_instances[ERROR_GROUP_UNDER_VOLTAGE_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_over_voltage_instances[ERROR_GROUP_OVER_VOLTAGE_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_under_temperature_cells_instances[ERROR_GROUP_UNDER_TEMPERATURE_CELLS_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_over_temperature_cells_instances[ERROR_GROUP_OVER_TEMPERATURE_CELLS_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_under_temperature_discharge_instances[ERROR_GROUP_UNDER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_over_temperature_discharge_instances[ERROR_GROUP_OVER_TEMPERATURE_DISCHARGE_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_can_communication_instances[ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_flash_instances[ERROR_GROUP_FLASH_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_bms_monitor_communication_instances[ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t error_open_wire_instances[ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT];
+EAGLETRT_STATIC int32_t *error[] = {
     [ERROR_GROUP_POST] = error_post_instances,
     [ERROR_GROUP_UNDER_VOLTAGE] = error_under_voltage_instances,
     [ERROR_GROUP_OVER_VOLTAGE] = error_over_voltage_instances,
@@ -84,30 +84,26 @@ int32_t *error[] = {
     [ERROR_GROUP_OPEN_WIRE] = error_open_wire_instances
 };
 
-enum ErrorReturnCode error_init(const system_reset_callback reset) {
-
+enum ErrorReturnCode error_api_init(const system_reset_callback reset) {
     system_reset = NULL;
     memset(&error_handler, 0U, sizeof(error_handler));
-
+    memset(&error_can_payload, 0U, sizeof(error_can_payload));
     if (errorlib_init(&error_handler,
                       error,
-                      instances,
-                      thresholds,
+                      error_instances,
+                      error_thresholds,
                       ERROR_GROUP_COUNT) != ERRORLIB_OK) {
         return ERROR_RC_UNKNOWN;
     }
-
-    memset(&error_can_payload, 0U, sizeof(error_can_payload));
 
     if (reset == NULL) {
         return ERROR_RC_NULL_POINTER;
     }
     system_reset = reset;
-
     return ERROR_RC_OK;
 }
 
-enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_api_set(const enum ErrorGroup group, const error_instance_t instance) {
     ErrorLibReturnCode ret_code = errorlib_error_set(&error_handler, (errorlib_error_group_t)group, instance);
 
     if (errorlib_get_expired(&error_handler) > 0U) {
@@ -118,34 +114,32 @@ enum ErrorReturnCode error_set(const enum ErrorGroup group, const error_instance
             system_reset();
         } else {
             // Otherwise init the error payload and start sending it to the mainboard
-
-            error_can_payload.cellboard_id = identity_api_get_cellboard_id();
+            error_can_payload.cellboard_id = (bms_cellboard_error_cellboard_id)identity_api_get_cellboard_id();
             error_can_payload.group = error.group;
             error_can_payload.instance = error.instance;
 
             tasks_set_enable(TASKS_ID_SEND_ERROR, true);
         }
     }
-
     return ret_code != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
 }
 
-enum ErrorReturnCode error_reset(const enum ErrorGroup group, const error_instance_t instance) {
+enum ErrorReturnCode error_api_reset(const enum ErrorGroup group, const error_instance_t instance) {
     if (errorlib_error_reset(&error_handler, (errorlib_error_group_t)group, instance) != ERRORLIB_OK) {
         return ERROR_RC_UNKNOWN;
     }
     return ERROR_RC_OK;
 }
 
-size_t error_get_expired(void) {
+size_t error_api_get_expired(void) {
     return errorlib_get_expired(&error_handler);
 }
 
-ErrorInfo error_get_expired_info(void) {
+ErrorInfo error_api_get_expired_info(void) {
     return errorlib_get_expired_info(&error_handler);
 }
 
-bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const byte_size) {
+bms_cellboard_error_converted_t *error_api_get_error_canlib_payload(size_t *const byte_size) {
     if (byte_size != NULL) {
         *byte_size = sizeof(error_can_payload);
     }
@@ -156,19 +150,17 @@ bms_cellboard_error_converted_t *error_get_error_canlib_payload(size_t *const by
 
 EAGLETRT_STATIC char *error_module_name = "error";
 
-// clang-format off
 EAGLETRT_STATIC char *error_return_code_name[] = {
     [ERROR_RC_OK] = "ok",
     [ERROR_RC_NULL_POINTER] = "null pointer",
     [ERROR_RC_UNKNOWN] = "unknown"
 };
 
-EAGLETRT_STATIC char* error_return_code_description[] = {
-    [ERROR_RC_OK] = "executed succesfully", 
-    [ERROR_RC_NULL_POINTER] = "attempt to dereference a null pointer", 
-    [ERROR_RC_UNKNOWN] = "unknown error" 
+EAGLETRT_STATIC char *error_return_code_description[] = {
+    [ERROR_RC_OK] = "executed succesfully",
+    [ERROR_RC_NULL_POINTER] = "attempt to dereference a null pointer",
+    [ERROR_RC_UNKNOWN] = "unknown error"
 };
-// clang-format on
 
 #endif // CONF_ERROR_STRINGS_ENABLE
 

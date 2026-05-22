@@ -162,7 +162,7 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *fdcanHandle) {
  * @brief Get CAN DLC value from the payload size
  *
  * @param size The size of the payload in bytes
- * 
+ *
  * @return int32_t The DLC or negative error code
  */
 int32_t _can_get_dlc_from_size(const size_t size) {
@@ -188,13 +188,13 @@ int32_t _can_get_dlc_from_size(const size_t size) {
         default:
             return -1;
     }
-};
+}
 
 /**
  * @brief Get CAN TxFrameType value from the CanFrameType enum
  *
  * @param type The frame type enum value
- * 
+ *
  * @return int32_t The frame type or negative error code
  */
 int32_t _can_get_frame_typename_from_frame_type(const CanFrameType type) {
@@ -212,7 +212,7 @@ int32_t _can_get_frame_typename_from_frame_type(const CanFrameType type) {
  * @brief Get the canFrameType enum value from the CAN TxFrameType
  *
  * @param typename The CAN frame type value
- * 
+ *
  * @return CanFrameType The frame type enum value or negative error code
  */
 CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {

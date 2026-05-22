@@ -24,7 +24,7 @@ void test_tasks_set_enable_invalid_id(void) {
 }
 
 void test_tasks_set_enable_valid_id(void) {
-    TasksId id = TASKS_ID_SEND_POWER;
+    TasksId id = TASKS_ID_SEND_STATUS;
     TEST_ASSERT_EQUAL_MESSAGE(TASKS_OK, tasks_set_enable(id, true), "tasks_set_enable() failed to enable valid task ID");
     TEST_ASSERT_TRUE_MESSAGE(tasks_is_enabled(id), "Task should be enabled after tasks_set_enable() with true");
 

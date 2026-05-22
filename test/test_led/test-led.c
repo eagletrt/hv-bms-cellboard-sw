@@ -26,7 +26,7 @@ void test_led_init_with_null_led_set() {
     led_handler.set = led_set;
     led_handler.toggle = led_toggle;
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_init(NULL, led_toggle), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_api_init(NULL, led_toggle), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &led_handler, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
 }
 
@@ -35,7 +35,7 @@ void test_led_init_with_null_led_toggle() {
     led_handler.set = led_set;
     led_handler.toggle = led_toggle;
 
-    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_init(led_set, NULL), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
+    TEST_ASSERT_EQUAL_MESSAGE(LED_RC_NULL_POINTER, led_api_init(led_set, NULL), "led_init did not return LED_RC_NULL_POINTER when called with null pointers");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&(struct LedHandler){ 0 }, &led_handler, sizeof(struct LedHandler), "led_init modified the internal handler structure when called with null pointers");
 }
 
@@ -54,7 +54,7 @@ void test_led_init_correct_struct_parameters() {
             [6] = LED_LONG_OFF_MS }
     };
 
-    enum LedReturnCode rc = led_init(led_set, led_toggle);
+    enum LedReturnCode rc = led_api_init(led_set, led_toggle);
 
     TEST_ASSERT_EQUAL_MESSAGE(LED_RC_OK, rc, "led_init did not return LED_RC_OK when called with correct parameters");
 
@@ -65,7 +65,7 @@ void test_led_init_correct_struct_parameters() {
 }
 
 void test_led_routine_set_called() {
-    enum LedReturnCode rc = led_routine(0);
+    enum LedReturnCode rc = led_api_routine(0);
 
     TEST_ASSERT_EQUAL_MESSAGE(LED_RC_OK, rc, "led_routine did not return LED_RC_OK");
     TEST_ASSERT_TRUE_MESSAGE(led_set_fake.call_count > 0, "led_routine did not call led_set");
@@ -73,6 +73,7 @@ void test_led_routine_set_called() {
 
 void setUp() {
     identity_api_init(CELLBOARD_ID);
+    led_api_init(led_set, led_toggle);
     RESET_FAKE(led_set);
     RESET_FAKE(led_toggle);
 }
