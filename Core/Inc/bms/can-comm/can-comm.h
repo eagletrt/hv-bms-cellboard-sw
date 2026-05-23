@@ -177,8 +177,7 @@ struct CanCommHandler {
     bool tx_busy[CAN_COMM_MESSAGE_COUNT]; /*!< Transmission messages flags to check if the message has not already been sent */
     bool rx_busy[CAN_COMM_MESSAGE_COUNT]; /*!< Reception messages flags to check if the message has not already been handled */
 
-    struct ArenaAllocatorHandler tx_arena; /*!< Transmission messages arena allocator */
-    struct ArenaAllocatorHandler rx_arena; /*!< Reception messages arena allocator */
+    struct ArenaAllocatorHandler can_arena; /*!< Messages arena allocator */
 
     struct RingBufferHandler tx_buf; /*!< Transmission messages circular buffer */
     struct RingBufferHandler rx_buf; /*!< Reception messages circular buffer */

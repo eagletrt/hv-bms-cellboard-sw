@@ -55,9 +55,9 @@ enum CanCommReturnCode can_comm_init(const can_comm_transmit_callback send) {
     can_comm_handler.send = send;
 
     // Return values are ignored becuase the buffer addresses are always not NULL
-    (void)ring_buffer_api_init(&can_comm_handler.tx_buf, sizeof(struct CanMessage), CAN_COMM_TX_BUFFER_BYTE_SIZE, NULL, NULL, &can_comm_handler.tx_arena);
+    (void)ring_buffer_api_init(&can_comm_handler.tx_buf, sizeof(struct CanMessage), CAN_COMM_TX_BUFFER_BYTE_SIZE, NULL, NULL, &can_comm_handler.can_arena);
     // TODO: Add callbacks to stop CAN reception interrupt during ring buffer operations
-    (void)ring_buffer_api_init(&can_comm_handler.rx_buf, sizeof(struct CanMessage), CAN_COMM_RX_BUFFER_BYTE_SIZE, NULL, NULL, &can_comm_handler.rx_arena);
+    (void)ring_buffer_api_init(&can_comm_handler.rx_buf, sizeof(struct CanMessage), CAN_COMM_RX_BUFFER_BYTE_SIZE, NULL, NULL, &can_comm_handler.can_arena);
 
     // Initialize the canlib device
     device_init(&can_comm_handler.rx_device);
@@ -306,7 +306,7 @@ enum CanCommReturnCode can_comm_routine(void) {
 
 EAGLETRT_STATIC char *can_comm_module_name = "can communication";
 
-EAGLETRT__STATIC char *can_comm_return_code_name[] = {
+EAGLETRT_STATIC char *can_comm_return_code_name[] = {
     [CAN_COMM_RC_OK] = "ok",
     [CAN_COMM_RC_NULL_POINTER] = "null pointer",
     [CAN_COMM_RC_DISABLED] = "disabled",
@@ -318,7 +318,7 @@ EAGLETRT__STATIC char *can_comm_return_code_name[] = {
     [CAN_COMM_RC_TRANSMISSION_ERROR] = "transmission error"
 };
 
-EAGLETRT__STATIC char *can_comm_return_code_description[] = {
+EAGLETRT_STATIC char *can_comm_return_code_description[] = {
     [CAN_COMM_RC_OK] = "executed succesfully",
     [CAN_COMM_RC_NULL_POINTER] = "attempt to dereference a null pointer",
     [CAN_COMM_RC_DISABLED] = "the can manager is not enabled",
