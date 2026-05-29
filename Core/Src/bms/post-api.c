@@ -10,7 +10,7 @@
 
 #include "post-api.h"
 
-#include "error.h"
+#include "error-api.h"
 #include "identity-api.h"
 #include "timebase.h"
 #include "bal-api.h"
@@ -35,7 +35,7 @@ enum PostReturnCode prv_post_api_modules_init(const struct PostInitData *const d
      * The error and identity initialization functions have to be executed
      * before every other function to ensure the proper functionality
      */
-    if (error_init(data->system_reset) != ERROR_OK) {
+    if (error_api_init(data->system_reset) != ERROR_RC_OK) {
         return POST_RC_UNINITIALIZED;
     }
     identity_api_init(data->id);

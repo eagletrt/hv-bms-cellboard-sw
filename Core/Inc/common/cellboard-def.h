@@ -315,7 +315,7 @@ typedef float volt;
 typedef float millivolt;
 
 /** @brief Function callback that resets the microcontroller */
-typedef void (*system_reset_callback_t)(void);
+typedef void (*system_reset_callback)(void);
 
 /** @brief Function callback used to enter a critical section */
 typedef void (*interrupt_critical_section_enter_t)(void);

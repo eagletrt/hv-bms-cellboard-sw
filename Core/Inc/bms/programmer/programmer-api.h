@@ -21,7 +21,7 @@
  *
  * \retval PROGRAMMER_RC_OK if the initialization is successful
  */
-enum ProgrammerReturnCode programmer_api_init(system_reset_callback_t reset);
+enum ProgrammerReturnCode programmer_api_init(system_reset_callback reset);
 
 /*!
  * \brief Handle the received flash request

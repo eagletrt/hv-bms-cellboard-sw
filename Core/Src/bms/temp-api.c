@@ -12,7 +12,7 @@
 
 #include "cellboard-def.h"
 #include "identity-api.h"
-#include "error.h"
+#include "error-api.h"
 #include "eagletrt-api.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
@@ -64,13 +64,13 @@ celsius prv_temp_api_discharge_volt_to_celsius(volt value) {
 EAGLETRT_STATIC_INLINE void prv_temp_api_check_cells_value(const uint16_t index, const celsius value) {
     // BUG: Ignore under temp caused by broken NTCs
     // if (value < TEMP_MIN_C)
-    //     error_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    //     error_api_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
     // else
-    //     error_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    //     error_api_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
     if (value > TEMP_MAX_C) {
-        error_set(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
+        error_api_set(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
     } else {
-        error_reset(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
+        error_api_reset(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
     }
 }
 

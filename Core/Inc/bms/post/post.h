@@ -34,7 +34,7 @@ enum PostReturnCode {
  */
 struct PostInitData {
     enum CellboardId id;                                  /*!< The current cellboard index */
-    system_reset_callback_t system_reset;                 /*!< A pointer to a function that resets the microcontroller */
+    system_reset_callback system_reset;                   /*!< A pointer to a function that resets the microcontroller */
     interrupt_critical_section_enter_t cs_enter;          /*!< A pointer to a function that enters an interrupt critical section */
     interrupt_critical_section_exit_t cs_exit;            /*!< A pointer to a function that exits an interrupt critical section */
     can_comm_transmit_callback can_send;                  /*!< A pointer to a function that can send data via the CAN bus */

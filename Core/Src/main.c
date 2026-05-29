@@ -29,11 +29,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include <stdint.h>
+
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 #include "fsm.h"
 #include "stm32g4xx_it.h"
 #include "post.h"
+#include "eagletrt.h"
 
 #include "temp-api.h"
 #include "volt-api.h"
@@ -74,7 +77,7 @@ void system_reset(void);
 
 #ifdef CONF_DEMO_ENABLE
 
-_STATIC void demo() {
+EAGLETRT_STATIC void demo() {
     // Put the cursor the start of the terminal
     usart_log("\033[H");
 
@@ -84,14 +87,16 @@ _STATIC void demo() {
 
     usart_log("                  --- VOLTAGE VALUES ---\r\n");
     usart_log("   ");
-    for (size_t i = 0U; i < volt_cols; ++i)
+    for (size_t i = 0U; i < volt_cols; ++i) {
         usart_log("%5d  ", i + 1);
+    }
     usart_log("\r\n");
 
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT / volt_cols; ++i) {
         usart_log("%3d", i * volt_cols);
         for (size_t j = 0U; j < volt_cols; ++j) {
-            usart_log("%5.02f V", (*volt_values)[i * volt_cols + j]);
+            const size_t index = (i * volt_cols) + j;
+            usart_log("%5.02f V", (*volt_values)[index]);
         }
         usart_log("\r\n");
     }
@@ -103,13 +108,15 @@ _STATIC void demo() {
 
     usart_log("                  --- TEMPERATURE VALUES ---\r\n");
     usart_log("   ");
-    for (size_t i = 0U; i < temp_cols; ++i)
+    for (size_t i = 0U; i < temp_cols; ++i) {
         usart_log("%6d   ", i + 1);
+    }
     usart_log("\r\n");
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / temp_cols; ++i) {
         usart_log("%3d", i * temp_cols);
         for (size_t j = 0U; j < temp_cols; ++j) {
-            usart_log("%6.02f °C", (*temp_values)[i * temp_cols + j]);
+            const size_t index = (i * temp_cols) + j;
+            usart_log("%6.02f °C", (*temp_values)[index]);
         }
         usart_log("\r\n");
     }
@@ -143,13 +150,16 @@ _STATIC void demo() {
 
     // Test discharge circuitry
     static bit_flag32 cells = 1U;
-    static uint32_t t = 0U;
-    if (HAL_GetTick() - t >= 250U) {
+    static uint32_t tick = 0U;
+    constexpr uint32_t discharge_update_interval = 250;
+    if (HAL_GetTick() - tick >= discharge_update_interval) {
         bms_manager_api_set_discharge_cells(cells);
-        cells = (cells << 1U) & 0xFFFFFF;
-        if (cells == 0U)
+        constexpr uint32_t cells_bit_mask = 0xFFFFFF;
+        cells = (cells << 1U) & cells_bit_mask;
+        if (cells == 0U) {
             cells = 1U;
-        t = HAL_GetTick();
+        }
+        tick = HAL_GetTick();
     }
 }
 
@@ -162,15 +172,17 @@ void cli_discharge(bool echo) {
     static uint8_t str_i = 0U;
 
     char c = usart_read(echo);
-    if (c != '\0')
+    if (c != '\0') {
         str[str_i++] = c;
+    }
 
     if (c == '\r') {
         bit_flag32 bits = 0U;
         // parse bitmap of cells
         for (size_t i = 0; str[i] != '\r'; i++) {
-            if (str[i] == '0' || str[i] == '1')
+            if (str[i] == '0' || str[i] == '1') {
                 bits = CELLBOARD_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
+            }
         }
         bms_manager_set_discharge_cells(bits);
         memset(str, 0, sizeof(str));
@@ -253,7 +265,7 @@ int main(void) {
     // Clear the screen
     usart_log("\033[2J");
 #endif // CONF_DEMO_ENABLE
-    // uint32_t t = 0;
+    // uint32_t tick = 0;
     while (1) {
         fsm_state = fsm_run_state(fsm_state, NULL);
 
@@ -264,19 +276,21 @@ int main(void) {
 #ifdef CONF_DEMO_ENABLE
 
         // Enable or disable demo
-        _STATIC bool run_demo = false;
+        EAGLETRT_STATIC bool run_demo = false;
         if (usart_read(false) == 'd') {
             // Prevent a cell from continuous discharge after the demo is stopped
-            if (run_demo)
+            if (run_demo) {
                 bms_manager_api_set_discharge_cells(0U);
+            }
             run_demo = !run_demo;
         }
 
         // Run the demo
-        _STATIC uint32_t t = 0U;
-        if (run_demo && HAL_GetTick() - t >= 250U) {
+        EAGLETRT_STATIC uint32_t tick = 0U;
+        constexpr uint32_t demo_run_interval = 250;
+        if (run_demo && HAL_GetTick() - tick >= demo_run_interval) {
             demo();
-            t = HAL_GetTick();
+            tick = HAL_GetTick();
         }
 #endif // CONF_DEMO_ENABLE
 
