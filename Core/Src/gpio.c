@@ -114,9 +114,9 @@ enum CellboardId gpio_get_cellboard_id(void) {
      * Get the individual bits of the cellboard identifier
      * The bits are inverted because it is Aris fault
      */
-    const bool bit_0 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_0_GPIO_Port, ID_SELECTOR_0_Pin);
-    const bool bit_1 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
-    const bool bit_2 = !(const bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
+    const bool bit_0 = (const bool)HAL_GPIO_ReadPin(ID_SELECTOR_0_GPIO_Port, ID_SELECTOR_0_Pin);
+    const bool bit_1 = (const bool)HAL_GPIO_ReadPin(ID_SELECTOR_1_GPIO_Port, ID_SELECTOR_1_Pin);
+    const bool bit_2 = (const bool)HAL_GPIO_ReadPin(ID_SELECTOR_2_GPIO_Port, ID_SELECTOR_2_Pin);
 
     /*
      * The cellboard identifier is saved as an enum where the first cellboard is
@@ -126,7 +126,6 @@ enum CellboardId gpio_get_cellboard_id(void) {
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_0, 0U);
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_1, 1U);
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_2, 2U);
-    --id;
 
     if (id >= CELLBOARD_ID_COUNT)
         id = CELLBOARD_ID_5;

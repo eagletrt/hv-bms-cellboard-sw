@@ -18,7 +18,7 @@ Functions and types have been generated with prefix "fsm_"
 /*** USER CODE BEGIN MACROS ***/
 #include <string.h>
 
-#include "can-comm.h"
+#include "can-comm-api.h"
 #include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
