@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 
+#include <time.h>
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 #include "fsm.h"
@@ -80,6 +81,20 @@ void system_reset(void);
 EAGLETRT_STATIC void demo() {
     // Put the cursor the start of the terminal
     usart_log("\033[H");
+
+    time_t build_time = CANLIB_BUILD_TIME;
+    constexpr size_t build_time_str_size = 30U;
+
+    struct tm *tm_info = gmtime(&build_time);
+    char build_time_str[build_time_str_size];
+    strftime(build_time_str, sizeof(build_time_str), "%Y-%m-%d %H:%M:%S", tm_info);
+
+    // Versioning info
+    usart_log("                  --- BMS MANAGER DEMO ---\r\n");
+    usart_log("Canlib version: ");
+    usart_log(build_time_str);
+    usart_log("Cellboard ID: %d\r\n", gpio_get_cellboard_id());
+    usart_log("Compilation date: %s %s\r\n", __DATE__, __TIME__);
 
     // Display cells voltages
     const cells_volt *const volt_values = volt_api_get_values();
