@@ -15,6 +15,7 @@
 #include "volt-api.h"
 #include "temp-api.h"
 #include "fff.h"
+
 DEFINE_FFF_GLOBALS;
 
 uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const size_t len);
@@ -295,15 +296,31 @@ void test_bms_manager_read_open_wire_voltages_pull_error(void) {
 
 // --- check open wire ---
 
+void test_bms_manager_check_open_wire_null_pointers(void) {
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
+        bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
+        bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
+    }
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(NULL, NULL);
+
+    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OK even if null pointers are given as arguments");
+}
+
 void test_bms_manager_check_open_wire_no_open_wire(void) {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
         bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
+    bool open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
+    size_t size = 0U;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bool expected_open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
+
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(open_wire_cells, &size);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OK when no open wire is detected");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT, size, "bms_manager_check_open_wire should set the size to the total number of cells when no open wire is detected");
+    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(expected_open_wire_cells, open_wire_cells, sizeof(expected_open_wire_cells), "bms_manager_check_open_wire should set all cells to false in the open_wire_cells array when no open wire is detected");
 }
 
 void test_bms_manager_check_open_wire_first_cell_open(void) {
@@ -313,9 +330,14 @@ void test_bms_manager_check_open_wire_first_cell_open(void) {
     }
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bool open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
+    size_t size = 0U;
+
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(open_wire_cells, &size);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when the first cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT, size, "bms_manager_check_open_wire should set the size to the total number of cells even when an open wire is detected");
+    TEST_ASSERT_TRUE_MESSAGE(open_wire_cells[0U], "bms_manager_check_open_wire should set the first cell to true in the open_wire_cells array when the first cell has an open wire");
 }
 
 void test_bms_manager_check_open_wire_last_cell_open(void) {
@@ -325,9 +347,14 @@ void test_bms_manager_check_open_wire_last_cell_open(void) {
     }
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bool open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
+    size_t size = 0U;
+
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(open_wire_cells, &size);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when the last cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT, size, "bms_manager_check_open_wire should set the size to the total number of cells even when an open wire is detected");
+    TEST_ASSERT_TRUE_MESSAGE(open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U], "bms_manager_check_open_wire should set the last cell to true in the open_wire_cells array when the last cell has an open wire");
 }
 
 void test_bms_manager_check_open_wire_mid_cell_open(void) {
@@ -338,9 +365,14 @@ void test_bms_manager_check_open_wire_mid_cell_open(void) {
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][15U] = 0.0f;
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][15U] = 3.8f;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bool open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
+    size_t size = 0U;
+
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(open_wire_cells, &size);
 
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when a mid cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT, size, "bms_manager_check_open_wire should set the size to the total number of cells even when an open wire is detected");
+    TEST_ASSERT_TRUE_MESSAGE(open_wire_cells[15U], "bms_manager_check_open_wire should set the mid cell to true in the open_wire_cells array when the mid cell has an open wire");
 }
 
 // --- set/get discharge cells ---

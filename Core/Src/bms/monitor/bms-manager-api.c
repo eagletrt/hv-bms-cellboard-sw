@@ -9,6 +9,7 @@
 
 #include "bms-manager-api.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -391,8 +392,13 @@ enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(const enum Bms
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
+enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells, size_t *const size) {
+
+    bool local_open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
+    memset(local_open_wire_cells, 0U, sizeof(local_open_wire_cells));
+
     size_t offset = 0;
+    bool open_wire_detected = false;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ltc++) {
 
         offset = ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT;
@@ -400,11 +406,13 @@ enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
         // Check first and last voltages
         if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            return BMS_MANAGER_RC_OPEN_WIRE;
+            open_wire_detected = true;
+            local_open_wire_cells[0U + offset] = true;
         }
         if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            return BMS_MANAGER_RC_OPEN_WIRE;
+            open_wire_detected = true;
+            local_open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] = true;
         }
 
         // Check other voltages
@@ -413,10 +421,21 @@ enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
             if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-                return BMS_MANAGER_RC_OPEN_WIRE;
+                open_wire_detected = true;
+                local_open_wire_cells[i + offset] = true;
             }
         }
     }
+
+    if (open_wire_cells != NULL && size != NULL) {
+        memcpy(open_wire_cells, local_open_wire_cells, sizeof(local_open_wire_cells));
+        *size = sizeof(local_open_wire_cells);
+    }
+
+    if (open_wire_detected) {
+        return BMS_MANAGER_RC_OPEN_WIRE;
+    }
+
     error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
     return BMS_MANAGER_RC_OK;
 }

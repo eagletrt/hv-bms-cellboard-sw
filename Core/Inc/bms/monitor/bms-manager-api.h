@@ -160,10 +160,14 @@ enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(enum BmsManage
  *     - The last pull-down voltage value is 0.0000 (same as above)
  *     - At least one delta voltage value is below the -400 mV threshold
  *
+ * \param open_wire_cells[out] A pointer to an array where the detected open wire cells are stored (can be NULL)
+ * \param size[out] A pointer where the size of the open_wire_cells array in bytes is stored (can be NULL)
+ * \warning The open_wire_cells array should be large enough to store the required data CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT 
+ *
  * \retval BMS_MANAGER_RC_OPEN_WIRE if an open wire is detected
  * \retval BMS_MANAGER_RC_OK otherwise
  */
-enum BmsManagerReturnCode bms_manager_api_check_open_wire(void);
+enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells, size_t *size);
 
 /*!
  * \brief Set the cells to discharge

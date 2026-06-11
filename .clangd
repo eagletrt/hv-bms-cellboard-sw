@@ -13,6 +13,8 @@ CompileFlags:
     - -DSTM32G4A1xx
     - -DSTM32G4xx
     - -DSTM32G4
+    - -Itest/include
+    - -I.pio/libdeps/tests/Unity/src
 
 Diagnostics:
   UnusedIncludes: Strict
@@ -40,3 +42,5 @@ InlayHints:
 
 Hover:
   ShowAKA: true
+
+  

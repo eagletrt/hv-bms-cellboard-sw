@@ -761,7 +761,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire(NULL, NULL);
     switch (code) {
         case BMS_MANAGER_RC_OK:
             error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
