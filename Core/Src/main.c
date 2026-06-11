@@ -148,6 +148,23 @@ EAGLETRT_STATIC void demo() {
     usart_log("Max: %.3f °C\r\n", t_max);
     usart_log("\r\n\r\n");
 
+    // Display open wire status
+    usart_log("                  --- OPEN WIRE STATUS ---\r\n");
+
+    bool open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
+    memset(open_wire_cells, 0U, sizeof(open_wire_cells));
+
+    size_t size = 0U;
+    enum BmsManagerReturnCode open_wire_code = bms_manager_api_check_open_wire(open_wire_cells, &size);
+    usart_log("Open wire detected: %s\r\n", open_wire_code == BMS_MANAGER_RC_OPEN_WIRE ? "YES" : "NO");
+    usart_log("Cells with open wire: ");
+    for (size_t i = 0U; i < size; ++i) {
+        if (open_wire_cells[i]) {
+            usart_log("%d ", i);
+        }
+    }
+    usart_log("\r\n");
+
     // Test discharge circuitry
     static bit_flag32 cells = 1U;
     static uint32_t tick = 0U;
