@@ -93,6 +93,7 @@ EAGLETRT_STATIC void demo() {
     usart_log("                  --- BMS MANAGER DEMO ---\r\n");
     usart_log("Canlib version: ");
     usart_log(build_time_str);
+    usart_log("\r\n");
     usart_log("Cellboard ID: %d\r\n", gpio_get_cellboard_id());
     usart_log("Compilation date: %s %s\r\n", __DATE__, __TIME__);
 
@@ -171,11 +172,13 @@ EAGLETRT_STATIC void demo() {
 
     size_t size = 0U;
     enum BmsManagerReturnCode open_wire_code = bms_manager_api_check_open_wire(open_wire_cells, &size);
-    usart_log("Open wire detected: %s\r\n", open_wire_code == BMS_MANAGER_RC_OPEN_WIRE ? "YES" : "NO");
+    usart_log("Open wire detected: %s\r\n", open_wire_code == BMS_MANAGER_RC_OPEN_WIRE ? "YES" : "NO ");
     usart_log("Cells with open wire: ");
     for (size_t i = 0U; i < size; ++i) {
         if (open_wire_cells[i]) {
-            usart_log("%d ", i);
+            usart_log("%d  ", i);
+        } else {
+            usart_log("-  ");
         }
     }
     usart_log("\r\n");

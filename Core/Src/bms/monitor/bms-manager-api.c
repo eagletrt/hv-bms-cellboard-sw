@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "eagletrt.h"
 #include "error-api.h"
@@ -419,7 +420,7 @@ enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells,
         for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
-            if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
+            if (fabs(delta_v) > -LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
                 open_wire_detected = true;
                 local_open_wire_cells[i + offset] = true;
