@@ -15,6 +15,7 @@
 #include "volt-api.h"
 #include "temp-api.h"
 #include "fff.h"
+
 DEFINE_FFF_GLOBALS;
 
 uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const size_t len);
@@ -301,9 +302,9 @@ void test_bms_manager_check_open_wire_no_open_wire(void) {
         bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
     }
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bit_flag32 code = bms_manager_api_check_open_wire();
 
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OK when no open wire is detected");
+    TEST_ASSERT_EQUAL_MESSAGE(0U, code, "bms_manager_check_open_wire should return 0 when no open wire is detected");
 }
 
 void test_bms_manager_check_open_wire_first_cell_open(void) {
@@ -313,9 +314,9 @@ void test_bms_manager_check_open_wire_first_cell_open(void) {
     }
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bit_flag32 code = bms_manager_api_check_open_wire();
 
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when the first cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(1U, code, "bms_manager_check_open_wire should return the correct bit flag when the first cell has an open wire");
 }
 
 void test_bms_manager_check_open_wire_last_cell_open(void) {
@@ -325,9 +326,9 @@ void test_bms_manager_check_open_wire_last_cell_open(void) {
     }
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U] = BMS_MANAGER_OPEN_WIRE_ZERO_V;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bit_flag32 code = bms_manager_api_check_open_wire();
 
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when the last cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(1U << (CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U), code, "bms_manager_check_open_wire should return the correct bit flag when the last cell has an open wire");
 }
 
 void test_bms_manager_check_open_wire_mid_cell_open(void) {
@@ -338,9 +339,9 @@ void test_bms_manager_check_open_wire_mid_cell_open(void) {
     bms_handler.pup[LTC6811_1_PUP_ACTIVE][15U] = 0.0f;
     bms_handler.pup[LTC6811_1_PUP_INACTIVE][15U] = 3.8f;
 
-    enum BmsManagerReturnCode code = bms_manager_api_check_open_wire();
+    bit_flag32 code = bms_manager_api_check_open_wire();
 
-    TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OPEN_WIRE, code, "bms_manager_check_open_wire should return BMS_MANAGER_RC_OPEN_WIRE when a mid cell has an open wire");
+    TEST_ASSERT_EQUAL_MESSAGE(1U << 15U, code, "bms_manager_check_open_wire should return the correct bit flag when a mid cell has an open wire");
 }
 
 // --- set/get discharge cells ---

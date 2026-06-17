@@ -9,9 +9,13 @@
 
 #include "bms-manager-api.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
+#include "cellboard-def.h"
+#include "eagletrt-api.h"
 #include "eagletrt.h"
 #include "error-api.h"
 #include "ltc6811-1-api.h"
@@ -391,7 +395,10 @@ enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(const enum Bms
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
+bit_flag32 bms_manager_api_check_open_wire(void) {
+
+    bit_flag32 open_wire_cells = 0U;
+
     size_t offset = 0;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ltc++) {
 
@@ -400,25 +407,29 @@ enum BmsManagerReturnCode bms_manager_api_check_open_wire(void) {
         // Check first and last voltages
         if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            return BMS_MANAGER_RC_OPEN_WIRE;
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, 0U + offset);
         }
         if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            return BMS_MANAGER_RC_OPEN_WIRE;
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset);
         }
 
         // Check other voltages
-        for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U; ++i) {
+        for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
             if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-                return BMS_MANAGER_RC_OPEN_WIRE;
+                open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, i + offset);
             }
         }
     }
-    error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
-    return BMS_MANAGER_RC_OK;
+
+    if (open_wire_cells == 0U) {
+        error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
+    }
+
+    return open_wire_cells;
 }
 
 enum BmsManagerReturnCode bms_manager_api_set_discharge_cells(bit_flag32 cells) {

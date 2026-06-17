@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 
+#include <time.h>
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 #include "fsm.h"
@@ -80,6 +81,21 @@ void system_reset(void);
 EAGLETRT_STATIC void demo() {
     // Put the cursor the start of the terminal
     usart_log("\033[H");
+
+    time_t build_time = CANLIB_BUILD_TIME;
+    constexpr size_t build_time_str_size = 30U;
+
+    struct tm *tm_info = gmtime(&build_time);
+    char build_time_str[build_time_str_size];
+    strftime(build_time_str, sizeof(build_time_str), "%Y-%m-%d %H:%M:%S", tm_info);
+
+    // Versioning info
+    usart_log("                  --- BMS MANAGER DEMO ---\r\n");
+    usart_log("Canlib version: ");
+    usart_log(build_time_str);
+    usart_log("\r\n");
+    usart_log("Cellboard ID: %d\r\n", gpio_get_cellboard_id());
+    usart_log("Compilation date: %s %s\r\n", __DATE__, __TIME__);
 
     // Display cells voltages
     const cells_volt *const volt_values = volt_api_get_values();
@@ -147,6 +163,22 @@ EAGLETRT_STATIC void demo() {
     usart_log("Min: %.3f °C\r\n", t_min);
     usart_log("Max: %.3f °C\r\n", t_max);
     usart_log("\r\n\r\n");
+
+    // Display open wire status
+    usart_log("                  --- OPEN WIRE STATUS ---\r\n");
+
+    size_t size = 0U;
+    bit_flag32 open_wire_code = bms_manager_api_check_open_wire();
+    usart_log("Open wire detected: %s\r\n", open_wire_code == 0U ? "NO" : "YES");
+    usart_log("Cells with open wire: ");
+    for (size_t i = 0U; i < size; ++i) {
+        if (EAGLETRT_API_BIT_GET(open_wire_code, i)) {
+            usart_log("%d  ", i);
+        } else {
+            usart_log("-  ");
+        }
+    }
+    usart_log("\r\n");
 
     // Test discharge circuitry
     static bit_flag32 cells = 1U;
