@@ -15,6 +15,7 @@
 #include <math.h>
 
 #include "cellboard-def.h"
+#include "eagletrt-api.h"
 #include "eagletrt.h"
 #include "error-api.h"
 #include "ltc6811-1-api.h"
@@ -406,11 +407,11 @@ bit_flag32 bms_manager_api_check_open_wire(void) {
         // Check first and last voltages
         if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            open_wire_cells |= (1U << (0U + offset));
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, 0U + offset);
         }
         if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            open_wire_cells |= (1U << (CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset));
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset);
         }
 
         // Check other voltages
@@ -419,7 +420,7 @@ bit_flag32 bms_manager_api_check_open_wire(void) {
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
             if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-                open_wire_cells |= (1U << (i + offset));
+                open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, i + offset);
             }
         }
     }

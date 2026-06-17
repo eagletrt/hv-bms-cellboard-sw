@@ -762,13 +762,10 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     CELLBOARD_UNUSED(data);
 
     bit_flag32 open_wire_cells = bms_manager_api_check_open_wire();
-    switch (open_wire_cells) {
-        case 0U:
-            error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
-            break;
-        default:
-            error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            break;
+    if (open_wire_cells == 0U) {
+        error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
+    } else {
+        error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
     }
     /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
