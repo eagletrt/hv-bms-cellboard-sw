@@ -12,6 +12,7 @@
 
 #include "bms-manager.h"
 #include "cellboard-conf.h"
+#include "cellboard-def.h"
 
 #ifdef CONF_BMS_MANAGER_MODULE_ENABLE
 
@@ -160,14 +161,9 @@ enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(enum BmsManage
  *     - The last pull-down voltage value is 0.0000 (same as above)
  *     - At least one delta voltage value is below the -400 mV threshold
  *
- * \param open_wire_cells[out] A pointer to an array where the detected open wire cells are stored (can be NULL)
- * \param size[out] A pointer where the size of the open_wire_cells array in bytes is stored (can be NULL)
- * \warning The open_wire_cells array should be large enough to store the required data CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT 
- *
- * \retval BMS_MANAGER_RC_OPEN_WIRE if an open wire is detected
- * \retval BMS_MANAGER_RC_OK otherwise
+ * \returns bit_flag32 A bitmask where the n-th bit represent the n-th cell (up to 32) that has an open wire
  */
-enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells, size_t *size);
+bit_flag32 bms_manager_api_check_open_wire(void);
 
 /*!
  * \brief Set the cells to discharge
@@ -249,7 +245,7 @@ int bms_manager_api_get_actual_config_string(
 #define bms_manager_api_poll_conversion_status() (BMS_MANAGER_RC_OK)
 #define bms_manager_api_read_voltages(reg) (BMS_MANAGER_RC_OK)
 #define bms_manager_api_read_temperatures(reg, op) (BMS_MANAGER_RC_OK)
-#define bms_manager_api_check_open_wire() (BMS_MANAGER_RC_OK)
+#define bms_manager_api_check_open_wire() (0U)
 #define bms_manager_api_set_discharge_cells(cells) (BMS_MANAGER_RC_OK)
 #define bms_manager_api_get_discharge_cells() (0U)
 

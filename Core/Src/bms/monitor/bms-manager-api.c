@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "cellboard-def.h"
 #include "eagletrt.h"
 #include "error-api.h"
 #include "ltc6811-1-api.h"
@@ -393,13 +394,11 @@ enum BmsManagerReturnCode bms_manager_api_read_open_wire_voltages(const enum Bms
     return BMS_MANAGER_RC_OK;
 }
 
-enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells, size_t *const size) {
+bit_flag32 bms_manager_api_check_open_wire(void) {
 
-    bool local_open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT];
-    memset(local_open_wire_cells, 0U, sizeof(local_open_wire_cells));
+    bit_flag32 open_wire_cells = 0U;
 
     size_t offset = 0;
-    bool open_wire_detected = false;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ltc++) {
 
         offset = ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT;
@@ -407,38 +406,29 @@ enum BmsManagerReturnCode bms_manager_api_check_open_wire(bool *open_wire_cells,
         // Check first and last voltages
         if (bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            open_wire_detected = true;
-            local_open_wire_cells[0U + offset] = true;
+            open_wire_cells |= (1U << (0U + offset));
         }
         if (bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] == BMS_MANAGER_OPEN_WIRE_ZERO_V) {
             error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-            open_wire_detected = true;
-            local_open_wire_cells[CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset] = true;
+            open_wire_cells |= (1U << (CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset));
         }
 
         // Check other voltages
-        for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U; ++i) {
+        for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
             // TODO: Save and send via CAN cell that failed the open wire check
             const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
-            if (fabs(delta_v) > -LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
+            if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
                 error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-                open_wire_detected = true;
-                local_open_wire_cells[i + offset] = true;
+                open_wire_cells |= (1U << (i + offset));
             }
         }
     }
 
-    if (open_wire_cells != NULL && size != NULL) {
-        memcpy(open_wire_cells, local_open_wire_cells, sizeof(local_open_wire_cells));
-        *size = sizeof(local_open_wire_cells);
+    if (open_wire_cells == 0U) {
+        error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
     }
 
-    if (open_wire_detected) {
-        return BMS_MANAGER_RC_OPEN_WIRE;
-    }
-
-    error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
-    return BMS_MANAGER_RC_OK;
+    return open_wire_cells;
 }
 
 enum BmsManagerReturnCode bms_manager_api_set_discharge_cells(bit_flag32 cells) {
