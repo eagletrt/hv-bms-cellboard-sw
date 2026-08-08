@@ -15,6 +15,7 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
+#include "arena-allocator.h"
 #include "min-heap.h"
 
 #include "tasks.h"
@@ -43,27 +44,18 @@
 /** \brief Maximum number of watchdogs that can be handled simultaneously */
 #define TIMEBASE_RUNNING_WATCHDOG_COUNT (24U)
 
-/**
+/*!
  * \brief Return code for the timebase module functions
- *
- * \details
- *     - TIMEBASE_OK the function executed successfully
- *     - TIMEBASE_NULL_POINTER a NULL pointer was given to a function
- *     - TIMEBASE_DISABLED the timebase is not running
- *     - TIMEBASE_BUSY the timebase cannot perform the current operation because
- * is busy with other actions
- *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered inside
- * the timebase
- *     - TIMEBASE_WATCHDOG_UNAVAILABLE the given watchdog can't be registered
- * inside the timebase
  */
 enum TimebaseReturnCode {
-    TIMEBASE_OK,
-    TIMEBASE_NULL_POINTER,
-    TIMEBASE_DISABLED,
-    TIMEBASE_BUSY,
-    TIMEBASE_WATCHDOG_NOT_REGISTERED,
-    TIMEBASE_WATCHDOG_UNAVAILABLE
+    TIMEBASE_RC_OK,                      /*!< The function executed successfully */
+    TIMEBASE_RC_NULL_POINTER,            /*!< A NULL pointer was given to a function */
+    TIMEBASE_RC_DISABLED,                /*!< The timebase is not running */
+    TIMEBASE_RC_BUSY,                    /*!< The timebase cannot perform the current operation because is busy with other actions */
+    TIMEBASE_RC_BUFFER_ERROR,            /*!< An error related to internal buffers of the scheduler */
+    TIMEBASE_RC_TASK_ERROR,              /*!< An error occured in the task module */
+    TIMEBASE_RC_WATCHDOG_NOT_REGISTERED, /*!< The watchdog is not registered inside the timebase */
+    TIMEBASE_RC_WATCHDOG_UNAVAILABLE     /*!< The given watchdog can't be registered inside the timebase */
 };
 
 /**
@@ -73,10 +65,10 @@ enum TimebaseReturnCode {
  * \param t The time in which the task should be executed
  * \param task A pointer to the task to run
  */
-typedef struct {
+struct TimebaseScheduledTask {
     ticks_t t;
     struct Task *task;
-} TimebaseScheduledTask;
+};
 
 /**
  * \brief Definition of a scheduled watchdog
@@ -84,10 +76,10 @@ typedef struct {
  * \param t The time in which the watchdog should timeout
  * \param watchdog A pointer to the watchdog handler structure
  */
-typedef struct {
+struct TimebaseScheduledWatchdog {
     ticks_t t;
     Watchdog *watchdog;
-} TimebaseScheduledWatchdog;
+};
 
 /**
  * \brief Type definition for the timebase handler structure
@@ -106,9 +98,9 @@ struct TimebaseHandler {
     milliseconds_t resolution;
     EAGLETRT_VOLATILE ticks_t t;
 
-    MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled_tasks;
-    MinHeap(TimebaseScheduledWatchdog,
-            TIMEBASE_RUNNING_WATCHDOG_COUNT) scheduled_watchdogs;
+    struct ArenaAllocatorHandler arena;
+    struct MinHeapHandler scheduled_tasks;
+    struct MinHeapHandler scheduled_watchdogs;
 };
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
@@ -231,16 +223,16 @@ enum TimebaseReturnCode timebase_routine(void);
 
 #else // CONF_TIMEBASE_MODULE_ENABLE
 
-#define timebase_init(resolution) (TIMEBASE_OK)
-#define timebase_set_enable() CELLBOARD_NOPE()
-#define timebase_inc_tick() (TIMEBASE_OK)
+#define timebase_init(resolution) (TIMEBASE_RC_OK)
+#define timebase_set_enable() EAGLETRT_API_NOP()
+#define timebase_inc_tick() (TIMEBASE_RC_OK)
 #define timebase_get_tick() (0U)
 #define timebase_get_time() (0U)
 #define timebase_get_resolution() (1U) // The default value of 1 is used to avoid 0 division error
-#define timebase_regsiter_watchdog(watchdog) (TIMEBASE_OK)
-#define timebase_unregsiter_watchdog(watchdog) (TIMEBASE_OK)
-#define timebase_update_watchdog(watchdog) (TIMEBASE_OK)
-#define timebase_routine() (TIMEBASE_OK)
+#define timebase_regsiter_watchdog(watchdog) (TIMEBASE_RC_OK)
+#define timebase_unregsiter_watchdog(watchdog) (TIMEBASE_RC_OK)
+#define timebase_update_watchdog(watchdog) (TIMEBASE_RC_OK)
+#define timebase_routine() (TIMEBASE_RC_OK)
 
 #endif // CONF_TIMEBASE_MODULE_ENABLE
 

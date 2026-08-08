@@ -258,7 +258,7 @@ enum TasksReturnCode tasks_init(milliseconds_t resolution) {
     TASKS_X_LIST
 #undef TASKS_X
 
-    return TASKS_OK;
+    return TASKS_RC_OK;
 }
 
 struct Task *tasks_get_task(const enum TasksId task_id) {
@@ -291,10 +291,10 @@ tasks_callback tasks_get_callback(const enum TasksId task_id) {
 
 enum TasksReturnCode tasks_set_enable(const enum TasksId task_id, const bool enabled) {
     if (task_id >= TASKS_ID_COUNT) {
-        return TASKS_INVALID_ID;
+        return TASKS_RC_INVALID_ID;
     }
     htasks.tasks[task_id].enabled = enabled;
-    return TASKS_OK;
+    return TASKS_RC_OK;
 }
 
 bool tasks_is_enabled(const enum TasksId task_id) {

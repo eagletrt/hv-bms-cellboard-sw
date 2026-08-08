@@ -62,11 +62,11 @@ typedef void (*tasks_callback)(void);
  * \brief Return code for the tasks module functions
  *
  * \details
- *     - TASKS_OK the function executed succesfully
+ *     - TASKS_RC_OK the function executed succesfully
  */
 enum TasksReturnCode {
-    TASKS_INVALID_ID,
-    TASKS_OK
+    TASKS_RC_INVALID_ID,
+    TASKS_RC_OK
 };
 /*!
  * \brief Enumeration of tasks
@@ -127,7 +127,7 @@ struct TaskHandler {
  * \param resolution The timebase resolution
  *
  * \return TasksReturnCode
- *     - TASKS_OK
+ *     - TASKS_RC_OK
  */
 enum TasksReturnCode tasks_init(milliseconds_t resolution);
 
@@ -175,7 +175,7 @@ tasks_callback tasks_get_callback(enum TasksId task_id);
  *
  * \return TasksReturnCode
  *     - TASKS_INVALID_ID the given identifier does not exists
- *     - TASKS_OK otherwise
+ *     - TASKS_RC_OK otherwise
  */
 enum TasksReturnCode tasks_set_enable(enum TasksId task_id, bool enabled);
 
@@ -190,7 +190,7 @@ bool tasks_is_enabled(enum TasksId task_id);
 
 #else // CONF_TASKS_MODULE_ENABLE
 
-#define tasks_init(resolution) (TASKS_OK)
+#define tasks_init(resolution) (TASKS_RC_OK)
 #define tasks_get_task(id) (NULL)
 #define tasks_get_start(id) (0U)
 #define tasks_get_interval(id) (0U)

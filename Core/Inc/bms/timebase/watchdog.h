@@ -3,7 +3,7 @@
  * @date 2024-04-16
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Implementation of generic watchdogs that times-out a certain interval of time 
+ * @brief Implementation of generic watchdogs that times-out a certain interval of time
  */
 
 #ifndef WATCHDOG_H
@@ -36,7 +36,7 @@ typedef enum {
 
 /**
  * @brief Type definition for a function that is called when the watchdog times-out
- * 
+ *
  * @details When the watchdog times-out it unregister itself from the timebase automatically
  */
 typedef void (*watchdog_timeout_callback)(void);
@@ -71,20 +71,20 @@ typedef struct {
  *     - WATCHDOG_OK otherwise
  */
 WatchdogReturnCode watchdog_init(
-    Watchdog *const watchdog,
-    const ticks_t timeout,
-    const watchdog_timeout_callback expire);
+    Watchdog *watchdog,
+    ticks_t timeout,
+    watchdog_timeout_callback expire);
 
 /**
  * @brief De-initialize the watchdog
  *
- * @param watchdog A pointer to the watchdog handler structure 
+ * @param watchdog A pointer to the watchdog handler structure
  *
  * @return WatchdogReturnCode
  *     - WATCHDOG_NULL_POINTER if the watchdog or the internal expire pointers are NULL
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_deinit(Watchdog *watchdog);
 
 /**
  * @brief Start a watchdog
@@ -100,7 +100,7 @@ WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_start(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_start(Watchdog *watchdog);
 
 /**
  * @brief Stop a watchdog
@@ -115,7 +115,7 @@ WatchdogReturnCode watchdog_start(Watchdog *const watchdog);
  *     - WATCHDOG_TIMED_OUT if the watchdog has already timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_stop(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_stop(Watchdog *watchdog);
 
 /**
  * @brief Start a watchdog even if it has timed out
@@ -130,7 +130,7 @@ WatchdogReturnCode watchdog_stop(Watchdog *const watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_restart(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_restart(Watchdog *watchdog);
 
 /**
  * @brief Reset the watchdog internal time to 0
@@ -146,7 +146,7 @@ WatchdogReturnCode watchdog_restart(Watchdog *const watchdog);
  *     - WATCHDOG_UNAVAILABLE if the watchdog can't be registered inside the timebase
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_reset(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_reset(Watchdog *watchdog);
 
 /**
  * @brief Set the watchdog status as timed out
@@ -159,7 +159,7 @@ WatchdogReturnCode watchdog_reset(Watchdog *const watchdog);
  *     - WATCHDOG_TIMED_OUT if the watchdog has already timed out
  *     - WATCHDOG_OK otherwise
  */
-WatchdogReturnCode watchdog_timeout(Watchdog *const watchdog);
+WatchdogReturnCode watchdog_timeout(Watchdog *watchdog);
 
 /**
  * @param Check if the watchdog has timed out
@@ -168,7 +168,7 @@ WatchdogReturnCode watchdog_timeout(Watchdog *const watchdog);
  *
  * @return bool True if the watchdog has timed out, false otherwise
  */
-bool watchdog_is_timed_out(Watchdog *const watchdog);
+bool watchdog_is_timed_out(Watchdog *watchdog);
 
 #else // CONF_WATCHDOG_MODULE_ENABLE
 

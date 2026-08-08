@@ -3,7 +3,7 @@
  * @date 2024-04-16
  * @author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Implementation of generic watchdogs that times-out a certain interval of time 
+ * @brief Implementation of generic watchdogs that times-out a certain interval of time
  */
 
 #include "watchdog.h"
@@ -23,10 +23,12 @@ WatchdogReturnCode watchdog_init(
     Watchdog *const watchdog,
     const ticks_t timeout,
     const watchdog_timeout_callback expire) {
-    if (watchdog == NULL || expire == NULL)
+    if (watchdog == NULL || expire == NULL) {
         return WATCHDOG_NULL_POINTER;
-    if (watchdog->running)
+    }
+    if (watchdog->running) {
         return WATCHDOG_BUSY;
+    }
 
     memset(watchdog, 0U, sizeof(Watchdog));
 
@@ -37,8 +39,9 @@ WatchdogReturnCode watchdog_init(
 }
 
 WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
+    }
 
     // Unregister before deinit
     (void)timebase_unregister_watchdog(watchdog);
@@ -51,27 +54,34 @@ WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog) {
 }
 
 WatchdogReturnCode watchdog_start(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
-    if (watchdog->running)
+    }
+    if (watchdog->running) {
         return WATCHDOG_BUSY;
-    if (watchdog->timed_out)
+    }
+    if (watchdog->timed_out) {
         return WATCHDOG_TIMED_OUT;
+    }
 
     // Start and register the watchdog to the timebase
-    if (timebase_register_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
+    if (timebase_register_watchdog(watchdog) == TIMEBASE_RC_WATCHDOG_UNAVAILABLE) {
         return WATCHDOG_UNAVAILABLE;
+    }
     watchdog->running = true;
     return WATCHDOG_OK;
 }
 
 WatchdogReturnCode watchdog_stop(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
-    if (watchdog->timed_out)
+    }
+    if (watchdog->timed_out) {
         return WATCHDOG_TIMED_OUT;
-    if (!watchdog->running)
+    }
+    if (!watchdog->running) {
         return WATCHDOG_NOT_RUNNING;
+    }
 
     // Stop and unregister the watchdog to the timebase
     (void)timebase_unregister_watchdog(watchdog);
@@ -80,8 +90,9 @@ WatchdogReturnCode watchdog_stop(Watchdog *const watchdog) {
 }
 
 WatchdogReturnCode watchdog_restart(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
+    }
     // Stop watchdog if its running
     if (watchdog->running) {
         (void)timebase_unregister_watchdog(watchdog);
@@ -89,34 +100,42 @@ WatchdogReturnCode watchdog_restart(Watchdog *const watchdog) {
     }
 
     // Start the watchdog
-    if (timebase_register_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
+    if (timebase_register_watchdog(watchdog) == TIMEBASE_RC_WATCHDOG_UNAVAILABLE) {
         return WATCHDOG_UNAVAILABLE;
+    }
     watchdog->timed_out = false;
     watchdog->running = true;
     return WATCHDOG_OK;
 }
 
 WatchdogReturnCode watchdog_reset(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
-    if (watchdog->timed_out)
+    }
+    if (watchdog->timed_out) {
         return WATCHDOG_TIMED_OUT;
-    if (!watchdog->running)
+    }
+    if (!watchdog->running) {
         return WATCHDOG_NOT_RUNNING;
+    }
 
     // Update the watchdog registered in the timebase
-    if (timebase_update_watchdog(watchdog) == TIMEBASE_WATCHDOG_UNAVAILABLE)
+    if (timebase_update_watchdog(watchdog) == TIMEBASE_RC_WATCHDOG_UNAVAILABLE) {
         return WATCHDOG_UNAVAILABLE;
+    }
     return WATCHDOG_OK;
 }
 
 WatchdogReturnCode watchdog_timeout(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return WATCHDOG_NULL_POINTER;
-    if (!watchdog->running)
+    }
+    if (!watchdog->running) {
         return WATCHDOG_NOT_RUNNING;
-    if (watchdog->timed_out)
+    }
+    if (watchdog->timed_out) {
         return WATCHDOG_TIMED_OUT;
+    }
     // Update data
     watchdog->timed_out = true;
     watchdog->running = false;
@@ -125,8 +144,9 @@ WatchdogReturnCode watchdog_timeout(Watchdog *const watchdog) {
 }
 
 bool watchdog_is_timed_out(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return false;
+    }
     return watchdog->timed_out;
 }
 
