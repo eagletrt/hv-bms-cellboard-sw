@@ -67,7 +67,7 @@
 #define CONF_DEMO_ENABLE
 
 // Enable small demo to test all cellboard functionality
-#define CONF_DEMO_DISCHARGE_ENABLE
+// #define CONF_DEMO_DISCHARGE_ENABLE
 
 // Enable custom asserts
 #define CONF_FULL_ASSERT_ENABLE
