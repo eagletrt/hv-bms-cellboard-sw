@@ -32,8 +32,7 @@ extern "C" {
 
 #include <stddef.h>
 
-#include "cellboard-def.h"
-#include "can-comm-api.h"
+#include "can-communication.h"
 
 /* USER CODE END Includes */
 
@@ -50,26 +49,14 @@ void MX_FDCAN1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-/**
- * @brief Send a message via the CAN bus
+/*!
+ * \brief Send a message via the CAN bus
  *
- * @param id The identifier of the CAN message
- * @param frame_type The frame type of the message (see CanFrameType)
- * @param data A pointer to the data to send
- * @param size The size of the payload in bytes
+ * \param[in] frame A pointer to the frame with the data to send
  *
- * @return enum CanCommReturnCode
- *     CAN_COMM_RC_INVALID_INDEX if the id is not a valid identifier
- *     CAN_COMM_RC_INVALID_PAYLOAD_SIZE if the payload size exceed the maximum allowd message length
- *     CAN_COMM_RC_INVALID_FRAME_TYPE the given frame type does not correspond to any existing CAN frame type
- *     CAN_COMM_RC_TRANSMISSION_ERROR there was an error during the transmission of the message   
- *     CAN_COMM_RC_OK otherwise
+ * \returns The result of the can message transmission
  */
-enum CanCommReturnCode can_send(
-    const can_id_t id,
-    const CanFrameType frame_type,
-    const uint8_t *const data,
-    const size_t size);
+enum CanCommunicationReturnCode fdcan_send_bms(const struct CanCommunicationFrame *frame);
 
 /* USER CODE END Prototypes */
 

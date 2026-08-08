@@ -14,7 +14,6 @@
 #include <stddef.h>
 
 #include "cellboard-def.h"
-#include "bms_network.h"
 
 /**
  * \brief Definition of the string containing the latest build time
@@ -39,7 +38,8 @@ struct IdentityHandler {
     enum CellboardId cellboard_id;
     seconds build_time;
 
-    bms_cellboard_version_converted_t version_can_payload;
+    // TODO: update libcan
+    // bms_cellboard_version_converted_t version_can_payload;
 };
 
 /**

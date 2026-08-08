@@ -16,7 +16,7 @@
 #ifdef CONF_WATCHDOG_MODULE_ENABLE
 
 /** @brief Dummy function to avoid NULL dereferencing */
-void _watchdog_timeout_dummy(void) {
+void prv_watchdog_timeout_dummy(void) {
 }
 
 WatchdogReturnCode watchdog_init(
@@ -46,7 +46,7 @@ WatchdogReturnCode watchdog_deinit(Watchdog *const watchdog) {
     memset(watchdog, 0U, sizeof(Watchdog));
 
     // Deinit watchdog
-    watchdog->expire = _watchdog_timeout_dummy;
+    watchdog->expire = prv_watchdog_timeout_dummy;
     return WATCHDOG_OK;
 }
 

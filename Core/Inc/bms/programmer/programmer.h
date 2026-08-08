@@ -13,8 +13,6 @@
 
 #include "cellboard-def.h"
 
-#include "bms_network.h"
-
 #include "fsm.h"
 #include "watchdog.h"
 
@@ -39,9 +37,10 @@ enum ProgrammerReturnCode {
  *
  */
 struct ProgrammerHandler {
-    system_reset_callback reset;                          /*!< A pointer to a function that resets the microcontroller */
-    fsm_event_data_t flash_event;                         /*!< The FSM event data related to the flash procedure */
-    bms_cellboard_flash_response_converted_t can_payload; /*!< The flash response canlib data */
+    system_reset_callback reset;  /*!< A pointer to a function that resets the microcontroller */
+    fsm_event_data_t flash_event; /*!< The FSM event data related to the flash procedure */
+    // TODO: update libcan
+    // bms_cellboard_flash_response_converted_t can_payload; /*!< The flash response canlib data */
 
     enum CellboardId target; /*!< The identifier of the cellboard(or mainboard) to flash */
     bool flash_request;      /*!< True if a flash request is received, false otherwise */

@@ -1,9 +1,9 @@
 /**
- * @file timebase.h
- * @date 2024-04-16
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \file timebase.h
+ * \date 2024-04-16
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Functions to manage periodic tasks at certain intervals
+ * \brief Functions to manage periodic tasks at certain intervals
  */
 
 #ifndef TIMEBASE_H
@@ -15,39 +15,38 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
 #include "min-heap.h"
 
 #include "tasks.h"
 #include "watchdog.h"
 
 /**
- * @brief Convert the time in ms to ticks
+ * \brief Convert the time in ms to ticks
  *
- * @param T The time to convert
- * @param RES The resolution of a tick
+ * \param T The time to convert
+ * \param RES The resolution of a tick
  *
- * @return ticks_t The corresponing amount of ticks
+ * \return ticks_t The corresponing amount of ticks
  */
 #define TIMEBASE_MS_TO_TICKS(T, RES) ((T) / (RES))
 
 /**
- * @brief Convert the ticks in ms
+ * \brief Convert the ticks in ms
  *
- * @param T The ticks to convert
- * @param RES The resolution of a tick
+ * \param T The ticks to convert
+ * \param RES The resolution of a tick
  *
- * @return milliseconds_t The corresponing amount of ms
+ * \return milliseconds_t The corresponing amount of ms
  */
 #define TIMEBASE_TICKS_TO_MS(T, RES) ((T) * (RES))
 
-/** @brief Maximum number of watchdogs that can be handled simultaneously */
+/** \brief Maximum number of watchdogs that can be handled simultaneously */
 #define TIMEBASE_RUNNING_WATCHDOG_COUNT (24U)
 
 /**
- * @brief Return code for the timebase module functions
+ * \brief Return code for the timebase module functions
  *
- * @details
+ * \details
  *     - TIMEBASE_OK the function executed successfully
  *     - TIMEBASE_NULL_POINTER a NULL pointer was given to a function
  *     - TIMEBASE_DISABLED the timebase is not running
@@ -58,32 +57,32 @@
  *     - TIMEBASE_WATCHDOG_UNAVAILABLE the given watchdog can't be registered
  * inside the timebase
  */
-typedef enum {
+enum TimebaseReturnCode {
     TIMEBASE_OK,
     TIMEBASE_NULL_POINTER,
     TIMEBASE_DISABLED,
     TIMEBASE_BUSY,
     TIMEBASE_WATCHDOG_NOT_REGISTERED,
     TIMEBASE_WATCHDOG_UNAVAILABLE
-} TimebaseReturnCode;
+};
 
 /**
- * @brief Definition of a scheduled task that has to be executed at a certain
+ * \brief Definition of a scheduled task that has to be executed at a certain
  * time
  *
- * @param t The time in which the task should be executed
- * @param task A pointer to the task to run
+ * \param t The time in which the task should be executed
+ * \param task A pointer to the task to run
  */
 typedef struct {
     ticks_t t;
-    Task *task;
+    struct Task *task;
 } TimebaseScheduledTask;
 
 /**
- * @brief Definition of a scheduled watchdog
+ * \brief Definition of a scheduled watchdog
  *
- * @param t The time in which the watchdog should timeout
- * @param watchdog A pointer to the watchdog handler structure
+ * \param t The time in which the watchdog should timeout
+ * \param watchdog A pointer to the watchdog handler structure
  */
 typedef struct {
     ticks_t t;
@@ -91,144 +90,144 @@ typedef struct {
 } TimebaseScheduledWatchdog;
 
 /**
- * @brief Type definition for the timebase handler structure
+ * \brief Type definition for the timebase handler structure
  *
- * @attention This structure should not be used outside of this module
+ * \attention This structure should not be used outside of this module
  *
- * @param enabled True if the timebase is running, false otherwise
- * @param resolution Number of ms that represent one tick
- * @param t The current number of ticks
- * @param scheduled_tasks The heap of scheduled tasks that has to be executed
- * @param scheduled_watchdogs The heap of scheduled watchdogs that are currently
+ * \param enabled True if the timebase is running, false otherwise
+ * \param resolution Number of ms that represent one tick
+ * \param t The current number of ticks
+ * \param scheduled_tasks The heap of scheduled tasks that has to be executed
+ * \param scheduled_watchdogs The heap of scheduled watchdogs that are currently
  * running
  */
-typedef struct {
+struct TimebaseHandler {
     bool enabled;
     milliseconds_t resolution;
-    _VOLATILE ticks_t t;
+    EAGLETRT_VOLATILE ticks_t t;
 
     MinHeap(TimebaseScheduledTask, TASKS_COUNT) scheduled_tasks;
     MinHeap(TimebaseScheduledWatchdog,
             TIMEBASE_RUNNING_WATCHDOG_COUNT) scheduled_watchdogs;
-} _TimebaseHandler;
+};
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
 
 /**
- * @brief Initialize the timebase handler
+ * \brief Initialize the timebase handler
  *
- * @param resolution The amount of time that represent one tick (in ms)
+ * \param resolution The amount of time that represent one tick (in ms)
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if a tasks is not implemented
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_init(const milliseconds_t resolution_ms);
+enum TimebaseReturnCode timebase_init(milliseconds_t resolution_ms);
 
 /**
- * @brief Enable or disable the timebase
+ * \brief Enable or disable the timebase
  *
- * @param enabled True to enable the timebase false to disable it
+ * \param enabled True to enable the timebase false to disable it
  */
-void timebase_set_enable(const bool enabled);
+void timebase_set_enable(bool enabled);
 
 /**
- * @brief Increment the internal timebase by one tick
+ * \brief Increment the internal timebase by one tick
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_DISABLED if the timebase is disabled
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_inc_tick(void);
+enum TimebaseReturnCode timebase_inc_tick(void);
 
 /**
- * @brief Get the current number of ticks
+ * \brief Get the current number of ticks
  *
- * @return ticks_t The number of ticks
+ * \return ticks_t The number of ticks
  */
 ticks_t timebase_get_tick(void);
 
 /**
- * @brief Get the current elapsed time in ms
+ * \brief Get the current elapsed time in ms
  *
- * @return milliseconds_t The current elapsed time
+ * \return milliseconds_t The current elapsed time
  */
 milliseconds_t timebase_get_time(void);
 
 /**
- * @brief Get the number of ms that represents a single tick
+ * \brief Get the number of ms that represents a single tick
  *
- * @return milliseconds_t The timebase resolution
+ * \return milliseconds_t The timebase resolution
  */
 milliseconds_t timebase_get_resolution(void);
 
 /**
- * @brief Register a watchdog into the timebase
+ * \brief Register a watchdog into the timebase
  *
- * @details If the timebase is not enable the watchdog is started but not
+ * \details If the timebase is not enable the watchdog is started but not
  * updated
  *
- * @param Watchdog A pointer to the watchdog handler structure
+ * \param Watchdog A pointer to the watchdog handler structure
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if the watchdog is NULL
  *     - TIMEBASE_BUSY if the watchdog is already running
  *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the timebase can't handle the watchdog
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_register_watchdog(Watchdog *const watchdog);
+enum TimebaseReturnCode timebase_register_watchdog(Watchdog *watchdog);
 
 /**
- * @brief Unregister a watchdog from the timebase
+ * \brief Unregister a watchdog from the timebase
  *
- * @details The watchdog is unregistered even if the timebase is not enabled
+ * \details The watchdog is unregistered even if the timebase is not enabled
  *
- * @param watchdog The watchdog handler structure
+ * \param watchdog The watchdog handler structure
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if the watchdog pointer is NULL
  *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_unregister_watchdog(Watchdog *const handler);
+enum TimebaseReturnCode timebase_unregister_watchdog(Watchdog *watchdog);
 
 /**
- * @brief Check if the watchdog is registered into the timebase
+ * \brief Check if the watchdog is registered into the timebase
  *
- * @details A NULL pointer is counted as NOT registered
+ * \details A NULL pointer is counted as NOT registered
  *
- * @param watchdog A pointer to the watchdog to check
+ * \param watchdog A pointer to the watchdog to check
  *
- * @return bool True if the watchdog is registered, false otherwise
+ * \return bool True if the watchdog is registered, false otherwise
  */
-bool timebase_is_registered_watchdog(Watchdog *const watchdog);
+bool timebase_is_registered_watchdog(Watchdog *watchdog);
 
 /**
- * @brief Update the registered watchdog
+ * \brief Update the registered watchdog
  *
- * @attention During the update process the watchdog is unregistered and than
+ * \attention During the update process the watchdog is unregistered and than
  * registered again if the function returns TIMEBASE_WATCHDOG_UNAVAILABLE that
  * means that the watchdog was unregistered but cannot be registered back (i.e.
  * is not running anymore)
  *
- * @param watchdog A pointer to the watchdog
+ * \param watchdog A pointer to the watchdog
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_NULL_POINTER if the watchdog is NULL
  *     - TIMEBASE_WATCHDOG_NOT_REGISTERED the watchdog is not registered
  *     - TIMEBASE_WATCHDOG_UNAVAILABLE if the watchdog can't be registered again
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_update_watchdog(Watchdog *const watchdog);
+enum TimebaseReturnCode timebase_update_watchdog(Watchdog *watchdog);
 
 /**
- * @brief Routine that checks which functions shuold run during this
+ * \brief Routine that checks which functions shuold run during this
  *
- * @return TimebaseReturnCode
+ * \return TimebaseReturnCode
  *     - TIMEBASE_DISABLED if the timebase is disabled
  *     - TIMEBASE_OK otherwise
  */
-TimebaseReturnCode timebase_routine(void);
+enum TimebaseReturnCode timebase_routine(void);
 
 #else // CONF_TIMEBASE_MODULE_ENABLE
 
@@ -237,8 +236,7 @@ TimebaseReturnCode timebase_routine(void);
 #define timebase_inc_tick() (TIMEBASE_OK)
 #define timebase_get_tick() (0U)
 #define timebase_get_time() (0U)
-#define timebase_get_resolution() \
-    (1U) // The default value of 1 is used to avoid 0 division error
+#define timebase_get_resolution() (1U) // The default value of 1 is used to avoid 0 division error
 #define timebase_regsiter_watchdog(watchdog) (TIMEBASE_OK)
 #define timebase_unregsiter_watchdog(watchdog) (TIMEBASE_OK)
 #define timebase_update_watchdog(watchdog) (TIMEBASE_OK)

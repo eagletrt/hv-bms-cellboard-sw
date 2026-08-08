@@ -14,7 +14,7 @@
 
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "can-bms.h"
 
 /*!
  * \defgroup VOLT_LIMIT_V Minimum and maximum allowed cell voltage in V
@@ -48,8 +48,10 @@ enum VoltReturnCode {
  * \brief Type definition for the voltages handler structure
  */
 struct VoltHandler {
-    cells_volt voltages;                                          /*<! The array of cells voltages in V */
-    bms_cellboard_cells_voltage_converted_t voltages_can_payload; /*<! The canlib payload of the cells voltages */
+    cells_volt voltages; /*<! The array of cells voltages in V */
+
+    union CanBmsMessages libcan_message_voltage;      /*<! The canlib payload of the cells voltages */
+    union CanBmsMessages libcan_message_voltage_info; /*<! The canlib payload of the cells voltage info */
 };
 
 #endif // VOLT_H

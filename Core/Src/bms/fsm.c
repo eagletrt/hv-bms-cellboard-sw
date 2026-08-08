@@ -18,7 +18,7 @@ Functions and types have been generated with prefix "fsm_"
 /*** USER CODE BEGIN MACROS ***/
 #include <string.h>
 
-#include "can-comm-api.h"
+#include "can-communication-api.h"
 #include "post-api.h"
 #include "timebase.h"
 #include "identity-api.h"
@@ -129,12 +129,6 @@ fsm_state_t fsm_do_init(fsm_state_data *data) {
     // Run the Power On Self Test
     const enum PostReturnCode status = (data == NULL) ? POST_RC_NULL_POINTER : post_api_run(*(struct PostInitData *)data);
 
-    // Init canlib payloads
-    const enum CellboardId cellboard_id = identity_api_get_cellboard_id();
-    fsm_handler.status_can_payload.cellboard_id = (int)cellboard_id;
-    fsm_handler.flash_can_payload.cellboard_id = (int)cellboard_id;
-    fsm_handler.flash_can_payload.ready = true;
-
     // Initialize discharge and cooldown watchdogs
     const milliseconds_t resolution = timebase_get_resolution();
     (void)watchdog_init(
@@ -177,7 +171,11 @@ fsm_state_t fsm_do_idle(fsm_state_data *data) {
     CELLBOARD_UNUSED(data);
 
     (void)timebase_routine();
-    (void)can_comm_routine();
+    for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
+        // TODO: Handle return codes
+        EAGLETRT_API_UNUSED(can_communication_api_process_rx(network));
+        EAGLETRT_API_UNUSED(can_communication_api_process_tx(network));
+    }
     (void)led_api_routine(timebase_get_time());
 
     if (error_api_get_expired() > 0U) {
@@ -217,7 +215,11 @@ fsm_state_t fsm_do_fatal(fsm_state_data *data) {
     CELLBOARD_UNUSED(data);
 
     (void)timebase_routine();
-    (void)can_comm_routine();
+    for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
+        // TODO: Handle return codes
+        EAGLETRT_API_UNUSED(can_communication_api_process_rx(network));
+        EAGLETRT_API_UNUSED(can_communication_api_process_tx(network));
+    }
     (void)led_api_routine(timebase_get_time());
 
     // Check for flash request
@@ -248,7 +250,11 @@ fsm_state_t fsm_do_flash(fsm_state_data *data) {
 
     (void)timebase_routine();
     (void)led_api_routine(timebase_get_time());
-    (void)can_comm_routine();
+    for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
+        // TODO: Handle return codes
+        EAGLETRT_API_UNUSED(can_communication_api_process_rx(network));
+        EAGLETRT_API_UNUSED(can_communication_api_process_tx(network));
+    }
 
     const enum ProgrammerReturnCode code = programmer_api_routine();
     if (error_api_get_expired() > 0U) {
@@ -280,7 +286,11 @@ fsm_state_t fsm_do_discharge(fsm_state_data *data) {
     CELLBOARD_UNUSED(data);
 
     (void)timebase_routine();
-    (void)can_comm_routine();
+    for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
+        // TODO: Handle return codes
+        EAGLETRT_API_UNUSED(can_communication_api_process_rx(network));
+        EAGLETRT_API_UNUSED(can_communication_api_process_tx(network));
+    }
     (void)led_api_routine(timebase_get_time());
 
     if (error_api_get_expired() > 0U) {
@@ -321,7 +331,11 @@ fsm_state_t fsm_do_cooldown(fsm_state_data *data) {
     CELLBOARD_UNUSED(data);
 
     (void)timebase_routine();
-    (void)can_comm_routine();
+    for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
+        // TODO: Handle return codes
+        EAGLETRT_API_UNUSED(can_communication_api_process_rx(network));
+        EAGLETRT_API_UNUSED(can_communication_api_process_tx(network));
+    }
     (void)led_api_routine(timebase_get_time());
 
     if (error_api_get_expired() > 0U) {
@@ -392,15 +406,16 @@ void fsm_start_flash_procedure(fsm_state_data *data) {
     /*** USER CODE BEGIN START_FLASH_PROCEDURE ***/
     CELLBOARD_UNUSED(data);
 
+    // TODO: Implement flash procedure
     // TODO: Take actions based on the flash target and change payload ready flag if not ready
-    can_comm_send_immediate(
-        BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        (uint8_t *)&fsm_handler.flash_can_payload,
-        sizeof(fsm_handler.flash_can_payload));
-
-    // Stop data transmission during flash procedure
-    can_comm_disable(CAN_COMM_TX_ENABLE_BIT);
+    // can_comm_send_immediate(
+    //     BMS_CELLBOARD_FLASH_RESPONSE_INDEX,
+    //     CAN_FRAME_TYPE_DATA,
+    //     (uint8_t *)&fsm_handler.flash_can_payload,
+    //     sizeof(fsm_handler.flash_can_payload));
+    //
+    // // Stop data transmission during flash procedure
+    // can_comm_disable(CAN_COMM_TX_ENABLE_BIT);
     /*** USER CODE END START_FLASH_PROCEDURE ***/
 }
 
@@ -437,8 +452,9 @@ void fsm_stop_flash_procedure(fsm_state_data *data) {
     /*** USER CODE BEGIN STOP_FLASH_PROCEDURE ***/
     CELLBOARD_UNUSED(data);
 
+    // TODO: implement flash procedure
     // Restart data transmission after flash procedure
-    can_comm_enable(CAN_COMM_TX_ENABLE_BIT);
+    // can_comm_enable(CAN_COMM_TX_ENABLE_BIT);
     /*** USER CODE END STOP_FLASH_PROCEDURE ***/
 }
 
@@ -525,14 +541,46 @@ fsm_state_t fsm_get_status(void) {
     return fsm_handler.fsm_state;
 }
 
-bms_cellboard_status_converted_t *fsm_get_status_canlib_payload(size_t *const byte_size) {
+union CanBmsMessages *fsm_get_status_canlib_payload(size_t *byte_size) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_byte_size[] = {
+        can_bms_byte_size_tsaccellboard1fsm,
+        can_bms_byte_size_tsaccellboard2fsm,
+        can_bms_byte_size_tsaccellboard3fsm,
+        can_bms_byte_size_tsaccellboard4fsm,
+        can_bms_byte_size_tsaccellboard5fsm,
+        can_bms_byte_size_tsaccellboard6fsm
+    };
     if (byte_size != NULL) {
-        *byte_size = sizeof(fsm_handler.status_can_payload);
+        *byte_size = can_byte_size[cellboard];
     }
-    // Cellboard id is saved during the init state
-    fsm_handler.status_can_payload.status = (bms_cellboard_status_status)fsm_handler.fsm_state;
-    return &fsm_handler.status_can_payload;
+
+    union CanBmsMessages *payload = &fsm_handler.libcan_message_status;
+    switch (cellboard) {
+        case CELLBOARD_ID_0:
+            payload->tsaccellboard1fsm.status = fsm_handler.fsm_state;
+            break;
+        case CELLBOARD_ID_1:
+            payload->tsaccellboard2fsm.status = fsm_handler.fsm_state;
+            break;
+        case CELLBOARD_ID_2:
+            payload->tsaccellboard3fsm.status = fsm_handler.fsm_state;
+            break;
+        case CELLBOARD_ID_3:
+            payload->tsaccellboard4fsm.status = fsm_handler.fsm_state;
+            break;
+        case CELLBOARD_ID_4:
+            payload->tsaccellboard5fsm.status = fsm_handler.fsm_state;
+            break;
+        case CELLBOARD_ID_5:
+            payload->tsaccellboard6fsm.status = fsm_handler.fsm_state;
+            break;
+        default:
+            break;
+    }
+    return payload;
 }
+
 /*** USER CODE END FUNCTIONS ***/
 
 #ifdef TEST_MAIN

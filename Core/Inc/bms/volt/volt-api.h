@@ -15,7 +15,6 @@
 #include "cellboard-conf.h"
 #include "cellboard-def.h"
 
-#include "bms_network.h"
 #include "volt.h"
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
@@ -128,13 +127,22 @@ enum VoltReturnCode volt_api_dump_values(
     size_t size);
 
 /*!
+ * \brief Get a pointer to the CAN payload of the cells voltage info
+ *
+ * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ *
+ * \returns Pointer of the payload
+ */
+union CanBmsMessages *volt_api_get_voltage_info_canlib_payload(size_t *byte_size);
+
+/*!
  * \brief Get a pointer to the CAN payload of the cells voltages
  *
  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * \returns bms_cellboard_cells_voltage_converted_t* A pointer to the payload
+ * \returns Pointer of the payload
  */
-bms_cellboard_cells_voltage_converted_t *volt_api_get_canlib_payload(size_t *byte_size);
+union CanBmsMessages *volt_api_get_voltage_canlib_payload(size_t *byte_size);
 
 #else // CONF_VOLTAGE_MODULE_ENABLE
 

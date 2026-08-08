@@ -9,20 +9,23 @@
 #include "timebase.h"
 
 #include <string.h>
+#include "eagletrt.h"
 
 #ifdef CONF_TIMEBASE_MODULE_ENABLE
 
-_STATIC _TimebaseHandler htimebase;
+EAGLETRT_STATIC struct TimebaseHandler htimebase;
 
-int8_t _timebase_task_compare(void *a, void *b) {
-    const TimebaseScheduledTask *const f = (TimebaseScheduledTask *)a;
-    const TimebaseScheduledTask *const s = (TimebaseScheduledTask *)b;
+int8_t prv_timebase_task_compare(void *first, void *second) {
+    const TimebaseScheduledTask *const p_first = (TimebaseScheduledTask *)first;
+    const TimebaseScheduledTask *const p_second = (TimebaseScheduledTask *)second;
 
     // Compare timestamps
-    if (f->t < s->t)
+    if (p_first->t < p_second->t) {
         return -1;
-    if (f->t > s->t)
+    }
+    if (p_first->t > p_second->t) {
         return 1;
+    }
 
     /**************************************************************************
      * For the equality check, in addition to the ticks, the pointers to the
@@ -30,14 +33,15 @@ int8_t _timebase_task_compare(void *a, void *b) {
      * In this case 1 is preferred because it avoid useless swaps between
      * elements that have the same number of ticks
      ***************************************************************************/
-    if (f->task == s->task)
+    if (p_first->task == p_second->task) {
         return 0;
+    }
     return 1;
 }
 
-int8_t _timebase_watchdog_compare(void *a, void *b) {
-    const TimebaseScheduledWatchdog *f = (TimebaseScheduledWatchdog *)a;
-    const TimebaseScheduledWatchdog *s = (TimebaseScheduledWatchdog *)b;
+int8_t prv_timebase_watchdog_compare(void *first, void *second) {
+    const TimebaseScheduledWatchdog *p_first = (TimebaseScheduledWatchdog *)first;
+    const TimebaseScheduledWatchdog *p_second = (TimebaseScheduledWatchdog *)second;
 
     /**************************************************************************
      * For the equality check, only the pointers to the watchdogs are checked
@@ -45,28 +49,31 @@ int8_t _timebase_watchdog_compare(void *a, void *b) {
      * inserted in the heap, but in this case a watchdog can be inserted inside
      * the heap only once
      ***************************************************************************/
-    if (f->watchdog == s->watchdog)
+    if (p_first->watchdog == p_second->watchdog) {
         return 0;
+    }
 
     // Compare timestamps
-    if (f->t < s->t)
+    if (p_first->t < p_second->t) {
         return -1;
-    return f->t == s->t ? 0 : 1;
+    }
+    return p_first->t == p_second->t ? 0 : 1;
 }
 
-TimebaseReturnCode timebase_init(const milliseconds_t resolution_ms) {
+enum TimebaseReturnCode timebase_init(const milliseconds_t resolution_ms) {
     // Initialize timebase to 0
     memset(&htimebase, 0U, sizeof(htimebase));
 
     // Set default parameters
     htimebase.enabled = false;
+    // NOLINTNEXTLINE: narrowing conversion is detected with same type
     htimebase.resolution = (resolution_ms == 0U) ? 1U : resolution_ms;
 
     // Initialize the tasks
     (void)tasks_init(resolution_ms);
 
     // Initialize the tasks heap
-    (void)min_heap_init(&htimebase.scheduled_tasks, TimebaseScheduledTask, TASKS_COUNT, _timebase_task_compare);
+    (void)min_heap_init(&htimebase.scheduled_tasks, TimebaseScheduledTask, TASKS_COUNT, prv_timebase_task_compare);
     for (size_t i = 0; i < TASKS_COUNT; ++i) {
         TimebaseScheduledTask aux = {
             .t = tasks_get_start(i),
@@ -76,7 +83,7 @@ TimebaseReturnCode timebase_init(const milliseconds_t resolution_ms) {
     }
 
     // Initialize the watchdogs heap
-    (void)min_heap_init(&htimebase.scheduled_watchdogs, TimebaseScheduledWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT, _timebase_watchdog_compare);
+    (void)min_heap_init(&htimebase.scheduled_watchdogs, TimebaseScheduledWatchdog, TIMEBASE_RUNNING_WATCHDOG_COUNT, prv_timebase_watchdog_compare);
     return TIMEBASE_OK;
 }
 
@@ -84,9 +91,10 @@ void timebase_set_enable(const bool enabled) {
     htimebase.enabled = enabled;
 }
 
-TimebaseReturnCode timebase_inc_tick(void) {
-    if (!htimebase.enabled)
+enum TimebaseReturnCode timebase_inc_tick(void) {
+    if (!htimebase.enabled) {
         return TIMEBASE_DISABLED;
+    }
     ++htimebase.t;
     return TIMEBASE_OK;
 }
@@ -103,42 +111,48 @@ milliseconds_t timebase_get_resolution(void) {
     return htimebase.resolution;
 }
 
-TimebaseReturnCode timebase_register_watchdog(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+enum TimebaseReturnCode timebase_register_watchdog(Watchdog *const watchdog) {
+    if (watchdog == NULL) {
         return TIMEBASE_NULL_POINTER;
+    }
 
     TimebaseScheduledWatchdog aux = {
         .t = 0U,
         .watchdog = watchdog
     };
-    if (min_heap_find(&htimebase.scheduled_watchdogs, &aux) >= 0)
+    if (min_heap_find(&htimebase.scheduled_watchdogs, &aux) >= 0) {
         return TIMEBASE_BUSY;
+    }
 
     aux.t = htimebase.t + TIMEBASE_MS_TO_TICKS(watchdog->timeout, htimebase.resolution);
-    if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL)
+    if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL) {
         return TIMEBASE_WATCHDOG_UNAVAILABLE;
+    }
     return TIMEBASE_OK;
 }
 
-TimebaseReturnCode timebase_unregister_watchdog(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+enum TimebaseReturnCode timebase_unregister_watchdog(Watchdog *const watchdog) {
+    if (watchdog == NULL) {
         return TIMEBASE_NULL_POINTER;
+    }
 
     // Get and remove the running watchdog from the heap
     TimebaseScheduledWatchdog aux = {
         .t = 0U,
         .watchdog = watchdog
     };
-    const signed_size_t i = min_heap_find(&htimebase.scheduled_watchdogs, &aux);
-    if (i < 0)
+    const signed_size_t index = min_heap_find(&htimebase.scheduled_watchdogs, &aux);
+    if (index < 0) {
         return TIMEBASE_WATCHDOG_NOT_REGISTERED;
-    (void)min_heap_remove(&htimebase.scheduled_watchdogs, i, NULL);
+    }
+    (void)min_heap_remove(&htimebase.scheduled_watchdogs, index, NULL);
     return TIMEBASE_OK;
 }
 
 bool timebase_is_registered_watchdog(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+    if (watchdog == NULL) {
         return false;
+    }
 
     // Get the running watchdog
     TimebaseScheduledWatchdog aux = {
@@ -148,32 +162,36 @@ bool timebase_is_registered_watchdog(Watchdog *const watchdog) {
     return min_heap_find(&htimebase.scheduled_watchdogs, &aux) >= 0;
 }
 
-TimebaseReturnCode timebase_update_watchdog(Watchdog *const watchdog) {
-    if (watchdog == NULL)
+enum TimebaseReturnCode timebase_update_watchdog(Watchdog *const watchdog) {
+    if (watchdog == NULL) {
         return TIMEBASE_NULL_POINTER;
+    }
 
     // Get the running watchdog
     TimebaseScheduledWatchdog aux = {
         .t = 0U,
         .watchdog = watchdog
     };
-    const signed_size_t i = min_heap_find(&htimebase.scheduled_watchdogs, &aux);
+    const signed_size_t index = min_heap_find(&htimebase.scheduled_watchdogs, &aux);
     // Remove, update and re-insert the item in the heap
-    if (i < 0)
+    if (index < 0) {
         return TIMEBASE_WATCHDOG_NOT_REGISTERED;
+    }
 
-    (void)min_heap_remove(&htimebase.scheduled_watchdogs, i, NULL);
+    (void)min_heap_remove(&htimebase.scheduled_watchdogs, index, NULL);
 
     aux.t = htimebase.t + TIMEBASE_MS_TO_TICKS(watchdog->timeout, htimebase.resolution);
-    if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL)
+    if (min_heap_insert(&htimebase.scheduled_watchdogs, &aux) == MIN_HEAP_FULL) {
         return TIMEBASE_WATCHDOG_UNAVAILABLE;
+    }
     return TIMEBASE_OK;
 }
 
 // TODO: Check delta time between the right time?
-TimebaseReturnCode timebase_routine(void) {
-    if (!htimebase.enabled)
+enum TimebaseReturnCode timebase_routine(void) {
+    if (!htimebase.enabled) {
         return TIMEBASE_DISABLED;
+    }
 
     // Execute all the tasks which interval has already elapsed
     TimebaseScheduledTask *task_p = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled_tasks);
@@ -183,15 +201,17 @@ TimebaseReturnCode timebase_routine(void) {
         (void)min_heap_remove(&htimebase.scheduled_tasks, 0U, &task);
 
         // Copy ticks value to avoid inconsistencies caused by interrupts
-        const ticks_t t = htimebase.t;
-        task.t = t + task.task->interval;
+        const ticks_t tick = htimebase.t;
+        task.t = tick + task.task->interval;
 
-        if (task.task->enabled)
+        if (task.task->enabled) {
             task.task->exec();
+        }
 
         // If the interval is 0 do not insert again the task inside the heap (i.e. runs only once)
-        if (task.task->interval > 0U)
+        if (task.task->interval > 0U) {
             (void)min_heap_insert(&htimebase.scheduled_tasks, &task);
+        }
 
         task_p = (TimebaseScheduledTask *)min_heap_peek(&htimebase.scheduled_tasks);
     }
@@ -212,9 +232,9 @@ TimebaseReturnCode timebase_routine(void) {
 
 #ifdef CONF_TIMEBASE_STRINGS_ENABLE
 
-_STATIC char *timebase_module_name = "timebase";
+EAGLETRT_STATIC char *timebase_module_name = "timebase";
 
-_STATIC char *timebase_return_code_name[] = {
+EAGLETRT_STATIC char *timebase_return_code_name[] = {
     [TIMEBASE_OK] = "ok",
     [TIMEBASE_NULL_POINTER] = "null pointer",
     [TIMEBASE_DISABLED] = "disabled",
@@ -223,7 +243,7 @@ _STATIC char *timebase_return_code_name[] = {
     [TIMEBASE_WATCHDOG_UNAVAILABLE] = "watchdog unavailable"
 };
 
-_STATIC char *timebase_return_code_description[] = {
+EAGLETRT_STATIC char *timebase_return_code_description[] = {
     [TIMEBASE_OK] = "executed successfully",
     [TIMEBASE_NULL_POINTER] = "attempt to dereference a null pointer",
     [TIMEBASE_DISABLE] = "the timebase is not enabled",

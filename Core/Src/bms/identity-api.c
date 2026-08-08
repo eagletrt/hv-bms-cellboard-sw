@@ -32,10 +32,11 @@ enum IdentityReturnCode identity_api_init(const enum CellboardId cellboard_id) {
         identity_handler.build_time = mktime(&current_time);
     }
 
+    // TODO: update libcan
     // Update canlib payload info
-    identity_handler.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)cellboard_id;
-    identity_handler.version_can_payload.component_build_time = identity_handler.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
-    identity_handler.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
+    // identity_handler.version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)cellboard_id;
+    // identity_handler.version_can_payload.component_build_time = identity_handler.build_time >> 3U; // Remove 3 bits to keep size inside the allowed range
+    // identity_handler.version_can_payload.canlib_build_time = CANLIB_BUILD_TIME;
     return IDENTITY_RC_OK;
 }
 
@@ -47,12 +48,13 @@ seconds identity_api_get_build_time(void) {
     return identity_handler.build_time;
 }
 
-bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL) {
-        *byte_size = sizeof(identity_handler.version_can_payload);
-    }
-    return &identity_handler.version_can_payload;
-}
+// TODO: update libcan
+// bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *const byte_size) {
+//     if (byte_size != NULL) {
+//         *byte_size = sizeof(identity_handler.version_can_payload);
+//     }
+//     return &identity_handler.version_can_payload;
+// }
 
 #ifdef CONF_IDENTITY_STRINGS_ENABLE
 

@@ -22,7 +22,11 @@
 
 /* USER CODE BEGIN 0 */
 
-#include "bms_network.h"
+#include "eagletrt.h"
+#include "eagletrt-api.h"
+
+#include "can-communication.h"
+#include "can-communication-api.h"
 
 /* USER CODE END 0 */
 
@@ -68,21 +72,21 @@ void MX_FDCAN1_Init(void) {
         .FilterType = FDCAN_FILTER_RANGE,
         .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
         .FilterID1 = 0,
-        .FilterID2 = 0x500,
+        .FilterID2 = 0x7FF
     };
     HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f1);
     HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
 
-    FDCAN_FilterTypeDef f2 = {
-        .IdType = FDCAN_STANDARD_ID,
-        .FilterIndex = 1,
-        .FilterType = FDCAN_FILTER_RANGE,
-        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
-        .FilterID1 = 0x550,
-        .FilterID2 = 0x7FF
-    };
-    HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f2);
-    HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
+    // FDCAN_FilterTypeDef f2 = {
+    //     .IdType = FDCAN_STANDARD_ID,
+    //     .FilterIndex = 1,
+    //     .FilterType = FDCAN_FILTER_RANGE,
+    //     .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
+    //     .FilterID1 = 0x550,
+    //     .FilterID2 = 0x7FF
+    // };
+    // HAL_FDCAN_ConfigFilter(&HCAN_BMS, &f2);
+    // HAL_FDCAN_ActivateNotification(&HCAN_BMS, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0U);
 
     HAL_FDCAN_Start(&HCAN_BMS);
 
@@ -158,134 +162,85 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *fdcanHandle) {
 
 /* USER CODE BEGIN 1 */
 
-/**
- * @brief Get CAN DLC value from the payload size
- *
- * @param size The size of the payload in bytes
- *
- * @return int32_t The DLC or negative error code
+/*!
+ * \brief Returns the native ST HAL CAN handler based on the network enum.
+ * \param[in] network The target network track enum.
+ * \return Pointer to the matched global CAN_HandleTypeDef, or \c NULL if invalid.
  */
-int32_t _can_get_dlc_from_size(const size_t size) {
-    switch (size) {
-        case 0U:
-            return FDCAN_DLC_BYTES_0;
-        case 1U:
-            return FDCAN_DLC_BYTES_1;
-        case 2U:
-            return FDCAN_DLC_BYTES_2;
-        case 3U:
-            return FDCAN_DLC_BYTES_3;
-        case 4U:
-            return FDCAN_DLC_BYTES_4;
-        case 5U:
-            return FDCAN_DLC_BYTES_5;
-        case 6U:
-            return FDCAN_DLC_BYTES_6;
-        case 7U:
-            return FDCAN_DLC_BYTES_7;
-        case 8U:
-            return FDCAN_DLC_BYTES_8;
+EAGLETRT_STATIC_INLINE FDCAN_HandleTypeDef *prv_fdcan_get_handler(enum CanCommunicationNetwork network) {
+    switch (network) {
+        case CAN_COMMUNICATION_NETWORK_BMS:
+            return &HCAN_BMS;
         default:
-            return -1;
+            return NULL;
     }
 }
 
-/**
- * @brief Get CAN TxFrameType value from the CanFrameType enum
+/*!
+ * \brief Internal unified helper to write an abstract frame out to an ST HAL CAN peripheral.
+ * \param[in] network The network track enum indicating which hardware peripheral to target.
+ * \param[in] frame Pointer to the abstract frame structure containing the payload.
  *
- * @param type The frame type enum value
- *
- * @return int32_t The frame type or negative error code
+ * \retval CAN_COMMUNICATION_RC_OK if the frame was sent successfully.
+ * \retval CAN_COMMUNICATION_RC_NULL_POINTER if a required pointer configuration is \c NULL.
+ * \retval CAN_COMMUNICATION_RC_INVALID_LENGTH if the frame length exceeds CAN_COMMUNICATION_FRAME_DATA_SIZE.
+ * \retval CAN_COMMUNICATION_RC_TRANSMISSION_ERROR if the native HAL layer rejects the transmission.
  */
-int32_t _can_get_frame_typename_from_frame_type(const CanFrameType type) {
-    switch (type) {
-        case CAN_FRAME_TYPE_DATA:
-            return FDCAN_DATA_FRAME;
-        case CAN_FRAME_TYPE_REMOTE:
-            return FDCAN_REMOTE_FRAME;
-        default:
-            return -1;
+EAGLETRT_STATIC enum CanCommunicationReturnCode prv_fdcan_send_to_hardware(enum CanCommunicationNetwork network, const struct CanCommunicationFrame *frame) {
+    FDCAN_HandleTypeDef *hcan = prv_fdcan_get_handler(network);
+
+    if (hcan == NULL || frame == NULL) {
+        return CAN_COMMUNICATION_RC_NULL_POINTER;
     }
-}
-
-/**
- * @brief Get the canFrameType enum value from the CAN TxFrameType
- *
- * @param typename The CAN frame type value
- *
- * @return CanFrameType The frame type enum value or negative error code
- */
-CanFrameType _can_get_frame_type_from_fram_typename(uint32_t typename) {
-    switch (typename) {
-        case FDCAN_DATA_FRAME:
-            return CAN_FRAME_TYPE_DATA;
-        case FDCAN_REMOTE_FRAME:
-            return CAN_FRAME_TYPE_REMOTE;
-        default:
-            return CAN_FRAME_TYPE_INVALID;
+    if (frame->length > CAN_COMMUNICATION_FRAME_DATA_SIZE) {
+        return CAN_COMMUNICATION_RC_INVALID_LENGTH;
     }
-}
-
-// TODO: Return and check errors
-enum CanCommReturnCode can_send(
-    const can_id_t id,
-    const CanFrameType frame_type,
-    const uint8_t *const data,
-    const size_t size) {
-    if (id > CAN_COMM_ID_MASK)
-        return CAN_COMM_RC_INVALID_INDEX;
-
-    // Get and check for data length
-    const int32_t dlc = _can_get_dlc_from_size(size);
-    if (dlc < 0)
-        return CAN_COMM_RC_INVALID_PAYLOAD_SIZE;
-
-    // Get and check the frame type
-    const int32_t type = _can_get_frame_typename_from_frame_type(frame_type);
-    if (type < 0)
-        return CAN_COMM_RC_INVALID_FRAME_TYPE;
 
     // Setup transmission header
-    const FDCAN_TxHeaderTypeDef header = {
-        .Identifier = id,
+    const FDCAN_TxHeaderTypeDef tx_header = {
+        .Identifier = frame->id,
         .IdType = FDCAN_STANDARD_ID,
-        .TxFrameType = type,
-        .DataLength = dlc,
+        .TxFrameType = FDCAN_DATA_FRAME,
+        .DataLength = frame->length,
         .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
         .BitRateSwitch = FDCAN_BRS_OFF,
         .FDFormat = FDCAN_CLASSIC_CAN,
         .TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
         .MessageMarker = 0U
     };
-
     // Send message
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&HCAN_BMS, &header, data) != HAL_OK)
-        return CAN_COMM_RC_TRANSMISSION_ERROR;
-    return CAN_COMM_RC_OK;
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&HCAN_BMS, &tx_header, frame->data) != HAL_OK) {
+        return CAN_COMMUNICATION_RC_TRANSMISSION_ERROR;
+    }
+    return CAN_COMMUNICATION_RC_OK;
+}
+
+enum CanCommunicationReturnCode fdcan_send_bms(const struct CanCommunicationFrame *frame) {
+    return prv_fdcan_send_to_hardware(CAN_COMMUNICATION_NETWORK_BMS, frame);
 }
 
 // TODO: Return and check errors
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
-    if (hfdcan->Instance != HCAN_BMS.Instance)
+    if (hfdcan->Instance != HCAN_BMS.Instance) {
         return;
-    if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) == RESET)
+    }
+    if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) == RESET) {
         return;
+    }
 
-    FDCAN_RxHeaderTypeDef header;
-    uint8_t data[CAN_COMM_MAX_PAYLOAD_BYTE_SIZE];
-    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK)
-        Error_Handler();
+    FDCAN_RxHeaderTypeDef header = { 0 };
+    struct CanCommunicationFrame frame = { 0 };
+    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, frame.data) == HAL_OK) {
+        frame.id = header.Identifier;
+        frame.length = header.DataLength;
 
-    const CanFrameType frame_type = _can_get_frame_type_from_fram_typename(header.RxFrameType);
-    if (frame_type < 0)
-        return;
+        // Based on the handler, retrieve the selected network
+        constexpr enum CanCommunicationNetwork network = CAN_COMMUNICATION_NETWORK_BMS;
 
-    // Update rx data
-    can_comm_rx_add(
-        bms_index_from_id(header.Identifier),
-        frame_type,
-        data,
-        header.DataLength);
+        /* TODO: Handle return value of RX function */
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_rx(network, &frame));
+    }
+    HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
 }
 
 // TODO: Return and check errors

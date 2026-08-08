@@ -160,18 +160,28 @@ enum TempReturnCode temp_api_dump_values(
  *
  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * \returns bms_cellboard_cells_temperature_converted_t* A pointer to the payload
+ * \returns Pointer of the payload
  */
-bms_cellboard_cells_temperature_converted_t *temp_api_get_cells_temp_canlib_payload(size_t *byte_size);
+union CanBmsMessages *temp_api_get_temperature_canlib_payload(size_t *byte_size);
 
 /*!
- * \brief Get a pointer to the CAN payload of the discharge resistors temperature
+ * \brief Get a pointer to the CAN payload of the cells temperature info
  *
  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * \returns bms_cellboard_discharge_temperature_converted_t* A pointer to the payload
+ * \returns Pointer of the payload
  */
-bms_cellboard_discharge_temperature_converted_t *temp_api_get_discharge_temp_canlib_payload(size_t *byte_size);
+union CanBmsMessages *temp_api_get_temperature_info_canlib_payload(size_t *byte_size);
+
+// TODO: update libcan
+// /*!
+//  * \brief Get a pointer to the CAN payload of the discharge resistors temperature
+//  *
+//  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+//  *
+//  * \returns bms_cellboard_discharge_temperature_converted_t* A pointer to the payload
+//  */
+// bms_cellboard_discharge_temperature_converted_t *temp_api_get_discharge_temp_canlib_payload(size_t *byte_size);
 
 #else // CONF_TEMPERATURE_MODULE_ENABLE
 

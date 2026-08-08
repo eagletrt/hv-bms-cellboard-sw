@@ -13,7 +13,7 @@
 
 #include "cellboard-def.h"
 
-#include "can-comm-api.h"
+#include "can-communication.h"
 #include "bms-manager.h"
 #include "led.h"
 #include "temp.h"
@@ -33,11 +33,12 @@ enum PostReturnCode {
  * \brief Structure definition for the initial data that are needed by the POST module
  */
 struct PostInitData {
+    struct CanCommunicationNetworkConfig can_networks[CAN_COMMUNICATION_NETWORK_COUNT]; /*!< Explicit configuration blocks for the system's physical CAN networks. */
+
     enum CellboardId id;                                  /*!< The current cellboard index */
     system_reset_callback system_reset;                   /*!< A pointer to a function that resets the microcontroller */
     interrupt_critical_section_enter_t cs_enter;          /*!< A pointer to a function that enters an interrupt critical section */
     interrupt_critical_section_exit_t cs_exit;            /*!< A pointer to a function that exits an interrupt critical section */
-    can_comm_transmit_callback can_send;                  /*!< A pointer to a function that can send data via the CAN bus */
     bms_manager_send_callback_t spi_send;                 /*!< A pointer to a function that can send data via the SPI peripheral */
     bms_manager_send_receive_callback_t spi_send_receive; /*!< A pointer to a function that can send and receive data via the SPI peripheral */
     led_set_state_callback led_set;                       /*!< A pointer to a function that sets the state of a LED */

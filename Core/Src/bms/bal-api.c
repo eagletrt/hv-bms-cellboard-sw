@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "bal.h"
+#include "can-bms.h"
 #include "eagletrt-api.h"
 #include "cellboard-def.h"
 #include "timebase.h"
@@ -35,8 +36,6 @@ enum BalReturnCode bal_api_init(void) {
     // Set default event and canlib payload
     balancing_handler.event.type = FSM_EVENT_TYPE_IGNORED;
 
-    balancing_handler.status_can_payload.cellboard_id = (bms_cellboard_balancing_status_cellboard_id)identity_api_get_cellboard_id();
-
     // Set default balancing parameters
     balancing_handler.params.target = BAL_TARGET_MAX_V;
     balancing_handler.params.threshold = BAL_THRESHOLD_MAX_V;
@@ -52,15 +51,10 @@ enum BalReturnCode bal_api_init(void) {
 }
 
 // TODO: Handle unavailable watchdog
-int32_t bal_api_set_balancing_status_handle(const void *const payload) {
-    const bms_cellboard_set_balancing_status_converted_t *const set_balancing_status = (bms_cellboard_set_balancing_status_converted_t *)payload;
-
-    if (set_balancing_status == NULL) {
-        return -BAL_NULL_POINTER;
-    }
+void bal_api_balancing_set_handle(bool start, volt target, volt threshold) {
     // Ignore stop command if not balancing
-    if (!bal_api_is_active() && !set_balancing_status->start) {
-        return BAL_OK;
+    if (!bal_api_is_active() && !start) {
+        return;
     }
 
     // Update data
@@ -68,23 +62,20 @@ int32_t bal_api_set_balancing_status_handle(const void *const payload) {
     constexpr float max_target = BAL_TARGET_MAX_V;
     constexpr float min_threshold = BAL_THRESHOLD_MIN_V;
     constexpr float max_threshold = BAL_THRESHOLD_MIN_V;
-    const volt target = set_balancing_status->target;
-    const volt threshold = set_balancing_status->threshold;
     balancing_handler.params.target = EAGLETRT_API_CLAMP(target, min_target, max_target);
     balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, min_threshold, max_threshold);
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);
     if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING) {
-        return -BAL_WATCHDOG_ERROR;
+        return;
     }
 
     // Send event to the FSM
-    if (bal_api_is_active() == !set_balancing_status->start) {
-        balancing_handler.event.type = set_balancing_status->start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
+    if (bal_api_is_active() == !start) {
+        balancing_handler.event.type = start ? FSM_EVENT_TYPE_BALANCING_START : FSM_EVENT_TYPE_BALANCING_STOP;
         fsm_event_trigger(&balancing_handler.event);
     }
-    return BAL_OK;
 }
 
 bool bal_api_is_active(void) {
@@ -153,43 +144,184 @@ enum BalReturnCode bal_api_resume(void) {
     return BAL_OK;
 }
 
-bms_cellboard_balancing_status_converted_t *bal_api_get_status_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL) {
-        *byte_size = sizeof(balancing_handler.status_can_payload);
-    }
-    balancing_handler.status_can_payload.status = bms_cellboard_balancing_status_status_stopped;
+union CanBmsMessages *bal_api_get_canlib_payload(size_t *byte_size) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_byte_size[] = {
+        can_bms_byte_size_tsaccellboard1balancing,
+        can_bms_byte_size_tsaccellboard2balancing,
+        can_bms_byte_size_tsaccellboard3balancing,
+        can_bms_byte_size_tsaccellboard4balancing,
+        can_bms_byte_size_tsaccellboard5balancing,
+        can_bms_byte_size_tsaccellboard6balancing
+    };
 
-    // Update balancing status
-    if (bal_api_is_active()) {
-        balancing_handler.status_can_payload.status = bal_api_is_paused() ? bms_cellboard_balancing_status_status_paused : bms_cellboard_balancing_status_status_running;
+    if (byte_size != NULL) {
+        *byte_size = can_byte_size[cellboard];
     }
-    // Update discharging cells
+
     const uint32_t cells = bms_manager_api_get_discharge_cells();
-    balancing_handler.status_can_payload.discharging_cell_0 = EAGLETRT_API_BIT_GET(cells, 0U);
-    balancing_handler.status_can_payload.discharging_cell_1 = EAGLETRT_API_BIT_GET(cells, 1U);
-    balancing_handler.status_can_payload.discharging_cell_2 = EAGLETRT_API_BIT_GET(cells, 2U);
-    balancing_handler.status_can_payload.discharging_cell_3 = EAGLETRT_API_BIT_GET(cells, 3U);
-    balancing_handler.status_can_payload.discharging_cell_4 = EAGLETRT_API_BIT_GET(cells, 4U);
-    balancing_handler.status_can_payload.discharging_cell_5 = EAGLETRT_API_BIT_GET(cells, 5U);
-    balancing_handler.status_can_payload.discharging_cell_6 = EAGLETRT_API_BIT_GET(cells, 6U);
-    balancing_handler.status_can_payload.discharging_cell_7 = EAGLETRT_API_BIT_GET(cells, 7U);
-    balancing_handler.status_can_payload.discharging_cell_8 = EAGLETRT_API_BIT_GET(cells, 8U);
-    balancing_handler.status_can_payload.discharging_cell_9 = EAGLETRT_API_BIT_GET(cells, 9U);
-    balancing_handler.status_can_payload.discharging_cell_10 = EAGLETRT_API_BIT_GET(cells, 10U);
-    balancing_handler.status_can_payload.discharging_cell_11 = EAGLETRT_API_BIT_GET(cells, 11U);
-    balancing_handler.status_can_payload.discharging_cell_12 = EAGLETRT_API_BIT_GET(cells, 12U);
-    balancing_handler.status_can_payload.discharging_cell_13 = EAGLETRT_API_BIT_GET(cells, 13U);
-    balancing_handler.status_can_payload.discharging_cell_14 = EAGLETRT_API_BIT_GET(cells, 14U);
-    balancing_handler.status_can_payload.discharging_cell_15 = EAGLETRT_API_BIT_GET(cells, 15U);
-    balancing_handler.status_can_payload.discharging_cell_16 = EAGLETRT_API_BIT_GET(cells, 16U);
-    balancing_handler.status_can_payload.discharging_cell_17 = EAGLETRT_API_BIT_GET(cells, 17U);
-    balancing_handler.status_can_payload.discharging_cell_18 = EAGLETRT_API_BIT_GET(cells, 18U);
-    balancing_handler.status_can_payload.discharging_cell_19 = EAGLETRT_API_BIT_GET(cells, 19U);
-    balancing_handler.status_can_payload.discharging_cell_20 = EAGLETRT_API_BIT_GET(cells, 20U);
-    balancing_handler.status_can_payload.discharging_cell_21 = EAGLETRT_API_BIT_GET(cells, 21U);
-    balancing_handler.status_can_payload.discharging_cell_22 = EAGLETRT_API_BIT_GET(cells, 22U);
-    balancing_handler.status_can_payload.discharging_cell_23 = EAGLETRT_API_BIT_GET(cells, 23U);
-    return &balancing_handler.status_can_payload;
+    union CanBmsMessages *payload = &balancing_handler.libcan_message_balancing;
+    switch (cellboard) {
+        case CELLBOARD_ID_0:
+            payload->tsaccellboard1balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard1balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard1balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard1balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard1balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard1balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard1balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard1balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard1balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard1balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard1balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard1balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard1balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard1balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard1balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard1balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard1balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard1balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard1balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard1balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard1balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard1balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard1balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard1balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        case CELLBOARD_ID_1:
+            payload->tsaccellboard2balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard2balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard2balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard2balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard2balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard2balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard2balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard2balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard2balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard2balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard2balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard2balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard2balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard2balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard2balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard2balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard2balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard2balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard2balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard2balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard2balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard2balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard2balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard2balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        case CELLBOARD_ID_2:
+            payload->tsaccellboard3balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard3balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard3balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard3balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard3balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard3balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard3balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard3balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard3balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard3balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard3balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard3balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard3balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard3balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard3balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard3balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard3balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard3balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard3balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard3balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard3balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard3balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard3balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard3balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        case CELLBOARD_ID_3:
+            payload->tsaccellboard4balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard4balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard4balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard4balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard4balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard4balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard4balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard4balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard4balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard4balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard4balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard4balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard4balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard4balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard4balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard4balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard4balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard4balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard4balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard4balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard4balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard4balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard4balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard4balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        case CELLBOARD_ID_4:
+            payload->tsaccellboard5balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard5balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard5balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard5balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard5balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard5balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard5balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard5balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard5balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard5balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard5balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard5balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard5balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard5balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard5balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard5balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard5balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard5balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard5balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard5balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard5balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard5balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard5balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard5balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        case CELLBOARD_ID_5:
+            payload->tsaccellboard6balancing.cell1 = EAGLETRT_API_BIT_GET(cells, 0U);
+            payload->tsaccellboard6balancing.cell2 = EAGLETRT_API_BIT_GET(cells, 1U);
+            payload->tsaccellboard6balancing.cell3 = EAGLETRT_API_BIT_GET(cells, 2U);
+            payload->tsaccellboard6balancing.cell4 = EAGLETRT_API_BIT_GET(cells, 3U);
+            payload->tsaccellboard6balancing.cell5 = EAGLETRT_API_BIT_GET(cells, 4U);
+            payload->tsaccellboard6balancing.cell6 = EAGLETRT_API_BIT_GET(cells, 5U);
+            payload->tsaccellboard6balancing.cell7 = EAGLETRT_API_BIT_GET(cells, 6U);
+            payload->tsaccellboard6balancing.cell8 = EAGLETRT_API_BIT_GET(cells, 7U);
+            payload->tsaccellboard6balancing.cell9 = EAGLETRT_API_BIT_GET(cells, 8U);
+            payload->tsaccellboard6balancing.cell10 = EAGLETRT_API_BIT_GET(cells, 9U);
+            payload->tsaccellboard6balancing.cell11 = EAGLETRT_API_BIT_GET(cells, 10U);
+            payload->tsaccellboard6balancing.cell12 = EAGLETRT_API_BIT_GET(cells, 11U);
+            payload->tsaccellboard6balancing.cell13 = EAGLETRT_API_BIT_GET(cells, 12U);
+            payload->tsaccellboard6balancing.cell14 = EAGLETRT_API_BIT_GET(cells, 13U);
+            payload->tsaccellboard6balancing.cell15 = EAGLETRT_API_BIT_GET(cells, 14U);
+            payload->tsaccellboard6balancing.cell16 = EAGLETRT_API_BIT_GET(cells, 15U);
+            payload->tsaccellboard6balancing.cell17 = EAGLETRT_API_BIT_GET(cells, 16U);
+            payload->tsaccellboard6balancing.cell18 = EAGLETRT_API_BIT_GET(cells, 17U);
+            payload->tsaccellboard6balancing.cell19 = EAGLETRT_API_BIT_GET(cells, 18U);
+            payload->tsaccellboard6balancing.cell20 = EAGLETRT_API_BIT_GET(cells, 19U);
+            payload->tsaccellboard6balancing.cell21 = EAGLETRT_API_BIT_GET(cells, 20U);
+            payload->tsaccellboard6balancing.cell22 = EAGLETRT_API_BIT_GET(cells, 21U);
+            payload->tsaccellboard6balancing.cell23 = EAGLETRT_API_BIT_GET(cells, 22U);
+            payload->tsaccellboard6balancing.cell24 = EAGLETRT_API_BIT_GET(cells, 23U);
+            break;
+        default:
+            break;
+    }
+    return payload;
 }
 
 #ifdef CONF_BALANCING_STRINGS_ENABLE

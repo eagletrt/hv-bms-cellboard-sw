@@ -10,8 +10,9 @@
 #ifndef BAL_API_H
 #define BAL_API_H
 
-#include "bal.h"
 #include <stdint.h>
+#include "bal.h"
+#include "cellboard-def.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
@@ -23,14 +24,13 @@
 enum BalReturnCode bal_api_init(void);
 
 /*!
- * \brief Handler the information received inside the canlib payload
+ * \brief Handle received mainboard balancing set command
  *
- * \param payload A pointer to the CAN paylaod data
- * \retval -BAL_NULL_POINTER if the payload pointer is NULL
- * \retval -BAL_WATCHDOG_ERROR if there was an error during the watchdog reset operation
- * \retval BAL_OK if the function executed correctly
+ * \param[id] start True if balancing start is requested, false if balancing stop is requested
+ * \param[id] target Voltage target to reach to stop balancing
+ * \param[id] threshold Voltage delta from the target to keep when balancing
  */
-int32_t bal_api_set_balancing_status_handle(const void *const payload);
+void bal_api_balancing_set_handle(bool start, volt target, volt threshold);
 
 /*!
  * \brief Check if the balancing is active
@@ -86,14 +86,14 @@ enum BalReturnCode bal_api_pause(void);
 enum BalReturnCode bal_api_resume(void);
 
 /*!
- * \brief Get a pointer to the CAN payload of the balancing info
+ * \brief Get a pointer to the CAN payload of the Cellboard balancing status
  *
  * \param byte_size[out] A pointer where the size of the payload in bytes is
  * stored (can be NULL)
  *
- * \return bms_cellboard_balancing_status_converted_t* A pointer to the payload
+ * \return Pointer of the payload
  */
-bms_cellboard_balancing_status_converted_t *bal_api_get_status_canlib_payload(size_t *const byte_size);
+union CanBmsMessages *bal_api_get_canlib_payload(size_t *byte_size);
 
 #else // CONF_BALANCING_MODULE_ENABLE
 
@@ -106,7 +106,7 @@ bms_cellboard_balancing_status_converted_t *bal_api_get_status_canlib_payload(si
 #define bal_api_stop() (BAL_OK)
 #define bal_api_pause() (BAL_OK)
 #define bal_api_resume() (BAL_OK)
-#define bal_api_get_status_canlib_payload(byte_size) (NULL)
+#define bal_api_balancing_set_handle(start, target, threshold) (EAGLETRT_API_NOP())
 
 #endif // CONF_BALANCING_MODULE_ENABLE
 

@@ -10,7 +10,6 @@
 
 #include <string.h>
 
-#include "bms_network.h"
 #include "identity-api.h"
 #include "tasks.h"
 #include "eagletrt.h"
@@ -20,7 +19,8 @@
 EAGLETRT_STATIC ErrorLibHandler error_handler;
 
 /*! \brief Canlib payload containing the error */
-EAGLETRT_STATIC bms_cellboard_error_converted_t error_can_payload;
+// TODO: update libcan
+// EAGLETRT_STATIC bms_cellboard_error_converted_t error_can_payload;
 
 /*! \brief A callback to resets the mainboard */
 EAGLETRT_STATIC system_reset_callback system_reset;
@@ -87,7 +87,7 @@ EAGLETRT_STATIC int32_t *error[] = {
 enum ErrorReturnCode error_api_init(const system_reset_callback reset) {
     system_reset = NULL;
     memset(&error_handler, 0U, sizeof(error_handler));
-    memset(&error_can_payload, 0U, sizeof(error_can_payload));
+    // memset(&error_can_payload, 0U, sizeof(error_can_payload));
     if (errorlib_init(&error_handler,
                       error,
                       error_instances,
@@ -114,11 +114,11 @@ enum ErrorReturnCode error_api_set(const enum ErrorGroup group, const error_inst
             system_reset();
         } else {
             // Otherwise init the error payload and start sending it to the mainboard
-            error_can_payload.cellboard_id = (bms_cellboard_error_cellboard_id)identity_api_get_cellboard_id();
-            error_can_payload.group = error.group;
-            error_can_payload.instance = error.instance;
+            // error_can_payload.cellboard_id = (bms_cellboard_error_cellboard_id)identity_api_get_cellboard_id();
+            // error_can_payload.group = error.group;
+            // error_can_payload.instance = error.instance;
 
-            tasks_set_enable(TASKS_ID_SEND_ERROR, true);
+            // tasks_set_enable(TASKS_ID_SEND_ERROR, true);
         }
     }
     return ret_code != ERRORLIB_OK ? ERROR_RC_UNKNOWN : ERROR_RC_OK;
@@ -139,12 +139,13 @@ ErrorInfo error_api_get_expired_info(void) {
     return errorlib_get_expired_info(&error_handler);
 }
 
-bms_cellboard_error_converted_t *error_api_get_error_canlib_payload(size_t *const byte_size) {
-    if (byte_size != NULL) {
-        *byte_size = sizeof(error_can_payload);
-    }
-    return &error_can_payload;
-}
+// TODO: update libcan
+// bms_cellboard_error_converted_t *error_api_get_error_canlib_payload(size_t *const byte_size) {
+//     if (byte_size != NULL) {
+//         *byte_size = sizeof(error_can_payload);
+//     }
+//     return &error_can_payload;
+// }
 
 #ifdef CONF_ERROR_STRINGS_ENABLE
 

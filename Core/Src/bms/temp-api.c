@@ -83,7 +83,6 @@ enum TempReturnCode temp_api_init(const temp_set_mux_address_callback set_addres
     // Copy callback pointers
     temp_handler.set_address = set_address;
     temp_handler.start_conversion = start_conversion;
-    temp_handler.temp_can_payload.cellboard_id = (bms_cellboard_cells_temperature_cellboard_id)identity_api_get_cellboard_id();
     return TEMP_RC_OK;
 }
 
@@ -209,36 +208,556 @@ enum TempReturnCode temp_api_dump_values(
     return TEMP_RC_OK;
 }
 
-bms_cellboard_cells_temperature_converted_t *temp_api_get_cells_temp_canlib_payload(size_t *const byte_size) {
+union CanBmsMessages *temp_api_get_temperature_info_canlib_payload(size_t *byte_size) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_byte_size[] = {
+        can_bms_byte_size_tsaccellboard1temperatureinfo,
+        can_bms_byte_size_tsaccellboard2temperatureinfo,
+        can_bms_byte_size_tsaccellboard3temperatureinfo,
+        can_bms_byte_size_tsaccellboard4temperatureinfo,
+        can_bms_byte_size_tsaccellboard5temperatureinfo,
+        can_bms_byte_size_tsaccellboard6temperatureinfo
+    };
     if (byte_size != NULL) {
-        *byte_size = sizeof(temp_handler.temp_can_payload);
+        *byte_size = can_byte_size[cellboard];
     }
 
-    temp_handler.temp_can_payload.offset = temp_handler.offset;
-    temp_handler.temp_can_payload.temperature_0 = temp_handler.temperatures[temp_handler.offset];
-    temp_handler.temp_can_payload.temperature_1 = temp_handler.temperatures[temp_handler.offset + 1U];
-    temp_handler.temp_can_payload.temperature_2 = temp_handler.temperatures[temp_handler.offset + 2U];
-    temp_handler.temp_can_payload.temperature_3 = temp_handler.temperatures[temp_handler.offset + 3U];
-
-    temp_handler.offset += 4U;
-    if (temp_handler.offset >= CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT) {
-        temp_handler.offset = 0U;
+    union CanBmsMessages *payload = &temp_handler.libcan_message_temperature_info;
+    switch (cellboard) {
+        case CELLBOARD_ID_0:
+            payload->tsaccellboard1temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard1temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard1temperatureinfo.max = temp_api_get_max();
+            break;
+        case CELLBOARD_ID_1:
+            payload->tsaccellboard2temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard2temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard2temperatureinfo.max = temp_api_get_max();
+            break;
+        case CELLBOARD_ID_2:
+            payload->tsaccellboard3temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard3temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard3temperatureinfo.max = temp_api_get_max();
+            break;
+        case CELLBOARD_ID_3:
+            payload->tsaccellboard4temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard4temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard4temperatureinfo.max = temp_api_get_max();
+            break;
+        case CELLBOARD_ID_4:
+            payload->tsaccellboard5temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard5temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard5temperatureinfo.max = temp_api_get_max();
+            break;
+        case CELLBOARD_ID_5:
+            payload->tsaccellboard6temperatureinfo.average = temp_api_get_avg();
+            payload->tsaccellboard6temperatureinfo.min = temp_api_get_min();
+            payload->tsaccellboard6temperatureinfo.max = temp_api_get_max();
+            break;
+        default:
+            break;
     }
-    return &temp_handler.temp_can_payload;
+    return payload;
 }
 
-bms_cellboard_discharge_temperature_converted_t *temp_api_get_discharge_temp_canlib_payload(size_t *const byte_size) {
+union CanBmsMessages *temp_api_get_temperature_canlib_payload(size_t *byte_size) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_byte_size[] = {
+        can_bms_byte_size_tsaccellboard1temperature,
+        can_bms_byte_size_tsaccellboard2temperature,
+        can_bms_byte_size_tsaccellboard3temperature,
+        can_bms_byte_size_tsaccellboard4temperature,
+        can_bms_byte_size_tsaccellboard5temperature,
+        can_bms_byte_size_tsaccellboard6temperature
+    };
     if (byte_size != NULL) {
-        *byte_size = sizeof(temp_handler.discharge_temp_can_payload);
+        *byte_size = can_byte_size[cellboard];
     }
 
-    temp_handler.discharge_temp_can_payload.temperature_0 = temp_handler.discharge_temperatures[0U];
-    temp_handler.discharge_temp_can_payload.temperature_1 = temp_handler.discharge_temperatures[1U];
-    temp_handler.discharge_temp_can_payload.temperature_2 = temp_handler.discharge_temperatures[2U];
-    temp_handler.discharge_temp_can_payload.temperature_3 = temp_handler.discharge_temperatures[3U];
-    temp_handler.discharge_temp_can_payload.temperature_4 = temp_handler.discharge_temperatures[4U];
-    return &temp_handler.discharge_temp_can_payload;
+    const cells_temp *temperature = temp_api_get_values();
+    union CanBmsMessages *message = &temp_handler.libcan_message_temperature;
+    switch (cellboard) {
+        case CELLBOARD_ID_0: {
+            struct CanBmsTsaccellboard1temperature *payload = &message->tsaccellboard1temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case CELLBOARD_ID_1: {
+            struct CanBmsTsaccellboard2temperature *payload = &message->tsaccellboard2temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case CELLBOARD_ID_2: {
+            struct CanBmsTsaccellboard3temperature *payload = &message->tsaccellboard3temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case CELLBOARD_ID_3: {
+            struct CanBmsTsaccellboard4temperature *payload = &message->tsaccellboard4temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case CELLBOARD_ID_4: {
+            struct CanBmsTsaccellboard5temperature *payload = &message->tsaccellboard5temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case CELLBOARD_ID_5: {
+            struct CanBmsTsaccellboard6temperature *payload = &message->tsaccellboard6temperature;
+            payload->group = (payload->group >= 9) ? 0 : payload->group + 1;
+            switch (payload->group) {
+                case 0:
+                    payload->group_payload.mux_0.cell1 = (*temperature)[0];
+                    payload->group_payload.mux_0.cell2 = (*temperature)[1];
+                    payload->group_payload.mux_0.cell3 = (*temperature)[2];
+                    payload->group_payload.mux_0.cell4 = (*temperature)[3];
+                    payload->group_payload.mux_0.cell5 = (*temperature)[4];
+                    break;
+                case 1:
+                    payload->group_payload.mux_1.cell6 = (*temperature)[5];
+                    payload->group_payload.mux_1.cell7 = (*temperature)[6];
+                    payload->group_payload.mux_1.cell8 = (*temperature)[7];
+                    payload->group_payload.mux_1.cell9 = (*temperature)[8];
+                    payload->group_payload.mux_1.cell10 = (*temperature)[9];
+                    break;
+                case 2:
+                    payload->group_payload.mux_2.cell11 = (*temperature)[10];
+                    payload->group_payload.mux_2.cell12 = (*temperature)[11];
+                    payload->group_payload.mux_2.cell13 = (*temperature)[12];
+                    payload->group_payload.mux_2.cell14 = (*temperature)[13];
+                    payload->group_payload.mux_2.cell15 = (*temperature)[14];
+                    break;
+                case 3:
+                    payload->group_payload.mux_3.cell16 = (*temperature)[15];
+                    payload->group_payload.mux_3.cell17 = (*temperature)[16];
+                    payload->group_payload.mux_3.cell18 = (*temperature)[17];
+                    payload->group_payload.mux_3.cell19 = (*temperature)[18];
+                    payload->group_payload.mux_3.cell20 = (*temperature)[19];
+                    break;
+                case 4:
+                    payload->group_payload.mux_4.cell21 = (*temperature)[20];
+                    payload->group_payload.mux_4.cell22 = (*temperature)[21];
+                    payload->group_payload.mux_4.cell23 = (*temperature)[22];
+                    payload->group_payload.mux_4.cell24 = (*temperature)[23];
+                    payload->group_payload.mux_4.cell25 = (*temperature)[24];
+                    break;
+                case 5:
+                    payload->group_payload.mux_5.cell26 = (*temperature)[25];
+                    payload->group_payload.mux_5.cell27 = (*temperature)[26];
+                    payload->group_payload.mux_5.cell28 = (*temperature)[27];
+                    payload->group_payload.mux_5.cell29 = (*temperature)[28];
+                    payload->group_payload.mux_5.cell30 = (*temperature)[29];
+                    break;
+                case 6:
+                    payload->group_payload.mux_6.cell31 = (*temperature)[30];
+                    payload->group_payload.mux_6.cell32 = (*temperature)[31];
+                    payload->group_payload.mux_6.cell33 = (*temperature)[32];
+                    payload->group_payload.mux_6.cell34 = (*temperature)[33];
+                    payload->group_payload.mux_6.cell35 = (*temperature)[34];
+                    break;
+                case 7:
+                    payload->group_payload.mux_7.cell36 = (*temperature)[35];
+                    payload->group_payload.mux_7.cell37 = (*temperature)[36];
+                    payload->group_payload.mux_7.cell38 = (*temperature)[37];
+                    payload->group_payload.mux_7.cell39 = (*temperature)[38];
+                    payload->group_payload.mux_7.cell40 = (*temperature)[39];
+                    break;
+                case 8:
+                    payload->group_payload.mux_8.cell41 = (*temperature)[40];
+                    payload->group_payload.mux_8.cell42 = (*temperature)[41];
+                    payload->group_payload.mux_8.cell43 = (*temperature)[42];
+                    payload->group_payload.mux_8.cell44 = (*temperature)[43];
+                    payload->group_payload.mux_8.cell45 = (*temperature)[44];
+                    break;
+                case 9:
+                    payload->group_payload.mux_9.cell46 = (*temperature)[45];
+                    payload->group_payload.mux_9.cell47 = (*temperature)[46];
+                    payload->group_payload.mux_9.cell48 = (*temperature)[47];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    return message;
 }
+
+// TODO: update libcan
+// bms_cellboard_discharge_temperature_converted_t *temp_api_get_discharge_temp_canlib_payload(size_t *const byte_size) {
+//     if (byte_size != NULL) {
+//         *byte_size = sizeof(temp_handler.discharge_temp_can_payload);
+//     }
+//
+//     temp_handler.discharge_temp_can_payload.temperature_0 = temp_handler.discharge_temperatures[0U];
+//     temp_handler.discharge_temp_can_payload.temperature_1 = temp_handler.discharge_temperatures[1U];
+//     temp_handler.discharge_temp_can_payload.temperature_2 = temp_handler.discharge_temperatures[2U];
+//     temp_handler.discharge_temp_can_payload.temperature_3 = temp_handler.discharge_temperatures[3U];
+//     temp_handler.discharge_temp_can_payload.temperature_4 = temp_handler.discharge_temperatures[4U];
+//     return &temp_handler.discharge_temp_can_payload;
+// }
 
 #ifdef CONF_TEMPEATURE_STRINGS_ENABLE
 

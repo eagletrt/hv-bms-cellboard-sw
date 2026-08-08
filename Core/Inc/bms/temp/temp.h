@@ -14,7 +14,7 @@
 
 #include "cellboard-def.h"
 
-#include "bms_network.h"
+#include "can-bms.h"
 
 /*!
  * \defgroup TEMP_LIMIT_C Temperature limits
@@ -120,9 +120,12 @@ struct TempHandler {
     cells_temp temperatures;               /*!< The cells temperature values in °C */
     discharge_temp discharge_temperatures; /*!< The discharge resistors temperature values in °C */
 
-    bms_cellboard_cells_temperature_converted_t temp_can_payload;               /*!< The canlib payload used to send the cells temperatures data via CAN */
-    bms_cellboard_discharge_temperature_converted_t discharge_temp_can_payload; /*!< The canlib payload used to send the discharge resistors temperature data via CAN */
-    size_t offset;                                                              /*!< An offset used when the canlib payload is sent to send different values at each transmission */
+    // TODO: update libcan
+    // bms_cellboard_discharge_temperature_converted_t discharge_temp_can_payload; /*!< The canlib payload used to send the discharge resistors temperature data via CAN */
+    size_t offset; /*!< An offset used when the canlib payload is sent to send different values at each transmission */
+
+    union CanBmsMessages libcan_message_temperature;
+    union CanBmsMessages libcan_message_temperature_info;
 };
 
 #endif // TEMP_H

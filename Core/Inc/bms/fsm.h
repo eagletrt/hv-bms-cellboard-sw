@@ -21,8 +21,7 @@ Functions and types have been generated with prefix "fsm_"
 /*** USER CODE BEGIN MACROS ***/
 #include <stddef.h>
 
-#include "bms_network.h"
-
+#include "can-bms.h"
 #include "watchdog.h"
 
 /*! \brief Timeouts for the discharge and cooldown watchdogs in ms */
@@ -91,13 +90,15 @@ typedef void transition_func_t(fsm_state_data *data);
  * \attention This structure should not be used outside of this module
  */
 struct FsmHandler {
-    fsm_state_t fsm_state;                                      /*!< The current state of the FSM */
-    bms_cellboard_status_converted_t status_can_payload;        /*!< The CAN payload for the FSM status */
-    bms_cellboard_flash_response_converted_t flash_can_payload; /*!< The CAN payload for the flash response */
+    fsm_state_t fsm_state; /*!< The current state of the FSM */
+    // TODO: update libcan
+    // bms_cellboard_flash_response_converted_t flash_can_payload; /*!< The CAN payload for the flash response */
 
     fsm_event_data_t event; /*!< The current event being processed by the FSM */
     Watchdog discharge_wdg; /*!< Watchdog used for the discharge procedure */
     Watchdog cooldown_wdg;  /*!< Watchdog used for the cooldown procedure */
+
+    union CanBmsMessages libcan_message_status; /*!< The CAN payload for the FSM status */
 };
 
 /*** USER CODE END TYPES ***/
@@ -163,11 +164,12 @@ fsm_state_t fsm_get_status(void);
 /*!
  * \brief Get a pointer to the CAN payload structure of the FSM status
  *
- * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ * \param[out] byte_size A pointer where the size of the payload in bytes is stored (can be NULL)
  *
- * \returns bms_cellboard_status_converted_t* A pointer to the payload
+ * \returns Pointer of the payload
  */
-bms_cellboard_status_converted_t *fsm_get_status_canlib_payload(size_t *byte_size);
+union CanBmsMessages *fsm_get_status_canlib_payload(size_t *byte_size);
+
 /*** USER CODE END FUNCTIONS ***/
 
 #endif

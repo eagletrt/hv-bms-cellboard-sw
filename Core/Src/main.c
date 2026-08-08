@@ -41,6 +41,8 @@
 
 #include "temp-api.h"
 #include "volt-api.h"
+#include "can-communication.h"
+#include "can-communication-router-api.h"
 
 /* USER CODE END Includes */
 
@@ -82,7 +84,7 @@ EAGLETRT_STATIC void demo() {
     // Put the cursor the start of the terminal
     usart_log("\033[H");
 
-    time_t build_time = CANLIB_BUILD_TIME;
+    time_t build_time = can_generation_time;
     constexpr size_t build_time_str_size = 30U;
 
     struct tm *tm_info = gmtime(&build_time);
@@ -273,10 +275,16 @@ int main(void) {
 
     // Prepare data for the POST procedure
     struct PostInitData init_data = {
+        .can_networks = {
+            [CAN_COMMUNICATION_NETWORK_BMS] = {
+                .send = fdcan_send_bms,
+                .on_receive = can_communication_router_api_receive_bms,
+                .cs_enter = __disable_irq,
+                .cs_exit = __enable_irq,
+            } },
         .system_reset = system_reset,
         .cs_enter = it_cs_enter,
         .cs_exit = it_cs_exit,
-        .can_send = can_send,
         .spi_send = spi_send,
         .spi_send_receive = spi_send_and_receive,
         .led_set = gpio_led_set_state,

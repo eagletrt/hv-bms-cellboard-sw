@@ -1,121 +1,248 @@
 /**
- * @brief tasks.c
- * @date 2024-05-16
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \brief tasks.c
+ * \date 2024-05-16
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  *
- * @brief Tasks that have to be executed at a certain interval
+ * \brief Tasks that have to be executed at a certain interval
  */
 
 #include "tasks.h"
 
+#include <stdint.h>
 #include <string.h>
 
-#include "bms_network.h"
-#include "can-comm-api.h"
+#include "can-bms.h"
+#include "can-bms-api.h"
+
+#include "can-communication.h"
+#include "can-communication-api.h"
 #include "bal-api.h"
-#include "fsm.h"
+#include "volt-api.h"
+#include "temp-api.h"
+#include "cellboard-def.h"
 #include "identity-api.h"
 #include "timebase.h"
-#include "volt-api.h"
-#include "error-api.h"
-#include "temp-api.h"
-#include "bms-manager-api.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
-_STATIC _TaskHandler htasks;
+EAGLETRT_STATIC struct TaskHandler htasks;
 
-/** @brief Send the current FSM status via CAN */
-void _tasks_send_status(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)fsm_get_status_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_STATUS_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+void prv_tasks_send_balancing_status(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1BALANCING,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2BALANCING,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3BALANCING,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4BALANCING,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5BALANCING,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6BALANCING
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = bal_api_get_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the version info via CAN */
-void _tasks_send_version(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)identity_api_get_version_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_VERSION_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+/** \brief Send the current FSM status via CAN */
+void prv_tasks_send_status(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1FSM,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2FSM,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3FSM,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4FSM,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5FSM,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6FSM
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = fsm_get_status_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the errors status via CAN if an error occoured*/
-void _tasks_send_errors(void) {
+/** \brief Send the cells voltages via CAN */
+void prv_tasks_send_voltage(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1VOLTAGE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2VOLTAGE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3VOLTAGE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4VOLTAGE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5VOLTAGE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6VOLTAGE
+    };
 
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)error_api_get_error_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_ERROR_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = volt_api_get_voltage_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the cells voltages via CAN */
-void _tasks_send_voltages(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)volt_api_get_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_CELLS_VOLTAGE_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+/*! \brief Send the cells temperatures via CAN */
+void prv_tasks_send_temperature(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1TEMPERATURE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2TEMPERATURE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3TEMPERATURE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4TEMPERATURE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5TEMPERATURE,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6TEMPERATURE
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = temp_api_get_temperature_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the cells temperatures via CAN */
-void _tasks_send_temperatures(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)temp_api_get_cells_temp_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_CELLS_TEMPERATURE_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+/** \brief Send the temperature info via CAN */
+void prv_tasks_send_temperature_info(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1TEMPERATUREINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2TEMPERATUREINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3TEMPERATUREINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4TEMPERATUREINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5TEMPERATUREINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6TEMPERATUREINFO
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = temp_api_get_temperature_info_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the discharge resistors temperature via CAN */
-void _tasks_send_discharge_temperatures(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)temp_api_get_discharge_temp_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_DISCHARGE_TEMPERATURE_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
+/** \brief Send the voltage info via CAN */
+void prv_tasks_send_voltage_info(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1VOLTAGEINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2VOLTAGEINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3VOLTAGEINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4VOLTAGEINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5VOLTAGEINFO,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6VOLTAGEINFO
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = volt_api_get_voltage_info_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
 }
 
-/** @brief Send the current balancing status info via CAN */
-void _tasks_send_balancing_status(void) {
-    size_t byte_size = 0U;
-    const uint8_t *const payload = (const uint8_t *const)bal_api_get_status_canlib_payload(&byte_size);
-    can_comm_tx_add(
-        BMS_CELLBOARD_BALANCING_STATUS_INDEX,
-        CAN_FRAME_TYPE_DATA,
-        payload,
-        byte_size);
-}
+// TODO: update libcan
+// /** \brief Send the version info via CAN */
+// void _tasks_send_version(void) {
+//     size_t byte_size = 0U;
+//     const uint8_t *const payload = (const uint8_t *const)identity_api_get_version_canlib_payload(&byte_size);
+//     can_comm_tx_add(
+//         BMS_CELLBOARD_VERSION_INDEX,
+//         CAN_FRAME_TYPE_DATA,
+//         payload,
+//         byte_size);
+// }
+//
+// /** \brief Send the errors status via CAN if an error occoured*/
+// void _tasks_send_errors(void) {
+//
+//     size_t byte_size = 0U;
+//     const uint8_t *const payload = (const uint8_t *const)error_api_get_error_canlib_payload(&byte_size);
+//     can_comm_tx_add(
+//         BMS_CELLBOARD_ERROR_INDEX,
+//         CAN_FRAME_TYPE_DATA,
+//         payload,
+//         byte_size);
+// }
+//
+// /** \brief Send the discharge resistors temperature via CAN */
+// void _tasks_send_discharge_temperatures(void) {
+//     size_t byte_size = 0U;
+//     const uint8_t *const payload = (const uint8_t *const)temp_api_get_discharge_temp_canlib_payload(&byte_size);
+//     can_comm_tx_add(
+//         BMS_CELLBOARD_DISCHARGE_TEMPERATURE_INDEX,
+//         CAN_FRAME_TYPE_DATA,
+//         payload,
+//         byte_size);
+// }
 
-/** @brief Start the temperatures conversion */
-void _tasks_read_temperatures(void) {
+/** \brief Start the temperatures conversion */
+void prv_tasks_read_temperatures(void) {
     temp_api_start_conversion();
 }
 
-/** @brief Run the bms manager procedures */
-void _tasks_run_bms_manager(void) {
+/** \brief Run the bms manager procedures */
+void prv_tasks_run_bms_manager(void) {
     bms_manager_api_routine();
 }
 
-TasksReturnCode tasks_init(milliseconds_t resolution) {
-    if (resolution == 0U)
+enum TasksReturnCode tasks_init(milliseconds_t resolution) {
+    if (resolution == 0U) {
         resolution = 1U;
+    }
     memset(&htasks, 0U, sizeof(htasks));
 
     // Initialize the tasks with the X macro
@@ -134,57 +261,63 @@ TasksReturnCode tasks_init(milliseconds_t resolution) {
     return TASKS_OK;
 }
 
-Task *tasks_get_task(const TasksId id) {
-    if (id >= TASKS_ID_COUNT)
+struct Task *tasks_get_task(const enum TasksId task_id) {
+    if (task_id >= TASKS_ID_COUNT) {
         return NULL;
-    return &htasks.tasks[id];
+    }
+    return &htasks.tasks[task_id];
 }
 
-ticks_t tasks_get_start(const TasksId id) {
-    if (id >= TASKS_ID_COUNT)
+ticks_t tasks_get_start(const enum TasksId task_id) {
+    if (task_id >= TASKS_ID_COUNT) {
         return 0U;
-    return htasks.tasks[id].start;
+    }
+    return htasks.tasks[task_id].start;
 }
 
-ticks_t tasks_get_interval(const TasksId id) {
-    if (id >= TASKS_ID_COUNT)
+ticks_t tasks_get_interval(const enum TasksId task_id) {
+    if (task_id >= TASKS_ID_COUNT) {
         return 0U;
-    return htasks.tasks[id].interval;
+    }
+    return htasks.tasks[task_id].interval;
 }
 
-tasks_callback tasks_get_callback(const TasksId id) {
-    if (id >= TASKS_ID_COUNT)
+tasks_callback tasks_get_callback(const enum TasksId task_id) {
+    if (task_id >= TASKS_ID_COUNT) {
         return 0U;
-    return htasks.tasks[id].exec;
+    }
+    return htasks.tasks[task_id].exec;
 }
 
-TasksReturnCode tasks_set_enable(const TasksId id, const bool enabled) {
-    if (id >= TASKS_ID_COUNT)
+enum TasksReturnCode tasks_set_enable(const enum TasksId task_id, const bool enabled) {
+    if (task_id >= TASKS_ID_COUNT) {
         return TASKS_INVALID_ID;
-    htasks.tasks[id].enabled = enabled;
+    }
+    htasks.tasks[task_id].enabled = enabled;
     return TASKS_OK;
 }
 
-bool tasks_is_enabled(const TasksId id) {
-    if (id >= TASKS_ID_COUNT)
+bool tasks_is_enabled(const enum TasksId task_id) {
+    if (task_id >= TASKS_ID_COUNT) {
         return false;
-    return htasks.tasks[id].enabled;
+    }
+    return htasks.tasks[task_id].enabled;
 }
 
 #ifdef CONF_TASKS_STRINGS_ENABLE
 
-_STATIC char *tasks_module_name = "tasks";
+EAGLETRT_STATIC char *tasks_module_name = "tasks";
 
-_STATIC char *tasks_return_code_name[] = {
+EAGLETRT_STATIC char *tasks_return_code_name[] = {
     [TASKS_OK] = "ok"
 };
 
-_STATIC char *tasks_return_code_descritpion[] = {
+EAGLETRT_STATIC char *tasks_return_code_descritpion[] = {
     [TASKS_OK] = "executed successfully"
 };
 
 #define TASKS_X(NAME, START, INTERVAL, EXEC) [TASKS_NAME_TO_ID(NAME)] = #NAME,
-_STATIC char *tasks_id_name[] = {
+EAGLETRT_STATIC char *tasks_id_name[] = {
     TASKS_X_LIST
 };
 #undef TASKS_X

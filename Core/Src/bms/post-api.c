@@ -18,6 +18,7 @@
 #include "programmer-api.h"
 #include "led-api.h"
 #include "volt-api.h"
+#include "can-communication-api.h"
 
 #ifdef CONF_POST_MODULE_ENABLE
 
@@ -48,7 +49,7 @@ enum PostReturnCode prv_post_api_modules_init(const struct PostInitData *const d
     (void)bms_manager_api_init(data->spi_send, data->spi_send_receive);
     (void)volt_api_init();
     (void)temp_api_init(data->gpio_set_address, data->adc_start);
-    (void)can_comm_init(data->can_send);
+    (void)can_communication_api_init(data->can_networks);
     (void)bal_api_init();
     (void)programmer_api_init(data->system_reset);
     (void)led_api_init(data->led_set, data->led_toggle);
@@ -58,7 +59,6 @@ enum PostReturnCode prv_post_api_modules_init(const struct PostInitData *const d
 
 enum PostReturnCode prv_post_api_module_setup(void) {
     timebase_set_enable(true);
-    can_comm_enable_all();
     led_api_set_enable(true);
     return POST_RC_OK;
 }
@@ -68,7 +68,6 @@ enum PostReturnCode post_api_run(const struct PostInitData data) {
         return POST_RC_INVALID_CELLBOARD_ID;
     }
     if (data.system_reset == NULL ||
-        data.can_send == NULL ||
         data.spi_send == NULL ||
         data.spi_send_receive == NULL ||
         data.led_set == NULL ||

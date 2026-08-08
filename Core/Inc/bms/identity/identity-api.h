@@ -16,7 +16,7 @@
 
 #ifdef CONF_IDENTITY_MODULE_ENABLE
 
-/**
+/*!
  * \brief Initialize all the info about the cellboard identity
  *
  * \param cellboard_id The cellboard identifier
@@ -25,28 +25,29 @@
  */
 enum IdentityReturnCode identity_api_init(enum CellboardId cellboard_id);
 
-/**
+/*!
  * \brief Get the cellboard idenfitier
  *
  * \return enum CellboardId The cellboard id
  */
 enum CellboardId identity_api_get_cellboard_id(void);
 
-/**
+/*!
  * \brief Get the cellboard software build time in unix timestamp format (seconds)
  *
  * \return seconds The build time
  */
 seconds identity_api_get_build_time(void);
 
-/**
- * \brief Get a pointer to the canlib payload of the cellboard identity info
- *
- * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
- *
- * \return bms_cellboard_version_converted_t* A pointer to the payload
- */
-bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *byte_size);
+// TODO: update libcan
+// /*!
+//  * \brief Get a pointer to the canlib payload of the cellboard identity info
+//  *
+//  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+//  *
+//  * \return bms_cellboard_version_converted_t* A pointer to the payload
+//  */
+// bms_cellboard_version_converted_t *identity_api_get_version_canlib_payload(size_t *byte_size);
 
 #else // CONF_IDENTITY_MODULE_ENABLE
 

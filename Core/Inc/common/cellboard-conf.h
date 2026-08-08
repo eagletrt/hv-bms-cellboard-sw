@@ -11,16 +11,6 @@
 #ifndef CELLBOARD_CONF_H
 #define CELLBOARD_CONF_H
 
-/*** ######################### LIBRARIES MACROS ########################## ***/
-
-/**
- * @defgroup libmacros
- * @brief Macros used by the libraries included inside the project
- */
-#define bms_NETWORK_IMPLEMENTATION
-
-/** @} */
-
 /*** ######################### MODULE SELECTION ########################## ***/
 
 /**

@@ -12,9 +12,8 @@
 
 #include <stdbool.h>
 
+#include "can-bms.h"
 #include "cellboard-def.h"
-
-#include "bms_network.h"
 
 #include "fsm.h"
 #include "watchdog.h"
@@ -65,12 +64,13 @@ struct BalParams {
  * \details The requested parameters are expected to be equals to the actual parameters
  */
 struct BalHandler {
-    fsm_event_data_t event;                                        /*!< The FSM event data */
-    bms_cellboard_balancing_status_converted_t status_can_payload; /*!< The canlib payload of the balancing module */
-    Watchdog watchdog;                                             /*!< The watchdog that stops the balancing procedure when timed out */
+    fsm_event_data_t event; /*!< The FSM event data */
+    Watchdog watchdog;      /*!< The watchdog that stops the balancing procedure when timed out */
 
     enum BalStatus status;   /*!< The actual balancing status */
     struct BalParams params; /*!< The balancing parameters */
+
+    union CanBmsMessages libcan_message_balancing;
 };
 
 #endif // BAL_H

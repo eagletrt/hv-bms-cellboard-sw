@@ -19,7 +19,8 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include <stdint.h>
 #include <string.h>
 
-#include "error-api.h"
+#include "eagletrt-api.h"
+
 /*** USER CODE END MACROS ***/
 
 // GLOBALS
@@ -97,7 +98,7 @@ transition_func_t *const bms_monitor_fsm_transition_table[BMS_MONITOR_FSM_NUM_ST
 bms_monitor_fsm_event_data_t *bms_monitor_fsm_fired_event = NULL;
 
 /*** USER CODE BEGIN GLOBALS ***/
-EAGLETRT_STATIC struct BmsMonitorFsmHandler fms_monitor_handler;
+EAGLETRT_STATIC struct BmsMonitorFsmHandler bms_monitor_handler;
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired
@@ -134,7 +135,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_do_init(bms_monitor_fsm_state_data *data
     /*** USER CODE BEGIN DO_INIT ***/
     CELLBOARD_UNUSED(data);
 
-    memset(&fms_monitor_handler, 0U, sizeof(fms_monitor_handler));
+    memset(&bms_monitor_handler, 0U, sizeof(bms_monitor_handler));
     /*** USER CODE END DO_INIT ***/
 
     switch (next_state) {
@@ -761,12 +762,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    bit_flag32 open_wire_cells = bms_manager_api_check_open_wire();
-    if (open_wire_cells == 0U) {
-        error_api_reset(ERROR_GROUP_OPEN_WIRE, 0U);
-    } else {
-        error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-    }
+    EAGLETRT_API_UNUSED(bms_manager_api_check_open_wire());
     /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
 
@@ -787,7 +783,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
 bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_state, bms_monitor_fsm_state_data *data) {
 
     /*** USER CODE BEGIN RUN_STATE ***/
-    fms_monitor_handler.fsm_state = cur_state;
+    bms_monitor_handler.fsm_state = cur_state;
     /*** USER CODE END RUN_STATE ***/
 
     bms_monitor_fsm_event_data_t *prev_ev = bms_monitor_fsm_fired_event;
@@ -808,7 +804,7 @@ bms_monitor_fsm_state_t bms_monitor_fsm_run_state(bms_monitor_fsm_state_t cur_st
 
 /*** USER CODE BEGIN FUNCTIONS ***/
 bms_monitor_fsm_state_t bms_monitor_fsm_get_state(void) {
-    return fms_monitor_handler.fsm_state;
+    return bms_monitor_handler.fsm_state;
 }
 /*** USER CODE END FUNCTIONS ***/
 

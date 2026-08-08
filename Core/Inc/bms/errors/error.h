@@ -13,8 +13,6 @@
 #include "cellboard-def.h"
 #include "cellboard-conf.h"
 
-#include "bms_network.h"
-
 #include "errorlib.h"
 
 /*! \brief Error instances count for each group */
