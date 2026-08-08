@@ -75,6 +75,8 @@ void Error_Handler(void);
 #define ID_SELECTOR_1_GPIO_Port GPIOA
 #define ID_SELECTOR_2_Pin GPIO_PIN_7
 #define ID_SELECTOR_2_GPIO_Port GPIOA
+#define LED_ID_Pin GPIO_PIN_0
+#define LED_ID_GPIO_Port GPIOB
 #define MUX_A0_Pin GPIO_PIN_8
 #define MUX_A0_GPIO_Port GPIOA
 #define MUX_A1_Pin GPIO_PIN_9
@@ -95,8 +97,8 @@ void Error_Handler(void);
 #define LTC_MOSI_GPIO_Port GPIOB
 #define LTC_CS_Pin GPIO_PIN_6
 #define LTC_CS_GPIO_Port GPIOB
-#define LED_Pin GPIO_PIN_7
-#define LED_GPIO_Port GPIOB
+#define LED_USER_Pin GPIO_PIN_7
+#define LED_USER_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

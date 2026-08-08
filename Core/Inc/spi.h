@@ -99,3 +99,4 @@ enum BmsManagerReturnCode spi_send_and_receive(
 #endif
 
 #endif /* __SPI_H__ */
+

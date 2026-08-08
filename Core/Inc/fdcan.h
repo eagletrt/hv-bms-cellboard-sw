@@ -65,3 +65,4 @@ enum CanCommunicationReturnCode fdcan_send_bms(const struct CanCommunicationFram
 #endif
 
 #endif /* __FDCAN_H__ */
+

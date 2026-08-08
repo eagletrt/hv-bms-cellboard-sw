@@ -85,3 +85,4 @@ void adc_temperature_start_conversion(void);
 #endif
 
 #endif /* __ADC_H__ */
+

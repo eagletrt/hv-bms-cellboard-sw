@@ -54,10 +54,10 @@ void MX_GPIO_Init(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, MUX_A0_Pin | MUX_A1_Pin | MUX_A2_Pin | MUX_A3_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_ID_Pin | LTC_CS_Pin | LED_USER_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, LTC_CS_Pin | LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, MUX_A0_Pin | MUX_A1_Pin | MUX_A2_Pin | MUX_A3_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin : PtPin */
     GPIO_InitStruct.Pin = NRST_Pin;
@@ -77,10 +77,11 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB8 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_8;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    /*Configure GPIO pins : PBPin PBPin PBPin */
+    GPIO_InitStruct.Pin = LED_ID_Pin | LTC_CS_Pin | LED_USER_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PAPin PAPin PAPin PAPin */
@@ -90,22 +91,21 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PBPin PBPin */
-    GPIO_InitStruct.Pin = LTC_CS_Pin | LED_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    /*Configure GPIO pin : PB8 */
+    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 2 */
 
 void gpio_led_set_state(const enum LedStatus state) {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (const GPIO_PinState)state);
+    HAL_GPIO_WritePin(LED_ID_GPIO_Port, LED_ID_Pin, (const GPIO_PinState)state);
 }
 
 void gpio_led_toggle_state(void) {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_GPIO_TogglePin(LED_ID_GPIO_Port, LED_ID_Pin);
 }
 
 enum CellboardId gpio_get_cellboard_id(void) {

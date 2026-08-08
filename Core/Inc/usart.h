@@ -79,3 +79,4 @@ char usart_read(bool echo);
 #endif
 
 #endif /* __USART_H__ */
+
