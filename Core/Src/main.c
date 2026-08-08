@@ -182,6 +182,7 @@ EAGLETRT_STATIC void demo() {
     }
     usart_log("\r\n");
 
+#ifdef CONF_DEMO_DISCHARGE_ENABLE
     // Test discharge circuitry
     static bit_flag32 cells = 1U;
     static uint32_t tick = 0U;
@@ -196,6 +197,7 @@ EAGLETRT_STATIC void demo() {
         tick = HAL_GetTick();
     }
 }
+#endif // CONF_DEMO_DISCHARGE_ENABLE
 
 #endif // CONF_DEMO_ENABLE
 
