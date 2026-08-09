@@ -14,6 +14,7 @@
 #include "identity-api.h"
 #include "error-api.h"
 #include "eagletrt-api.h"
+#include "usart.h"
 
 #ifdef CONF_TEMPERATURE_MODULE_ENABLE
 

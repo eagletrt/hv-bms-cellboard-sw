@@ -127,14 +127,16 @@ enum CellboardId gpio_get_cellboard_id(void) {
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_1, 1U);
     id = CELLBOARD_BIT_TOGGLE_IF(id, bit_2, 2U);
 
-    if (id >= CELLBOARD_ID_COUNT)
+    if (id >= CELLBOARD_ID_COUNT) {
         id = CELLBOARD_ID_5;
+    }
     return id;
 }
 
 void gpio_set_mux_address(const uint8_t address) {
-    if (address >= CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT)
+    if (address >= CELLBOARD_SEGMENT_TEMP_SENSOR_PER_CHANNEL_COUNT) {
         return;
+    }
 
     // Get the address bits
     const bool b0 = CELLBOARD_BIT_GET(address, 0U);

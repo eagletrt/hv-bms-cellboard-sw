@@ -61,7 +61,7 @@ void bal_api_balancing_set_handle(bool start, volt target, volt threshold) {
     constexpr float min_target = BAL_TARGET_MIN_V;
     constexpr float max_target = BAL_TARGET_MAX_V;
     constexpr float min_threshold = BAL_THRESHOLD_MIN_V;
-    constexpr float max_threshold = BAL_THRESHOLD_MIN_V;
+    constexpr float max_threshold = BAL_THRESHOLD_MAX_V;
     balancing_handler.params.target = EAGLETRT_API_CLAMP(target, min_target, max_target);
     balancing_handler.params.threshold = EAGLETRT_API_CLAMP(threshold, min_threshold, max_threshold);
 

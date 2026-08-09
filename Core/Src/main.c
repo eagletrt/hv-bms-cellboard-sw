@@ -169,9 +169,9 @@ EAGLETRT_STATIC void demo() {
     // Display open wire status
     usart_log("                  --- OPEN WIRE STATUS ---\r\n");
 
-    size_t size = 0U;
+    constexpr size_t size = CELLBOARD_SEGMENT_SERIES_COUNT + 1;
     bit_flag32 open_wire_code = bms_manager_api_check_open_wire();
-    usart_log("Open wire detected: %s\r\n", open_wire_code == 0U ? "NO" : "YES");
+    usart_log("Open wire detected: %s\r\n", open_wire_code == 0U ? "NO " : "YES");
     usart_log("Cells with open wire: ");
     for (size_t i = 0U; i < size; ++i) {
         if (EAGLETRT_API_BIT_GET(open_wire_code, i)) {
