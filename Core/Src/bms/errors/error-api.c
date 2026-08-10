@@ -24,8 +24,7 @@
 EAGLETRT_STATIC ErrorLibHandler error_handler;
 
 /*! \brief Canlib payload containing the error */
-// TODO: update libcan
-// EAGLETRT_STATIC bms_cellboard_error_converted_t error_can_payload;
+EAGLETRT_STATIC union CanBmsMessages error_libcan_message;
 
 /*! \brief A callback to resets the mainboard */
 EAGLETRT_STATIC system_reset_callback system_reset;

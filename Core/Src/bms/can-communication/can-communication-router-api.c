@@ -14,6 +14,8 @@
 #include "can-communication.h"
 #include "can-bms-api.h"
 #include "can-bms.h"
+#include "fsm.h"
+#include "usart.h"
 
 #ifdef CONF_CAN_COMM_MODULE_ENABLE
 

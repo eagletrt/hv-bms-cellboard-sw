@@ -19,6 +19,7 @@
 #include "timebase.h"
 #include "volt-api.h"
 #include "identity-api.h"
+#include "watchdog.h"
 
 #ifdef CONF_BALANCING_MODULE_ENABLE
 
@@ -67,8 +68,15 @@ void bal_api_balancing_set_handle(bool start, volt target, volt threshold) {
 
     // Reset watchdog for each new message
     const WatchdogReturnCode code = watchdog_reset(&balancing_handler.watchdog);
-    if (code != WATCHDOG_OK && code != WATCHDOG_NOT_RUNNING) {
-        return;
+    switch (code) {
+        case WATCHDOG_TIMED_OUT:
+            watchdog_restart(&balancing_handler.watchdog);
+            break;
+        case WATCHDOG_OK:
+        case WATCHDOG_NOT_RUNNING:
+            break;
+        default:
+            return;
     }
 
     // Send event to the FSM

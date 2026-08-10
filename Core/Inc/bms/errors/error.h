@@ -32,8 +32,6 @@
 /*! \brief Type redefinition for an error instance */
 typedef errorlib_error_instance_t error_instance_t;
 
-union CanBmsMessages error_libcan_message;
-
 /*!
  * \brief Return code for the error module functions
  */
