@@ -11,7 +11,8 @@
 #define ERROR_H
 
 #include "cellboard-def.h"
-#include "cellboard-conf.h"
+
+#include "can-bms.h"
 
 #include "errorlib.h"
 
@@ -26,10 +27,12 @@
 #define ERROR_GROUP_CAN_COMMUNICATION_INSTANCE_COUNT (1U)                                        /*! \brief CAN communication error instance count (one for the whole module)*/
 #define ERROR_GROUP_FLASH_INSTANCE_COUNT (1U)                                                    /*! \brief Flash error instance count (one for the whole module)*/
 #define ERROR_GROUP_BMS_MONITOR_COMMUNICATION_INSTANCE_COUNT (5U)                                /*! \brief BMS monitor communication error instance count (one for configuration, one per voltage and temperature sensor, one for open-wire detection and one for poll)*/
-#define ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT (1U)                                                /*! \brief Open wire error instance count (one for the whole module)*/
+#define ERROR_GROUP_OPEN_WIRE_INSTANCE_COUNT (13U)                                               /*! \brief Open wire error instance count (one for the whole module)*/
 
 /*! \brief Type redefinition for an error instance */
 typedef errorlib_error_instance_t error_instance_t;
+
+union CanBmsMessages error_libcan_message;
 
 /*!
  * \brief Return code for the error module functions

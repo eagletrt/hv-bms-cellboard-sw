@@ -10,6 +10,7 @@
 #ifndef ERROR_API_H
 #define ERROR_API_H
 
+#include "can-bms.h"
 #include "error.h"
 
 #ifdef CONF_ERROR_MODULE_ENABLE
@@ -65,15 +66,14 @@ size_t error_api_get_expired(void);
  */
 ErrorInfo error_api_get_expired_info(void);
 
-// TODO: update libcan
-// /*!
-//  * \brief Get a pointer to the CAN payload of cellboard error
-//  *
-//  * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
-//  *
-//  * \return bms_cellboard_error_converted_t*  A pointer to the payload
-//  */
-// bms_cellboard_error_converted_t *error_api_get_error_canlib_payload(size_t *byte_size);
+/*!
+ * \brief Get a pointer to the CAN payload of cellboard error
+ *
+ * \param byte_size[out] A pointer where the size of the payload in bytes is stored (can be NULL)
+ *
+ * \return bms_cellboard_error_converted_t*  A pointer to the payload
+ */
+union CanBmsMessages *error_api_get_canlib_payload(size_t *byte_size);
 
 #else // CONF_ERROR_MODULE_ENABLE
 

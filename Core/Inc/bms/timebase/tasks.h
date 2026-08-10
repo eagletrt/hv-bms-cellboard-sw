@@ -49,6 +49,7 @@
     TASKS_X(SEND_TEMPERATURE, true, 10U, can_bms_cycle_time_tsaccellboard1temperature, prv_tasks_send_temperature)               \
     TASKS_X(SEND_TEMPERATURE_INFO, true, 10U, can_bms_cycle_time_tsaccellboard1temperatureinfo, prv_tasks_send_temperature_info) \
     TASKS_X(SEND_VOLTAGE_INFO, true, 10U, can_bms_cycle_time_tsaccellboard1voltageinfo, prv_tasks_send_voltage_info)             \
+    TASKS_X(SEND_ERRORS, true, 5U, can_bms_cycle_time_tsaccellboard1error, prv_tasks_send_error)                                 \
     TASKS_X(READ_TEMPERATURES, true, 0U, 10U, prv_tasks_read_temperatures)                                                       \
     TASKS_X(RUN_BMS_MANAGER, true, 0U, 2U, prv_tasks_run_bms_manager)
 

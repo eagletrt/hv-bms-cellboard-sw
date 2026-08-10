@@ -22,6 +22,7 @@
 #include "cellboard-def.h"
 #include "identity-api.h"
 #include "timebase.h"
+#include "error-api.h"
 
 #ifdef CONF_TASKS_MODULE_ENABLE
 
@@ -194,6 +195,34 @@ void prv_tasks_send_voltage_info(void) {
     }
 }
 
+/** \brief Send the Cellboard errors info via CAN */
+void prv_tasks_send_error(void) {
+    enum CellboardId cellboard = identity_api_get_cellboard_id();
+    uint32_t can_id[] = {
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD1ERROR,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD2ERROR,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD3ERROR,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD4ERROR,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD5ERROR,
+        CAN_BMS_MESSAGE_FRAME_ID_TSACCELLBOARD6ERROR
+    };
+
+    struct CanCommunicationFrame frame = { 0 };
+    frame.id = can_id[cellboard];
+
+    union CanBmsMessages *message = error_api_get_canlib_payload(NULL);
+    int byte_size = can_bms_api_serialize_from_id(
+        frame.id,
+        message,
+        frame.data);
+
+    // TODO: Notify error?
+    if (byte_size >= 0) {
+        frame.length = byte_size;
+        EAGLETRT_API_UNUSED(can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame));
+    }
+}
+
 // TODO: update libcan
 // /** \brief Send the version info via CAN */
 // void _tasks_send_version(void) {
@@ -201,18 +230,6 @@ void prv_tasks_send_voltage_info(void) {
 //     const uint8_t *const payload = (const uint8_t *const)identity_api_get_version_canlib_payload(&byte_size);
 //     can_comm_tx_add(
 //         BMS_CELLBOARD_VERSION_INDEX,
-//         CAN_FRAME_TYPE_DATA,
-//         payload,
-//         byte_size);
-// }
-//
-// /** \brief Send the errors status via CAN if an error occoured*/
-// void _tasks_send_errors(void) {
-//
-//     size_t byte_size = 0U;
-//     const uint8_t *const payload = (const uint8_t *const)error_api_get_error_canlib_payload(&byte_size);
-//     can_comm_tx_add(
-//         BMS_CELLBOARD_ERROR_INDEX,
 //         CAN_FRAME_TYPE_DATA,
 //         payload,
 //         byte_size);
