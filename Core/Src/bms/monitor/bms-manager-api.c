@@ -20,6 +20,7 @@
 #include "error-api.h"
 #include "ltc6811-1-api.h"
 #include "bms-monitor-fsm.h"
+#include "usart.h"
 #include "volt-api.h"
 #include "temp-api.h"
 

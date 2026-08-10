@@ -22,6 +22,7 @@
 #include "dma.h"
 #include "fdcan.h"
 #include "spi.h"
+#include "stm32g4xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -96,6 +97,7 @@ EAGLETRT_STATIC void demo() {
     usart_log("Canlib version: ");
     usart_log(build_time_str);
     usart_log("\r\n");
+    usart_log("Status: %s\r\n", fsm_state_names[fsm_get_status()]);
     usart_log("Cellboard ID: %d\r\n", gpio_get_cellboard_id());
     usart_log("Compilation date: %s %s\r\n", __DATE__, __TIME__);
 
@@ -220,7 +222,7 @@ void cli_discharge(bool echo) {
                 bits = CELLBOARD_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
             }
         }
-        bms_manager_set_discharge_cells(bits);
+        bms_manager_api_set_discharge_cells(bits);
         memset(str, 0, sizeof(str));
         str_i = 0U;
     }
@@ -312,27 +314,29 @@ int main(void) {
         fsm_state = fsm_run_state(fsm_state, NULL);
 
 #ifdef CONF_MANUAL_DISCHARGE_ENABLE
-        cli_discharge(false);
+        cli_discharge(true);
 #endif // CONF_MANUAL_DISCHARGE_ENABLE
 
 #ifdef CONF_DEMO_ENABLE
-
-        // Enable or disable demo
-        EAGLETRT_STATIC bool run_demo = false;
-        if (usart_read(false) == 'd') {
-            // Prevent a cell from continuous discharge after the demo is stopped
-            if (run_demo) {
-                bms_manager_api_set_discharge_cells(0U);
+        static uint32_t demo_tick = 0;
+        if (HAL_GetTick() - demo_tick >= 50) {
+            // Enable or disable demo
+            EAGLETRT_STATIC bool run_demo = false;
+            if (usart_read(false) == 'd') {
+                // Prevent a cell from continuous discharge after the demo is stopped
+                if (run_demo) {
+                    bms_manager_api_set_discharge_cells(0U);
+                }
+                run_demo = !run_demo;
             }
-            run_demo = !run_demo;
-        }
 
-        // Run the demo
-        EAGLETRT_STATIC uint32_t tick = 0U;
-        constexpr uint32_t demo_run_interval = 250;
-        if (run_demo && HAL_GetTick() - tick >= demo_run_interval) {
-            demo();
-            tick = HAL_GetTick();
+            // Run the demo
+            EAGLETRT_STATIC uint32_t tick = 0U;
+            constexpr uint32_t demo_run_interval = 250;
+            if (run_demo && HAL_GetTick() - tick >= demo_run_interval) {
+                demo();
+                tick = HAL_GetTick();
+            }
         }
 #endif // CONF_DEMO_ENABLE
 

@@ -35,12 +35,12 @@ celsius prv_temp_api_volt_to_celsius(volt value) {
     const double val5 = val4 * val;
     const double val6 = val3 * val3;
     return TEMP_COEFF_0 +
-           TEMP_COEFF_1 * val +
-           TEMP_COEFF_2 * val2 +
-           TEMP_COEFF_3 * val3 +
-           TEMP_COEFF_4 * val4 +
-           TEMP_COEFF_5 * val5 +
-           TEMP_COEFF_6 * val6;
+           (TEMP_COEFF_1 * val) +
+           (TEMP_COEFF_2 * val2) +
+           (TEMP_COEFF_3 * val3) +
+           (TEMP_COEFF_4 * val4) +
+           (TEMP_COEFF_5 * val5) +
+           (TEMP_COEFF_6 * val6);
 }
 
 celsius prv_temp_api_discharge_volt_to_celsius(volt value) {
@@ -55,19 +55,19 @@ celsius prv_temp_api_discharge_volt_to_celsius(volt value) {
     const double val4 = val2 * val2;
     const double val5 = val4 * val;
     return TEMP_DISCHARGE_COEFF_0 +
-           TEMP_DISCHARGE_COEFF_1 * val +
-           TEMP_DISCHARGE_COEFF_2 * val2 +
-           TEMP_DISCHARGE_COEFF_3 * val3 +
-           TEMP_DISCHARGE_COEFF_4 * val4 +
-           TEMP_DISCHARGE_COEFF_5 * val5;
+           (TEMP_DISCHARGE_COEFF_1 * val) +
+           (TEMP_DISCHARGE_COEFF_2 * val2) +
+           (TEMP_DISCHARGE_COEFF_3 * val3) +
+           (TEMP_DISCHARGE_COEFF_4 * val4) +
+           (TEMP_DISCHARGE_COEFF_5 * val5);
 }
 
 EAGLETRT_STATIC_INLINE void prv_temp_api_check_cells_value(const uint16_t index, const celsius value) {
-    // BUG: Ignore under temp caused by broken NTCs
-    // if (value < TEMP_MIN_C)
-    //     error_api_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
-    // else
-    //     error_api_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    if (value < TEMP_MIN_C) {
+        error_api_set(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    } else {
+        error_api_reset(ERROR_GROUP_UNDER_TEMPERATURE_CELLS, index);
+    }
     if (value > TEMP_MAX_C) {
         error_api_set(ERROR_GROUP_OVER_TEMPERATURE_CELLS, index);
     } else {
