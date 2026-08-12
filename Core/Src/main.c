@@ -23,6 +23,7 @@
 #include "fdcan.h"
 #include "spi.h"
 #include "stm32g4xx_hal.h"
+#include "stm32g4xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -312,6 +313,8 @@ int main(void) {
     // uint32_t tick = 0;
     while (1) {
         fsm_state = fsm_run_state(fsm_state, NULL);
+
+        HAL_GPIO_WritePin(LED_USER_GPIO_Port, LED_USER_Pin, fsm_state == FSM_STATE_FATAL);
 
 #ifdef CONF_MANUAL_DISCHARGE_ENABLE
         cli_discharge(true);

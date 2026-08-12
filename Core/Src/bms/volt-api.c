@@ -17,6 +17,7 @@
 
 #include "can-bms.h"
 #include "eagletrt-api.h"
+#include "usart.h"
 #include "volt.h"
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
