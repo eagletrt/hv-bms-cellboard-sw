@@ -188,9 +188,12 @@ EAGLETRT_STATIC void demo() {
 #ifdef CONF_DEMO_DISCHARGE_ENABLE
     // Test discharge circuitry
     static bit_flag32 cells = 1U;
+    static uint8_t cell_index = 0U;
     static uint32_t tick = 0U;
     constexpr uint32_t discharge_update_interval = 250;
     if (HAL_GetTick() - tick >= discharge_update_interval) {
+        cell_index = (cell_index + 1) % CELLBOARD_SEGMENT_SERIES_COUNT;
+        usart_log("Discharging cell: %d\r\n", cell_index);
         bms_manager_api_set_discharge_cells(cells);
         constexpr uint32_t cells_bit_mask = 0xFFFFFF;
         cells = (cells << 1U) & cells_bit_mask;

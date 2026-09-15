@@ -278,6 +278,7 @@ enum BmsManagerReturnCode bms_manager_api_read_voltages(const enum BmsManagerVol
         const size_t off = (CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U) * LTC6811_1_REG_CELL_COUNT;
         for (size_t i = 0U; i < LTC6811_1_REG_CELL_COUNT; ++i) {
             const volt value = BMS_MANAGER_RAW_VOLTAGE_TO_VOLT(volts[off + i]);
+
             volt_api_update_value(index + i, value);
         }
     }
@@ -406,29 +407,29 @@ bit_flag32 bms_manager_api_check_open_wire(void) {
 
         // BUG: Not reliable
         // Check first and last voltages
-        // if (fabs(bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset]) <= BMS_MANAGER_OPEN_WIRE_ZERO_V) {
-        //     error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-        //     open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, 0U + offset);
-        // }
-        // if (fabs(bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset]) <= BMS_MANAGER_OPEN_WIRE_ZERO_V) {
-        //     error_api_set(ERROR_GROUP_OPEN_WIRE, 12U);
-        //     open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset);
-        // }
+        if (fabs(bms_handler.pup[LTC6811_1_PUP_ACTIVE][0U + offset]) <= BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+            error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, 0U + offset);
+        }
+        if (fabs(bms_handler.pup[LTC6811_1_PUP_INACTIVE][CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset]) <= BMS_MANAGER_OPEN_WIRE_ZERO_V) {
+            error_api_set(ERROR_GROUP_OPEN_WIRE, 12U);
+            open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT - 1U + offset);
+        }
 
         // Check other voltages
         for (size_t i = 1U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT; ++i) {
             // BUG: Not reliable
             // error_api_set(ERROR_GROUP_OPEN_WIRE, i);
-            if (i == 1 || i == 13) {
-                const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
-                if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
-                    // Check for dip switches
-                    error_api_set(ERROR_GROUP_OPEN_WIRE, i);
-                    open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, i + offset);
-                } else {
-                    error_api_reset(ERROR_GROUP_OPEN_WIRE, i);
-                }
+            //if (i == 1 || i == 13) {
+            const volt delta_v = bms_handler.pup[LTC6811_1_PUP_ACTIVE][i + offset] - bms_handler.pup[LTC6811_1_PUP_INACTIVE][i + offset];
+            if (delta_v < LTC6811_1_OPEN_WIRE_THRESHOLD_V) {
+                // Check for dip switches
+                error_api_set(ERROR_GROUP_OPEN_WIRE, i);
+                open_wire_cells = EAGLETRT_API_BIT_SET(open_wire_cells, i + offset);
+            } else {
+                error_api_reset(ERROR_GROUP_OPEN_WIRE, i);
             }
+            //}
         }
     }
     return open_wire_cells;

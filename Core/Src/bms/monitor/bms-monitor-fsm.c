@@ -19,7 +19,10 @@ Functions and types have been generated with prefix "bms_monitor_fsm_"
 #include <stdint.h>
 #include <string.h>
 
+#include "bms-manager-api.h"
 #include "eagletrt-api.h"
+#include "error-api.h"
+#include "error.h"
 
 /*** USER CODE END MACROS ***/
 
@@ -762,7 +765,10 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    EAGLETRT_API_UNUSED(bms_manager_api_check_open_wire());
+    if (bms_manager_api_check_open_wire() != 0U) {
+        error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
+    }
+
     /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
 
