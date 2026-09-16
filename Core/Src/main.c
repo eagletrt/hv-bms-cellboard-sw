@@ -274,6 +274,11 @@ int main(void) {
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
 
+#ifdef CONF_DEMO_ENABLE
+    // Clear the screen
+    usart_log("\033[2J");
+#endif // CONF_DEMO_ENABLE
+
     /**
    * Start the timer used to increment the timebase internal counter
    */
@@ -304,18 +309,26 @@ int main(void) {
     // Read the cellboard ID from the ADC
     init_data.id = gpio_get_cellboard_id();
 
+    usart_log("Starting main application\r\n");
+
     fsm_state = fsm_run_state(fsm_state, &init_data);
+
+    usart_log("POST procedure completed, entering main loop\r\n");
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-#ifdef CONF_DEMO_ENABLE
-    // Clear the screen
-    usart_log("\033[2J");
-#endif // CONF_DEMO_ENABLE
+
+    fsm_state_t last_fsm_state = fsm_state;
+
     // uint32_t tick = 0;
     while (1) {
         fsm_state = fsm_run_state(fsm_state, NULL);
+
+        if (last_fsm_state != fsm_state) {
+            usart_log("FSM state changed: %s -> %s\r\n", fsm_state_names[last_fsm_state], fsm_state_names[fsm_state]);
+            last_fsm_state = fsm_state;
+        }
 
         HAL_GPIO_WritePin(LED_USER_GPIO_Port, LED_USER_Pin, fsm_state == FSM_STATE_FATAL);
 

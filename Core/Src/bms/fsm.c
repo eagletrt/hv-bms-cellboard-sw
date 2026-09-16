@@ -442,6 +442,10 @@ void fsm_handle_fatal_error(fsm_state_data *data) {
 
     /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
     CELLBOARD_UNUSED(data);
+
+    bal_api_stop();
+    (void)watchdog_stop(&fsm_handler.discharge_wdg);
+    (void)watchdog_stop(&fsm_handler.cooldown_wdg);
     /*** USER CODE END HANDLE_FATAL_ERROR ***/
 }
 

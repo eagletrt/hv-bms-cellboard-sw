@@ -765,9 +765,7 @@ void bms_monitor_fsm_check_open_wire(bms_monitor_fsm_state_data *data) {
     /*** USER CODE BEGIN CHECK_OPEN_WIRE ***/
     CELLBOARD_UNUSED(data);
 
-    if (bms_manager_api_check_open_wire() != 0U) {
-        error_api_set(ERROR_GROUP_OPEN_WIRE, 0U);
-    }
+    EAGLETRT_API_UNUSED(bms_manager_api_check_open_wire());
 
     /*** USER CODE END CHECK_OPEN_WIRE ***/
 }
