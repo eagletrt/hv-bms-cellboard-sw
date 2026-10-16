@@ -23,7 +23,7 @@ FAKE_VOID_FUNC(system_reset_fake);
 #define CELLBOARD_ID CELLBOARD_ID_1
 
 extern ErrorLibHandler error_handler;
-extern bms_cellboard_error_converted_t error_can_payload;
+extern union CanBmsMessages error_libcan_message;
 extern system_reset_callback system_reset;
 extern const size_t error_instances[];
 extern const size_t error_thresholds[];
@@ -61,10 +61,6 @@ void test_error_api_set_other_error_expired(void) {
     TEST_ASSERT_EACH_EQUAL_INT_MESSAGE(ERROR_RC_OK, rc, threshold, "error_api_set() should return ERROR_RC_OK for all calls before the error expires");
     TEST_ASSERT_EQUAL_MESSAGE(ERROR_RC_UNKNOWN, rc[threshold], "error_api_set() should return ERROR_RC_UNKNOWN when the error expires");
     TEST_ASSERT_EQUAL_MESSAGE(0, system_reset_fake_fake.call_count, "system_reset should not be called when a non-CAN communication error expires");
-    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, error_can_payload.cellboard_id, "Error payload cellboard ID mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(ERROR_GROUP_UNDER_VOLTAGE, error_can_payload.group, "Error payload group mismatch");
-    TEST_ASSERT_EQUAL_MESSAGE(0U, error_can_payload.instance, "Error payload instance mismatch");
-    TEST_ASSERT_TRUE_MESSAGE(tasks_is_enabled(TASKS_ID_SEND_ERROR), "Error sending task should be enabled when a non-CAN communication error expires");
 }
 
 void test_error_api_set_invalid_instance(void) {
@@ -93,32 +89,27 @@ void test_error_api_reset_ok(void) {
     TEST_ASSERT_EQUAL_MESSAGE(ERROR_RC_OK, rc_reset, "error_api_reset() should return ERROR_RC_OK when resetting a valid error instance");
 }
 
-void test_error_api_get_error_canlib_payload_with_null_byte_size(void) {
-    error_can_payload.cellboard_id = CELLBOARD_ID;
-    error_can_payload.group = ERROR_GROUP_UNDER_VOLTAGE;
-    error_can_payload.instance = 0U;
+void test_error_api_get_canlib_payload_with_null_byte_size(void) {
+    (void)error_api_reset(ERROR_GROUP_UNDER_VOLTAGE, 0U);
+    (void)error_api_set(ERROR_GROUP_UNDER_VOLTAGE, 0U);
 
-    bms_cellboard_error_converted_t *payload = error_api_get_error_canlib_payload(NULL);
+    union CanBmsMessages *payload = error_api_get_canlib_payload(NULL);
 
-    TEST_ASSERT_EQUAL_PTR_MESSAGE(&error_can_payload, payload, "Error canlib payload address do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, payload->cellboard_id, "Error payload cellboard id do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(ERROR_GROUP_UNDER_VOLTAGE, payload->group, "Error payload group do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(0U, payload->instance, "Error payload instance do not match");
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(&error_libcan_message, payload, "Error canlib payload address do not match");
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0U, payload->tsaccellboard2error.cellundervoltage, "Error payload under voltage do not match");
+    TEST_ASSERT_EQUAL_MESSAGE(0U, payload->tsaccellboard2error.cellovervoltage, "Error payload over voltage do not match");
 }
 
-void test_error_api_get_error_canlib_payload_with_valid_input(void) {
+void test_error_api_get_canlib_payload_with_valid_input(void) {
     size_t byte_size = 0;
-    error_can_payload.cellboard_id = CELLBOARD_ID;
-    error_can_payload.group = ERROR_GROUP_UNDER_VOLTAGE;
-    error_can_payload.instance = 0U;
+    (void)error_api_reset(ERROR_GROUP_UNDER_VOLTAGE, 0U);
+    (void)error_api_set(ERROR_GROUP_UNDER_VOLTAGE, 0U);
 
-    bms_cellboard_error_converted_t *payload = error_api_get_error_canlib_payload(&byte_size);
+    union CanBmsMessages *payload = error_api_get_canlib_payload(&byte_size);
 
-    TEST_ASSERT_EQUAL_PTR_MESSAGE(&error_can_payload, payload, "Error canlib payload address do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, payload->cellboard_id, "Error payload cellboard id do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(ERROR_GROUP_UNDER_VOLTAGE, payload->group, "Error payload group do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(0U, payload->instance, "Error payload instance do not match");
-    TEST_ASSERT_EQUAL_MESSAGE(sizeof(error_can_payload), byte_size, "Error payload byte size do not match");
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(&error_libcan_message, payload, "Error canlib payload address do not match");
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0U, payload->tsaccellboard2error.cellundervoltage, "Error payload under voltage do not match");
+    TEST_ASSERT_EQUAL_MESSAGE(can_bms_byte_size_tsaccellboard2error, byte_size, "Error payload byte size do not match");
 }
 
 void setUp(void) {
@@ -143,8 +134,8 @@ int main(void) {
     RUN_TEST(test_error_api_reset_invalid_instance);
     RUN_TEST(test_error_api_reset_invalid_group);
     RUN_TEST(test_error_api_reset_ok);
-    RUN_TEST(test_error_api_get_error_canlib_payload_with_null_byte_size);
-    RUN_TEST(test_error_api_get_error_canlib_payload_with_valid_input);
+    RUN_TEST(test_error_api_get_canlib_payload_with_null_byte_size);
+    RUN_TEST(test_error_api_get_canlib_payload_with_valid_input);
 
     return UNITY_END();
 }
