@@ -7,7 +7,7 @@
  */
 
 #include "unity.h"
-#include "can-comm-api.h"
+#include "can-communication-api.h"
 #include "identity-api.h"
 #include "cellboard-def.h"
 #include "fff.h"
@@ -15,217 +15,112 @@ DEFINE_FFF_GLOBALS;
 
 #define CELLBOARD_ID CELLBOARD_ID_1
 
-FAKE_VALUE_FUNC(enum CanCommReturnCode, send, can_id_t, CanFrameType, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(enum CanCommunicationReturnCode, send, const struct CanCommunicationFrame *);
+FAKE_VALUE_FUNC(enum CanCommunicationReturnCode, on_receive, struct CanCommunicationFrame *);
 
-extern struct CanCommHandler can_comm_handler;
+static struct CanCommunicationNetworkConfig configs[CAN_COMMUNICATION_NETWORK_COUNT];
+static struct CanCommunicationFrame frame = { .id = 0x01U, .length = 0U };
 
 // --- init ---
 
-void test_can_comm_init_null_send(void) {
-    enum CanCommReturnCode code = can_comm_init(NULL);
+void test_can_comm_init_null_configs(void) {
+    enum CanCommunicationReturnCode code = can_communication_api_init(NULL);
 
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, code, "can_comm_init should return CAN_COMM_RC_NULL_POINTER when send callback is NULL");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_NULL_POINTER, code, "can_communication_api_init should return CAN_COMMUNICATION_RC_NULL_POINTER when configs is NULL");
+}
+
+void test_can_comm_init_null_send(void) {
+    configs[CAN_COMMUNICATION_NETWORK_BMS].send = NULL;
+
+    enum CanCommunicationReturnCode code = can_communication_api_init(configs);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_NULL_POINTER, code, "can_communication_api_init should return CAN_COMMUNICATION_RC_NULL_POINTER when send callback is NULL");
 }
 
 void test_can_comm_init_ok(void) {
-    enum CanCommReturnCode code = can_comm_init(send);
+    enum CanCommunicationReturnCode code = can_communication_api_init(configs);
 
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_init should return CAN_COMM_RC_OK with a valid send callback");
-    TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "can_comm_init should leave the handler in the disabled state");
-}
-
-// --- enable/disable all ---
-
-void test_can_comm_enable_all(void) {
-    can_comm_enable_all();
-
-    TEST_ASSERT_EQUAL_MESSAGE(0x03, can_comm_handler.enabled, "can_comm_enable_all should set the enabled bitmask to 0x03");
-}
-
-void test_can_comm_disable_all(void) {
-    can_comm_enable_all();
-    can_comm_disable_all();
-
-    TEST_ASSERT_EQUAL_MESSAGE(0x00, can_comm_handler.enabled, "can_comm_disable_all should clear the enabled bitmask to 0x00");
-}
-// --- enable/disable single bit ---
-
-void test_can_comm_enable_sets_bits(void) {
-    can_comm_enable(0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(0b01, can_comm_handler.enabled, "can_comm_enable should set each bit individually");
-}
-
-void test_can_comm_disable_clears_bits(void) {
-    can_comm_enable_all();
-    can_comm_disable(0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(0b10, can_comm_handler.enabled, "can_comm_disable should clear each bit individually");
-}
-
-void test_can_comm_enable_invalid_bit(void) {
-    can_comm_enable(2);
-
-    TEST_ASSERT_EQUAL_MESSAGE(0b00, can_comm_handler.enabled, "can_comm_enable should ignore invalid bits");
-}
-
-void test_can_comm_disable_invalid_bit(void) {
-    can_comm_enable_all();
-    can_comm_disable(2);
-
-    TEST_ASSERT_EQUAL_MESSAGE(0b11, can_comm_handler.enabled, "can_comm_disable should ignore invalid bits");
-}
-
-// --- send immediate ---
-
-void test_can_comm_send_immediate_disabled(void) {
-    can_comm_disable_all();
-
-    enum CanCommReturnCode code = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, code, "can_comm_send_immediate should return CAN_COMM_RC_DISABLED when TX is not enabled");
-}
-
-void test_can_comm_send_immediate_invalid_index(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_send_immediate(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_INDEX, code, "can_comm_send_immediate should return CAN_COMM_RC_INVALID_INDEX for an out-of-bounds index");
-}
-
-void test_can_comm_send_immediate_invalid_frame_type(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_send_immediate(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, code, "can_comm_send_immediate should return CAN_COMM_RC_INVALID_FRAME_TYPE for an invalid frame type");
-}
-
-void test_can_comm_send_immediate_null_data(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, code, "can_comm_send_immediate should return CAN_COMM_RC_NULL_POINTER when data is NULL");
-}
-
-void test_can_comm_send_immediate_ok(void) {
-    send_fake.return_val = CAN_COMM_RC_OK;
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_send_immediate(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_send_immediate should return CAN_COMM_RC_OK with valid parameters");
-    TEST_ASSERT_EQUAL_MESSAGE(1, send_fake.call_count, "can_comm_send_immediate should invoke the send callback exactly once");
-}
-
-void test_can_comm_send_immediate_invalid_payload_size(void) {
-    TEST_IGNORE_MESSAGE("Test for invalid payload size is currently disabled due to TODO in can_comm_send_immediate");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_OK, code, "can_communication_api_init should return CAN_COMMUNICATION_RC_OK with valid callbacks");
 }
 
 // --- rx add ---
 
-void test_can_comm_rx_add_disabled(void) {
-    can_comm_disable_all();
+void test_can_comm_rx_add_invalid_network(void) {
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_rx(CAN_COMMUNICATION_NETWORK_COUNT, &frame);
 
-    enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, code, "can_comm_rx_add should return CAN_COMM_RC_DISABLED when RX is not enabled");
-}
-
-void test_can_comm_rx_add_invalid_index(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_rx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_INDEX, code, "can_comm_rx_add should return CAN_COMM_RC_INVALID_INDEX for an out-of-bounds index");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_NETWORK, code, "can_communication_api_add_to_rx should return CAN_COMMUNICATION_RC_INVALID_NETWORK for an out-of-bounds network");
 }
 
 void test_can_comm_rx_add_null_data(void) {
-    can_comm_enable_all();
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_rx(CAN_COMMUNICATION_NETWORK_BMS, NULL);
 
-    enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, code, "can_comm_rx_add should return CAN_COMM_RC_NULL_POINTER when data is NULL");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_NULL_POINTER, code, "can_communication_api_add_to_rx should return CAN_COMMUNICATION_RC_NULL_POINTER when frame is NULL");
 }
 
 void test_can_comm_rx_add_invalid_payload_size(void) {
-    can_comm_enable_all();
+    frame.length = CAN_COMMUNICATION_FRAME_DATA_SIZE + 1U;
 
-    enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, CAN_COMM_MAX_PAYLOAD_BYTE_SIZE + 1);
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_rx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
 
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_PAYLOAD_SIZE, code, "can_comm_rx_add should return CAN_COMM_RC_INVALID_PAYLOAD_SIZE when size exceeds the maximum");
-}
-
-void test_can_comm_rx_add_invalid_frame_type(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, code, "can_comm_rx_add should return CAN_COMM_RC_INVALID_FRAME_TYPE for an invalid frame type");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_LENGTH, code, "can_communication_api_add_to_rx should return CAN_COMMUNICATION_RC_INVALID_LENGTH when length exceeds the maximum");
 }
 
 void test_can_comm_rx_add_ok(void) {
-    can_comm_enable_all();
+    on_receive_fake.return_val = CAN_COMMUNICATION_RC_OK;
 
-    enum CanCommReturnCode code = can_comm_rx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_rx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
 
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_rx_add should return CAN_COMM_RC_OK with valid parameters");
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.rx_busy[0], "can_comm_rx_add should set the rx_busy flag for the given index");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_OK, code, "can_communication_api_add_to_rx should return CAN_COMMUNICATION_RC_OK with valid parameters");
+
+    can_communication_api_process_rx(CAN_COMMUNICATION_NETWORK_BMS);
+
+    TEST_ASSERT_EQUAL_MESSAGE(1, on_receive_fake.call_count, "can_communication_api_add_to_rx should queue the frame so that it is dispatched exactly once");
 }
 
 // --- tx add ---
 
-void test_can_comm_tx_add_disabled(void) {
-    can_comm_disable_all();
+void test_can_comm_tx_add_invalid_network(void) {
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_COUNT, &frame);
 
-    enum CanCommReturnCode code = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_DISABLED, code, "can_comm_tx_add should return CAN_COMM_RC_DISABLED when TX is not enabled");
-}
-
-void test_can_comm_tx_add_invalid_index(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_tx_add(bms_MESSAGE_COUNT, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_INDEX, code, "can_comm_tx_add should return CAN_COMM_RC_INVALID_INDEX for an out-of-bounds index");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_NETWORK, code, "can_communication_api_add_to_tx should return CAN_COMMUNICATION_RC_INVALID_NETWORK for an out-of-bounds network");
 }
 
 void test_can_comm_tx_add_null_data(void) {
-    can_comm_enable_all();
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, NULL);
 
-    enum CanCommReturnCode code = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, NULL, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_NULL_POINTER, code, "can_comm_tx_add should return CAN_COMM_RC_NULL_POINTER when data is NULL");
-}
-
-void test_can_comm_tx_add_invalid_frame_type(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_tx_add(0, CAN_FRAME_TYPE_COUNT + 1, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_INVALID_FRAME_TYPE, code, "can_comm_tx_add should return CAN_COMM_RC_INVALID_FRAME_TYPE for an invalid frame type");
-}
-
-void test_can_comm_tx_add_ok(void) {
-    can_comm_enable_all();
-
-    enum CanCommReturnCode code = can_comm_tx_add(0, CAN_FRAME_TYPE_DATA, (void *)0x01, 0);
-
-    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMM_RC_OK, code, "can_comm_tx_add should return CAN_COMM_RC_OK with valid parameters");
-    TEST_ASSERT_TRUE_MESSAGE(can_comm_handler.tx_busy[0], "can_comm_tx_add should set the tx_busy flag for the given index");
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_NULL_POINTER, code, "can_communication_api_add_to_tx should return CAN_COMMUNICATION_RC_NULL_POINTER when frame is NULL");
 }
 
 void test_can_comm_tx_add_invalid_payload_size(void) {
-    TEST_IGNORE_MESSAGE("Test for invalid payload size is currently disabled due to TODO in can_comm_tx_add");
+    frame.length = CAN_COMMUNICATION_FRAME_DATA_SIZE + 1U;
+
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_LENGTH, code, "can_communication_api_add_to_tx should return CAN_COMMUNICATION_RC_INVALID_LENGTH when length exceeds the maximum");
+}
+
+void test_can_comm_tx_add_ok(void) {
+    send_fake.return_val = CAN_COMMUNICATION_RC_OK;
+
+    enum CanCommunicationReturnCode code = can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_OK, code, "can_communication_api_add_to_tx should return CAN_COMMUNICATION_RC_OK with valid parameters");
+
+    can_communication_api_process_tx(CAN_COMMUNICATION_NETWORK_BMS);
+
+    TEST_ASSERT_EQUAL_MESSAGE(1, send_fake.call_count, "can_communication_api_add_to_tx should queue the frame so that it is sent exactly once");
 }
 
 void setUp(void) {
     identity_api_init(CELLBOARD_ID);
     RESET_FAKE(send);
-    can_comm_init(send);
+    RESET_FAKE(on_receive);
+    configs[CAN_COMMUNICATION_NETWORK_BMS] = (struct CanCommunicationNetworkConfig){
+        .send = send,
+        .on_receive = on_receive,
+    };
+    frame = (struct CanCommunicationFrame){ .id = 0x01U, .length = 0U };
+    can_communication_api_init(configs);
 }
 
 void tearDown(void) {
@@ -234,37 +129,19 @@ void tearDown(void) {
 int main(void) {
     UNITY_BEGIN();
 
+    RUN_TEST(test_can_comm_init_null_configs);
     RUN_TEST(test_can_comm_init_null_send);
     RUN_TEST(test_can_comm_init_ok);
 
-    RUN_TEST(test_can_comm_enable_all);
-    RUN_TEST(test_can_comm_disable_all);
-
-    RUN_TEST(test_can_comm_enable_sets_bits);
-    RUN_TEST(test_can_comm_disable_clears_bits);
-    RUN_TEST(test_can_comm_enable_invalid_bit);
-    RUN_TEST(test_can_comm_disable_invalid_bit);
-
-    RUN_TEST(test_can_comm_send_immediate_disabled);
-    RUN_TEST(test_can_comm_send_immediate_invalid_index);
-    RUN_TEST(test_can_comm_send_immediate_invalid_frame_type);
-    RUN_TEST(test_can_comm_send_immediate_null_data);
-    RUN_TEST(test_can_comm_send_immediate_ok);
-    RUN_TEST(test_can_comm_send_immediate_invalid_payload_size);
-
-    RUN_TEST(test_can_comm_rx_add_disabled);
-    RUN_TEST(test_can_comm_rx_add_invalid_index);
+    RUN_TEST(test_can_comm_rx_add_invalid_network);
     RUN_TEST(test_can_comm_rx_add_null_data);
     RUN_TEST(test_can_comm_rx_add_invalid_payload_size);
-    RUN_TEST(test_can_comm_rx_add_invalid_frame_type);
     RUN_TEST(test_can_comm_rx_add_ok);
 
-    RUN_TEST(test_can_comm_tx_add_disabled);
-    RUN_TEST(test_can_comm_tx_add_invalid_index);
+    RUN_TEST(test_can_comm_tx_add_invalid_network);
     RUN_TEST(test_can_comm_tx_add_null_data);
-    RUN_TEST(test_can_comm_tx_add_invalid_frame_type);
-    RUN_TEST(test_can_comm_tx_add_ok);
     RUN_TEST(test_can_comm_tx_add_invalid_payload_size);
+    RUN_TEST(test_can_comm_tx_add_ok);
 
     return UNITY_END();
 }
