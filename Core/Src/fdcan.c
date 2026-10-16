@@ -29,6 +29,7 @@
 #include "can-communication.h"
 #include "can-communication-api.h"
 #include "stm32g4xx_hal_fdcan.h"
+#include "usart.h"
 
 /* USER CODE END 0 */
 
@@ -228,7 +229,17 @@ EAGLETRT_STATIC enum CanCommunicationReturnCode prv_fdcan_send_to_hardware(enum 
         .MessageMarker = 0U
     };
     // Send message
+
+    uint32_t wait_start_tick = HAL_GetTick();
+    while (HAL_FDCAN_GetTxFifoFreeLevel(&HCAN_BMS) == 0U) {
+        if ((HAL_GetTick() - wait_start_tick) >= 2U) {
+            usart_log("Timeout waiting for FDCAN TX FIFO to be free\r\n");
+            return CAN_COMMUNICATION_RC_TRANSMISSION_ERROR;
+        }
+    }
+
     if (HAL_FDCAN_AddMessageToTxFifoQ(&HCAN_BMS, &tx_header, frame->data) != HAL_OK) {
+        usart_log("Failed to send FDCAN message\r\n");
         return CAN_COMMUNICATION_RC_TRANSMISSION_ERROR;
     }
     return CAN_COMMUNICATION_RC_OK;

@@ -309,6 +309,8 @@ int main(void) {
     // Read the cellboard ID from the ADC
     init_data.id = gpio_get_cellboard_id();
 
+    HAL_Delay(7 * init_data.id);
+
     usart_log("Starting main application\r\n");
 
     fsm_state = fsm_run_state(fsm_state, &init_data);

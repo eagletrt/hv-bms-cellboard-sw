@@ -100,6 +100,7 @@ union CanBmsMessages *bal_api_get_canlib_payload(size_t *byte_size);
 #define bal_api_init() (BAL_OK)
 #define bal_api_set_balancing_status_handle(payload) (NULL)
 #define bal_api_set_balancing_status_handle (NULL)
+#define bal_api_get_canlib_payload(byte_size) (NULL)
 #define bal_api_is_active() (false)
 #define bal_api_is_paused() (false)
 #define bal_api_start() (BAL_OK)
