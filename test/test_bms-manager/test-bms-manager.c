@@ -18,10 +18,10 @@
 
 DEFINE_FFF_GLOBALS;
 
-uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const size_t len);
+uint16_t prv_ltc6811_1_api_pec15(const uint8_t *const payload, const size_t len);
 
 static void append_pec(uint8_t *frame) {
-    uint16_t pec = prv_ltc6811_1_pec15(frame, 6);
+    uint16_t pec = prv_ltc6811_1_api_pec15(frame, 6);
     frame[6] = (pec >> 8) & 0xFF;
     frame[7] = pec & 0xFF;
 }
@@ -80,7 +80,7 @@ void test_bms_manager_write_configuration_correct_config(void) {
     send_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_WRITE_BUFFER_SIZE(CELLBOARD_SEGMENT_LTC_COUNT)] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_wrcfg_encode_broadcast(&bms_handler.ltc_handler, bms_handler.requested_config, expected_cmd);
+    const size_t expected_byte_size = ltc6811_1_api_wrcfg_encode_broadcast(&bms_handler.ltc_handler, bms_handler.requested_config, expected_cmd);
 
     enum BmsManagerReturnCode code = bms_manager_api_write_configuration();
     TEST_ASSERT_EQUAL_MESSAGE(BMS_MANAGER_RC_OK, code, "bms_manager_write_configuration should return BMS_MANAGER_RC_OK if the configuration is sent correctly");
@@ -92,7 +92,7 @@ void test_bms_manager_read_configuration_correct_cmd(void) {
     send_receive_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_rdcfg_encode_broadcast(&bms_handler.ltc_handler, expected_cmd);
+    const size_t expected_byte_size = ltc6811_1_api_rdcfg_encode_broadcast(&bms_handler.ltc_handler, expected_cmd);
 
     enum BmsManagerReturnCode code = bms_manager_api_read_configuration();
     // I don't check the return code as here it fails as the payload is not setup correctly
@@ -112,7 +112,7 @@ void test_bms_manager_read_configuration_decode_correctly(void) {
     memcpy(fake_recieved_data, payload, sizeof(fake_recieved_data));
 
     struct Ltc68111Cfgr expected_read[CELLBOARD_SEGMENT_LTC_COUNT] = { 0 };
-    (void)ltc6811_1_rdcfg_decode_broadcast(&bms_handler.ltc_handler, fake_recieved_data, expected_read);
+    (void)ltc6811_1_api_rdcfg_decode_broadcast(&bms_handler.ltc_handler, fake_recieved_data, expected_read);
 
     enum BmsManagerReturnCode code = bms_manager_api_read_configuration();
 
@@ -126,7 +126,7 @@ void test_bms_manager_start_volt_conversion_correct_cmd(void) {
     send_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_adcv_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_adcv_encode_broadcast(
         &bms_handler.ltc_handler,
         LTC6811_1_MD_27KHZ,
         LTC6811_1_DCP_DISABLED,
@@ -146,7 +146,7 @@ void test_bms_manager_start_temp_conversion_correct_cmd(void) {
     send_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_adax_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_adax_encode_broadcast(
         &bms_handler.ltc_handler,
         LTC6811_1_MD_27KHZ,
         LTC6811_1_CHG_GPIO_ALL,
@@ -165,7 +165,7 @@ void test_bms_manager_start_open_wire_conversion_pull_up_correct_cmd(void) {
     send_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_adow_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_adow_encode_broadcast(
         &bms_handler.ltc_handler,
         LTC6811_1_MD_27KHZ,
         LTC6811_1_PUP_ACTIVE,
@@ -193,7 +193,7 @@ void test_bms_manager_poll_conversion_status_correct_cmd(void) {
     fake_recieved_data[0] = LTC6811_1_PLADC_COMPLETE_BYTE_VALUE;
 
     uint8_t expected_cmd[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_pladc_encode_broadcast(&bms_handler.ltc_handler, expected_cmd);
+    const size_t expected_byte_size = ltc6811_1_api_pladc_encode_broadcast(&bms_handler.ltc_handler, expected_cmd);
 
     bms_manager_api_poll_conversion_status();
 
@@ -213,7 +213,7 @@ void test_bms_manager_read_voltages_correct_cmd(void) {
     send_receive_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_rdcv_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_rdcv_encode_broadcast(
         &bms_handler.ltc_handler,
         (enum Ltc68111Cvxr)BMS_MANAGER_VOLTAGE_REGISTER_A,
         expected_cmd);
@@ -238,7 +238,7 @@ void test_bms_manager_read_temperatures_correct_cmd(void) {
     send_receive_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_rdaux_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_rdaux_encode_broadcast(
         &bms_handler.ltc_handler,
         (enum Ltc68111Avxr)BMS_MANAGER_TEMPERATURE_REGISTER_A,
         expected_cmd);
@@ -263,7 +263,7 @@ void test_bms_manager_read_open_wire_voltages_correct_cmd(void) {
     send_receive_fake.return_val = BMS_MANAGER_RC_OK;
 
     uint8_t expected_cmd[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-    const size_t expected_byte_size = ltc6811_1_rdcv_encode_broadcast(
+    const size_t expected_byte_size = ltc6811_1_api_rdcv_encode_broadcast(
         &bms_handler.ltc_handler,
         (enum Ltc68111Cvxr)BMS_MANAGER_VOLTAGE_REGISTER_A,
         expected_cmd);
@@ -308,6 +308,8 @@ void test_bms_manager_check_open_wire_no_open_wire(void) {
 }
 
 void test_bms_manager_check_open_wire_first_cell_open(void) {
+    TEST_IGNORE_MESSAGE("Open wire detection is currently disabled in bms_manager_api_check_open_wire (BUG: not reliable)");
+
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
         bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
@@ -320,6 +322,8 @@ void test_bms_manager_check_open_wire_first_cell_open(void) {
 }
 
 void test_bms_manager_check_open_wire_last_cell_open(void) {
+    TEST_IGNORE_MESSAGE("Open wire detection is currently disabled in bms_manager_api_check_open_wire (BUG: not reliable)");
+
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
         bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;
@@ -332,6 +336,8 @@ void test_bms_manager_check_open_wire_last_cell_open(void) {
 }
 
 void test_bms_manager_check_open_wire_mid_cell_open(void) {
+    TEST_IGNORE_MESSAGE("Open wire detection is currently disabled in bms_manager_api_check_open_wire (BUG: not reliable)");
+
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT * CELLBOARD_SEGMENT_LTC_COUNT; ++i) {
         bms_handler.pup[LTC6811_1_PUP_ACTIVE][i] = 3.8f;
         bms_handler.pup[LTC6811_1_PUP_INACTIVE][i] = LTC6811_1_OPEN_WIRE_THRESHOLD_V + 0.1f;

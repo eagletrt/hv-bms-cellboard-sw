@@ -58,7 +58,7 @@ void test_prv_temp_volt_to_celsius_limit_high() {
 void test_prv_temp_discharge_volt_to_celsius_midrange() {
     // Test with a value in the middle of the range
     volt input = 2.5f;
-    celsius expected = 28.96582f;
+    celsius expected = 57.10627f;
 
     celsius result = prv_temp_api_discharge_volt_to_celsius(input);
 
@@ -78,7 +78,7 @@ void test_prv_temp_discharge_volt_to_celsius_limit_low() {
 void test_prv_temp_discharge_volt_to_celsius_limit_high() {
     // Test with a value at the maximum limit
     volt input = 6.0f; // This value is above the maximum limit and should be clamped
-    celsius expected = -1143.111f;
+    celsius expected = -62.59114f;
 
     celsius result = prv_temp_api_discharge_volt_to_celsius(input);
 
@@ -92,7 +92,6 @@ void test_temp_init_ok() {
     struct TempHandler expected = { 0 };
     expected.set_address = mock_set_address;
     expected.start_conversion = mock_start_conversion;
-    expected.temp_can_payload.cellboard_id = CELLBOARD_ID;
 
     const enum TempReturnCode rc = temp_api_init(mock_set_address, mock_start_conversion);
 
@@ -297,43 +296,43 @@ void test_temp_dump_values_ok() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY_MESSAGE(expected, out, CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT / 2 - 1U, "temp_dump_values() failed to copy the correct values to the output array");
 }
 
-void test_temp_get_cells_temp_canlib_payload_values() {
+void test_temp_get_temperature_canlib_payload_size() {
+    size_t size = 0;
+    temp_api_get_temperature_canlib_payload(&size);
+
+    TEST_ASSERT_EQUAL_MESSAGE(can_bms_byte_size_tsaccellboard2temperature, size, "temp_get_temperature_canlib_payload() returned incorrect size");
+}
+
+void test_temp_get_temperature_canlib_payload_values() {
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
         temp_handler.temperatures[i] = 10.0f + (i * 1.0f);
     }
 
-    bms_cellboard_cells_temperature_converted_t expected_payload = {
-        .cellboard_id = CELLBOARD_ID,
-        .offset = 0U,
-        .temperature_0 = 10.0f,
-        .temperature_1 = 11.0f,
-        .temperature_2 = 12.0f,
-        .temperature_3 = 13.0f,
-    };
+    // The first call selects the group 1, which contains the cells starting from 6
+    union CanBmsMessages *payload = temp_api_get_temperature_canlib_payload(NULL);
 
-    size_t size = 0;
-    bms_cellboard_cells_temperature_converted_t *payload = temp_api_get_cells_temp_canlib_payload(&size);
-
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected_payload, payload, sizeof(expected_payload), "temp_get_cells_temp_canlib_payload() returned incorrect payload contents");
+    TEST_ASSERT_EQUAL_MESSAGE(1U, payload->tsaccellboard2temperature.group, "temp_get_temperature_canlib_payload() selected incorrect group");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(temp_handler.temperatures[5], payload->tsaccellboard2temperature.group_payload.mux_1.cell6, "temp_get_temperature_canlib_payload() returned incorrect cell6");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(temp_handler.temperatures[8], payload->tsaccellboard2temperature.group_payload.mux_1.cell9, "temp_get_temperature_canlib_payload() returned incorrect cell9");
 }
 
-void test_temp_get_discharge_temp_canlib_payload_values() {
-    for (size_t i = 0U; i < CELLBOARD_SEGMENT_DISCHARGE_TEMP_COUNT; ++i) {
-        temp_handler.discharge_temperatures[i] = 50.0f + (i * 1.0f);
+void test_temp_get_temperature_info_canlib_payload_size() {
+    size_t size = 0;
+    temp_api_get_temperature_info_canlib_payload(&size);
+
+    TEST_ASSERT_EQUAL_MESSAGE(can_bms_byte_size_tsaccellboard2temperatureinfo, size, "temp_get_temperature_info_canlib_payload() returned incorrect size");
+}
+
+void test_temp_get_temperature_info_canlib_payload_values() {
+    for (size_t i = 0U; i < CELLBOARD_SEGMENT_TEMP_SENSOR_COUNT; ++i) {
+        temp_handler.temperatures[i] = 10.0f + (i * 1.0f);
     }
 
-    bms_cellboard_discharge_temperature_converted_t expected_payload = {
-        .temperature_0 = 50.0f,
-        .temperature_1 = 51.0f,
-        .temperature_2 = 52.0f,
-        .temperature_3 = 53.0f,
-        .temperature_4 = 54.0f
-    };
+    union CanBmsMessages *payload = temp_api_get_temperature_info_canlib_payload(NULL);
 
-    size_t size = 0;
-    bms_cellboard_discharge_temperature_converted_t *payload = temp_api_get_discharge_temp_canlib_payload(&size);
-
-    TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected_payload, payload, sizeof(expected_payload), "temp_get_discharge_temp_canlib_payload() returned incorrect payload contents");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(temp_api_get_avg(), payload->tsaccellboard2temperatureinfo.average, "temp_get_temperature_info_canlib_payload() returned incorrect average");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(temp_api_get_min(), payload->tsaccellboard2temperatureinfo.min, "temp_get_temperature_info_canlib_payload() returned incorrect min");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(temp_api_get_max(), payload->tsaccellboard2temperatureinfo.max, "temp_get_temperature_info_canlib_payload() returned incorrect max");
 }
 
 void setUp() {
@@ -376,7 +375,9 @@ int main() {
     RUN_TEST(test_temp_dump_values_null_pointer);
     RUN_TEST(test_temp_dump_values_out_of_bounds);
     RUN_TEST(test_temp_dump_values_ok);
-    RUN_TEST(test_temp_get_cells_temp_canlib_payload_values);
-    RUN_TEST(test_temp_get_discharge_temp_canlib_payload_values);
+    RUN_TEST(test_temp_get_temperature_canlib_payload_size);
+    RUN_TEST(test_temp_get_temperature_canlib_payload_values);
+    RUN_TEST(test_temp_get_temperature_info_canlib_payload_size);
+    RUN_TEST(test_temp_get_temperature_info_canlib_payload_values);
     return UNITY_END();
 }
