@@ -17,7 +17,6 @@
 
 #include "can-bms.h"
 #include "eagletrt-api.h"
-#include "usart.h"
 #include "volt.h"
 
 #ifdef CONF_VOLTAGE_MODULE_ENABLE
@@ -32,6 +31,7 @@ EAGLETRT_STATIC struct VoltHandler volt_handler;
  */
 
 EAGLETRT_STATIC_INLINE void prv_volt_api_check_value(const uint16_t index, const volt value) {
+#ifdef CONF_VOLTAGE_CHECK_ENABLE
     if (value < VOLT_MIN_V) {
         error_api_set(ERROR_GROUP_UNDER_VOLTAGE, index);
     } else {
@@ -43,6 +43,7 @@ EAGLETRT_STATIC_INLINE void prv_volt_api_check_value(const uint16_t index, const
     } else {
         error_api_reset(ERROR_GROUP_OVER_VOLTAGE, index);
     }
+#endif // VOLTAGE_CHECK_ENABLE
 }
 
 enum VoltReturnCode volt_api_init(void) {
