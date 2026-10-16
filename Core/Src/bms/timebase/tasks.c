@@ -17,7 +17,6 @@
 #include "can-communication.h"
 #include "can-communication-api.h"
 #include "bal-api.h"
-#include "usart.h"
 #include "volt-api.h"
 #include "temp-api.h"
 #include "cellboard-def.h"
