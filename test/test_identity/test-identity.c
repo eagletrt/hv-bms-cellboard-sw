@@ -19,10 +19,7 @@ extern struct IdentityHandler identity_handler;
 void test_identity_init() {
 
     struct IdentityHandler expected = {
-        .cellboard_id = CELLBOARD_ID,
-        .version_can_payload.cellboard_id = (bms_cellboard_version_cellboard_id)CELLBOARD_ID,
-        .version_can_payload.component_build_time = identity_handler.build_time >> 3U,
-        .version_can_payload.canlib_build_time = CANLIB_BUILD_TIME
+        .cellboard_id = CELLBOARD_ID
     };
 
     struct tm tm = { 0 };
@@ -51,14 +48,14 @@ void test_identity_init_when_id_is_out_of_bounds() {
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected, &identity_handler, sizeof(identity_handler), "Handler not empty");
 }
 
-void test_identity_get_can_payload_cellboard_id() {
+void test_identity_get_cellboard_id() {
 
-    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, identity_handler.version_can_payload.cellboard_id, "CAN payload cellboard_id mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(CELLBOARD_ID, identity_api_get_cellboard_id(), "identity_api_get_cellboard_id should return the id given at init");
 }
 
-void test_identity_get_can_payload_build_time() {
+void test_identity_get_build_time() {
 
-    TEST_ASSERT_EQUAL_MESSAGE(CANLIB_BUILD_TIME, identity_handler.version_can_payload.canlib_build_time, "CAN payload build_time mismatch");
+    TEST_ASSERT_EQUAL_MESSAGE(identity_handler.build_time, identity_api_get_build_time(), "identity_api_get_build_time should return the build time stored at init");
 }
 
 void setUp() {
@@ -74,8 +71,8 @@ int main() {
     RUN_TEST(test_identity_init);
     RUN_TEST(test_identity_init_when_id_is_negative);
     RUN_TEST(test_identity_init_when_id_is_out_of_bounds);
-    RUN_TEST(test_identity_get_can_payload_cellboard_id);
-    RUN_TEST(test_identity_get_can_payload_build_time);
+    RUN_TEST(test_identity_get_cellboard_id);
+    RUN_TEST(test_identity_get_build_time);
 
     return UNITY_END();
 }

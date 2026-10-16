@@ -111,6 +111,38 @@ void test_can_comm_tx_add_ok(void) {
     TEST_ASSERT_EQUAL_MESSAGE(1, send_fake.call_count, "can_communication_api_add_to_tx should queue the frame so that it is sent exactly once");
 }
 
+// --- process ---
+
+void test_can_comm_process_tx_invalid_network(void) {
+    enum CanCommunicationReturnCode code = can_communication_api_process_tx(CAN_COMMUNICATION_NETWORK_COUNT);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_NETWORK, code, "can_communication_api_process_tx should return CAN_COMMUNICATION_RC_INVALID_NETWORK for an out-of-bounds network");
+}
+
+void test_can_comm_process_tx_transmission_error(void) {
+    send_fake.return_val = CAN_COMMUNICATION_RC_TRANSMISSION_ERROR;
+    can_communication_api_add_to_tx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
+
+    enum CanCommunicationReturnCode code = can_communication_api_process_tx(CAN_COMMUNICATION_NETWORK_BMS);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_TRANSMISSION_ERROR, code, "can_communication_api_process_tx should return CAN_COMMUNICATION_RC_TRANSMISSION_ERROR when the send callback fails");
+}
+
+void test_can_comm_process_rx_invalid_network(void) {
+    enum CanCommunicationReturnCode code = can_communication_api_process_rx(CAN_COMMUNICATION_NETWORK_COUNT);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_INVALID_NETWORK, code, "can_communication_api_process_rx should return CAN_COMMUNICATION_RC_INVALID_NETWORK for an out-of-bounds network");
+}
+
+void test_can_comm_process_rx_handler_error(void) {
+    on_receive_fake.return_val = CAN_COMMUNICATION_RC_RECEIVE_HANDLER_ERROR;
+    can_communication_api_add_to_rx(CAN_COMMUNICATION_NETWORK_BMS, &frame);
+
+    enum CanCommunicationReturnCode code = can_communication_api_process_rx(CAN_COMMUNICATION_NETWORK_BMS);
+
+    TEST_ASSERT_EQUAL_MESSAGE(CAN_COMMUNICATION_RC_RECEIVE_HANDLER_ERROR, code, "can_communication_api_process_rx should return CAN_COMMUNICATION_RC_RECEIVE_HANDLER_ERROR when the receive callback fails");
+}
+
 void setUp(void) {
     identity_api_init(CELLBOARD_ID);
     RESET_FAKE(send);
@@ -142,6 +174,11 @@ int main(void) {
     RUN_TEST(test_can_comm_tx_add_null_data);
     RUN_TEST(test_can_comm_tx_add_invalid_payload_size);
     RUN_TEST(test_can_comm_tx_add_ok);
+
+    RUN_TEST(test_can_comm_process_tx_invalid_network);
+    RUN_TEST(test_can_comm_process_tx_transmission_error);
+    RUN_TEST(test_can_comm_process_rx_invalid_network);
+    RUN_TEST(test_can_comm_process_rx_handler_error);
 
     return UNITY_END();
 }
