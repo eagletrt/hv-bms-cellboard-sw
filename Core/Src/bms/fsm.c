@@ -80,8 +80,8 @@ void prv_fsm_cooldown_timeout(void) {
  * \param line The line where the assert failed
  */
 void cellboard_assert_failed(const char *file, const int line) {
-    CELLBOARD_UNUSED(file);
-    CELLBOARD_UNUSED(line);
+    EAGLETRT_API_UNUSED(file);
+    EAGLETRT_API_UNUSED(line);
 }
 
 #endif // CONF_FULL_ASSERT_ENABLE
@@ -168,7 +168,7 @@ fsm_state_t fsm_do_idle(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_IDLE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     (void)timebase_routine();
     for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
@@ -212,7 +212,7 @@ fsm_state_t fsm_do_fatal(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_FATAL ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     (void)timebase_routine();
     for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
@@ -246,7 +246,7 @@ fsm_state_t fsm_do_flash(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_FLASH ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     (void)timebase_routine();
     (void)led_api_routine(timebase_get_time());
@@ -283,7 +283,7 @@ fsm_state_t fsm_do_discharge(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_DISCHARGE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     (void)timebase_routine();
     for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
@@ -328,7 +328,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data *data) {
     fsm_state_t next_state = FSM_NO_CHANGE;
 
     /*** USER CODE BEGIN DO_COOLDOWN ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     (void)timebase_routine();
     for (enum CanCommunicationNetwork network = 0; network < CAN_COMMUNICATION_NETWORK_COUNT; ++network) {
@@ -385,7 +385,7 @@ fsm_state_t fsm_do_cooldown(fsm_state_data *data) {
 void fsm_start(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
     /*** USER CODE END START ***/
 }
 
@@ -394,7 +394,7 @@ void fsm_start(fsm_state_data *data) {
 void fsm_handle_init_error(fsm_state_data *data) {
 
     /*** USER CODE BEGIN HANDLE_INIT_ERROR ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
     /*** USER CODE END HANDLE_INIT_ERROR ***/
 }
 
@@ -404,7 +404,7 @@ void fsm_handle_init_error(fsm_state_data *data) {
 void fsm_start_flash_procedure(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_FLASH_PROCEDURE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     // TODO: Implement flash procedure
     // TODO: Take actions based on the flash target and change payload ready flag if not ready
@@ -424,7 +424,7 @@ void fsm_start_flash_procedure(fsm_state_data *data) {
 void fsm_start_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_DISCHARGE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     // TODO: Handle watchdog unavailable
     (void)bal_api_start();
@@ -441,7 +441,7 @@ void fsm_start_discharge(fsm_state_data *data) {
 void fsm_handle_fatal_error(fsm_state_data *data) {
 
     /*** USER CODE BEGIN HANDLE_FATAL_ERROR ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     bal_api_stop();
     (void)watchdog_stop(&fsm_handler.discharge_wdg);
@@ -454,7 +454,7 @@ void fsm_handle_fatal_error(fsm_state_data *data) {
 void fsm_stop_flash_procedure(fsm_state_data *data) {
 
     /*** USER CODE BEGIN STOP_FLASH_PROCEDURE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     // TODO: implement flash procedure
     // Restart data transmission after flash procedure
@@ -468,7 +468,7 @@ void fsm_stop_flash_procedure(fsm_state_data *data) {
 void fsm_stop_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN STOP_DISCHARGE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     bal_api_stop();
     (void)watchdog_stop(&fsm_handler.discharge_wdg);
@@ -481,7 +481,7 @@ void fsm_stop_discharge(fsm_state_data *data) {
 void fsm_start_cooldown(fsm_state_data *data) {
 
     /*** USER CODE BEGIN START_COOLDOWN ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     bal_api_pause();
     (void)watchdog_stop(&fsm_handler.discharge_wdg);
@@ -495,7 +495,7 @@ void fsm_start_cooldown(fsm_state_data *data) {
 void fsm_restart_discharge(fsm_state_data *data) {
 
     /*** USER CODE BEGIN RESTART_DISCHARGE ***/
-    CELLBOARD_UNUSED(data);
+    EAGLETRT_API_UNUSED(data);
 
     bal_api_resume();
     (void)watchdog_stop(&fsm_handler.cooldown_wdg);

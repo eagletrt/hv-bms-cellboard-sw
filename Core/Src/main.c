@@ -223,7 +223,7 @@ void cli_discharge(bool echo) {
         // parse bitmap of cells
         for (size_t i = 0; str[i] != '\r'; i++) {
             if (str[i] == '0' || str[i] == '1') {
-                bits = CELLBOARD_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
+                bits = EAGLETRT_API_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
             }
         }
         bms_manager_api_set_discharge_cells(bits);

@@ -123,9 +123,9 @@ enum CellboardId gpio_get_cellboard_id(void) {
      * encoded as 0 but in the hardware it is encoded starting from 1 so the read
      * value has to be decremented by one
      */
-    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_0, 0U);
-    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_1, 1U);
-    id = CELLBOARD_BIT_TOGGLE_IF(id, bit_2, 2U);
+    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_0, 0U);
+    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_1, 1U);
+    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_2, 2U);
 
     if (id >= CELLBOARD_ID_COUNT) {
         id = CELLBOARD_ID_5;
@@ -139,10 +139,10 @@ void gpio_set_mux_address(const uint8_t address) {
     }
 
     // Get the address bits
-    const bool b0 = CELLBOARD_BIT_GET(address, 0U);
-    const bool b1 = CELLBOARD_BIT_GET(address, 1U);
-    const bool b2 = CELLBOARD_BIT_GET(address, 2U);
-    const bool b3 = CELLBOARD_BIT_GET(address, 3U);
+    const bool b0 = EAGLETRT_API_BIT_GET(address, 0U);
+    const bool b1 = EAGLETRT_API_BIT_GET(address, 1U);
+    const bool b2 = EAGLETRT_API_BIT_GET(address, 2U);
+    const bool b3 = EAGLETRT_API_BIT_GET(address, 3U);
 
     HAL_GPIO_WritePin(MUX_A0_GPIO_Port, MUX_A0_Pin, (const GPIO_PinState)b0);
     HAL_GPIO_WritePin(MUX_A1_GPIO_Port, MUX_A1_Pin, (const GPIO_PinState)b1);

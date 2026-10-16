@@ -108,7 +108,6 @@ volt volt_api_get_sum(void) {
 
 bit_flag32 volt_api_select_values_above_target(const volt target) {
     bit_flag32 bits = 0U;
-    CELLBOARD_ASSERT((uint32_t)CELLBOARD_SEGMENT_SERIES_COUNT > sizeof(bits) * 8U);
 
     // Iterate over cells and choose the one which voltage is greater than the target
     for (size_t i = 0U; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i) {
