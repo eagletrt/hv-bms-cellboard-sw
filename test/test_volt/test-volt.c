@@ -18,13 +18,7 @@ extern struct VoltHandler volt_handler;
 void test_volt_init_check_struct() {
 
     struct VoltHandler expected_hvolt = {
-        .voltages = { 0 },
-        .voltages_can_payload = {
-            .cellboard_id = CELLBOARD_ID,
-            .offset = 0,
-            .voltage_0 = 0,
-            .voltage_1 = 0,
-            .voltage_2 = 0 }
+        .voltages = { 0 }
     };
 
     enum VoltReturnCode rc = volt_api_init();
@@ -141,39 +135,45 @@ void test_volt_dump_values_valid_input() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY_MESSAGE(&volt_handler.voltages[CELLBOARD_SEGMENT_SERIES_COUNT / 2], out, CELLBOARD_SEGMENT_SERIES_COUNT / 2 - 1, "volt_dump_values() failed to copy the correct values to the output array");
 }
 
-void test_volt_get_canlib_payload_size() {
-    volt values[4];
-    for (size_t i = 0; i < 4; ++i)
-        values[i] = VOLT_MIN_V + i;
-
-    volt_api_update_values(0, values, 4);
-
+void test_volt_get_voltage_canlib_payload_size() {
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted_t *payload = volt_api_get_canlib_payload(&byte_size);
+    volt_api_get_voltage_canlib_payload(&byte_size);
 
-    TEST_ASSERT_EQUAL_MESSAGE(sizeof(volt_handler.voltages_can_payload), byte_size, "volt_get_canlib_payload() returned incorrect size");
+    TEST_ASSERT_EQUAL_MESSAGE(can_bms_byte_size_tsaccellboard2voltage, byte_size, "volt_get_voltage_canlib_payload() returned incorrect size");
 }
 
-void test_volt_get_canlib_payload_voltage() {
-
-    volt values[4];
-
-    for (size_t i = 0; i < 4; ++i)
+void test_volt_get_voltage_canlib_payload_voltage() {
+    volt values[12];
+    for (size_t i = 0; i < 12; ++i)
         values[i] = VOLT_MIN_V + i;
 
-    volt_api_update_values(0, values, 4);
+    volt_api_update_values(0, values, 12);
 
+    // The first call selects the group 1, which contains the cells from 7 to 12
+    union CanBmsMessages *payload = volt_api_get_voltage_canlib_payload(NULL);
+
+    TEST_ASSERT_EQUAL_MESSAGE(1, payload->tsaccellboard2voltage.group, "volt_get_voltage_canlib_payload() selected incorrect group");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(values[6], payload->tsaccellboard2voltage.group_payload.mux_1.cell7, "volt_get_voltage_canlib_payload() returned incorrect cell7");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(values[11], payload->tsaccellboard2voltage.group_payload.mux_1.cell12, "volt_get_voltage_canlib_payload() returned incorrect cell12");
+}
+
+void test_volt_get_voltage_info_canlib_payload_size() {
     size_t byte_size;
-    bms_cellboard_cells_voltage_converted_t *payload = volt_api_get_canlib_payload(&byte_size);
+    volt_api_get_voltage_info_canlib_payload(&byte_size);
 
-    bms_cellboard_cells_voltage_converted_t expected_payload;
-    expected_payload.cellboard_id = (bms_cellboard_cells_voltage_cellboard_id)CELLBOARD_ID;
-    expected_payload.offset = 0;
-    expected_payload.voltage_0 = (values[0]);
-    expected_payload.voltage_1 = (values[1]);
-    expected_payload.voltage_2 = (values[2]);
+    TEST_ASSERT_EQUAL_MESSAGE(can_bms_byte_size_tsaccellboard2voltageinfo, byte_size, "volt_get_voltage_info_canlib_payload() returned incorrect size");
+}
 
-    TEST_ASSERT_EQUAL_MEMORY(&expected_payload, payload, sizeof(expected_payload));
+void test_volt_get_voltage_info_canlib_payload_voltage() {
+    for (size_t i = 0; i < CELLBOARD_SEGMENT_SERIES_COUNT; ++i)
+        volt_handler.voltages[i] = VOLT_MIN_V + i;
+
+    union CanBmsMessages *payload = volt_api_get_voltage_info_canlib_payload(NULL);
+
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(volt_api_get_sum(), payload->tsaccellboard2voltageinfo.total, "volt_get_voltage_info_canlib_payload() returned incorrect total");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(volt_api_get_avg(), payload->tsaccellboard2voltageinfo.average, "volt_get_voltage_info_canlib_payload() returned incorrect average");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(volt_api_get_min(), payload->tsaccellboard2voltageinfo.min, "volt_get_voltage_info_canlib_payload() returned incorrect min");
+    TEST_ASSERT_EQUAL_FLOAT_MESSAGE(volt_api_get_max(), payload->tsaccellboard2voltageinfo.max, "volt_get_voltage_info_canlib_payload() returned incorrect max");
 }
 
 void setUp() {
@@ -200,7 +200,9 @@ int main() {
     RUN_TEST(test_volt_dump_values_null_pointer);
     RUN_TEST(test_volt_dump_values_out_of_bounds);
     RUN_TEST(test_volt_dump_values_valid_input);
-    RUN_TEST(test_volt_get_canlib_payload_size);
-    RUN_TEST(test_volt_get_canlib_payload_voltage);
+    RUN_TEST(test_volt_get_voltage_canlib_payload_size);
+    RUN_TEST(test_volt_get_voltage_canlib_payload_voltage);
+    RUN_TEST(test_volt_get_voltage_info_canlib_payload_size);
+    RUN_TEST(test_volt_get_voltage_info_canlib_payload_voltage);
     return UNITY_END();
 }
