@@ -52,11 +52,11 @@ enum VoltReturnCode volt_api_init(void) {
 }
 
 enum VoltReturnCode volt_api_update_value(const size_t index, const volt value) {
-    if (index > CELLBOARD_SEGMENT_SERIES_COUNT) {
+    if (index >= CELLBOARD_SEGMENT_SERIES_COUNT) {
         return VOLT_RC_OUT_OF_BOUNDS;
     }
     volt_handler.voltages[index] = value;
-    prv_volt_api_check_value(index, value);
+    //prv_volt_api_check_value(index, value);
     return VOLT_RC_OK;
 }
 
@@ -69,7 +69,8 @@ enum VoltReturnCode volt_api_update_values(const size_t index, const volt *const
     }
     for (size_t i = 0U; i < size; ++i) {
         volt_handler.voltages[index + i] = values[i];
-        prv_volt_api_check_value(index + i, volt_handler.voltages[index + i]);
+
+        //prv_volt_api_check_value(index + i, volt_handler.voltages[index + i]);
     }
     return VOLT_RC_OK;
 }

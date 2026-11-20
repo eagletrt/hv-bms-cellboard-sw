@@ -123,9 +123,9 @@ enum CellboardId gpio_get_cellboard_id(void) {
      * encoded as 0 but in the hardware it is encoded starting from 1 so the read
      * value has to be decremented by one
      */
-    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_0, 0U);
-    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_1, 1U);
-    id = EAGLETRT_API_BIT_TOGGLE_IF(id, bit_2, 2U);
+    id = EAGLETRT_API_BIT_SET_IF(id, 0U, bit_0);
+    id = EAGLETRT_API_BIT_SET_IF(id, 1U, bit_1);
+    id = EAGLETRT_API_BIT_SET_IF(id, 2U, bit_2);
 
     if (id >= CELLBOARD_ID_COUNT) {
         id = CELLBOARD_ID_5;

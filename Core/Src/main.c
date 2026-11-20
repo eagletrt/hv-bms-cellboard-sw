@@ -82,6 +82,9 @@ void system_reset(void);
 
 #ifdef CONF_DEMO_ENABLE
 
+// True if all the cells are discharging (toggled with the 'b' key)
+EAGLETRT_STATIC bool discharge_all = false;
+
 EAGLETRT_STATIC void demo() {
     // Put the cursor the start of the terminal
     usart_log("\033[H");
@@ -191,7 +194,8 @@ EAGLETRT_STATIC void demo() {
     static uint8_t cell_index = 0U;
     static uint32_t tick = 0U;
     constexpr uint32_t discharge_update_interval = 250;
-    if (HAL_GetTick() - tick >= discharge_update_interval) {
+    // Do not override the discharge of all the cells
+    if (!discharge_all && HAL_GetTick() - tick >= discharge_update_interval) {
         cell_index = (cell_index + 1) % CELLBOARD_SEGMENT_SERIES_COUNT;
         usart_log("Discharging cell: %d\r\n", cell_index);
         bms_manager_api_set_discharge_cells(cells);
@@ -223,7 +227,7 @@ void cli_discharge(bool echo) {
         // parse bitmap of cells
         for (size_t i = 0; str[i] != '\r'; i++) {
             if (str[i] == '0' || str[i] == '1') {
-                bits = EAGLETRT_API_BIT_TOGGLE_IF(bits, (str[i] - '0'), i);
+                bits = EAGLETRT_API_BIT_SET_IF(bits, i, (str[i] - '0'));
             }
         }
         bms_manager_api_set_discharge_cells(bits);
@@ -343,12 +347,18 @@ int main(void) {
         if (HAL_GetTick() - demo_tick >= 50) {
             // Enable or disable demo
             EAGLETRT_STATIC bool run_demo = false;
-            if (usart_read(false) == 'd') {
+            const char key = usart_read(false);
+            if (key == 'd') {
                 // Prevent a cell from continuous discharge after the demo is stopped
-                if (run_demo) {
+                if (run_demo && !discharge_all) {
                     bms_manager_api_set_discharge_cells(0U);
                 }
                 run_demo = !run_demo;
+            } else if (key == 'b' || key == 'B') {
+                // Enable or disable the discharge of all the cells
+                discharge_all = !discharge_all;
+                constexpr bit_flag32 all_cells_bit_mask = 0xFFFFFF;
+                bms_manager_api_set_discharge_cells(discharge_all ? all_cells_bit_mask : 0U);
             }
 
             // Run the demo

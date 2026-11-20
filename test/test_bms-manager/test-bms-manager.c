@@ -380,12 +380,21 @@ void test_bms_manager_get_discharge_cells_correct_value(void) {
     bms_handler.actual_config[0].DCC = 0b000000000001U;
     bms_handler.actual_config[1].DCC = 0b000000000010U;
 
-    const bit_flag32 expected = (0b000000000001U << (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) |
-                                (0b000000000010U << (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
+    // The first 12 cells are connected to the last LTC
+    const bit_flag32 expected = (0b000000000001U << (1U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT)) |
+                                (0b000000000010U << (0U * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
 
     bit_flag32 cells = bms_manager_api_get_discharge_cells();
 
     TEST_ASSERT_EQUAL_HEX32_MESSAGE(expected, cells, "bms_manager_get_discharge_cells should return the correct cell bitmask from actual_config");
+}
+
+void test_bms_manager_get_discharge_cells_matches_set(void) {
+    const bit_flag32 requested = 0x00F00101U;
+    bms_manager_api_set_discharge_cells(requested);
+    memcpy(bms_handler.actual_config, bms_handler.requested_config, sizeof(bms_handler.actual_config));
+
+    TEST_ASSERT_EQUAL_HEX32_MESSAGE(requested, bms_manager_api_get_discharge_cells(), "bms_manager_get_discharge_cells should return the cells set by bms_manager_set_discharge_cells");
 }
 
 // --- helpers ---
@@ -461,6 +470,7 @@ int main() {
     RUN_TEST(test_bms_manager_set_discharge_cells_correct_config);
     RUN_TEST(test_bms_manager_set_discharge_cells_sets_dcto_off_when_no_cells);
     RUN_TEST(test_bms_manager_get_discharge_cells_correct_value);
+    RUN_TEST(test_bms_manager_get_discharge_cells_matches_set);
 
     return UNITY_END();
 }

@@ -454,8 +454,11 @@ enum BmsManagerReturnCode bms_manager_api_set_discharge_cells(bit_flag32 cells) 
 bit_flag32 bms_manager_api_get_discharge_cells(void) {
     bit_flag32 cells = 0U;
     for (size_t ltc = 0U; ltc < CELLBOARD_SEGMENT_LTC_COUNT; ++ltc) {
+        // The first 12 cells are connected to the last LTC
+        const size_t ltc_index = CELLBOARD_SEGMENT_LTC_COUNT - ltc - 1U;
+
         // Get cells from config
-        cells |= (bms_handler.actual_config[ltc].DCC << (ltc * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
+        cells |= ((bit_flag32)bms_handler.actual_config[ltc].DCC << (ltc_index * CELLBOARD_SEGMENT_SERIES_PER_LTC_COUNT));
     }
     return cells;
 }

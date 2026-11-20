@@ -71,21 +71,6 @@ void prv_fsm_cooldown_timeout(void) {
     fsm_event_trigger(&fsm_handler.event);
 }
 
-#ifdef CONF_FULL_ASSERT_ENABLE
-
-/*!
- * \brief Debug function called when an assertion fails
- *
- * \param file The file where the assert failed
- * \param line The line where the assert failed
- */
-void cellboard_assert_failed(const char *file, const int line) {
-    EAGLETRT_API_UNUSED(file);
-    EAGLETRT_API_UNUSED(line);
-}
-
-#endif // CONF_FULL_ASSERT_ENABLE
-
 /*** USER CODE END GLOBALS ***/
 
 // Function to check if an event has fired
